@@ -423,6 +423,13 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   kraanlijnblok; het voorstag vouwt zich langs de mast; de zijstagen worden live gelegd en hangen slap
   over de mik; de einden van de vallen blijven op de gaffel (hun delta's worden teruggerekend naar het
   eigen assenstelsel van de mast).
+- Opgetopt in de kraanlijn: met de zeilen gestreken en opgedoekt zet een klik op de mik de bundel (giek,
+  opgedoekt zeil, gaffel, zeilbinders) in vijf seconden 45 graden omhoog om de lummel - dezelfde
+  tweepuntsoplossing als bij mast strijken, met het achterste punt omhooggedraaid - waarna de mik wordt
+  opgeborgen; nog een klik en het gaat andersom. De klauw van de gaffel blijft om de mast (de gaffel
+  schuift langs de bundel), de grootschoot viert mee en de kraanlijn staat strak. Alleen zo, of onder
+  zeil met de kop in de wind, zwaait de giek zacht heen en weer; in de mik ligt hij stil. Onder zeil hangt
+  de kraanlijn 30 cm door. De bakskist staat standaard dicht.
 - De gaffeldraad is geen CAD-mesh meer maar een live draad in het assenstelsel van de gaffel: strak in
   een driehoek naar de hanepootloper zolang de piekenval de gaffel draagt, en pas als de gaffel op het
   opgedoekte zeil ligt een slappe bocht van dezelfde lengte over de bakboordkant van de bundel.

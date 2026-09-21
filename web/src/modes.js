@@ -363,7 +363,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     return reach || 1;
   })();
   const deadRide = new RopeStretch(meshesOf(['dodemanseind']), (p) => 1 - clamp(p.distanceTo(hanepoot) / deadReach, 0, 1));
-  const qRest = new THREE.Quaternion(); const peakAt = new THREE.Vector3();
+  const qRest = new THREE.Quaternion(); const peakAt = new THREE.Vector3(); const gaffSlide = new THREE.Vector3();
   // -- fokkenschoten: schoothoek -> block on the forward leioog -> hand of the crew. They are laid
   // anew for every position of the fok, because the sheet to windward goes round the front of
   // the mast and the one to leeward runs straight. Each block hangs in its sheet.
@@ -755,7 +755,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
 
   // -- bakskist: modelled with its lid open; a click shuts or opens it
   const kist = tuig.bakskist ? { lid: meshesOf(['bakskist_deksel']), hinge: V(tuig.bakskist.scharnier), axis: V(tuig.bakskist.richting).normalize(),
-    shut: deg(tuig.bakskist.open_graden), open: 1, want: 1 } : null;
+    shut: deg(tuig.bakskist.open_graden), open: 0, want: 0 } : null;      // modelled open, shown shut until something asks for it
   foldParts('bakskist', ['bakskist_deksel', 'bakskist_beslag', 'bakskist_handvatten']);      // one part to name; the lid still swings
 
   // -- zeilen strijken. In order: head to wind, anchor out, fok down and bundled on its stay, mik
@@ -783,7 +783,11 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   ]);
   const strike = rigging.values;
   const RIG_AT = { op: 0, gestreken: rigging.after('ties'), mast: rigging.total };
-  const planStrike = (rig) => { rigging.command(RIG_AT[rig]); shown = rigging; };
+  // Topping up: with the sails made up, the kraanlijn can take the giek out of the mik - the bundle goes
+  // up 45 degrees on the lummel and the mik is put away, after which it hangs free and may sway.
+  // t runs 0..1: the first part hoists, the last part stows the mik; back down it is the other way round.
+  const topping = { want: 0, t: 0, hoist: 0, mikOff: 0, SECONDS: 5, ANGLE: deg(45) };
+  const planStrike = (rig) => { topping.want = 0; rigging.command(RIG_AT[rig]); shown = rigging; };
   const throat = new THREE.Vector3(3.4568, 3.9816, 0);             // klauwhoek of the sail, where the gaffel meets the mast
   const GAFFEL_RISE = Math.atan2(0.7512, 0.66);                     // how steeply the gaffel stands when the sail is set
   const STOWED_Y = boomPivot.y + 0.19;                              // the gaffel's throat when it lies on the rolled sail
@@ -934,10 +938,17 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       kist.open += (kist.want - kist.open) * (1 - Math.exp(-dt * 3.5));
       pivotRotate(kist.lid, kist.hinge, kist.axis, kist.shut * (1 - kist.open));
     }
+    {
+      const step = dt / topping.SECONDS; const gap = topping.want - topping.t;
+      topping.t = Math.abs(gap) <= step ? topping.want : topping.t + Math.sign(gap) * step;
+      topping.hoist = smoothstep(clamp(topping.t / 0.6, 0, 1)); topping.mikOff = smoothstep(clamp((topping.t - 0.55) / 0.45, 0, 1));
+    }
     const headUp = Math.max(smoothstep(strike.head), state.course === 0 ? 1 : 0);
     const upwind = 1 - headUp;                                      // head to wind: everything amidships and shaking
     chase('flutter', sailing ? headUp : 0, dt, 2.2);
-    chase('boom', sailing ? side * interp(BOOM, course) * upwind + 1.6 * now.flutter * Math.sin(1.9 * now.t) : 0, dt);   // the giek wanders a little
+    // the giek wanders a little while the sail shakes, and more when it hangs in the kraanlijn - but not while it lies in the mik
+    const loose = Math.max(1 - smoothstep(strike.main), topping.hoist * topping.hoist);
+    chase('boom', sailing ? side * interp(BOOM, course) * upwind + (1.6 + 2.4 * topping.hoist) * loose * now.flutter * Math.sin(1.9 * now.t) : 0, dt);
     chase('jib', sailing ? side * THREE.MathUtils.lerp(interp(FOK, course), FOK_TE_LOEVERT, loevert) * upwind : FOK_CAD, dt);
     chase('jibBend', interp(FOK_BEND, course) * upwind, dt);
     chase('mainBend', interp(MAIN_BEND, course) * upwind, dt);
@@ -1023,10 +1034,24 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     bundleFrom.copy(boomPivot); nokFrom.copy(boomPivot).addScaledVector(axisNow, boomPivot.x - MIK_X);
     bundleTo.set(boomPivot.x - 0.13, 0.775, 0.03).lerp(boomPivot, 1 - freeK);
     nokTo.set(MIK_X, mikPose.standing.y + 0.862 + 0.030, 0.072).lerp(nokFrom, 1 - lowK);
+    if (topping.hoist > 0) {                                        // topped up: the nok goes up about the lummel
+      tmp.copy(axisNow).setY(0).normalize().cross(UP);
+      nokTo.sub(bundleTo).applyAxisAngle(tmp, topping.ANGLE * topping.hoist).add(bundleTo);
+    }
     qBundle.setFromUnitVectors(tmp.copy(nokFrom).sub(bundleFrom).normalize(), delta.copy(nokTo).sub(bundleTo).normalize());
-    const bundled = lowK > 0 || freeK > 0;
+    const bundled = lowK > 0 || freeK > 0 || topping.hoist > 0;
     if (bundled) { for (const set of [rolling, pulled, ringMeshes, [shaft], boomStill, gaffelSet, lacing]) swing(set); }
-    stowed.quaternion.identity(); stowed.position.set(0, 0, 0); binders.quaternion.identity(); binders.position.set(0, 0, 0);
+    // topped up, the klauw of the gaffel stays round the mast: the gaffel slides along the bundle by what
+    // the turn about the lummel would have carried its klauw forward
+    gaffSlide.set(0, 0, 0);
+    if (topping.hoist > 0) {
+      const along = delta.copy(nokTo).sub(bundleTo).normalize();
+      const forward = withBundle(tmp.copy(throatTo)).x - throatTo.x;
+      if (Math.abs(along.x) > 0.05) gaffSlide.copy(along).multiplyScalar(-forward / along.x);
+      for (const m of gaffelSet) m.position.add(gaffSlide);
+      for (const m of lacing) m.position.add(gaffSlide);
+    }
+    pivotRotate([stowed, binders], boomPivot, UP, boomTurn);        // made up on the giek, so where the giek swings to
     if (bundled) swing([stowed, binders]);
     // lummelbout: drawn upwards, then hanging under the giek on its borglijntje
     {
@@ -1045,7 +1070,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     qRest.copy(qGaff); if (bundled) qRest.premultiply(qBundle);
     const ridden = peakSpan.lay(smoothstep(clamp((strike.main - 0.75) / 0.25, 0, 1)), qRest.invert());
     loperRide.update(ridden); deadRide.update(ridden);
-    onGaffel(peakAt.copy(hanepoot).add(ridden), tmp); if (bundled) withBundle(tmp);
+    onGaffel(peakAt.copy(hanepoot).add(ridden), tmp); if (bundled) withBundle(tmp).add(gaffSlide);
     peakHalyard.update(delta.copy(offMast(tmp, tmp)).sub(hanepoot));
     rotatedPoint(warpPoint(jibBend, clewNow.copy(jibClew)), stayTack, stayAxis, jibAngle, clewNow);
     jibSheets.knot.position.copy(clewNow);
@@ -1079,7 +1104,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       }
       sheet.tail.set(tailPath);
     }
-    onGaffel(throatEnd, tmp); if (bundled) withBundle(tmp);
+    onGaffel(throatEnd, tmp); if (bundled) withBundle(tmp).add(gaffSlide);
     throatHalyard.update(delta.copy(offMast(tmp, tmp)).sub(throatEnd));
 
     // pettenlijntje: what it has too much of hangs in a bight under the giek
@@ -1165,7 +1190,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       for (let i = 0; i <= 20; i++) {                                 // the slack span
         const k = i / 20; const hang = Math.sin(Math.PI * k);
         const p = new THREE.Vector3().lerpVectors(wervelNow, sheaveNow, k).addScaledVector(tmp, (1 - k) * 0 + k * r);
-        p.y -= 0.10 * hang * (1 - lowered); p.addScaledVector(bellyDir, (0.9 * belly + 0.015) * hang);
+        p.y -= 0.30 * hang * (1 - lowered); p.addScaledVector(bellyDir, (0.9 * belly + 0.015) * hang);
         if (i === 20) p.copy(sheaveNow).addScaledVector(tmp, r);
         dirkPath.push(p);
       }
@@ -1250,7 +1275,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const seats = ROWING[state.rowing];
     const ease = 1 - Math.exp(-dt * 2.5);
     // mik: up in its holders when the sails are struck onto it, or when set by hand; not for rowing or sculling
-    mikPose.up += ((strike.mik > 0.05 ? 1 : mikPose.byHand ?? 0) - mikPose.up) * (1 - Math.exp(-dt * 1.8));
+    mikPose.up += ((strike.mik > 0.05 ? 1 - topping.mikOff : mikPose.byHand ?? 0) - mikPose.up) * (1 - Math.exp(-dt * 1.8));
     {
       const k = smoothstep(clamp(mikPose.up, 0, 1));
       mik.position.lerpVectors(mikPose.stowed, mikPose.standing, k);
@@ -1553,7 +1578,11 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     if (id === 'wrikriem') scullOar.byHand = now.sculling > 0.5 ? 0 : 1;
     const d = dollen.find((x) => id === `dol_${x.key}` || id === `dolketting_${x.key}`);
     if (d && !d.busy) d.byHand = d.seated > 0.5 ? 0 : 1;
-    if (id === 'mik' || id === 'mikhouders') mikPose.byHand = mikPose.up > 0.5 ? 0 : 1;
+    if (id === 'mik' || id === 'mikhouders') {
+      // with the sails made up in it, the mik is freed by topping the giek up in the kraanlijn (and back)
+      const madeUp = strike.ties > 0.99 && strike.low < 0.01 && rigging.resting;
+      if (madeUp) topping.want = topping.want > 0.5 ? 0 : 1; else mikPose.byHand = mikPose.up > 0.5 ? 0 : 1;
+    }
     // the zwaardloper (or its borgpen) sets the midzwaard one stop further: neer, half, op and round again
     if (id === 'zwaard' || id.startsWith('zwaardloper') || id === 'borgpen' || id === 'kettinkje') setBoard({ neer: 'half', half: 'op', op: 'neer' }[state.midzwaard]);
     if (kist && id.startsWith('bakskist')) kist.want = kist.want > 0.5 ? 0 : 1;
