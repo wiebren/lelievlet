@@ -480,9 +480,14 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   Een klik op een riem legt hem uit in zijn dol of terug op de doften, in elke modus; de dol komt
   vanzelf mee. Een klik op de wrikriem legt hem in het wrikgat of bergt hem weer op. Een klik op anker, ketting of lijn laat het anker vallen of haalt het op (om de lijn van
   6 mm zit een onzichtbare huls van 7 cm die de klik vangt): opgepakt aan zijn harpje, over het voordek gedragen, over de
-  stuurboordboeg uitgezwaaid en langs een spline naar de bodem gevierd; de ketting is één mesh waarvan
-  de 54 schalmen als starre stukken langs zijn verloop worden geplaatst, de lijn wordt live over het
-  dolboord naar het ankeroog gelegd. Zeilen strijken stuurt dezelfde animatie aan en wacht erop.
+  stuurboordboeg uitgezwaaid en langs een spline naar de bodem gevierd, 2,5 m onder de waterlijn en
+  zo'n 1,5 m voor de boeg; onderweg draait het aan zijn lijn tot de schacht naar de boot wijst. Op de
+  bodem kantelt het om zijn harpje: de schacht ligt plat, de vloeien wijzen schuin omlaag en graven
+  zich in. De eerste helft van de ketting ligt daarachter plat op de bodem, de andere helft buigt in
+  een boog omhoog naar de lijn. Zodra het anker ligt, verschijnt eronder een effen zandkleurige schijf bodem van
+  2,6 m doorsnee, in dezelfde stijl als de schijf van het water; de vloeien graven zich erin en steken
+  er van onderen gezien doorheen. Bij het ophalen verdwijnt hij weer. De ketting is één mesh waarvan de 54 schalmen als starre stukken langs
+  zijn verloop worden geplaatst, de lijn wordt live over het dolboord naar het ankeroog gelegd. Zeilen strijken stuurt dezelfde animatie aan en wacht erop.
 - Het onderlijk van het grootzeil volgt de giek, die op de lummelbout zwaait, terwijl het bovenlijk de
   gaffel volgt, die 52 mm verder naar voren om de mast draait; `Bend.shift` neemt het doek gelijkmatig
   over van de een naar de ander, zodat er bij geen enkele schootstand een gat tussen zeil en giek valt,

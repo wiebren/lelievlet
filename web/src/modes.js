@@ -24,6 +24,8 @@ const FOK_BEND = [[45, 0.06], [90, 0.10], [135, 0.13], [180, 0.15]];
 // fullness of the grootzeil relative to its designed belly
 const MAIN_BEND = [[45, 0.8], [90, 1.0], [180, 1.15]];
 
+const BOTTOM = -2.2;                               // m: the bottom the anker lies on, 2.5 m under the waterline
+const LANDS = 0.9;                                // from here on the way down (0..1) the anker tips over onto its flukes
 const CLOSE_HAULED = 45; const RUN = 180;                             // courses
 // Voor de wind begins at DOWNWIND; on the way from there to RUN, the end of the slider, the fok goes
 // over to windward: voor de wind is always sailed with the fok te loevert.
@@ -683,15 +685,34 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // -- anker. Let go by hand: lifted by its shackle from where it stands against the voorschot,
   // carried forward over the voordek, swung out over the starboard bow and lowered away until it
   // is on the bottom; ketting and lijn follow it, the lijn over the rail by the stem to the
-  // ankeroog. Weighing it is the same in reverse. At rest the modelled gear is shown as it is.
+  // ankeroog. On the bottom it tips over and lies flat on its flukes, the shank towards the boat;
+  // the first half of the ketting lies along the bottom after it, the rest curves up to the lijn.
+  // Weighing it is the same in reverse. At rest the modelled gear is shown as it is.
   const anchorGear = (() => {
     const anchor = byId.get('anker'); const chainPart = byId.get('ankerketting'); const linePart = byId.get('ankerlijn');
     if (!anchor || !chainPart || !linePart || !tuig.anker) return null;
     const hand = V(tuig.anker.schakel); const eye = V(tuig.anker.oog);
+    const chock = new THREE.Vector3(eye.x - 0.01, eye.y + 0.14, 0.085);    // where the lijn crosses the rail
+    // On the bottom: pipeline/anchor.py stows it with the shank plumb and the crown athwartships.
+    // Turned a quarter about the crown axis the shank lies flat on the bottom, and the flukes, which
+    // lean 12 degrees off it, point down and dig in; then yawed so the shank points at the boat.
+    const landing = new THREE.Vector3(7.2, 0, 0.6);                 // where the shackle comes to rest, ahead of the bow
+    const toBoat = new THREE.Vector3(chock.x - landing.x, 0, chock.z - landing.z).normalize();
+    const yaw = new THREE.Quaternion().setFromAxisAngle(UP, Math.atan2(-toBoat.z, toBoat.x));
+    const tip = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -Math.PI / 2);
+    let lowStanding = Infinity;                                     // lowest point of the anchor below its shackle
+    {
+      const v = new THREE.Vector3();
+      for (const m of anchor.meshes) {
+        const pos = m.geometry.attributes.position;
+        for (let i = 0; i < pos.count; i++) lowStanding = Math.min(lowStanding, v.fromBufferAttribute(pos, i).applyMatrix4(m.matrix).y - hand.y);
+      }
+    }
+    const shackleFlat = landing.clone().setY(BOTTOM + 0.0225);       // shank level with the crown, whose tube (r 22.5 mm) is on the bottom
+    // lowered over the starboard bow, and down until it stands on the bottom by the landing
     const route = new THREE.CatmullRomCurve3([hand, new THREE.Vector3(hand.x, 1.27, hand.z), new THREE.Vector3(4.55, 1.5, 0.33),
       new THREE.Vector3(5.12, 1.5, 0.36), new THREE.Vector3(5.33, 1.47, 0.80), new THREE.Vector3(5.36, 0.55, 0.84),
-      new THREE.Vector3(5.75, -1.7, 0.95)], false, 'centripetal');
-    const chock = new THREE.Vector3(eye.x - 0.01, eye.y + 0.14, 0.085);    // where the lijn crosses the rail
+      new THREE.Vector3(6.3, -1.0, 0.8), landing.clone().setY(BOTTOM - lowStanding)], false, 'centripetal');
     // the ketting is one mesh of equal links: each is posed as a rigid piece along the chain's run
     const chainMesh = chainPart.meshes[0]; const pos = chainMesh.geometry.attributes.position;
     const LINKS = 54; const per = pos.count / LINKS; const rest = Float32Array.from(pos.array);
@@ -713,7 +734,17 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     // six millimetres of line is no target for a finger: an unseen sleeve round it takes the click
     const grip = new RopeLine(40, 0.035, new THREE.MeshStandardMaterial({ transparent: true, opacity: 0, depthWrite: false, colorWrite: false }), 6);
     grip.mesh.visible = false; grip.mesh.userData.part = linePart.node; linePart.node.parent.add(grip.mesh); linePart.meshes.push(grip.mesh);
-    return { u: 0, want: 0, shown: NaN, hand, eye, route, chock, anchor: anchor.meshes, chainMesh, rest, links, per, rope, grip, stowedLine };
+    // the bottom: a plain disc of sand under the anchor and the ketting, like the disc of the water.
+    // It is only there once the anchor lies on it; seen from either side, and from below the flukes
+    // that dig in stick out through it.
+    const sand = new THREE.Mesh(new THREE.CircleGeometry(1.3, 64),
+      new THREE.MeshStandardMaterial({ color: 0xd9c59b, transparent: true, opacity: 0, roughness: 1, side: THREE.DoubleSide }));
+    sand.rotation.x = -Math.PI / 2;
+    sand.position.copy(landing).addScaledVector(toBoat, 0.2).setY(BOTTOM);   // between the crown and where the ketting rises
+    sand.visible = false;
+    scene.add(sand);
+    return { u: 0, want: 0, shown: NaN, hand, eye, route, chock, yaw, tip, shackleFlat, toBoat, sand,
+             anchor: anchor.meshes, chainMesh, rest, links, per, rope, grip, stowedLine };
   })();
   const layAnchor = () => {
     const g = anchorGear; if (!g || Math.abs(g.u - g.shown) < 1e-4) return;
@@ -721,18 +752,39 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const stowedNow = g.u < 0.004;
     for (const m of g.stowedLine) m.visible = stowedNow;
     g.rope.mesh.visible = !stowedNow; g.grip.mesh.visible = !stowedNow;
-    const at = g.route.getPoint(stowedNow ? 0 : g.u);
-    for (const m of g.anchor) m.position.copy(at).sub(g.hand);
+    // it turns slowly on its line as it sinks, and on the bottom tips over onto its flukes about its shackle
+    const land = stowedNow ? 0 : smoothstep(clamp((g.u - LANDS) / (1 - LANDS), 0, 1));
+    const sink = stowedNow ? 0 : smoothstep(clamp((g.u - 0.6) / (LANDS - 0.6), 0, 1));
+    const at = g.route.getPoint(stowedNow ? 0 : g.u).lerp(g.shackleFlat, land);
+    g.sand.visible = land > 0; g.sand.material.opacity = land;
+    const turn = new THREE.Quaternion().slerpQuaternions(IDENTITY_Q, g.yaw, sink)
+      .multiply(new THREE.Quaternion().slerpQuaternions(IDENTITY_Q, g.tip, land));
+    const pivot = new THREE.Vector3();
+    for (const m of g.anchor) { m.quaternion.copy(turn); m.position.copy(at).sub(pivot.copy(g.hand).applyQuaternion(turn)); }
     const a = g.chainMesh.geometry.attributes.position.array;
     if (stowedNow) { a.set(g.rest); g.chainMesh.geometry.attributes.position.needsUpdate = true; g.chainMesh.geometry.computeBoundingSphere(); return; }
     // ketting: a metre of it from the shackle towards the rail, hanging in a bight while that is nearer
-    const from = at.clone().setY(at.y + 0.036); const LENGTH = 1.0;
+    const from = new THREE.Vector3(0, 0.036, 0).applyQuaternion(turn).add(at); const LENGTH = 1.0;
     const to = g.chock.clone().sub(from); const span = to.length();
     const reach = Math.min(span * 0.8, LENGTH * 0.98);
     const end = from.clone().addScaledVector(to.normalize(), reach);
     const bight = 0.45 * Math.sqrt(Math.max(LENGTH * LENGTH - reach * reach, 0));
     const p = new THREE.Vector3(); const q = new THREE.Quaternion(); const t = new THREE.Vector3(); const prev = new THREE.Vector3();
-    const chainAt = (k, out) => out.lerpVectors(from, end, k).setY(THREE.MathUtils.lerp(from.y, end.y, k) - bight * 4 * k * (1 - k));
+    const hangAt = (k, out) => out.lerpVectors(from, end, k).setY(THREE.MathUtils.lerp(from.y, end.y, k) - bight * 4 * k * (1 - k));
+    // on the bottom: half of it along the bottom towards the boat (dropping off the shackle first),
+    // then an arc of the other half that starts level and turns up towards the rail
+    const ON_BOTTOM = 0.5 * LENGTH; const bed = BOTTOM + 0.01;     // a link on edge: its centre half its width up
+    const foot = from.clone().addScaledVector(g.toBoat, ON_BOTTOM).setY(bed);
+    const rise = Math.atan2(g.chock.y - bed, Math.hypot(g.chock.x - foot.x, g.chock.z - foot.z));
+    const r = (LENGTH - ON_BOTTOM) / rise;
+    const lieAt = (k, out) => {
+      const s = k * LENGTH;
+      if (s <= ON_BOTTOM) return out.copy(from).addScaledVector(g.toBoat, s).setY(THREE.MathUtils.lerp(from.y, bed, smoothstep(clamp(s / 0.12, 0, 1))));
+      const a = (s - ON_BOTTOM) / r;
+      return out.copy(foot).addScaledVector(g.toBoat, r * Math.sin(a)).setY(bed + r * (1 - Math.cos(a)));
+    };
+    const lying = new THREE.Vector3();
+    const chainAt = (k, out) => (land > 0 ? hangAt(k, out).lerp(lieAt(k, lying), land) : hangAt(k, out));
     g.links.forEach((link, i) => {
       const k = (i + 0.5) / g.links.length;
       chainAt(k, p); chainAt(Math.max(k - 0.01, 0), prev); chainAt(Math.min(k + 0.01, 1), t).sub(prev).normalize();
@@ -743,6 +795,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     });
     g.chainMesh.geometry.attributes.position.needsUpdate = true;
     g.chainMesh.geometry.computeVertexNormals(); g.chainMesh.geometry.computeBoundingSphere();
+    chainAt(1, end);
     // lijn: from the end of the ketting to the rail, slack until the anchor is over the side; then to the ankeroog
     const slack = 0.30 * (1 - smoothstep(clamp((g.u - 0.55) / 0.3, 0, 1)));
     const path = [];
