@@ -698,14 +698,17 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const rope = new RopeLine(40, 0.006, linePart.meshes[0].material);
     rope.mesh.visible = false; rope.mesh.userData.part = linePart.node; linePart.node.parent.add(rope.mesh);
     const stowedLine = linePart.meshes.slice(); linePart.meshes.push(rope.mesh);
-    return { u: 0, want: 0, shown: NaN, hand, eye, route, chock, anchor: anchor.meshes, chainMesh, rest, links, per, rope, stowedLine };
+    // six millimetres of line is no target for a finger: an unseen sleeve round it takes the click
+    const grip = new RopeLine(40, 0.035, new THREE.MeshStandardMaterial({ transparent: true, opacity: 0, depthWrite: false, colorWrite: false }), 6);
+    grip.mesh.visible = false; grip.mesh.userData.part = linePart.node; linePart.node.parent.add(grip.mesh); linePart.meshes.push(grip.mesh);
+    return { u: 0, want: 0, shown: NaN, hand, eye, route, chock, anchor: anchor.meshes, chainMesh, rest, links, per, rope, grip, stowedLine };
   })();
   const layAnchor = () => {
     const g = anchorGear; if (!g || Math.abs(g.u - g.shown) < 1e-4) return;
     g.shown = g.u;
     const stowedNow = g.u < 0.004;
     for (const m of g.stowedLine) m.visible = stowedNow;
-    g.rope.mesh.visible = !stowedNow;
+    g.rope.mesh.visible = !stowedNow; g.grip.mesh.visible = !stowedNow;
     const at = g.route.getPoint(stowedNow ? 0 : g.u);
     for (const m of g.anchor) m.position.copy(at).sub(g.hand);
     const a = g.chainMesh.geometry.attributes.position.array;
@@ -738,7 +741,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       path.push(s);
     }
     path.push(g.chock.clone().setZ(0.04).setY(g.chock.y + 0.004), g.eye.clone());
-    g.rope.set(path);
+    g.rope.set(path); g.grip.set(path);
   };
 
   // -- bakskist: modelled with its lid open; a click shuts or opens it
@@ -1244,17 +1247,19 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     for (const d of dollen) { d.wanted = 0; d.busy = false; }
     const easePose = 1 - Math.exp(-dt * 3.2);
     for (const [key, oar] of Object.entries(rowOars)) {
-      const seat = seats[key];
+      const out = oar.byHand ?? (state.mode === 'roeien' && seats[key] ? 1 : 0);   // shipped by the mode, or by a click
+      const seat = out ? seats[key] ?? ROWING.kruis[key] ?? ROWING.vier[key] : null;
       const order = COMMANDS[state.commando[oar.side > 0 ? 'sb' : 'bb']];
       const pose = oar.pose;
       for (const k of ['power', 'yaw', 'roll', 'inboard', 'stand', 'given']) pose[k] += ((k === 'yaw' ? deg(order.yaw) : order[k]) - pose[k]) * easePose;
+      if (oar.byHand === 1) pose.given += (1 - order.given) * easePose;   // put out by hand, also after "geroeid"
       pose.down += (deg(order.down) - pose.down) * easePose;
       oar.pivot.copy(oar.handle).addScaledVector(oar.axis, pose.inboard);
       const inDol = seat && dollen.find((d) => d.key === seat);
       oar.use += ((seat ? 1 : 0) - oar.use) * ease;                 // an oar that is not needed goes back
       if (seat) oar.dol.lerp(dol[seat], ease);
       const spareOar = key.endsWith('2');
-      const weight = now.rowing * oar.use * (spareOar ? 1 : pose.given);   // geroeid: back where it is stowed
+      const weight = oar.use * (spareOar ? 1 : pose.given);         // geroeid: back where it is stowed
       for (const m of oar.meshes) if (spareOar) m.visible = weight * pose.given > 0.02;   // the second pair only exists while in use
       // halen and strijken are the same stroke run the other way; "haalt op… gelijk" waits between strokes
       const swing = order.strokes ? Math.min(((now.t % 4.6) / 3.2), 1) * 2 * Math.PI : stroke;
@@ -1267,7 +1272,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       // riemen op: the oar stands on the vlonder by the rower, not in its dol
       tmp0.copy(oar.dol).lerp(tmp1.set(oar.dol.x + 0.12, 0.26, oar.dol.z * 0.45), smoothstep(clamp(pose.stand, 0, 1)));
       poseOar(oar, weight, tmp0, dir, (Math.PI / 2) * upright * oar.side);
-      if (inDol && state.mode === 'roeien' && pose.given > 0.5) { inDol.wanted = 1; inDol.busy = true; inDol.yaw = sweep; }
+      if (inDol && pose.given > 0.5) { inDol.wanted = 1; inDol.busy = true; inDol.yaw = sweep; }   // the oar brings its dol
     }
     // which way that takes the boat: an arrow on the water, ahead of the bow or astern
     {
@@ -1318,7 +1323,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
 
   // -- UI: one bar of icon buttons along the bottom; each one opens its control in a popover
   const bar = $('controls');
-  const popovers = ['mode', 'wind', 'board', 'reef', 'rig', 'oars', 'cmd'].map((key) => ({
+  const popovers = ['mode', 'wind', 'reef', 'rig', 'oars', 'cmd'].map((key) => ({
     key, button: $(`${key}-toggle`), panel: $(`${key}-panel`),
   }));
   let opened = null;
@@ -1378,21 +1383,23 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     slider.setAttribute('aria-valuetext', nameOf(course));
     needle.setAttribute('transform', `rotate(${Math.round(course)} 12 12)`);   // the icon points into the wind
     for (const b of markers.querySelectorAll('button')) b.setAttribute('aria-pressed', String(Number(b.dataset.course) === course));
+    trimBoard();
   };
   const fromSlider = (value) => {                                   // at dead centre keep the tack we were on
     const side = Math.sign(value) || Math.sign(state.course) || 1;
     return side * (CLOSE_HAULED + Math.abs(value));
   };
-  const boardButtons = all('#board-panel button');
-  const blade = $('board-blade');
-  const BLADE = { neer: 'M12 13.5v6', half: 'M12 13.5v3', op: 'M12 8.5V4' };   // how the icon draws the board
-  const setBoard = (value) => {
-    state.midzwaard = value;
-    blade.setAttribute('d', BLADE[value]);
-    for (const b of boardButtons) b.setAttribute('aria-pressed', String(b.dataset.board === value));
+  // The midzwaard has no control of its own: a click on it or its zwaardloper sets it a stop further,
+  // and it follows the boat - up for rowing, sculling and running before the wind, down again for
+  // any other course (it moves when that changes, so what was set by hand in between is left alone).
+  const setBoard = (value) => { state.midzwaard = value; };
+  let boardRaised = null;
+  const trimBoard = () => {
+    const up = state.mode !== 'zeilen' || Math.abs(state.course) >= RUN;
+    if (up === boardRaised) return;
+    boardRaised = up;
+    if (up) setBoard('op'); else if (state.midzwaard === 'op') setBoard('neer');
   };
-  // a choice that sets an animation going also closes its menu, so that the boat can be watched
-  for (const b of boardButtons) b.addEventListener('click', () => { setBoard(b.dataset.board); openPopover(null); });
 
   // reven: the number of turns of the giek
   const reefSlider = $('reef');
@@ -1469,8 +1476,10 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const modeGlyphs = all('#mode-toggle [data-mode]');
   const setMode = (mode) => {
     state.mode = mode;
-    for (const d of dollen) d.byHand = undefined;                   // a new mode puts dollen and mik where they belong in it
+    for (const d of dollen) d.byHand = undefined;                   // a new mode puts dollen, riemen and mik where they belong in it
+    for (const oar of Object.values(rowOars)) oar.byHand = undefined;
     mikPose.byHand = undefined;
+    trimBoard();
     for (const b of modeButtons) b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
     for (const g of modeGlyphs) g.toggleAttribute('hidden', g.dataset.mode !== mode);   // the icon shows the mode
     relevant('wind', mode === 'zeilen' && (state.rig ?? 'op') === 'op');   // the wind only trims sails
@@ -1512,17 +1521,20 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     if (c > RUN && c < LOEVERT) setCourse(Math.sign(state.course) * (c - RUN < (LOEVERT - RUN) / 2 ? RUN : LOEVERT));
   });
   for (const b of modeButtons) b.addEventListener('click', () => { setMode(b.dataset.mode); openPopover(null); });
-  setCourse(state.course); setRowing(state.rowing); setBoard(state.midzwaard); setMode(state.mode);
+  setCourse(state.course); setRowing(state.rowing); setMode(state.mode);
 
   /** A click on a part that can be shifted by hand: a dol goes in or out of its pot (not while an
    *  oar is being pulled in it), the mik up into its holders or back onto the buikdenning. */
-  const click = (part) => {
+  const click = (part, hit = null) => {
     const id = part?.extras.id ?? '';
+    // a riem goes out into its dol or back onto the doften (the dol follows by itself)
+    const oar = Object.values(rowOars).find((o) => o.meshes.includes(hit?.object)) ?? (id === 'riem_sb' ? rowOars.sb : id === 'riem_bb' ? rowOars.bb : null);
+    if (oar) oar.byHand = oar.use * oar.pose.given > 0.5 ? 0 : 1;
     const d = dollen.find((x) => id === `dol_${x.key}` || id === `dolketting_${x.key}`);
     if (d && !d.busy) d.byHand = d.seated > 0.5 ? 0 : 1;
     if (id === 'mik' || id === 'mikhouders') mikPose.byHand = mikPose.up > 0.5 ? 0 : 1;
     // the zwaardloper (or its borgpen) sets the midzwaard one stop further: neer, half, op and round again
-    if (id.startsWith('zwaardloper') || id === 'borgpen' || id === 'kettinkje') setBoard({ neer: 'half', half: 'op', op: 'neer' }[state.midzwaard]);
+    if (id === 'zwaard' || id.startsWith('zwaardloper') || id === 'borgpen' || id === 'kettinkje') setBoard({ neer: 'half', half: 'op', op: 'neer' }[state.midzwaard]);
     if (kist && id.startsWith('bakskist')) kist.want = kist.want > 0.5 ? 0 : 1;
     if (anchorGear && ['anker', 'ankerketting', 'ankerlijn'].includes(id) && rigging.t < 1e-6) anchorGear.want = anchorGear.want > 0.5 ? 0 : 1;
   };

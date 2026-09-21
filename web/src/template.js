@@ -200,20 +200,6 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
       <div class="ticks" aria-hidden="true"></div>
     </div>
 
-    <button id="board-toggle" class="icon-button" type="button" aria-label="Midzwaard" title="Midzwaard" aria-expanded="false" aria-controls="board-panel">
-      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M3.5 8.5h17l-2.8 5H6.3z"/>
-        <path id="board-blade" d="M12 13.5v6"/>
-      </svg>
-    </button>
-    <div id="board-panel" class="popover" role="group" aria-label="Midzwaard" hidden>
-      <div class="choices">
-        <button type="button" data-board="op" aria-pressed="false">Op</button>
-        <button type="button" data-board="half" aria-pressed="false">Half</button>
-        <button type="button" data-board="neer" aria-pressed="true">Neer</button>
-      </div>
-    </div>
-
     <button id="reef-toggle" class="icon-button" type="button" aria-label="Reven" title="Reven" aria-expanded="false" aria-controls="reef-panel">
       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M6 3v12"/>

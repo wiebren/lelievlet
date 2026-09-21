@@ -280,10 +280,9 @@ van de pagina als die er zijn. Alle tekst naar de gebruiker toe is Nederlands.
 
 `web/src/modes.js` schakelt tussen Zeilen, Roeien en Wrikken en trimt in Zeilen de zeilen voor een
 koers ten opzichte van de wind. De bediening is één balk met iconen onderlangs het scherm - Modus,
-Wind, Midzwaard, Riemen - en elk icoon opent zijn bediening in een popover erboven: één tegelijk,
+Wind, Reven, Tuig, Riemen, Roeicommando - en elk icoon opent zijn bediening in een popover erboven: één tegelijk,
 weer te sluiten met hetzelfde icoon, een ander icoon, Escape of een klik ernaast. Elk icoon tekent
-zijn eigen toestand (de modus waarin hij staat, de kompasnaald naar de wind gedraaid, het zwaard
-neer/half/op, het aantal riemen); Wind verschijnt alleen in Zeilen en Riemen alleen in Roeien, en de
+zijn eigen toestand (de modus waarin hij staat, de kompasnaald naar de wind gedraaid, het aantal riemen); Wind verschijnt alleen in Zeilen en Riemen alleen in Roeien, en de
 balk centreert zich opnieuw zonder die. De koersschuif is gespiegeld: het midden is aan de wind, naar
 rechts komt de wind over stuurboord, naar links over bakboord, dus door het midden gaan is overstag
 gaan; beide uiteinden lopen door tot voor de wind en fok te loevert. De labels zijn zichtbaar zolang
@@ -384,7 +383,10 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   Boeisel, Vlak of Berghout.
 - Een windvaan in de masttop (gebouwd in `web/src/rig.js`, niet in de CAD) draait zo dat het
   draadframe in de wind wijst en de rode vaan met de wind mee uitstaat.
-- Midzwaard neer / half / op (in elke modus). Het zwaard draait om de zwaardbout in zijn voorste
+- Midzwaard neer / half / op, zonder eigen bediening: een klik op het zwaard, de zwaardloper of de
+  borgpen zet het een stand verder, en het volgt de boot - op bij roeien, wrikken en voor de wind, weer
+  neer bij elke andere koers (het beweegt als dát verandert; stond het op half, dan blijft het half).
+  Het zwaard draait om de zwaardbout in zijn voorste
   onderhoek - de CAD heeft die bout als een gat in de plaat, en het Vlettenboek p. 38 geeft de
   draairadius (R=880). De zwaardloper is een stangenstelsel en draait uitsluitend op zijn pennen: de
   voet van de onderste stang is aan het zwaard gepend (beide hebben op dezelfde plek een gat), de
@@ -440,9 +442,11 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   houders zet hem op of bergt hem op; een moduswisseling zet ze terug waar ze horen. Een klik op de
   bakskist sluit of opent het deksel (in open stand gemodelleerd; het deksel en wat eraan vastgeschroefd
   zit draaien om de scharnierlijn uit `extras.tuig.bakskist`; deksel, beslag en handvatten zijn in de
-  GLB eigen onderdelen en worden bij het laden in het onderdeel Bakskist gevouwen, `foldParts`). Een klik op de zwaardloper (of zijn
-  borgpen) zet het midzwaard een stand verder: neer, half, op en weer neer. Een klik op anker, ketting of lijn laat
-  het anker vallen of haalt het op: opgepakt aan zijn harpje, over het voordek gedragen, over de
+  GLB eigen onderdelen en worden bij het laden in het onderdeel Bakskist gevouwen, `foldParts`). Een klik op het
+  zwaard, de zwaardloper of zijn borgpen zet het midzwaard een stand verder: neer, half, op en weer neer.
+  Een klik op een riem legt hem uit in zijn dol of terug op de doften, in elke modus; de dol komt
+  vanzelf mee. Een klik op anker, ketting of lijn laat het anker vallen of haalt het op (om de lijn van
+  6 mm zit een onzichtbare huls van 7 cm die de klik vangt): opgepakt aan zijn harpje, over het voordek gedragen, over de
   stuurboordboeg uitgezwaaid en langs een spline naar de bodem gevierd; de ketting is één mesh waarvan
   de 54 schalmen als starre stukken langs zijn verloop worden geplaatst, de lijn wordt live over het
   dolboord naar het ankeroog gelegd. Zeilen strijken stuurt dezelfde animatie aan en wacht erop.

@@ -487,7 +487,7 @@ export function mount(ui, host, config) {
     const part = pick(e);
     if (quiz?.click(part, lastHit)) return;        // a question is open: the click is an answer, nothing else
     select(part ? [part] : [], lastHit);           // clicking the model picks the one part, not its namesakes
-    modes?.click(part);                            // a dol or the mik is also shifted by it
+    modes?.click(part, lastHit);                   // a dol, the mik, an oar, ... is also shifted by it
   });
 
   // Steering: a drag that starts on the helmstok moves the rudder instead of the camera. It listens in
