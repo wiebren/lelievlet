@@ -119,6 +119,9 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 | `debug.quiztabellen` | boolean | `false` | Zet een link **Tabellen** in het startpaneel van Oefenen, die de opgeloste quizconfiguratie als tabel toont: nr, naam (na hernoemen), niveau, los, `delen` en `ook` (elke id die in het geladen model niet bestaat staat rood), of het een eigen vraag is, en de score per vraag. Daaronder een tweede tabel met alle onderdelen waar geen enkele vraag over gaat. |
 | `debug` | `true` \| `false` | — | `debug: true` zet beide hulpmiddelen tegelijk aan, `debug: false` beide uit. |
 
+De ontwikkelpagina (`web/index.html`) geeft `debug: import.meta.env.DEV` mee: onder `pnpm dev` staan
+beide hulpmiddelen dus aan, in een build niet.
+
 Staat een van de debugvlaggen aan, dan heeft de handle er een `debugHandle` bij: camera, controls,
 scene, parts, en de handles van `modes`, `regions` en `quiz`. In de Vite-ontwikkelserver staat
 dezelfde handle op `window.vlet`, voor de eerste viewer op de pagina.
