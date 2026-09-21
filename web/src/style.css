@@ -238,21 +238,23 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   position: absolute; bottom: 8px; transform: translateX(-50%); padding: 3px 6px; font-size: 12px; white-space: nowrap;
   background: var(--panel); backdrop-filter: blur(8px);
 }
-/* fok te loevert sits too close to voor de wind: same row, moved outwards past the end of the slider */
 /* kop in de wind: dead centre, a row up, between the two captions */
 #course-markers button.upper { bottom: 35px; }
 /* aan de wind, either side of the gap: a little towards the middle, clear of halve wind */
 #course-markers button.near-right { transform: translateX(calc(-50% - 8px)); }
 #course-markers button.near-left { transform: translateX(calc(-50% + 8px)); }
-#course-markers button.out-right { transform: translateX(calc(-50% + 62px)); }
-#course-markers button.out-left { transform: translateX(calc(-50% - 62px)); }
+/* voor de wind, at the ends of the slider: a row up, clear of ruime wind, and drawn in so it stays
+   inside the panel; fok te loevert below it */
+#course-markers button.end-right { bottom: 35px; transform: translateX(calc(-100% + 20px)); }
+#course-markers button.end-left { bottom: 35px; transform: translateX(-20px); }
+#course-markers button .sub { display: block; font-size: 0.85em; color: var(--muted); }
 #course-markers .caption {
   position: absolute; bottom: 40px; transform: translateX(-50%); font-size: 11px; letter-spacing: 0.06em;
   text-transform: uppercase; color: var(--muted); white-space: nowrap;
 }
 #course-markers button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 /* a narrow viewer: the names are set smaller and spread over three rows, so that neighbours in a
-   row are 135 degrees of course apart; fok te loevert is drawn in from the ends of the slider */
+   row are 135 degrees of course apart */
 @container (max-width: 900px) {
   #course-markers { height: 128px; }
   #course-markers button { font-size: 10.5px; padding: 2px 4px; }
@@ -262,8 +264,7 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   #course-markers .caption { bottom: 108px; font-size: 10px; }
   #course-markers button.near-right { transform: translateX(calc(-50% + 15px)); }
   #course-markers button.near-left { transform: translateX(calc(-50% - 15px)); }
-  #course-markers button.out-right { bottom: 80px; transform: translateX(calc(-100% + 24px)); }   /* beside kop in de wind */
-  #course-markers button.out-left { bottom: 80px; transform: translateX(-24px); }
+  #course-markers button.end-right, #course-markers button.end-left { bottom: 8px; }   /* ruime wind is a row up here */
 }
 @container (max-width: 350px) {
   #course-markers .caption { font-size: 8.5px; letter-spacing: 0.03em; }

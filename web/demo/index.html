@@ -51,7 +51,8 @@
   <h2>Twee viewers op één pagina</h2>
   <p class="caption">Ze weten niets van elkaar: een keuze in de ene verandert niets in de andere.
     De linker is de standaardviewer; de rechter heeft andere kleuren, een ander zeilnummer, een
-    hernoemd onderdeel, Oefenen op CWO I en de debug-hulpjes aan.</p>
+    hernoemd onderdeel, Oefenen op CWO I en de debug-hulpjes aan, en begint van boven gezien in Roeien
+    met vier riemen.</p>
 
   <div class="rij">
     <div>
@@ -67,7 +68,14 @@
 await vlet.ready;     // het model is geladen en het eerste beeld staat er
 vlet.config;          // de configuratie zoals hij geldt, met alle standaardwaarden ingevuld
 vlet.destroy();       // stopt de viewer, geeft het WebGL-geheugen terug en maakt het element leeg
-vlet.fullscreen();    // volledig scherm aan/uit (alleen vanuit een klik of toets van de gebruiker)</code></pre>
+vlet.fullscreen();    // volledig scherm aan/uit (alleen vanuit een klik of toets van de gebruiker)
+vlet.get();           // de toestand waarin de viewer nu staat
+vlet.set({ modus: 'roeien', commando: 'slag' });   // naar een andere toestand, geanimeerd</code></pre>
+
+  <p>Waar de viewer begint, geef je mee als <code>toestand</code>, met dezelfde sleutels:</p>
+  <pre><code>Lelievlet.create(element, {
+  toestand: { modus: 'zeilen', koers: -135, reven: 1, aanzicht: 'zij', selectie: 'hommerring' },
+});</code></pre>
 
   <script type="module">
     import Lelievlet from './lelievlet.js';
@@ -88,6 +96,7 @@ vlet.fullscreen();    // volledig scherm aan/uit (alleen vanuit een klik of toet
         commandos: { stopaf: 'Houden' },
       },
       quiz: { niveau: 1 },
+      toestand: { modus: 'roeien', roeien: 'vier', aanzicht: 'boven' },
       debug: true,
     });
 

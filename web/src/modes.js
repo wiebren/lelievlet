@@ -24,18 +24,20 @@ const FOK_BEND = [[45, 0.06], [90, 0.10], [135, 0.13], [180, 0.15]];
 // fullness of the grootzeil relative to its designed belly
 const MAIN_BEND = [[45, 0.8], [90, 1.0], [180, 1.15]];
 
-const CLOSE_HAULED = 45; const RUN = 180; const LOEVERT = 195;      // courses; LOEVERT = fok te loevert
+const CLOSE_HAULED = 45; const RUN = 180;                             // courses
+// Voor de wind begins at DOWNWIND; on the way from there to RUN, the end of the slider, the fok goes
+// over to windward: voor de wind is always sailed with the fok te loevert.
+const DOWNWIND = 158;
 // The slider is mirrored: dead centre is kop in de wind (course 0), HEAD_GAP to either side of it aan
 // de wind begins, to the right with the wind over starboard, to the left over port.
 const HEAD_GAP = 30;
-const SLIDER_MAX = LOEVERT - CLOSE_HAULED + HEAD_GAP;
+const SLIDER_MAX = RUN - CLOSE_HAULED + HEAD_GAP;
 const HEAD_TO_WIND = 'Kop in de wind';
 const MARKERS = [
   { course: CLOSE_HAULED, label: 'Aan de wind' },
   { course: 90, label: 'Halve wind' },
   { course: 135, label: 'Ruime wind' },
-  { course: RUN, label: 'Voor de wind' },
-  { course: LOEVERT, label: 'Fok te loevert' },
+  { course: RUN, label: 'Voor de wind', sub: 'Fok te loevert' },
 ];
 
 // -- roeicommando's (Katwijkse Zeeverkenners, CWO roei-instructieboek H2). What an oar does for a
@@ -926,7 +928,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const sailing = state.mode === 'zeilen';
     const side = Math.sign(state.course) || 1;                      // +1: wind over starboard, sails to port
     const course = Math.min(Math.abs(state.course), RUN);
-    const loevert = smoothstep(clamp((Math.abs(state.course) - RUN) / (LOEVERT - RUN), 0, 1));
+    const loevert = smoothstep(clamp((Math.abs(state.course) - DOWNWIND) / (RUN - DOWNWIND), 0, 1));
     rigging.tick(dt); reefing?.tick(dt);
     if (anchorGear) {
       if (rigging.t > 1e-6) { anchorGear.u = strike.anchor; anchorGear.want = Math.round(strike.anchor); }   // the procedure has it
@@ -1414,8 +1416,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const nameOf = (course) => {
     if (course === 0) return HEAD_TO_WIND;
     const c = Math.abs(course);
-    const m = c > RUN ? MARKERS[4] : c >= 158 ? MARKERS[3] : c >= 112 ? MARKERS[2] : c >= 68 ? MARKERS[1] : MARKERS[0];
-    return `${m.label}, wind over ${course < 0 ? 'bakboord' : 'stuurboord'}`;
+    const m = c >= DOWNWIND ? MARKERS[3] : c >= 112 ? MARKERS[2] : c >= 68 ? MARKERS[1] : MARKERS[0];
+    return `${m.label}${m.sub ? `, ${m.sub.toLowerCase()}` : ''}, wind over ${course < 0 ? 'bakboord' : 'stuurboord'}`;
   };
   const setCourse = (course) => {
     state.course = course;
@@ -1445,7 +1447,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const reefSlider = $('reef');
   const reefValue = $('reef-value'); const reefCount = $('reef-count');
   reefSlider.max = String(reefInfo.max_slagen);
+  let reefWanted = 0;                                               // what the slider was last let go on
   const setReef = (turns) => {
+    reefWanted = turns;
     reefSlider.value = String(turns);
     reefValue.textContent = turns === 0 ? 'geen' : `${turns} ${turns === 1 ? 'slag' : 'slagen'} om de giek`;
     reefCount.textContent = String(turns); reefCount.hidden = turns === 0;
@@ -1538,7 +1542,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       b.dataset.course = String(course);
       const at = (c) => `${((toSlider(c) + SLIDER_MAX) / (2 * SLIDER_MAX)) * 100}%`;
       b.style.left = at(course);
-      if (m.course === LOEVERT) b.classList.add(side < 0 ? 'out-left' : 'out-right');   // same row, moved outwards
+      if (m.sub) b.append(Object.assign(document.createElement('span'), { className: 'sub', textContent: m.sub }));
+      if (m.course === RUN) b.classList.add(side < 0 ? 'end-left' : 'end-right');   // at the very end: kept inside the panel
       if (m.course === 90) b.classList.add('r1');                    // rows up, where the viewer is narrow
       if (m.course === 135) b.classList.add('r2');
       if (m.course === CLOSE_HAULED) b.classList.add(side < 0 ? 'near-left' : 'near-right');   // nudged to keep clear of its neighbours
@@ -1562,10 +1567,6 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     markers.append(caption);
   }
   slider.addEventListener('input', () => setCourse(fromSlider(Number(slider.value))));
-  slider.addEventListener('change', () => {                         // released between voor de wind and fok te loevert: snap
-    const c = Math.abs(state.course);
-    if (c > RUN && c < LOEVERT) setCourse(Math.sign(state.course) * (c - RUN < (LOEVERT - RUN) / 2 ? RUN : LOEVERT));
-  });
   for (const b of modeButtons) b.addEventListener('click', () => { setMode(b.dataset.mode); openPopover(null); });
   setCourse(state.course); setRowing(state.rowing); setMode(state.mode);
 
@@ -1612,5 +1613,55 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const reveal = (list) => {
     if (kist && list.some((p) => ['meerpen', 'hoosblik', 'ehbo_koffer'].includes(p.extras.id))) kist.want = 1;   // the lid goes up
   };
-  return { update, state, click, reveal, helm: helmControl, procedure, procedureControl };
+
+  // -- the state from outside: `toestand` in the configuration, and handle.set()/get() afterwards.
+  // Every value goes through the same setter as the control the user has for it, so the icons and
+  // popovers show what the page set. A value the viewer does not know is reported and left alone.
+  const warn = (key, value, known) => console.warn(`[lelievlet] toestand.${key}: ${JSON.stringify(value)} kent de viewer niet${known ? ` (${known.join(', ')})` : ''}`);
+  const PER_BOORD = Object.keys(ROEICOMMANDOS).filter((key) => !ROEICOMMANDOS[key].beide);
+  /**
+   * Take the boat to `want` (only the keys given). `direct`: no animation, the boat stands there at
+   * once - that is how the configuration's toestand is applied, before the first frame.
+   */
+  const apply = (want = {}, { direct = false } = {}) => {
+    const { modus, tuig: rig, koers, reven, roeien, commando, zwaard } = want;
+    if (modus !== undefined) {
+      if (['zeilen', 'roeien', 'wrikken'].includes(modus)) setMode(modus); else warn('modus', modus, ['zeilen', 'roeien', 'wrikken']);
+    }
+    if (rig !== undefined) {
+      if (rig in RIG_AT) {
+        setRig(rig);
+        if (direct) { rigging.seek(RIG_AT[rig]); rigging.playing = false; }
+      } else warn('tuig', rig, Object.keys(RIG_AT));
+    }
+    if (koers !== undefined) {                                      // like the slider: 0, or 45 .. 180 to either side
+      if (Number.isFinite(koers)) setCourse(koers === 0 ? 0 : Math.sign(koers) * clamp(Math.abs(koers), CLOSE_HAULED, RUN));
+      else warn('koers', koers);
+    }
+    if (reven !== undefined) {
+      if (Number.isFinite(reven)) {
+        setReef(clamp(Math.round(reven), 0, reefInfo.max_slagen));
+        if (direct && reefing) { reefing.seek(reefing.total); reefing.playing = false; }
+      } else warn('reven', reven);
+    }
+    if (roeien !== undefined) {
+      if (['naast', 'kruis', 'vier'].includes(roeien)) setRowing(roeien); else warn('roeien', roeien, ['naast', 'kruis', 'vier']);
+    }
+    if (commando !== undefined) {                                   // one for the whole boat, or { bb, sb } per boord
+      if (typeof commando === 'string' && commando in ROEICOMMANDOS) setCommando('beide', commando);
+      else if (commando && typeof commando === 'object' && Object.entries(commando).every(([k, c]) => ['bb', 'sb'].includes(k) && PER_BOORD.includes(c))) {
+        for (const [boord, c] of Object.entries(commando)) setCommando(boord, c);
+      } else warn('commando', commando, Object.keys(ROEICOMMANDOS));
+    }
+    if (zwaard !== undefined) {                                     // last: the mode and the course trim it too
+      if (['neer', 'half', 'op'].includes(zwaard)) setBoard(zwaard); else warn('zwaard', zwaard, ['neer', 'half', 'op']);
+    }
+    if (direct) for (let i = 0; i < 100; i++) update(0.05);          // five seconds: everything that eases in has arrived
+  };
+  /** Where the boat is going, in the form apply() takes. */
+  const current = () => ({
+    modus: state.mode, tuig: state.rig ?? 'op', koers: state.course, reven: reefWanted,
+    roeien: state.rowing, commando: { ...state.commando }, zwaard: state.midzwaard,
+  });
+  return { update, state, click, reveal, helm: helmControl, procedure, procedureControl, apply, current };
 }

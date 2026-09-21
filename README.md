@@ -79,7 +79,19 @@ vlet.config;          // de configuratie zoals hij geldt, met alle standaardwaar
 vlet.destroy();       // stopt de tekenlus, geeft de WebGL-context en het geheugen terug,
                       // haalt alle listeners weg en maakt het element leeg
 vlet.fullscreen();    // volledig scherm aan/uit; vlet.fullscreen(true) of (false) dwingt het af
+vlet.get();           // de toestand waarin de viewer nu staat (null zolang het model laadt)
+vlet.set({ modus: 'roeien', commando: 'slag' });   // naar een andere toestand, geanimeerd
+vlet.set({ tuig: 'mast' }, { direct: true });      // … of in één keer
 ```
+
+`set(toestand, { direct })` neemt dezelfde sleutels als `toestand` in de configuratie (zie de tabel)
+en verandert alleen wat je meegeeft. Het loopt via dezelfde weg als de knoppen: de iconen en panelen
+laten zien wat de pagina zette, en een procedure (Tuig, Reven) speelt af met zijn voortgangsbalk.
+Met `direct: true` staat de boot er meteen. Een `set()` vóór `ready` wacht op het model en gaat dan
+samen met de `toestand` uit de configuratie in één keer in. `get()` geeft een object in dezelfde vorm
+terug, met `commando` altijd als `{ bb, sb }` en `selectie` als lijst ids; `aanzicht` zit er niet in,
+want na één sleep met de muis klopt dat niet meer. Een waarde die de viewer niet kent wordt met een
+`console.warn` gemeld en overgeslagen; de rest van de toestand gaat gewoon door.
 
 `create(element, config)` werpt een `TypeError` als het eerste argument geen element is. Na
 `destroy()` mag je opnieuw `create()` op hetzelfde element aanroepen.
@@ -108,6 +120,15 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 | `aanpassen.bakskleur` | hexkleur | `'#c8102e'` | Accentkleur: beslag, roerkop, hanekam, mastbanden en de geschilderde banden. |
 | `aanpassen.kleuren.<zone>` | hexkleur | zie hieronder | Kleur per verfzone: `romp` `#0a0a0b`, `berghout` `#0a0a0b`, `boeisel` `#f5c20d`, `dolboord` `#0a0a0b`, `voordek` `#8f9499`, `achterdek` `#8f9499`, `kuip` `#8f9499`, `zwaardkast` `#8f9499`. |
 | `aanpassen.opslaan` | boolean | `true` | `false`: het Aanpassen-paneel leest en schrijft geen `localStorage`; elke bezoeker begint bij jouw waarden. |
+| `toestand.modus` | `'zeilen'` \| `'roeien'` \| `'wrikken'` | `'zeilen'` | De modus waarin de viewer opent. |
+| `toestand.tuig` | `'op'` \| `'gestreken'` \| `'mast'` | `'op'` | Zeilen op, zeilen gestreken of mast gestreken. |
+| `toestand.koers` | getal | `90` | Graden van de wind af: `0` is kop in de wind, `45` aan de wind, `90` halve wind, `135` ruime wind, `180` voor de wind (met de fok te loevert); daartussen mag ook. Positief: wind over stuurboord, negatief: over bakboord. Tussen 0 en 45 wordt 45. |
+| `toestand.reven` | 0–5 | `0` | Het aantal slagen van het grootzeil om de giek. |
+| `toestand.roeien` | `'naast'` \| `'kruis'` \| `'vier'` | `'kruis'` | Twee riemen naast elkaar, twee kruislings of vier. |
+| `toestand.commando` | string of `{ bb, sb }` | `'slag'` | Het roeicommando (sleutels als bij `namen.commandos`). Een string geldt voor de hele boot; per boord kan alleen `haal` `opriemen` `strijk` `stopaf` `lopen`, en een boord dat je weglaat blijft zoals het was. |
+| `toestand.zwaard` | `'neer'` \| `'half'` \| `'op'` | volgt de koers | Het midzwaard. Zonder deze sleutel gaat het op bij roeien, wrikken en voor de wind, en anders neer. |
+| `toestand.aanzicht` | `'3d'` \| `'zij'` \| `'boven'` \| `'voor'` \| `'achter'` | `'3d'` | Het camerastandpunt, zoals de knoppen in het oogmenu. |
+| `toestand.selectie` | id of lijst ids | — | Onderdelen die geselecteerd zijn, met hun infotegel; de camera gaat erheen, tenzij er ook een `aanzicht` is. `null` of `[]` heft de selectie op. |
 | `namen.onderdelen[id]` | string | — | Hernoemt een onderdeel overal: hovertip, infotegel, de lijst Onderdelen (ook de samenvoeging van bakboord/stuurboord, die op namen werkt) en de terugkoppeling van de quiz. Sleutel is de onderdeel-id, bijvoorbeeld `{ hommerring: 'Mastring' }`. |
 | `namen.stappen[label]` | string | — | Hernoemt een stap van een procedure (Reven, Tuig). Sleutel is het standaardlabel, bijvoorbeeld `{ 'Fok strijken': 'Fok neer' }`. |
 | `namen.commandos[key]` | string of object | — | Hernoemt een roeicommando. Een string is het knoplabel; `{ knop, roep }` zet ook de woorden die de roerganger roept. Sleutels: `slag` `haal` `opriemen` `strijk` `stopaf` `lopen` `over` `op` `geroeid`. |
@@ -287,14 +308,14 @@ balk centreert zich opnieuw zonder die. De koersschuif is gespiegeld: precies in
 wind (koers 0, zoals voor anker: giek en fok midscheeps, en de zeilen vangen niets en klapperen zacht -
 `Bend.flutter`, golven die van het voorlijk naar achteren lopen, met het bollinggewicht als omhullende
 zodat het doek stil blijft waar het vastzit), aan weerszijden daarvan begint aan de wind (elke boeg zijn eigen knop), naar rechts
-komt de wind over stuurboord, naar links over bakboord, dus door het midden gaan is overstag gaan; beide uiteinden lopen door tot voor de wind en fok te loevert. De labels zijn zichtbaar zolang
+komt de wind over stuurboord, naar links over bakboord, dus door het midden gaan is overstag gaan; beide uiteinden lopen door tot voor de wind, dat altijd met de fok te loevert wordt gevaren: het label heeft dat als grijze tweede regel. De labels zijn zichtbaar zolang
 het windpaneel open staat. De boot blijft liggen; een windpijl draait eromheen.
 Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een animatie.
 
 - Gaffel, grootzeil, hun rijglijn en beslag draaien om de (exact verticale) mast. De giek draait op
   de lummelbout, die 52 mm achter de mast in de lippen van de mastband staat, en wordt zo gericht dat
-  de nok onder de schoothoek blijft. De fok draait om het voorstag; voorbij 180° gaat hij naar loef
-  (fok te loevert).
+  de nok onder de schoothoek blijft. De fok draait om het voorstag; waar voor de wind begint (158°) gaat
+  hij op weg naar 180° over naar loef (fok te loevert).
 - De fokkenschoten zijn geen opgerekte CAD-touwen maar worden elk frame opnieuw gelegd (`RopeLine`,
   `roundTheFront` in `web/src/rig.js`): de lijzijdige schoot loopt recht van de schoothoek naar zijn
   blok, de loefzijdige gaat eerst om de voorkant van de mast heen. Elk blok hangt aan zijn leioog
@@ -308,8 +329,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
 - De fok is een vlakke driehoek die door de wind bol wordt gezet: vlak geëxporteerd met een
   buiggewicht per vertex (`_BOLLING`), in de viewer gebogen met enkelvoudige kromming (voorlijk
   recht, hoeken vast, onderlijk en achterlijk bollen uit). De diepte volgt de koers, gaat door vlak
-  heen terwijl de fok overkomt en keert binnenstebuiten voor fok te loevert. Het korte stuk van de
-  schuif voorbij 180° springt bij loslaten terug.
+  heen terwijl de fok overkomt en keert binnenstebuiten voor fok te loevert.
 - Piekenval en klauwval, die alleen een bewegend uiteinde volgen, worden per vertex opgerekt
   (`RopeStretch` in `web/src/rig.js`).
 - De grootschoot is een talie die elk frame opnieuw wordt geschoren (`RopeLine`): vastgezet aan de

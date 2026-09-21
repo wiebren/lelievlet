@@ -11,7 +11,7 @@ import { initQuiz } from './quiz.js';
 import { initLocator } from './locator.js';
 import { initFullscreen } from './fullscreen.js';
 import { makeAsset } from './assets.js';
-import { naamVan } from './config.js';
+import { naamVan, merge } from './config.js';
 
 // One viewer, from end to end. Nothing here runs at import time: `mount` is called once per
 // embedded viewer with the shadow root it owns, so two of them on one page share no state at all.
@@ -23,7 +23,7 @@ import { naamVan } from './config.js';
  * ui:     the ShadowRoot the markup is in
  * host:   the element the shadow root is on; the viewer fills its box
  * config: the resolved configuration (see config.js)
- * Returns { ready, destroy, debug }.
+ * Returns { ready, destroy, debug, fullscreen, get, set }.
  */
 export function mount(ui, host, config) {
   const wrap = ui.querySelector('.lv');
@@ -171,7 +171,10 @@ export function mount(ui, host, config) {
     quiz = initQuiz({ parts, scene, select, flyTo,
                       setHighlights, partVisible, closePanel,
                       ui, wrap, config, signal, engaged, realTarget, onDestroy });   // Oefenen
+    loaded = true;
     setView('iso', false);
+    applyState(merge(config.toestand, early), true);      // what the page asked for, before anyone sees the boat
+    early = {};
     $('loading').hidden = true;
     resize();
     controls.update();
@@ -828,13 +831,56 @@ export function mount(ui, host, config) {
     ui.replaceChildren();
   }
 
+  // ---------------------------------------------------------------- the state from outside
+  // `toestand` in the configuration is where the viewer starts; handle.set() takes it somewhere else
+  // later, animated as if the user had done it (or at once, with { direct: true }). What is set
+  // before the model is in is kept and applied with the configuration's own toestand, at once.
+  let loaded = false;
+  let early = {};
+  const VIEWS = { '3d': 'iso', zij: 'side', boven: 'top', voor: 'bow', achter: 'stern' };
+
+  function applyState(want = {}, direct = false) {
+    modes.apply(want, { direct });
+    const { aanzicht, selectie } = want;
+    if (aanzicht !== undefined) {
+      if (aanzicht in VIEWS) setView(VIEWS[aanzicht], !direct);
+      else console.warn(`[lelievlet] toestand.aanzicht: ${JSON.stringify(aanzicht)} kent de viewer niet (${Object.keys(VIEWS).join(', ')})`);
+    }
+    if (selectie !== undefined) {
+      const ids = selectie === null ? [] : [selectie].flat();
+      const list = parts.filter((p) => ids.includes(p.extras.id));
+      const missing = ids.filter((id) => !list.some((p) => p.extras.id === id));
+      if (missing.length) console.warn(`[lelievlet] toestand.selectie: geen onderdeel met id ${missing.join(', ')}`);
+      select(list);
+      if (list.length && aanzicht === undefined) {         // an aanzicht asked for as well keeps its own camera
+        scene.updateMatrixWorld();
+        flyTo(list);
+        if (direct && flight) {
+          camera.position.copy(flight.to); controls.target.copy(flight.toTarget); flight = null;
+        }
+      }
+    }
+  }
+
+  /** Take the viewer to this toestand (only the keys given); before `ready` it waits for the model. */
+  function set(want = {}, { direct = false } = {}) {
+    if (destroyed) return;
+    if (loaded) applyState(want, direct); else early = merge(early, want);
+  }
+
+  /** Where the viewer is now, in the form set() takes; null until the model is in. */
+  function get() {
+    if (!loaded) return null;
+    return { ...modes.current(), selectie: selected.map((p) => p.extras.id) };
+  }
+
   const debug = { camera, controls, scene, parts, rows, held, keyboardNavigate, select, flyTo,
                   sideOf, pickTwin, config,
                   get modes() { return modes; }, get regions() { return regions; },
                   get quiz() { return quiz; },
                   get flight() { return flight; }, get hullBox() { return hullBox; } };
 
-  return { ready, destroy, debug, fullscreen: fullscreen.toggle };
+  return { ready, destroy, debug, fullscreen: fullscreen.toggle, get, set };
 }
 
 // ---------------------------------------------------------------- shared, and never written to

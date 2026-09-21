@@ -25,6 +25,17 @@
 //       erbij: [{ naam: 'Anker', delen: ['anker'], niveau: 1 }],
 //       niveau: 2,                                   // level the start panel opens on
 //     },
+//     toestand: {                                  // where the viewer starts; handle.set() takes it on from there
+//       modus: 'roeien',                             // zeilen | roeien | wrikken
+//       tuig: 'op',                                  // op | gestreken | mast
+//       koers: -90,                                  // 0 kop in de wind, 45 .. 180; negative: wind over bakboord
+//       reven: 2,                                    // turns of the giek, 0 .. 5
+//       roeien: 'vier',                              // naast | kruis | vier
+//       commando: 'slag',                            // for the whole boat, or { bb: 'strijk', sb: 'haal' }
+//       zwaard: 'half',                              // neer | half | op
+//       aanzicht: 'zij',                             // 3d | zij | boven | voor | achter
+//       selectie: ['hommerring'],                    // part ids; the camera goes to them unless aanzicht is given
+//     },
 //     debug: { modelnummer: true, quiztabellen: true },
 //   })
 //
@@ -35,6 +46,7 @@ export const DEFAULTS = {
   assets: null,
   volledigScherm: true,
   aanpassen: { opslaan: true },
+  toestand: {},
   namen: { onderdelen: {}, stappen: {}, commandos: {}, quiz: {} },
   quiz: { weg: [], erbij: [], niveau: 3 },
   debug: { modelnummer: false, quiztabellen: false },
@@ -43,7 +55,7 @@ export const DEFAULTS = {
 const isPlain = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 /** Deep merge of plain objects; arrays and everything else are taken whole from `over`. */
-function merge(base, over) {
+export function merge(base, over) {
   if (!isPlain(over)) return over === undefined ? base : over;
   const out = { ...(isPlain(base) ? base : {}) };
   for (const [key, value] of Object.entries(over)) out[key] = merge(out[key], value);
