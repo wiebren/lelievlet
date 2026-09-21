@@ -188,10 +188,12 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     </div>
 
     <button id="wind-toggle" class="icon-button" type="button" aria-label="Wind" title="Wind" aria-expanded="false" aria-controls="wind-panel">
-      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="9"/>
-        <path d="M12 1.4v1.6"/>
-        <path id="wind-needle" d="M12 4.6 14.6 12 12 19.4 9.4 12z" transform="rotate(90 12 12)"/>
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" overflow="visible" aria-hidden="true">
+        <!-- a cloud blowing: the cloud sits where the wind comes from, the arrow points where it goes -->
+        <g id="wind-needle" transform="rotate(90 12 12)">
+          <path d="M7 10.5h10a3.2 3.2 0 0 0 .6-6.35A4.6 4.6 0 0 0 10.2 3.1 2.2 2.2 0 0 0 6.6 4.6 3.1 3.1 0 0 0 7 10.5z"/>
+          <path d="M10.6 13v4.6M13.4 13v4.6M8.2 17.6 12 22.4l3.8-4.8"/>
+        </g>
       </svg>
     </button>
     <div id="wind-panel" class="popover" role="group" aria-label="Koers ten opzichte van de wind" hidden>

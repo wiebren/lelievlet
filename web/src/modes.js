@@ -934,7 +934,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     chase('sails', sailing ? 1 : 0, dt, 3.5);
     chase('board', { neer: 0, half: 1, op: 2 }[state.midzwaard], dt, 2.2);
     chase('rowing', state.mode === 'roeien' ? 1 : 0, dt, 2.5);
-    chase('sculling', state.mode === 'wrikken' ? 1 : 0, dt, 2.5);
+    chase('sculling', scullOar.byHand ?? (state.mode === 'wrikken' ? 1 : 0), dt, 2.5);   // by the mode, or put out by a click
     now.t += dt;
     // midzwaard: 0 = neer, 1 = half, 2 = op
     const s = now.board;
@@ -1236,8 +1236,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const feather = smoothstep(clamp(pull * 3 + 0.5, 0, 1));        // upright while pulling
     const seats = ROWING[state.rowing];
     const ease = 1 - Math.exp(-dt * 2.5);
-    // mik: up in its holders whenever the sails are down
-    mikPose.up += ((strike.mik > 0.05 ? 1 : mikPose.byHand ?? (state.mode === 'zeilen' ? 0 : 1)) - mikPose.up) * (1 - Math.exp(-dt * 1.8));
+    // mik: up in its holders when the sails are struck onto it, or when set by hand; not for rowing or sculling
+    mikPose.up += ((strike.mik > 0.05 ? 1 : mikPose.byHand ?? 0) - mikPose.up) * (1 - Math.exp(-dt * 1.8));
     {
       const k = smoothstep(clamp(mikPose.up, 0, 1));
       mik.position.lerpVectors(mikPose.stowed, mikPose.standing, k);
@@ -1381,7 +1381,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     state.course = course;
     slider.value = String(toSlider(course));
     slider.setAttribute('aria-valuetext', nameOf(course));
-    needle.setAttribute('transform', `rotate(${Math.round(course)} 12 12)`);   // the icon points into the wind
+    needle.setAttribute('transform', `rotate(${Math.round(course)} 12 12)`);   // the cloud sits where the wind comes from
     for (const b of markers.querySelectorAll('button')) b.setAttribute('aria-pressed', String(Number(b.dataset.course) === course));
     trimBoard();
   };
@@ -1477,7 +1477,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const setMode = (mode) => {
     state.mode = mode;
     for (const d of dollen) d.byHand = undefined;                   // a new mode puts dollen, riemen and mik where they belong in it
-    for (const oar of Object.values(rowOars)) oar.byHand = undefined;
+    for (const oar of [...Object.values(rowOars), scullOar]) oar.byHand = undefined;
     mikPose.byHand = undefined;
     trimBoard();
     for (const b of modeButtons) b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
@@ -1530,6 +1530,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     // a riem goes out into its dol or back onto the doften (the dol follows by itself)
     const oar = Object.values(rowOars).find((o) => o.meshes.includes(hit?.object)) ?? (id === 'riem_sb' ? rowOars.sb : id === 'riem_bb' ? rowOars.bb : null);
     if (oar) oar.byHand = oar.use * oar.pose.given > 0.5 ? 0 : 1;
+    if (id === 'wrikriem') scullOar.byHand = now.sculling > 0.5 ? 0 : 1;
     const d = dollen.find((x) => id === `dol_${x.key}` || id === `dolketting_${x.key}`);
     if (d && !d.busy) d.byHand = d.seated > 0.5 ? 0 : 1;
     if (id === 'mik' || id === 'mikhouders') mikPose.byHand = mikPose.up > 0.5 ? 0 : 1;

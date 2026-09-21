@@ -282,7 +282,7 @@ van de pagina als die er zijn. Alle tekst naar de gebruiker toe is Nederlands.
 koers ten opzichte van de wind. De bediening is één balk met iconen onderlangs het scherm - Modus,
 Wind, Reven, Tuig, Riemen, Roeicommando - en elk icoon opent zijn bediening in een popover erboven: één tegelijk,
 weer te sluiten met hetzelfde icoon, een ander icoon, Escape of een klik ernaast. Elk icoon tekent
-zijn eigen toestand (de modus waarin hij staat, de kompasnaald naar de wind gedraaid, het aantal riemen); Wind verschijnt alleen in Zeilen en Riemen alleen in Roeien, en de
+zijn eigen toestand (de modus waarin hij staat, de wolk met pijl gedraaid naar waar de wind vandaan komt, het aantal riemen); Wind verschijnt alleen in Zeilen en Riemen alleen in Roeien, en de
 balk centreert zich opnieuw zonder die. De koersschuif is gespiegeld: het midden is aan de wind, naar
 rechts komt de wind over stuurboord, naar links over bakboord, dus door het midden gaan is overstag
 gaan; beide uiteinden lopen door tot voor de wind en fok te loevert. De labels zijn zichtbaar zolang
@@ -445,7 +445,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   GLB eigen onderdelen en worden bij het laden in het onderdeel Bakskist gevouwen, `foldParts`). Een klik op het
   zwaard, de zwaardloper of zijn borgpen zet het midzwaard een stand verder: neer, half, op en weer neer.
   Een klik op een riem legt hem uit in zijn dol of terug op de doften, in elke modus; de dol komt
-  vanzelf mee. Een klik op anker, ketting of lijn laat het anker vallen of haalt het op (om de lijn van
+  vanzelf mee. Een klik op de wrikriem legt hem in het wrikgat of bergt hem weer op. Een klik op anker, ketting of lijn laat het anker vallen of haalt het op (om de lijn van
   6 mm zit een onzichtbare huls van 7 cm die de klik vangt): opgepakt aan zijn harpje, over het voordek gedragen, over de
   stuurboordboeg uitgezwaaid en langs een spline naar de bodem gevierd; de ketting is één mesh waarvan
   de 54 schalmen als starre stukken langs zijn verloop worden geplaatst, de lijn wordt live over het
@@ -479,8 +479,8 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   met het roer mee 33.7 graden achteroverhelt; de knop is een schijf van 2 cm met een afgeronde rand in
   de bakskleur; de Nederlandse vlag waait onder zeil met de wind mee uit, hangt stil als er geen wind
   is, en het geheel wordt voor het wrikken uit de buis getrokken.
-- Mik (`makeMik`): onder zeil ligt hij op de vlonder aan bakboord in de kuip; met de zeilen
-  gestreken (roeien, wrikken) wordt hij overgezet en staat hij in de twee mikhouders op het
+- Mik (`makeMik`): hij ligt op de vlonder aan bakboord in de kuip, ook bij roeien en wrikken; bij
+  zeilen strijken (of met een klik) wordt hij overgezet en staat hij in de twee mikhouders op het
   achterschot, vork omhoog en haaks op de boot, met zijn voet op het vlak.
 - Dollen: de boot heeft zes dolpotten (pipeline) maar vier dollen (`makeDol`, `makeKnevel` in
   `web/src/rig.js`), in de potten bij de twee doften. Een dol staat alleen in zijn pot, meedraaiend met
