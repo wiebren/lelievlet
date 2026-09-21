@@ -36,6 +36,7 @@ const KIES = [{ letter: 'A', hex: 0xe01b24 }, { letter: 'B', hex: 0x26a269 },
 const PULSE_HZ = 2.2;                  // how fast the part of a hovered chip breathes
 const PULSE_DEPTH = 0.55;              // how far towards white it goes
 const KIN = 0.5;                       // a rival of the same groep counts as half as far away
+const KIN_SAMPLES = 24;                // vertices sampled per mesh to say where a part stands
 
 // los: the part hangs alone in front of a plain background, framed from the same corner the iso
 // view looks from and turning slowly until the user takes the controls
@@ -48,8 +49,9 @@ const LOS_SPREAD = 3;                  // shells this much further apart than th
 const LOS_CLUSTER = 1.2;               // a set of look-alikes: one of them is framed, not the field
 const LOS_SHELLS = 200000;             // above this many indices a mesh is framed whole: no splitting
 
-const TICK = '✓';
-const CROSS = '✗';
+const MARKS = { goed: '✓', fout: '✗' };   // 'bijna' - the name was not wrong, only not enough - gets none
+
+const _v = new THREE.Vector3();
 
 const el = (tag, className, text) => Object.assign(document.createElement(tag), { className, textContent: text ?? '' });
 const hex = (value) => `#${value.toString(16).padStart(6, '0')}`;
@@ -85,8 +87,8 @@ const TYPOS_PER = 6;                   // letters per typo that is forgiven
  */
 function keysOf(naam) {
   const full = fold(naam);
-  const keys = [full];
   const head = full.split(/ van (?:de|het|den) | van /)[0];
+  const keys = [full, head];
   const alts = head.split(' of ').map((a) => a.trim()).filter(Boolean);
   for (const alt of alts) {
     if (!alt.startsWith('-')) { keys.push(alt); continue; }
@@ -97,18 +99,24 @@ function keysOf(naam) {
   return [...new Set(keys)];
 }
 
+/** Edit distance where two neighbours the wrong way round cost one, like the typo they are. */
 function levenshtein(a, b) {
-  const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+  let back = [];
+  let previous = Array.from({ length: b.length + 1 }, (_, i) => i);
   for (let i = 1; i <= a.length; i++) {
-    let previous = row[0];
+    const row = new Array(b.length + 1);
     row[0] = i;
     for (let j = 1; j <= b.length; j++) {
-      const swap = row[j];
-      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, previous + (a[i - 1] === b[j - 1] ? 0 : 1));
-      previous = swap;
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      row[j] = Math.min(previous[j] + 1, row[j - 1] + 1, previous[j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        row[j] = Math.min(row[j], back[j - 2] + cost);
+      }
     }
+    back = previous;
+    previous = row;
   }
-  return row[b.length];
+  return previous[b.length];
 }
 
 /** Near enough: the same word up to a plural, or one typo per six letters. */
@@ -229,16 +237,25 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
 
   // kies: the parts that light up beside the right one are the nearest ones, with a part of the
   // same groep counting as half as far - a mistake has to be told apart by looking, not by
-  // walking the boat. Measured vertex by vertex like the flight: a cached geometry box would be
-  // stale on a sail, and computing one would break the picking of that same geometry.
-  const centreBox = new THREE.Box3();
-  const meshBox = new THREE.Box3();
+  // walking the boat. Where a part stands is averaged over a handful of its vertices: a cached
+  // geometry box would be stale on a sail, and computing one would break the picking of that same
+  // geometry, while walking every vertex of every candidate costs a third of a second.
   function centreOf(entry) {
-    centreBox.makeEmpty();
+    const sum = new THREE.Vector3();
+    let n = 0;
     for (const p of entry.delen) {
-      for (const m of p.meshes) if (m.visible) centreBox.union(meshBox.setFromObject(m, true));
+      for (const m of p.meshes) {
+        if (!m.visible) continue;
+        const position = m.geometry.attributes.position;
+        const step = Math.max(1, Math.floor(position.count / KIN_SAMPLES));
+        m.updateWorldMatrix(true, false);
+        for (let i = 0; i < position.count; i += step) {
+          sum.add(_v.fromBufferAttribute(position, i).applyMatrix4(m.matrixWorld));
+          n++;
+        }
+      }
     }
-    return centreBox.isEmpty() ? null : centreBox.getCenter(new THREE.Vector3());
+    return n ? sum.divideScalar(n) : null;
   }
 
   function partsFor(entry) {
@@ -399,7 +416,7 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
     feedback.className = `feedback${mood ? ` ${mood}` : ''}`;
     feedback.hidden = !text;
     if (!text) return;
-    if (mood) feedback.append(el('span', 'mark', mood === 'goed' ? TICK : CROSS));
+    if (MARKS[mood]) feedback.append(el('span', 'mark', MARKS[mood]));
     feedback.append(el('span', 'tekst', text));
   }
 
@@ -505,7 +522,6 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
    * per dol, per hijsoog. A set of look-alikes is often merged into one mesh, and the CAD body
    * handle only tells them apart where the geometry came from the CAD at all.
    */
-  const _v = new THREE.Vector3();
   function shells(mesh) {
     const index = mesh.geometry.index;
     const position = mesh.geometry.attributes.position;
@@ -592,6 +608,8 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
     setFeedback(null);
   }
 
+  const setHint = (text) => { hint.textContent = text; hint.hidden = !text; };
+
   function ask() {
     const entry = round.queue[round.index];
     let type = typeFor(entry, round.kind);
@@ -630,8 +648,6 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
     question.names = namesFor(entry);
     buildAnswers();
   }
-
-  const setHint = (text) => { hint.textContent = text; hint.hidden = !text; };
 
   function buildAnswers() {
     answers.className = 'answers';
@@ -676,7 +692,9 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
     restore();                                     // the boat comes back around the part
     select(entry.delen);
     flyTo(entry.delen);
-    settle(right, right ? 'Goed!' : `Fout: dit is de ${entry.naam}`);
+    // kies named the part in the question already: what is worth saying is which one was picked
+    settle(right, right ? 'Goed!'
+      : type === 'kies' ? `Fout: dat is de ${list[i].naam}` : `Fout: dit is de ${entry.naam}`);
   }
 
   // ---------------------------------------------------------------- typen
@@ -685,7 +703,7 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
     const verdict = judge(question.entry, typed.value);
     if (verdict === 'leeg') { typed.focus(); return; }
     if (verdict === 'onvolledig') {                // the head is shared: it has to be the whole name
-      setFeedback('Dat kan er meer dan één zijn. Geef de hele naam.', 'fout');
+      setFeedback('Zo heet er meer dan één. Geef de hele naam.', 'bijna');
       typed.select();
       return;
     }
