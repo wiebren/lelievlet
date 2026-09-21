@@ -78,10 +78,17 @@ await vlet.ready;     // het model is geladen en het eerste beeld is getekend
 vlet.config;          // de configuratie zoals hij geldt, met alle standaardwaarden ingevuld
 vlet.destroy();       // stopt de tekenlus, geeft de WebGL-context en het geheugen terug,
                       // haalt alle listeners weg en maakt het element leeg
+vlet.fullscreen();    // volledig scherm aan/uit; vlet.fullscreen(true) of (false) dwingt het af
 ```
 
 `create(element, config)` werpt een `TypeError` als het eerste argument geen element is. Na
 `destroy()` mag je opnieuw `create()` op hetzelfde element aanroepen.
+
+`fullscreen(aan?)` geeft de promise van het verzoek terug. Browsers staan volledig scherm alleen toe
+vanuit een echte gebruikersactie (een klik of toetsaanslag), dus een aanroep uit een `setTimeout` of
+bij het laden van de pagina wordt geweigerd — de viewer valt dan terug op de paginavullende modus,
+net als op een iPhone. Staat `volledigScherm` op `false`, dan doet de aanroep niets. `destroy()`
+verlaat volledig scherm vanzelf.
 
 ### Configuratie
 
@@ -92,6 +99,7 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 | Sleutel | Type | Standaard | Wat |
 |---|---|---|---|
 | `assets` | string | naast het script | Map waarin `models/` en `textures/` staan, bijvoorbeeld `'https://cdn.example/vlet/'`. Zonder sluitende `/` wordt die toegevoegd; een relatief pad wordt tegen de pagina opgelost. |
+| `volledigScherm` | boolean | `true` | Knop voor volledig scherm, rechtsboven onder het tandwiel, en de sneltoets `f`. `false` haalt de knop weg, laat de `f` met rust en maakt `handle.fullscreen()` een lege huls. |
 | `aanpassen.zeilnummer` | string | `'000'` | Zeilnummer op het grootzeil (max. 4 tekens). |
 | `aanpassen.naam` | string | `'Lelievlet'` | Naam op het boeisel, ter hoogte van het voordek. |
 | `aanpassen.plaats` | string | `'Zwolle'` | Plaats op het boeisel, ter hoogte van het achterdek. |
@@ -313,6 +321,15 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   hoek, dus er staat er altijd hoogstens één open. Rechtsboven zit het **tandwiel** voor Aanpassen en
   rechtsonder de **i** voor "Over dit model"; de bediening van de boot zelf zit achter de iconen van
   de onderste balk.
+- Onder het tandwiel zit **Volledig scherm** (de vier hoekhaken, naar binnen gekeerd zodra het aan
+  staat), ook te bedienen met de toets `f`; hij verdwijnt zolang het Aanpassen-paneel open staat,
+  want dat staat op zijn plek. Volledig scherm wordt aan het *hostelement* gevraagd, dus de hele
+  shadow root gaat mee en de viewer houdt zijn eigen indeling (`web/src/fullscreen.js`). Kan de
+  browser dat niet — Safari op de iPhone kent `requestFullscreen` op een element niet, en in een
+  `<iframe>` zonder `allow="fullscreen"` is het uitgezet — of wordt het verzoek geweigerd, dan legt
+  de viewer zichzelf paginavullend over de pagina heen (`position: fixed`, attribuut `data-lv-vol`
+  op de host) en zet de pagina eronder op slot; Escape haalt hem daar weer uit. Zie `volledigScherm`
+  in de configuratietabel.
 - Een lopende procedure (Reven, Tuig) toont zijn voortgangsbalk `#procedure` boven de bedieningsbalk:
   vorige stap, play/pause, volgende stap en een schuif over de hele timeline met een streepje bij elke
   stapgrens, het nummer en het Nederlandse label van de stap waarin hij zit, en de naam van de
@@ -336,7 +353,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
 - Sommige nummers in de tekening duiden een gebied aan, geen object: Boeg (de voorste 0.65 m van de
   romp) en Kleed (de derde baan van het grootzeil, geteld vanaf de schoothoek omhoog, tussen de naden
   van `extras.zeil.naden`). Ze staan als onderdelen in de lijst, gemarkeerd als "gebied", met
-  "Gebied, geen los onderdeel" in plaats van de afmetingen. `web/src/regions.js` definieert elk gebied
+  "Gebied, geen los onderdeel" in de infotegel. `web/src/regions.js` definieert elk gebied
   als een paar onderdeel-id's plus een predicaat over de driehoeken van hun meshes, en bouwt de
   highlight als een overlay die de position- en normal-attributen van die meshes deelt (zodat hij met
   het zeil meebuigt) en eronder hangt (zodat hij met ze meezwaait). Hij verschijnt alleen zolang zijn

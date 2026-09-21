@@ -143,6 +143,21 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     <button id="customize-reset" type="button">Standaardwaarden</button>
   </aside>
 
+  <!-- Volledig scherm, onder het tandwiel; het staat na het Aanpassen-paneel zodat de stylesheet
+       het met een broer-selector wegneemt zolang dat paneel open staat (het valt er anders achter) -->
+  <button id="fullscreen-toggle" class="icon-button" type="button" aria-label="Volledig scherm" title="Volledig scherm" aria-pressed="false">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <g data-icon="expand">
+        <path d="M9.5 4.5H4.5V9.5"/><path d="M14.5 4.5h5v5"/>
+        <path d="M19.5 14.5v5h-5"/><path d="M9.5 19.5h-5v-5"/>
+      </g>
+      <g data-icon="compress" hidden>
+        <path d="M4.5 9.5h5v-5"/><path d="M19.5 9.5h-5v-5"/>
+        <path d="M14.5 19.5v-5h5"/><path d="M9.5 19.5v-5h-5"/>
+      </g>
+    </svg>
+  </button>
+
   <!-- the boat controls: a row of icons along the bottom, each opening its own popover -->
   <nav id="controls" aria-label="Bediening">
     <button id="mode-toggle" class="icon-button" type="button" aria-label="Modus" title="Modus" aria-expanded="false" aria-controls="mode-panel">
@@ -345,7 +360,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
   <div id="info" hidden>
     <div class="group" id="info-group"></div>
     <div class="name" id="info-name"></div>
-    <div class="dims" id="info-dims"></div>
+    <div class="note" id="info-note" hidden></div>
     <div class="model" id="info-model" hidden>Modelnummer <b id="info-handle"></b><span class="more" id="info-more"></span></div>
   </div>
   <div id="hover" hidden></div>

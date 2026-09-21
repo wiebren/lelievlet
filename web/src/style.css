@@ -21,6 +21,37 @@
 
 * { box-sizing: border-box; }
 
+/* Volledig scherm. It is the HOST that goes full screen, so these are the only rules in this sheet
+   that say how big the viewer is - the page decides that everywhere else. A rule of the page around
+   us beats a plain :host rule (the outer tree wins), so the few properties that have to hold here
+   are !important: without it the embed would keep the height, the max-width, the place in the page
+   and the rounded corners its page gave it, in the middle of a black screen. The background is the
+   viewer's own, so nothing black shows through while the canvas is being resized.
+   The -webkit- spelling stands in a rule of its own on purpose: a pseudo-class a browser does not
+   know throws away the WHOLE selector list it is in, which would take the standard one with it. */
+:host(:fullscreen) {
+  position: fixed !important; inset: 0 !important; margin: 0 !important;
+  width: 100% !important; height: 100% !important;
+  max-width: none !important; max-height: none !important; border-radius: 0 !important;
+  background: linear-gradient(var(--bg-top), var(--bg-bottom));
+}
+:host(:-webkit-full-screen) {
+  position: fixed !important; inset: 0 !important; margin: 0 !important;
+  width: 100% !important; height: 100% !important;
+  max-width: none !important; max-height: none !important; border-radius: 0 !important;
+  background: linear-gradient(var(--bg-top), var(--bg-bottom));
+}
+/* Where element fullscreen is not to be had (iPhone Safari, an iframe without allow="fullscreen")
+   or the request was refused: the viewer lies over the page instead. fullscreen.js locks the
+   scrolling of the page itself for as long as this attribute is there. */
+:host([data-lv-vol]) {
+  position: fixed !important; inset: 0 !important; margin: 0 !important;
+  width: 100vw !important; height: 100dvh !important;
+  max-width: none !important; max-height: none !important; border-radius: 0 !important;
+  z-index: 2147483000 !important;
+  background: linear-gradient(var(--bg-top), var(--bg-bottom));
+}
+
 .lv {
   position: relative;
   container-type: inline-size;
@@ -88,10 +119,13 @@
   position: absolute; top: 16px; right: 16px; width: 44px; height: 44px; display: grid; place-items: center;
   padding: 0; border-radius: 50%; background: var(--panel); backdrop-filter: blur(8px);
 }
-.icon-button[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
+.icon-button[aria-expanded="true"], .icon-button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
 #view-toggle { right: auto; left: 16px; }
 #parts-toggle { top: 70px; right: auto; left: 16px; }
 #about-toggle { top: auto; bottom: 16px; }
+/* right hand corner: under Aanpassen, and out of sight while that panel stands in its place */
+#fullscreen-toggle { top: 70px; }
+#customize:not([hidden]) ~ #fullscreen-toggle { display: none; }
 
 #about {
   position: absolute; right: 16px; bottom: 70px; width: 290px; max-height: calc(100% - 100px); overflow: auto;
@@ -232,7 +266,7 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 }
 #info .group { color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
 #info .name { font-size: 20px; font-weight: 600; margin: 2px 0 4px; }
-#info .dims, #info .model { color: var(--muted); font-variant-numeric: tabular-nums; }
+#info .note, #info .model { color: var(--muted); font-variant-numeric: tabular-nums; }
 #info .model b { color: var(--text); font-weight: 600; }
 #info .model .more { margin-left: 6px; opacity: 0.7; cursor: help; }
 

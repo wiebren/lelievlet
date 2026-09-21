@@ -8,6 +8,7 @@ import { initCustomize, initCustomizePanel, collectZoneMaterials } from './custo
 import { initModes } from './modes.js';
 import { initRegions } from './regions.js';
 import { initQuiz } from './quiz.js';
+import { initFullscreen } from './fullscreen.js';
 import { makeAsset } from './assets.js';
 import { naamVan } from './config.js';
 
@@ -50,6 +51,8 @@ export function mount(ui, host, config) {
   const realTarget = (e) => e.composedPath()[0] ?? e.target;
 
   initCustomizePanel(ui, { signal, engaged });
+  // Volledig scherm works from the first frame: it needs nothing of the model
+  const fullscreen = initFullscreen({ ui, host, config, signal, engaged, realTarget, onDestroy });
 
   // panels behind an icon button: the view menu (eye), the parts list and the model information (i)
   const closePanel = new Map();                  // panel id -> close it
@@ -421,9 +424,9 @@ export function mount(ui, host, config) {
     const ex = list[0].extras;
     $('info-group').textContent = groups.get(ex.groep)?.title ?? '';
     $('info-name').textContent = ex.naam;
-    const dims = $('info-dims');
-    if (ex.gebied) dims.textContent = 'Gebied, geen los onderdeel';    // no dimensions, no model number
-    else { const [l, h, b] = ex.afmetingen_mm; dims.textContent = `${l} × ${b} × ${h} mm (l × b × h)`; }
+    const note = $('info-note');
+    note.hidden = !ex.gebied;                                          // a region has no model number either
+    note.textContent = ex.gebied ? 'Gebied, geen los onderdeel' : '';
     // The CAD body that was clicked; a part merged from several bodies lists the rest in the tooltip.
     // It is a debugging aid and nothing a scout needs, so it only shows with debug.modelnummer on.
     const handle = config.debug.modelnummer ? handleAt(hit) : null;
@@ -754,6 +757,7 @@ export function mount(ui, host, config) {
     const rect = wrap.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width));
     const h = Math.max(1, Math.round(rect.height));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));   // full screen can move us to another display
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
@@ -800,7 +804,7 @@ export function mount(ui, host, config) {
                   get quiz() { return quiz; },
                   get flight() { return flight; }, get hullBox() { return hullBox; } };
 
-  return { ready, destroy, debug };
+  return { ready, destroy, debug, fullscreen: fullscreen.toggle };
 }
 
 // ---------------------------------------------------------------- shared, and never written to

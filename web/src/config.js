@@ -5,6 +5,7 @@
 //
 //   Lelievlet.create(element, {
 //     assets: 'https://…/',                       // where models/ and textures/ are; default: next to the script
+//     volledigScherm: true,                       // false: no full screen button, and the f key does nothing
 //     aanpassen: {
 //       zeilnummer: '442', naam: 'Fluessen', plaats: 'Zwolle',
 //       naamKleur: '#0b0b0b', plaatsKleur: '#0b0b0b',       // the lettering on the boeisel
@@ -32,6 +33,7 @@
 
 export const DEFAULTS = {
   assets: null,
+  volledigScherm: true,
   aanpassen: { opslaan: true },
   namen: { onderdelen: {}, stappen: {}, commandos: {}, quiz: {} },
   quiz: { weg: [], erbij: [], niveau: 3 },

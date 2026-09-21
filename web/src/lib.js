@@ -11,10 +11,13 @@ import { mount } from './main.js';
 let devHandle = false;      // window.vlet goes to the first viewer only, and only in the dev server
 
 /**
- * create(element, config) -> { ready, destroy, config }
- *   ready    resolves when the model is loaded and the first frame has been drawn
- *   destroy  stops the viewer, gives back its WebGL context and empties the element
- *   config   the configuration in force, defaults filled in (see config.js)
+ * create(element, config) -> { ready, destroy, config, fullscreen }
+ *   ready       resolves when the model is loaded and the first frame has been drawn
+ *   destroy     stops the viewer, gives back its WebGL context and empties the element
+ *   config      the configuration in force, defaults filled in (see config.js)
+ *   fullscreen  fullscreen(on?) puts the viewer full screen or takes it back; left out, it flips.
+ *               The browser only grants it from a real user action, and it does nothing at all
+ *               when `volledigScherm` is false.
  */
 export function create(element, config = {}) {
   if (!(element instanceof Element)) {
@@ -32,7 +35,7 @@ export function create(element, config = {}) {
   ui.append(style, markup.content);
 
   const viewer = mount(ui, element, resolved);
-  const handle = { ready: viewer.ready, destroy: viewer.destroy, config: resolved };
+  const handle = { ready: viewer.ready, destroy: viewer.destroy, config: resolved, fullscreen: viewer.fullscreen };
   if (debugOn(resolved)) handle.debugHandle = viewer.debug;
   if (import.meta.env.DEV && !devHandle) {   // handy in the console and for the automated checks
     devHandle = true;

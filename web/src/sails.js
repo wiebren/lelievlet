@@ -13,6 +13,9 @@ const PX_PER_M = 620;
 function loadImage(url) {
   return new Promise((resolve, reject) => {
     const img = new Image();
+    // an embed fetches it from another origin; without CORS it taints the canvas it is painted
+    // on, and WebGL refuses a tainted canvas as a texture
+    img.crossOrigin = 'anonymous';
     img.onload = () => resolve(img);
     img.onerror = reject;
     img.src = url;
