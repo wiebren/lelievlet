@@ -3,6 +3,7 @@ import { initFlag } from './flag.js';
 import { Procedure } from './procedure.js';
 import { RopeLine, RopeStretch, roundTheFront, carry, layChain, makeBlokje, makeBorgpen, makeCourseArrow, makeDol, makeKettinkje, makeKnevel, makeMik, makeWater, makeWindArrow, makeWindVane,
          makeZwaardbout, pivotRotate, rotatedPoint, setOpacity } from './rig.js';
+import { naamVan } from './config.js';
 
 // Modes (Zeilen / Roeien / Wrikken) and the sail trim for a course to the wind.
 // The boat stays where it is; the wind arrow moves round it. A course is signed: positive means
@@ -33,6 +34,25 @@ const MARKERS = [
   { course: RUN, label: 'Voor de wind' },
   { course: LOEVERT, label: 'Fok te loevert' },
 ];
+
+// -- roeicommando's (Katwijkse Zeeverkenners, CWO roei-instructieboek H2). What an oar does for a
+// commando is a pose (or a stroke) that the oar eases into.
+//   power: +1 halen, -1 strijken, 0 still; down: how far the blade end points down; yaw: swung aft
+//   along the hull; roll: 1 blade upright, 0 flat (only while not rowing); inboard: handle to the dol;
+//   stand: 1 = standing on the vlonder (riemen op); given: 0 = out of the dol and stowed (geroeid)
+// `beide` marks the commando's that are given to the whole boat at once: they are never called for
+// one boord alone, so the popover offers them once, above the two boorden.
+const ROEICOMMANDOS = {
+  slag: { beide: true, power: 1, down: 13, yaw: 0, roll: 0, inboard: 0.8, stand: 0, given: 1, drive: 1, say: 'haalt op… gelijk, op… slag' },
+  haal: { power: 1, down: 13, yaw: 0, roll: 0, inboard: 0.8, stand: 0, given: 1, drive: 1, say: 'haalt op… gelijk', strokes: true },
+  opriemen: { power: 0, down: 3, yaw: 0, roll: 0, inboard: 0.8, stand: 0, given: 1, drive: 0, say: '' },
+  strijk: { power: -1, down: 13, yaw: 0, roll: 0, inboard: 0.8, stand: 0, given: 1, drive: -1, say: 'strijkt… gelijk' },
+  stopaf: { power: 0, down: 24, yaw: 0, roll: 1, inboard: 0.8, stand: 0, given: 1, drive: -0.5, say: 'stopt… af', atOnce: true },
+  lopen: { power: 0, down: 7, yaw: 78, roll: 0, inboard: 0.8, stand: 0, given: 1, drive: 0, say: 'riemen… lopen', atOnce: true },
+  over: { beide: true, power: 0, down: 0, yaw: 0, roll: 0, inboard: 1.72, stand: 0, given: 1, drive: 0, say: 'riemen… over' },
+  op: { beide: true, power: 0, down: -88, yaw: 0, roll: 1, inboard: 0.06, stand: 1, given: 1, drive: 0, say: 'riemen… op' },
+  geroeid: { beide: true, power: 0, down: 3, yaw: 0, roll: 0, inboard: 0.8, stand: 0, given: 0, drive: 0, say: 'riemen… geroeid' },
+};
 
 function interp(table, x) {
   if (x <= table[0][0]) return table[0][1];
@@ -126,8 +146,23 @@ class Bend {
   }
 }
 
-export function initModes({ parts, tuig, scene }) {
+export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResize, engaged, realTarget }) {
   const byId = new Map(parts.map((p) => [p.extras.id, p]));
+  const $ = (id) => ui.getElementById(id);
+  const all = (selector) => [...ui.querySelectorAll(selector)];
+  /** A step of a procedure under the name this group uses for it. */
+  const stap = (label) => naamVan(config, 'stappen', label, label);
+  // The roeicommando's this instance uses: `namen.commandos` may rename the button and, with
+  // { knop, roep }, the words the roerganger calls. The table itself is shared and never written to.
+  const COMMANDS = Object.fromEntries(Object.entries(ROEICOMMANDOS).map(([key, base]) => {
+    const over = config?.namen?.commandos?.[key];
+    const roep = typeof over === 'string' ? undefined : over?.roep;
+    return [key, roep === undefined ? base : { ...base, say: roep }];
+  }));
+  const knopVan = (key) => {
+    const over = config?.namen?.commandos?.[key];
+    return typeof over === 'string' ? over : over?.knop ?? null;
+  };
   const meshesOf = (ids) => ids.flatMap((id) => byId.get(id)?.meshes ?? []);
 
   // -- what moves with what
@@ -188,14 +223,14 @@ export function initModes({ parts, tuig, scene }) {
   const planReef = (turns) => {
     if (Math.abs(reef.turns - turns) < 1e-6 && reef.slack + reef.slide + reef.pull < 1e-6) return;
     reefing = new Procedure('Reven', reef, [
-      { key: 'slack', to: 1, seconds: 0.7, label: 'Vallen vieren' },
-      { key: 'slide', to: 1, seconds: 1.1, label: 'Schootring naar de nok' },
-      { key: 'pull', to: 1, seconds: 0.5, label: 'Giek naar achteren trekken' },
-      { key: 'turns', to: turns, seconds: 1.25 * Math.max(Math.abs(turns - reef.turns), 0.4), label: 'Giek draaien' },
-      { key: 'pull', to: 0, seconds: 0.5, label: 'Giek terug in het lummelbeslag' },
-      { key: 'hoop', to: turns > 0 ? 1 : 0, seconds: 0.9, label: 'Grootschoot verhangen' },
-      { key: 'slide', to: 0, seconds: 1.1, label: 'Schootring terug' },
-      { key: 'slack', to: 0, seconds: 0.7, label: 'Vallen doorzetten' },
+      { key: 'slack', to: 1, seconds: 0.7, label: stap('Vallen vieren') },
+      { key: 'slide', to: 1, seconds: 1.1, label: stap('Schootring naar de nok') },
+      { key: 'pull', to: 1, seconds: 0.5, label: stap('Giek naar achteren trekken') },
+      { key: 'turns', to: turns, seconds: 1.25 * Math.max(Math.abs(turns - reef.turns), 0.4), label: stap('Giek draaien') },
+      { key: 'pull', to: 0, seconds: 0.5, label: stap('Giek terug in het lummelbeslag') },
+      { key: 'hoop', to: turns > 0 ? 1 : 0, seconds: 0.9, label: stap('Grootschoot verhangen') },
+      { key: 'slide', to: 0, seconds: 1.1, label: stap('Schootring terug') },
+      { key: 'slack', to: 0, seconds: 0.7, label: stap('Vallen doorzetten') },
     ]);
     reef = reefing.values; reefing.command(reefing.total); shown = reefing;
   };
@@ -470,20 +505,7 @@ export function initModes({ parts, tuig, scene }) {
   const eyeAt = new THREE.Vector3(); const rim = new THREE.Vector3(); const chainPath = [];
   // -- roeicommando's (Katwijkse Zeeverkenners, CWO roei-instructieboek H2). Each boord has its own
   // commando; what an oar does for it is a pose (or a stroke) that the oar eases into.
-  //   power: +1 halen, -1 strijken, 0 still; down: how far the blade end points down; yaw: swung aft
-  //   along the hull; roll: 1 blade upright, 0 flat (only while not rowing); inboard: handle to the dol;
-  //   stand: 1 = standing on the vlonder (riemen op); given: 0 = out of the dol and stowed (geroeid)
-  const COMMANDS = {
-    slag: { power: 1, down: 13, yaw: 0, roll: 0, inboard: 0.8, stand: 0, given: 1, drive: 1, say: 'haalt op… gelijk, op… slag' },
-    haal: { power: 1, down: 13, yaw: 0, roll: 0, inboard: 0.8, stand: 0, given: 1, drive: 1, say: 'haalt op… gelijk', strokes: true },
-    opriemen: { power: 0, down: 3, yaw: 0, roll: 0, inboard: 0.8, stand: 0, given: 1, drive: 0, say: '' },
-    strijk: { power: -1, down: 13, yaw: 0, roll: 0, inboard: 0.8, stand: 0, given: 1, drive: -1, say: 'strijkt… gelijk' },
-    stopaf: { power: 0, down: 24, yaw: 0, roll: 1, inboard: 0.8, stand: 0, given: 1, drive: -0.5, say: 'stopt… af', atOnce: true },
-    lopen: { power: 0, down: 7, yaw: 78, roll: 0, inboard: 0.8, stand: 0, given: 1, drive: 0, say: 'riemen… lopen', atOnce: true },
-    over: { power: 0, down: 0, yaw: 0, roll: 0, inboard: 1.72, stand: 0, given: 1, drive: 0, say: 'riemen… over' },
-    op: { power: 0, down: -88, yaw: 0, roll: 1, inboard: 0.06, stand: 1, given: 1, drive: 0, say: 'riemen… op' },
-    geroeid: { power: 0, down: 3, yaw: 0, roll: 0, inboard: 0.8, stand: 0, given: 0, drive: 0, say: 'riemen… geroeid' },
-  };
+  //   see ROEICOMMANDOS below
   const courseArrow = makeCourseArrow(); courseArrow.visible = false; scene.add(courseArrow);
   const wrikgat = V(tuig.wrikgat);
   const SCULL_PITCH = deg(50);                                      // how steeply the wrikriem points down
@@ -650,20 +672,20 @@ export function initModes({ parts, tuig, scene }) {
   // "Zeilen gestreken" and "Mast gestreken" are three moments on it.
   const rigging = new Procedure('Tuig', { head: 0, anchor: 0, jib: 0, mik: 0, main: 0, furl: 0, ties: 0,
     fokoff: 0, low: 0, pin: 0, grendel: 0, ring: 0, hook: 0, mast: 0 }, [
-    { key: 'head', to: 1, seconds: 1.5, label: 'Kop in de wind' },
-    { key: 'anchor', to: 1, seconds: 8, label: 'Anker uit' },
-    { key: 'jib', to: 1, seconds: 2, label: 'Fok strijken' },
-    { key: 'mik', to: 1, seconds: 1.5, label: 'Mik zetten' },
-    { key: 'main', to: 1, seconds: 2.5, label: 'Grootzeil strijken' },
-    { key: 'furl', to: 1, seconds: 1.5, label: 'Zeil opdoeken' },
-    { key: 'ties', to: 1, seconds: 1.2, label: 'Zeilbinders om' },
-    { key: 'fokoff', to: 1, seconds: 2, label: 'Fok afnemen' },
-    { key: 'low', to: 1, seconds: 2, label: 'Tuig in de onderste haak van de mik' },
-    { key: 'pin', to: 1, seconds: 1.8, label: 'Lummelbout uit' },
-    { key: 'grendel', to: 1, seconds: 1.5, label: 'Grendelbout uit' },
-    { key: 'ring', to: 1, seconds: 1.2, label: 'Ring van de pelikaanhaak omhoog' },
-    { key: 'hook', to: 1, seconds: 1.8, label: 'Pelikaanhaak uit de hanekam' },
-    { key: 'mast', to: 1, seconds: 5, label: 'Mast strijken' },
+    { key: 'head', to: 1, seconds: 1.5, label: stap('Kop in de wind') },
+    { key: 'anchor', to: 1, seconds: 8, label: stap('Anker uit') },
+    { key: 'jib', to: 1, seconds: 2, label: stap('Fok strijken') },
+    { key: 'mik', to: 1, seconds: 1.5, label: stap('Mik zetten') },
+    { key: 'main', to: 1, seconds: 2.5, label: stap('Grootzeil strijken') },
+    { key: 'furl', to: 1, seconds: 1.5, label: stap('Zeil opdoeken') },
+    { key: 'ties', to: 1, seconds: 1.2, label: stap('Zeilbinders om') },
+    { key: 'fokoff', to: 1, seconds: 2, label: stap('Fok afnemen') },
+    { key: 'low', to: 1, seconds: 2, label: stap('Tuig in de onderste haak van de mik') },
+    { key: 'pin', to: 1, seconds: 1.8, label: stap('Lummelbout uit') },
+    { key: 'grendel', to: 1, seconds: 1.5, label: stap('Grendelbout uit') },
+    { key: 'ring', to: 1, seconds: 1.2, label: stap('Ring van de pelikaanhaak omhoog') },
+    { key: 'hook', to: 1, seconds: 1.8, label: stap('Pelikaanhaak uit de hanekam') },
+    { key: 'mast', to: 1, seconds: 5, label: stap('Mast strijken') },
   ]);
   const strike = rigging.values;
   const RIG_AT = { op: 0, gestreken: rigging.after('ties'), mast: rigging.total };
@@ -1188,17 +1210,18 @@ export function initModes({ parts, tuig, scene }) {
   }
 
   // -- UI: one bar of icon buttons along the bottom; each one opens its control in a popover
-  const bar = document.getElementById('controls');
+  const bar = $('controls');
   const popovers = ['mode', 'wind', 'board', 'reef', 'rig', 'oars', 'cmd'].map((key) => ({
-    key, button: document.getElementById(`${key}-toggle`), panel: document.getElementById(`${key}-panel`),
+    key, button: $(`${key}-toggle`), panel: $(`${key}-panel`),
   }));
   let opened = null;
-  /** Centre a panel over its own icon, but keep it inside the viewport. */
+  /** Centre a panel over its own icon, but keep it inside the viewer - not inside the window. */
   const place = ({ button, panel }) => {
     const EDGE = 8;
     const box = button.getBoundingClientRect();
-    const room = Math.max(EDGE, window.innerWidth - panel.offsetWidth - EDGE);
-    const x = Math.min(Math.max(box.left + box.width / 2 - panel.offsetWidth / 2, EDGE), room);
+    const frame = wrap.getBoundingClientRect();
+    const room = Math.max(frame.left + EDGE, frame.right - panel.offsetWidth - EDGE);
+    const x = Math.min(Math.max(box.left + box.width / 2 - panel.offsetWidth / 2, frame.left + EDGE), room);
     panel.style.left = `${x - bar.getBoundingClientRect().left}px`;
   };
   const openPopover = (control) => {                                // null closes; only ever one open
@@ -1213,11 +1236,15 @@ export function initModes({ parts, tuig, scene }) {
   for (const control of popovers) {
     control.button.addEventListener('click', () => openPopover(opened === control ? null : control));
   }
-  document.addEventListener('pointerdown', (e) => { if (opened && !bar.contains(e.target)) openPopover(null); });
+  // a press outside the bar closes the popover; the event is retargeted to the host on its way out
+  // of the shadow root, so what it really started on has to be read from its composed path
+  document.addEventListener('pointerdown', (e) => {
+    if (opened && !e.composedPath().includes(bar)) openPopover(null);
+  }, { signal });
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && opened) { opened.button.focus(); openPopover(null); }
-  });
-  window.addEventListener('resize', () => { if (opened) place(opened); });
+    if (e.key === 'Escape' && opened && engaged()) { opened.button.focus(); openPopover(null); }
+  }, { signal });
+  onResize(() => { if (opened) place(opened); });
   /** An icon that does not apply to the mode goes away and takes its popover with it. */
   const relevant = (key, applies) => {
     const control = popovers.find((c) => c.key === key);
@@ -1226,11 +1253,11 @@ export function initModes({ parts, tuig, scene }) {
   };
 
   // -- the mirrored course slider, in the wind popover
-  const windPanel = document.getElementById('wind-panel');
-  const slider = document.getElementById('course');
-  const markers = document.getElementById('course-markers');
+  const windPanel = $('wind-panel');
+  const slider = $('course');
+  const markers = $('course-markers');
   const ticks = windPanel.querySelector('.ticks');
-  const needle = document.getElementById('wind-needle');
+  const needle = $('wind-needle');
 
   const toSlider = (course) => Math.sign(course) * (Math.abs(course) - CLOSE_HAULED);
   const nameOf = (course) => {
@@ -1249,8 +1276,8 @@ export function initModes({ parts, tuig, scene }) {
     const side = Math.sign(value) || Math.sign(state.course) || 1;
     return side * (CLOSE_HAULED + Math.abs(value));
   };
-  const boardButtons = [...document.querySelectorAll('#board-panel button')];
-  const blade = document.getElementById('board-blade');
+  const boardButtons = all('#board-panel button');
+  const blade = $('board-blade');
   const BLADE = { neer: 'M12 13.5v6', half: 'M12 13.5v3', op: 'M12 8.5V4' };   // how the icon draws the board
   const setBoard = (value) => {
     state.midzwaard = value;
@@ -1261,8 +1288,8 @@ export function initModes({ parts, tuig, scene }) {
   for (const b of boardButtons) b.addEventListener('click', () => { setBoard(b.dataset.board); openPopover(null); });
 
   // reven: the number of turns of the giek
-  const reefSlider = document.getElementById('reef');
-  const reefValue = document.getElementById('reef-value'); const reefCount = document.getElementById('reef-count');
+  const reefSlider = $('reef');
+  const reefValue = $('reef-value'); const reefCount = $('reef-count');
   reefSlider.max = String(reefInfo.max_slagen);
   const setReef = (turns) => {
     reefSlider.value = String(turns);
@@ -1276,12 +1303,26 @@ export function initModes({ parts, tuig, scene }) {
     reefValue.textContent = turns === 0 ? 'geen' : `${turns} ${turns === 1 ? 'slag' : 'slagen'} om de giek`;
   });
 
-  // roeicommando: one per boord, and the words the roerganger would call for the two together
-  const cmdButtons = [...document.querySelectorAll('#cmd-panel button')];
-  const spoken = document.getElementById('cmd-spoken');
+  // Roeicommando. "Op… slag", "riemen… over", "riemen… op" and "riemen… geroeid" are given to the
+  // whole boat and never to one boord, so they have a group of their own above the two boorden;
+  // what is left is what a roerganger does call per boord, to turn the boat ("bakboord strijkt,
+  // stuurboord haalt op"). A per-side choice leaves the other boord exactly as it was.
+  const cmdButtons = all('#cmd-panel button');
+  const spoken = $('cmd-spoken');
+  for (const b of cmdButtons) {                                     // namen.commandos renames the button
+    const label = knopVan(b.dataset.commando);
+    if (label) b.textContent = label;
+  }
   const setCommando = (boord, commando) => {
-    state.commando[boord] = commando;
-    for (const b of cmdButtons) b.setAttribute('aria-pressed', String(state.commando[b.parentElement.dataset.boord] === b.dataset.commando));
+    if (boord === 'beide') { state.commando.bb = commando; state.commando.sb = commando; }
+    else state.commando[boord] = commando;
+    for (const b of cmdButtons) {
+      const group = b.parentElement.dataset.boord;
+      const pressed = group === 'beide'
+        ? state.commando.bb === b.dataset.commando && state.commando.sb === b.dataset.commando
+        : state.commando[group] === b.dataset.commando;
+      b.setAttribute('aria-pressed', String(pressed));
+    }
     const { bb, sb } = state.commando;
     const words = bb === sb ? (COMMANDS[bb].say ? `Bakboord, stuurboord ${COMMANDS[bb].say}` : '')
       : [['Bakboord', bb], ['Stuurboord', sb]].filter(([, c]) => COMMANDS[c].say).map(([name, c], i) => `${i ? name.toLowerCase() : name} ${COMMANDS[c].say}`).join(', ');
@@ -1289,11 +1330,16 @@ export function initModes({ parts, tuig, scene }) {
     const first = [bb, sb].every((c) => COMMANDS[c].atOnce) ? '' : 'Op… riemen. ';
     spoken.textContent = `“${first}${words}${words ? '.' : ''}”`.replace('. ”', '.”').replace('“Op… riemen. ”', '“Op… riemen.”');
   };
-  for (const b of cmdButtons) b.addEventListener('click', () => setCommando(b.parentElement.dataset.boord, b.dataset.commando));
-  setCommando('bb', state.commando.bb);
+  for (const b of cmdButtons) {
+    b.addEventListener('click', () => {
+      setCommando(b.parentElement.dataset.boord, b.dataset.commando);
+      openPopover(null);                                            // like the other choices that set the boat going
+    });
+  }
+  setCommando('beide', state.commando.bb);
 
   // tuig: sails set or struck
-  const rigButtons = [...document.querySelectorAll('#rig-panel button')];
+  const rigButtons = all('#rig-panel button');
   const setRig = (rig) => {
     state.rig = rig;
     for (const b of rigButtons) b.setAttribute('aria-pressed', String(b.dataset.rig === rig));
@@ -1303,8 +1349,8 @@ export function initModes({ parts, tuig, scene }) {
   };
   for (const b of rigButtons) b.addEventListener('click', () => { setRig(b.dataset.rig); openPopover(null); });
 
-  const rowButtons = [...document.querySelectorAll('#oars-panel button')];
-  const oarCount = document.getElementById('oar-count');
+  const rowButtons = all('#oars-panel button');
+  const oarCount = $('oar-count');
   const setRowing = (rowing) => {
     state.rowing = rowing;
     oarCount.textContent = rowing === 'vier' ? '4' : '2';
@@ -1312,8 +1358,8 @@ export function initModes({ parts, tuig, scene }) {
   };
   for (const b of rowButtons) b.addEventListener('click', () => { setRowing(b.dataset.rowing); openPopover(null); });
 
-  const modeButtons = [...document.querySelectorAll('#mode-panel button')];
-  const modeGlyphs = [...document.querySelectorAll('#mode-toggle [data-mode]')];
+  const modeButtons = all('#mode-panel button');
+  const modeGlyphs = all('#mode-toggle [data-mode]');
   const setMode = (mode) => {
     state.mode = mode;
     for (const d of dollen) d.byHand = undefined;                   // a new mode puts dollen and mik where they belong in it

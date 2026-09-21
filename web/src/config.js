@@ -5,12 +5,19 @@
 //
 //   Lelievlet.create(element, {
 //     assets: 'https://…/',                       // where models/ and textures/ are; default: next to the script
-//     aanpassen: { zeilnummer: '442', naam: 'Fluessen', plaats: 'Zwolle', bakskleur: '#c8141f',
-//                  kleuren: { romp: '#111111', boeisel: '#e6d85a' }, opslaan: true },
+//     aanpassen: {
+//       zeilnummer: '442', naam: 'Fluessen', plaats: 'Zwolle',
+//       naamKleur: '#0b0b0b', plaatsKleur: '#0b0b0b',       // the lettering on the boeisel
+//       bakskleur: '#c8141f',                               // beslag and the painted bands
+//       kleuren: { romp: '#111111', berghout: '#0a0a0b', boeisel: '#e6d85a', dolboord: '#0a0a0b',
+//                  voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499' },
+//       opslaan: true,                                      // false: never read or write localStorage
+//     },
 //     namen: {
 //       onderdelen: { hommerring: 'Mastring', want_bb: 'Bakboord zijstag' },   // by part id
 //       stappen: { 'Fok strijken': 'Fok neer' },                                // procedure steps, by their default label
-//       commandos: { stopaf: 'Houden' },                                        // roeicommando's, by key
+//       commandos: { stopaf: 'Houden', op: { knop: 'Riemen op', roep: 'riemen… op' } },   // roeicommando's, by key
+//       quiz: { 27: 'Hommerring', Kleed: 'Baan' },                              // quiz entries, by nr or default name
 //     },
 //     quiz: {
 //       weg: [27, 'Kleed'],                          // numbers or names to leave out
@@ -19,11 +26,14 @@
 //     },
 //     debug: { modelnummer: true, quiztabellen: true },
 //   })
+//
+// The Aanpassen values REPLACE the viewer's own defaults for this instance; what the user saved in
+// this browser still wins over them, unless `aanpassen.opslaan` is false.
 
 export const DEFAULTS = {
   assets: null,
   aanpassen: { opslaan: true },
-  namen: { onderdelen: {}, stappen: {}, commandos: {} },
+  namen: { onderdelen: {}, stappen: {}, commandos: {}, quiz: {} },
   quiz: { weg: [], erbij: [], niveau: 3 },
   debug: { modelnummer: false, quiztabellen: false },
 };
@@ -52,8 +62,14 @@ export function resolveConfig(given = {}) {
   return config;
 }
 
+/** Whether any debug aid is on: the handle is only handed out then. */
+export const debugOn = (config) => Object.values(config?.debug ?? {}).some(Boolean);
+
 /** The name a group uses for a part, a procedure step or a roeicommando; `fallback` when it has none. */
 export const naamVan = (config, soort, key, fallback) => config?.namen?.[soort]?.[key] ?? fallback;
+
+/** The name a group uses for a quiz entry: by its number, else by the name the entry has by default. */
+export const quizNaam = (config, nr, naam) => config?.namen?.quiz?.[nr] ?? config?.namen?.quiz?.[naam] ?? naam;
 
 /** The quiz entries for this configuration: the standard list less `weg`, plus `erbij`. */
 export function quizEntries(config, standard) {

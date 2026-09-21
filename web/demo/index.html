@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lelievlet 3D — insluiten in je eigen pagina</title>
+  <style>
+    :root { color-scheme: light; }
+    body {
+      margin: 0 auto; padding: 32px 20px 64px; max-width: 900px;
+      font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; color: #16222e; background: #fff;
+    }
+    h1 { font-size: 28px; margin: 0 0 6px; }
+    h2 { font-size: 19px; margin: 36px 0 8px; }
+    p { margin: 0 0 12px; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13.5px; }
+    pre {
+      margin: 0 0 16px; padding: 12px 14px; overflow: auto;
+      background: #f2f5f8; border: 1px solid rgba(22, 34, 46, 0.12); border-radius: 10px;
+    }
+    a { color: #0b5cad; }
+    .caption { margin: 0 0 8px; color: #5b6b7a; font-size: 14px; }
+    /* de viewer vult het element waarin hij staat: dat element moet dus een hoogte krijgen */
+    .viewer { width: 100%; border: 1px solid rgba(22, 34, 46, 0.14); border-radius: 12px; overflow: hidden; }
+    #groot { height: 560px; }
+    #klein { height: 420px; max-width: 380px; }
+    .rij { display: flex; flex-wrap: wrap; gap: 20px; align-items: start; }
+    .rij > div { flex: 1 1 320px; }
+  </style>
+</head>
+<body>
+  <h1>De lelievlet in je eigen pagina</h1>
+  <p>Het 3D-model van de lelievlet is een kleine bibliotheek. Je zet een element op je pagina, geeft
+    het een hoogte, en laat de bibliotheek er een viewer in bouwen. De viewer staat in een eigen
+    shadow DOM: jouw stijlen raken hem niet en zijn stijlen raken jouw pagina niet.</p>
+
+  <pre><code>&lt;div id="vlet" style="height:600px"&gt;&lt;/div&gt;
+&lt;script type="module"&gt;
+  import Lelievlet from 'https://wiebren.github.io/lelievlet/lelievlet.js';
+  Lelievlet.create(document.getElementById('vlet'), {
+    aanpassen: { zeilnummer: '442', naam: 'Fluessen', plaats: 'Zwolle' },
+    namen: { onderdelen: { hommerring: 'Mastring' } },
+    quiz: { niveau: 2 },
+  });
+&lt;/script&gt;</code></pre>
+
+  <p>Alles in de configuratie is optioneel. Wat je weglaat blijft zoals de viewer het zelf heeft.
+    De volledige lijst met instellingen staat in de
+    <a href="https://github.com/wiebren/lelievlet#insluiten-in-een-webpagina">README</a>.</p>
+
+  <h2>Twee viewers op één pagina</h2>
+  <p class="caption">Ze weten niets van elkaar: een keuze in de ene verandert niets in de andere.
+    De linker is de standaardviewer; de rechter heeft andere kleuren, een ander zeilnummer, een
+    hernoemd onderdeel, Oefenen op CWO I en de debug-hulpjes aan.</p>
+
+  <div class="rij">
+    <div>
+      <div id="groot" class="viewer"></div>
+    </div>
+    <div>
+      <div id="klein" class="viewer"></div>
+    </div>
+  </div>
+
+  <h2>Wat de viewer teruggeeft</h2>
+  <pre><code>const vlet = Lelievlet.create(element, { … });
+await vlet.ready;     // het model is geladen en het eerste beeld staat er
+vlet.config;          // de configuratie zoals hij geldt, met alle standaardwaarden ingevuld
+vlet.destroy();       // stopt de viewer, geeft het WebGL-geheugen terug en maakt het element leeg</code></pre>
+
+  <script type="module">
+    import Lelievlet from './lelievlet.js';
+
+    // links: alles standaard
+    const groot = Lelievlet.create(document.getElementById('groot'));
+
+    // rechts: een andere boot, andere namen, Oefenen op CWO I en de debug-tabellen aan
+    const klein = Lelievlet.create(document.getElementById('klein'), {
+      aanpassen: {
+        zeilnummer: '442', naam: 'Fluessen', plaats: 'Sneek',
+        bakskleur: '#1d4fa3',
+        kleuren: { romp: '#14472c', boeisel: '#e8e2cf', berghout: '#14472c' },
+        opslaan: false,                     // deze viewer onthoudt niets in de browser
+      },
+      namen: {
+        onderdelen: { hommerring: 'Mastring', kraanlijn: 'Kraanlijn' },
+        commandos: { stopaf: 'Houden' },
+      },
+      quiz: { niveau: 1 },
+      debug: true,
+    });
+
+    // handig bij het bekijken van deze pagina in de console
+    window.demo = { groot, klein };
+  </script>
+</body>
+</html>

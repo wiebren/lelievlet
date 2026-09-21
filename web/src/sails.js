@@ -143,8 +143,9 @@ function decalPatch(parts, id, widthM, heightM, renderer) {
   return { canvas, texture, ctx: canvas.getContext('2d') };
 }
 
-export async function dressSails(parts, renderer, number = '000') {
-  const emblem = await loadImage('/textures/zeilteken.png').catch(() => null);
+/** asset(path): where the textures are fetched from; see assets.js. */
+export async function dressSails(parts, renderer, asset, number = '000') {
+  const emblem = await loadImage(asset('textures/zeilteken.png')).catch(() => null);
   const sails = [];
   for (const part of parts) {
     const zeil = part.extras.zeil;

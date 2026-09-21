@@ -6,15 +6,6 @@ import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
 
 const raycaster = new THREE.Raycaster();
 
-const strakeCache = new Map();
-
-/** Middle of the boeisel strake (and the surface normal there) at station x on one side. */
-function strakeMiddle(mesh, x, side) {
-  const key = `${mesh.uuid}:${x.toFixed(3)}:${side}`;
-  if (!strakeCache.has(key)) strakeCache.set(key, findStrakeMiddle(mesh, x, side));
-  return strakeCache.get(key);
-}
-
 function findStrakeMiddle(mesh, x, side) {
   let lo = null; let hi = null;
   const dir = new THREE.Vector3(0, 0, -side);
@@ -57,7 +48,15 @@ export class HullText {
   constructor(boeisel, renderer, parent) {
     this.boeisel = boeisel; this.renderer = renderer; this.parent = parent;
     this.decals = new Map();
+    this.strakes = new Map();      // per viewer: the probing is slow, the answer never changes
     for (const m of Object.values(boeisel)) m.updateWorldMatrix(true, false);
+  }
+
+  /** Middle of the boeisel strake (and the surface normal there) at station x on one side. */
+  strakeMiddle(mesh, x, side) {
+    const key = `${mesh.uuid}:${x.toFixed(3)}:${side}`;
+    if (!this.strakes.has(key)) this.strakes.set(key, findStrakeMiddle(mesh, x, side));
+    return this.strakes.get(key);
   }
 
   /** key: slot name, text, x: station (m from the transom) of the text centre, letterHeight in m */
@@ -70,8 +69,8 @@ export class HullText {
     if (!text) return;
     for (const [name, side] of [['sb', 1], ['bb', -1]]) {
       const mesh = this.boeisel[name];
-      const here = strakeMiddle(mesh, x, side);
-      const aft = strakeMiddle(mesh, x - 0.25, side); const fore = strakeMiddle(mesh, x + 0.25, side);
+      const here = this.strakeMiddle(mesh, x, side);
+      const aft = this.strakeMiddle(mesh, x - 0.25, side); const fore = this.strakeMiddle(mesh, x + 0.25, side);
       if (!here || !aft || !fore) continue;
       const { texture, aspect } = textTexture(text, color, this.renderer);
       const boxHeight = letterHeight / 0.62;                   // cap height is ~62 % of the canvas height

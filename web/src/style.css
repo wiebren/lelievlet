@@ -1,4 +1,10 @@
-:root {
+/* The whole viewer, laid out inside its own shadow root. Nothing here is positioned against the
+   window: `.lv` is the box the viewer fills - the host element - and everything stands against it,
+   so two viewers of different sizes can sit on one page. `.lv` is also a size container, so the
+   narrow layout follows the width of the EMBED and not the width of the browser. */
+
+:host {
+  display: block;
   --bg-top: #cfe3f1;
   --bg-bottom: #f4f7f9;
   --panel: rgba(255, 255, 255, 0.92);
@@ -6,12 +12,19 @@
   --muted: #5b6b7a;
   --accent: #0b5cad;
   --line: rgba(22, 34, 46, 0.12);
+  --quiz-goed: #147a45;
+  --quiz-fout: #b3261e;
+  --quiz-goed-bg: rgba(20, 122, 69, 0.1);
+  --quiz-fout-bg: rgba(179, 38, 30, 0.1);
+  --quiz-los-bg: #dfe9f1;      /* the backdrop of a part lifted out of the boat */
 }
 
 * { box-sizing: border-box; }
 
-html, body {
-  margin: 0;
+.lv {
+  position: relative;
+  container-type: inline-size;
+  width: 100%;
   height: 100%;
   overflow: hidden;
   font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -19,10 +32,10 @@ html, body {
   background: linear-gradient(var(--bg-top), var(--bg-bottom));
 }
 
-#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; outline: none; }
+#scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; }
 
 #sidebar {
-  position: fixed; top: 178px; left: 16px; width: 230px; max-height: calc(100% - 194px); overflow: auto;
+  position: absolute; top: 178px; left: 16px; width: 230px; max-height: calc(100% - 194px); overflow: auto;
   padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
   backdrop-filter: blur(8px);
 }
@@ -37,7 +50,7 @@ html, body {
 /* Onderdelen: the same panel as the eye menu, in the same corner (only one of the two is open).
    Its list scrolls inside the panel, which stops well clear of the control bar at the bottom. */
 #parts {
-  position: fixed; top: 178px; left: 16px; width: 250px; max-height: calc(100% - 254px);
+  position: absolute; top: 178px; left: 16px; width: 250px; max-height: calc(100% - 254px);
   display: flex; flex-direction: column; z-index: 3;
   padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
   backdrop-filter: blur(8px);
@@ -72,7 +85,7 @@ html, body {
 #parts-list .part:disabled:hover { color: var(--muted); }
 
 .icon-button {
-  position: fixed; top: 16px; right: 16px; width: 44px; height: 44px; display: grid; place-items: center;
+  position: absolute; top: 16px; right: 16px; width: 44px; height: 44px; display: grid; place-items: center;
   padding: 0; border-radius: 50%; background: var(--panel); backdrop-filter: blur(8px);
 }
 .icon-button[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
@@ -81,7 +94,7 @@ html, body {
 #about-toggle { top: auto; bottom: 16px; }
 
 #about {
-  position: fixed; right: 16px; bottom: 70px; width: 290px; max-height: calc(100% - 100px); overflow: auto;
+  position: absolute; right: 16px; bottom: 70px; width: 290px; max-height: calc(100% - 100px); overflow: auto;
   padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
   backdrop-filter: blur(8px); z-index: 3;
 }
@@ -94,7 +107,7 @@ html, body {
 .links li { margin-bottom: 7px; color: var(--muted); line-height: 1.35; }
 
 #customize {
-  position: fixed; top: 70px; right: 16px; width: 250px; max-height: calc(100% - 170px); overflow: auto;
+  position: absolute; top: 70px; right: 16px; width: 250px; max-height: calc(100% - 170px); overflow: auto;
   padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
   backdrop-filter: blur(8px);
 }
@@ -135,10 +148,13 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 #controls {
   /* the bar starts half an icon left of centre, so Modus sits dead centre and stays put while the
      icons to its right come and go with the mode */
-  position: fixed; bottom: 16px; left: calc(50% - 22px); z-index: 5; display: flex; gap: 8px;
+  position: absolute; bottom: 16px; left: calc(50% - 22px); z-index: 5; display: flex; gap: 8px;
 }
 #controls .icon-button { position: relative; top: auto; right: auto; left: auto; }
-.popover .boorden { display: flex; gap: 14px; }
+/* Roeicommando: the four commando's the whole boat gets at once, then the two boorden side by side */
+.popover .boorden { display: flex; gap: 14px; align-items: start; }
+.popover .beide { margin-bottom: 10px; }
+.popover .beide + .boorden { border-top: 1px solid var(--line); padding-top: 8px; }
 .popover .caption { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); text-align: center; }
 .popover .spoken { margin: 2px 0 8px; max-width: 330px; font-style: italic; text-align: center; }
 .popover .reef { display: grid; gap: 6px; min-width: 190px; font-size: 13px; }
@@ -149,8 +165,16 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 }
 .popover {
   position: absolute; bottom: 100%; margin-bottom: 8px; padding: 8px 18px;
-  width: max-content; max-width: calc(100vw - 16px);   /* as wide as its choices, not as narrow as the bar it hangs on */
+  width: max-content; max-width: calc(100cqw - 16px);   /* as wide as its choices, not as narrow as the bar it hangs on */
   background: var(--panel); border: 1px solid var(--line); border-radius: 12px; backdrop-filter: blur(8px);
+}
+/* A popover never grows past the room above the bar: in a short embed it scrolls instead of running
+   off the top, where it would be clipped away. main.js keeps --lv-height on the wrapper, because the
+   height of the viewer is not something CSS can name without size containment. The wind panel is
+   left out: its course markers hang above its own box on purpose. */
+.popover:not(#wind-panel) {
+  max-height: calc(var(--lv-height, 100vh) - 86px);
+  overflow-y: auto; overscroll-behavior: contain;
 }
 .popover .choices { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
 .popover .choices button { border: 0; border-radius: 999px; padding: 5px 14px; background: none; white-space: nowrap; }
@@ -158,7 +182,7 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 
 /* Koers: a slim bar with the names of the courses floating above it; the whole panel only exists
    while its icon is open, so they need no hiding of their own */
-#wind-panel { width: min(620px, calc(100vw - 16px)); }
+#wind-panel { width: min(620px, calc(100cqw - 16px)); }
 #course { display: block; width: 100%; margin: 2px 0 0; accent-color: var(--accent); }
 #wind-panel .ticks { position: relative; height: 7px; margin: 0 8px; }
 #wind-panel .ticks span { position: absolute; top: 0; width: 1px; height: 6px; background: var(--muted); }
@@ -182,8 +206,8 @@ button:hover { border-color: var(--accent); color: var(--accent); }
    --procedure-lift to how far the open popover it has to ride over reaches, and --procedure-top to
    how far it reaches up, which is where the info tile steps over it. */
 #procedure {
-  position: fixed; left: 50%; bottom: calc(68px + var(--procedure-lift, 0px)); transform: translateX(-50%);
-  z-index: 4; width: min(520px, calc(100vw - 16px)); display: flex; align-items: center; gap: 8px;
+  position: absolute; left: 50%; bottom: calc(68px + var(--procedure-lift, 0px)); transform: translateX(-50%);
+  z-index: 4; width: min(520px, calc(100cqw - 16px)); display: flex; align-items: center; gap: 8px;
   padding: 8px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
   backdrop-filter: blur(8px); transition: opacity 0.35s;
 }
@@ -203,7 +227,7 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 #procedure .ticks span { position: absolute; top: 0; width: 1px; height: 6px; background: var(--muted); }
 
 #info {
-  position: fixed; right: 76px; bottom: 16px; z-index: 2; min-width: 240px; max-width: 340px; padding: 12px 16px;
+  position: absolute; right: 76px; bottom: 16px; z-index: 2; min-width: 240px; max-width: 340px; padding: 12px 16px;
   background: var(--panel); border: 1px solid var(--line); border-radius: 12px; backdrop-filter: blur(8px);
 }
 #info .group { color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
@@ -213,26 +237,45 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 #info .model .more { margin-left: 6px; opacity: 0.7; cursor: help; }
 
 #hover {
-  position: fixed; pointer-events: none; padding: 3px 8px; border-radius: 6px; font-size: 13px;
+  position: absolute; pointer-events: none; padding: 3px 8px; border-radius: 6px; font-size: 13px;
   background: rgba(22, 34, 46, 0.88); color: #fff; transform: translate(12px, 12px); white-space: nowrap;
+  z-index: 6;
 }
 
 [hidden] { display: none !important; }
 
-#loading { position: fixed; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 16px; }
+#loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 16px; }
 
-@media (max-width: 1100px) {
+@container (max-width: 1100px) {
   #info { right: 16px; bottom: 76px; }      /* out of the way of the control bar */
 }
 
-/* the progress bar holds the middle of that same strip: only a wide screen has room beside it */
-@media (max-width: 1360px) {
-  body.procedure-open #info { bottom: var(--procedure-top, 76px); }
+/* the progress bar holds the middle of that same strip: only a wide embed has room beside it */
+@container (max-width: 1360px) {
+  .lv.procedure-open #info { bottom: var(--procedure-top, 76px); }
 }
 
-@media (max-width: 640px) {
+/* The bar stands half an icon left of centre so that Modus sits dead centre, which means the icons
+   to the right of it reach further than half the width. Below about 460 px there is no room for
+   that and they would fall off the edge, so from there the whole bar is centred instead. */
+@container (max-width: 460px) {
+  #controls { left: 50%; transform: translateX(-50%); gap: 6px; }
+  #controls .icon-button { width: 40px; height: 40px; }
+  #info { right: 16px; left: 16px; min-width: 0; }
+}
+@container (max-width: 330px) {
+  #controls { gap: 4px; }
+  #controls .icon-button { width: 36px; height: 36px; }
+}
+
+/* too narrow an embed for the two boorden beside each other: they stack */
+@container (max-width: 320px) {
+  .popover .boorden { flex-direction: column; gap: 8px; }
+}
+
+@container (max-width: 640px) {
   #sidebar { width: auto; right: 16px; max-height: 38%; }
-  /* as wide as the screen allows, and short enough to leave the control bar and the info tile free */
+  /* as wide as the embed allows, and short enough to leave the control bar and the info tile free */
   #parts { width: auto; right: 16px; max-height: calc(100% - 354px); }
   #procedure { padding: 8px 10px; gap: 6px; }      /* full width, with the buttons still 40 px */
 }
@@ -241,11 +284,11 @@ button:hover { border-color: var(--accent); color: var(--accent); }
    The start panel is the third in the top left corner (only one of the three is open at a time),
    so its icon sits under Onderdelen and those panels start 54 px lower. The card of a running
    round hangs above the control bar, on the same foot as the progress bar and lifted over an open
-   popover by the same --procedure-lift. While a round runs, body.quiz-on takes away everything
-   that would give an answer away, and body.quiz-los gives the isolated part a plain backdrop. */
+   popover by the same --procedure-lift. While a round runs, .lv.quiz-on takes away everything
+   that would give an answer away, and .lv.quiz-los gives the isolated part a plain backdrop. */
 #quiz-toggle { top: 124px; right: auto; left: 16px; }
 #quiz {
-  position: fixed; top: 178px; left: 16px; width: 250px; max-height: calc(100% - 254px); overflow: auto;
+  position: absolute; top: 178px; left: 16px; width: 250px; max-height: calc(100% - 254px); overflow: auto;
   z-index: 3; padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
   backdrop-filter: blur(8px);
 }
@@ -257,12 +300,31 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 #quiz .choices button[aria-pressed="true"] { background: var(--accent); color: #fff; }
 #quiz #quiz-start, #quiz #quiz-wrong { margin-top: 12px; width: 100%; }
 #quiz .quiz-clear { margin-top: 10px; }
-#quiz .quiz-clear button { color: var(--accent); }
+#quiz .quiz-clear button, #quiz .quiz-tables button { color: var(--accent); }
+#quiz .quiz-tables { margin-top: 6px; }
+
+/* debug.quiztabellen: the resolved quiz configuration, wide and scrollable both ways */
+#quiz-debug {
+  position: absolute; top: 16px; left: 16px; right: 16px; bottom: 76px; z-index: 6;
+  display: flex; flex-direction: column; padding: 14px 16px; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 12px; backdrop-filter: blur(8px);
+}
+#quiz-debug header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+#quiz-debug h2 { margin: 0; font-size: 16px; }
+#quiz-debug h3 { margin: 14px 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+#quiz-debug-body { flex: 1 1 auto; min-height: 0; overflow: auto; }
+#quiz-debug table { border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+#quiz-debug th, #quiz-debug td { padding: 2px 8px 2px 0; text-align: left; vertical-align: top; white-space: nowrap; }
+#quiz-debug th { color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); }
+#quiz-debug td.wide { white-space: normal; max-width: 320px; }
+#quiz-debug .ontbreekt { color: var(--quiz-fout); }      /* an id that resolves to no loaded part */
+#quiz-debug .eigen { color: var(--accent); }
+#quiz-debug p { margin: 0 0 6px; color: var(--muted); font-size: 12px; }
 
 /* the card: question, answers, feedback and what to do next, in one box */
 #quiz-card {
-  position: fixed; left: 50%; bottom: calc(68px + var(--procedure-lift, 0px)); transform: translateX(-50%);
-  z-index: 4; width: min(520px, calc(100vw - 32px)); padding: 10px 14px 12px;
+  position: absolute; left: 50%; bottom: calc(68px + var(--procedure-lift, 0px)); transform: translateX(-50%);
+  z-index: 4; width: min(520px, calc(100cqw - 32px)); padding: 10px 14px 12px;
   background: var(--panel); border: 1px solid var(--line); border-radius: 12px; backdrop-filter: blur(8px);
 }
 #quiz-card .head { display: flex; align-items: baseline; gap: 10px; font-size: 12px; color: var(--muted); }
@@ -303,19 +365,11 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 #quiz-card .actions .primary { font-weight: 600; }
 #quiz-card .actions .secondary { margin-left: auto; color: var(--accent); }
 
-:root {
-  --quiz-goed: #147a45;
-  --quiz-fout: #b3261e;
-  --quiz-goed-bg: rgba(20, 122, 69, 0.1);
-  --quiz-fout-bg: rgba(179, 38, 30, 0.1);
-  --quiz-los-bg: #dfe9f1;      /* the backdrop of a part lifted out of the boat */
-}
-
 /* while a round runs, nothing outside the card may name a part */
-body.quiz-on #hover, body.quiz-on #info, body.quiz-on #procedure { display: none; }
-body.quiz-los { background: var(--quiz-los-bg); }
+.lv.quiz-on #hover, .lv.quiz-on #info, .lv.quiz-on #procedure { display: none; }
+.lv.quiz-los { background: var(--quiz-los-bg); }
 
-@media (max-width: 640px) {
+@container (max-width: 640px) {
   #quiz { width: auto; right: 16px; max-height: calc(100% - 354px); }
   #quiz-card .answers { grid-template-columns: 1fr; }
 }
