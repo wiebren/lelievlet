@@ -440,7 +440,8 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   wordt in de capture-fase afgevangen zodat OrbitControls het nooit ziet). Een klik op een dol zet hem
   op of neemt hem eruit (niet zolang er een riem in getrokken wordt), een klik op de mik of zijn
   houders zet hem op of bergt hem op; een moduswisseling zet ze terug waar ze horen. Een klik op de
-  bakskist sluit of opent het deksel (in open stand gemodelleerd; het deksel en wat eraan vastgeschroefd
+  bakskist sluit of opent het deksel, en wie een onderdeel ín de kist selecteert (meerpen, hoosblik,
+  EHBO-koffer; ook via de lijst of de quiz) krijgt het deksel vanzelf open (in open stand gemodelleerd; het deksel en wat eraan vastgeschroefd
   zit draaien om de scharnierlijn uit `extras.tuig.bakskist`; deksel, beslag en handvatten zijn in de
   GLB eigen onderdelen en worden bij het laden in het onderdeel Bakskist gevouwen, `foldParts`). Een klik op het
   zwaard, de zwaardloper of zijn borgpen zet het midzwaard een stand verder: neer, half, op en weer neer.

@@ -1381,7 +1381,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     state.course = course;
     slider.value = String(toSlider(course));
     slider.setAttribute('aria-valuetext', nameOf(course));
-    needle.setAttribute('transform', `rotate(${Math.round(course)} 12 12)`);   // the cloud sits where the wind comes from
+    needle.setAttribute('transform', `rotate(${Math.round(course) - 90} 12 12)`);   // the cloud sits where the wind comes from, the bow being to the right
     for (const b of markers.querySelectorAll('button')) b.setAttribute('aria-pressed', String(Number(b.dataset.course) === course));
     trimBoard();
   };
@@ -1558,5 +1558,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     play: () => shown?.play(), pause: () => shown?.pause(), next: () => shown?.step(1), previous: () => shown?.step(-1),
     scrub: (t) => shown?.scrub(t),
   };
-  return { update, state, click, helm: helmControl, procedure, procedureControl };
+  /** Parts that have been selected (on the model, in the list, by the quiz): what hides them gives way. */
+  const reveal = (list) => {
+    if (kist && list.some((p) => ['meerpen', 'hoosblik', 'ehbo_koffer'].includes(p.extras.id))) kist.want = 1;   // the lid goes up
+  };
+  return { update, state, click, reveal, helm: helmControl, procedure, procedureControl };
 }

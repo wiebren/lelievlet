@@ -127,6 +127,25 @@ function paint(canvas, zeil, side, emblem, number) {
   void mirrored;            // zeilteken and zeilnummer are parts of their own, painted below
 }
 
+/**
+ * The depth of a material's fragments is taken `metres` nearer the camera than where they are drawn
+ * (their place on screen does not change). For thin things lying on a surface that is itself being
+ * deformed: it keeps them in front of that surface, and of nothing that is further off than that.
+ */
+function drawNearer(material, metres) {
+  material.onBeforeCompile = (shader) => {
+    shader.vertexShader = shader.vertexShader.replace('#include <project_vertex>', `#include <project_vertex>
+      {
+        vec4 nearer = mvPosition;
+        nearer.xyz *= max(1.0 - ${metres.toFixed(4)} / max(length(mvPosition.xyz), 1e-4), 0.0);
+        vec4 clip = projectionMatrix * nearer;
+        gl_Position.z = clip.z / clip.w * gl_Position.w;
+      }`);
+  };
+  material.customProgramCacheKey = () => `nearer-${metres}`;
+  material.needsUpdate = true;
+}
+
 /** A patch lying on the sail (zeilteken, zeilnummer) that carries its own painted texture. */
 function decalPatch(parts, id, widthM, heightM, renderer) {
   const part = parts.find((p) => p.extras.id === id);
@@ -139,8 +158,8 @@ function decalPatch(parts, id, widthM, heightM, renderer) {
   for (const mesh of part.meshes) {
     mesh.material = new THREE.MeshStandardMaterial({
       map: texture, transparent: true, roughness: 0.85, metalness: 0, depthWrite: false,
-      polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4,
     });
+    drawNearer(mesh.material, 0.010);
     mesh.material.userData.keepTransparent = true;
   }
   return { canvas, texture, ctx: canvas.getContext('2d') };
@@ -149,6 +168,20 @@ function decalPatch(parts, id, widthM, heightM, renderer) {
 /** asset(path): where the textures are fetched from; see assets.js. */
 export async function dressSails(parts, renderer, asset, number = '000') {
   const emblem = await loadImage(asset('textures/zeilteken.png')).catch(() => null);
+  // What lies on the cloth is a millimetre or two off it and meshed on a grid of its own, and the
+  // belly has kinks where it is pinned along the spars: bent, the layers dip through the cloth in
+  // triangles, by more than any polygonOffset covers. Every layer has a face of its own on either
+  // side of the sail, so each is drawn one-sided and takes its depth from a point some millimetres
+  // nearer the eye: tape first, corner patches over it, battens and artwork on top.
+  const LAYERS = { zeil_lijk: 0.006, zeil_hoek: 0.008, zeillat: 0.010 };
+  for (const part of parts) {
+    for (const mesh of part.meshes) {
+      const nearer = LAYERS[mesh.material.name];
+      if (!nearer) continue;
+      mesh.material.side = THREE.FrontSide;
+      drawNearer(mesh.material, nearer);
+    }
+  }
   const sails = [];
   for (const part of parts) {
     const zeil = part.extras.zeil;

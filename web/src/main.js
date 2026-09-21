@@ -441,6 +441,7 @@ export function mount(ui, host, config) {
   function select(list, hit = null) {
     for (const p of parts) p.xray = false;
     selected = list;
+    modes?.reveal(list);                           // something in the bakskist: its lid opens
     refreshHighlight();
     markRow(list[0] ?? null);
     const info = $('info');
