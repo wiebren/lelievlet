@@ -8,6 +8,7 @@ import { initCustomize, initCustomizePanel, collectZoneMaterials } from './custo
 import { initModes } from './modes.js';
 import { initRegions } from './regions.js';
 import { initQuiz } from './quiz.js';
+import { initLocator } from './locator.js';
 import { initFullscreen } from './fullscreen.js';
 import { makeAsset } from './assets.js';
 import { naamVan } from './config.js';
@@ -398,9 +399,33 @@ export function mount(ui, host, config) {
     // Two passes: a few parts built in the viewer share a material (every live rope has the grootschoot's,
     // the knop of the vlaggenstok the roerkop's bakskleur), and clearing the one would put out the other.
     const lit = (p) => override.get(p) ?? (selected.includes(p) ? SELECT : p === hovered ? HOVER : null);
+    locator.release();                        // the pulse hands the materials back before they are painted
     for (const p of parts) if (!lit(p)) paint(p, null);
     for (const p of parts) if (lit(p)) paint(p, lit(p));
+    locator.setTargets(pulsed());
   }
+
+  /**
+   * What breathes, and what a locator ring may be drawn around: the selection and the colours the
+   * quiz lights parts in, one group per colour - never the hover, which stays calm and instant.
+   */
+  function pulsed() {
+    const groups = new Map();
+    const add = (key, part, color) => {
+      const group = groups.get(key) ?? { parts: [], color };
+      group.parts.push(part);
+      group.color = color;                    // a chip of the quiz lets its colour glow: take the newest
+      groups.set(key, group);
+    };
+    for (const [part, color] of override) add(color.getHexString(), part, color);
+    for (const p of selected) if (!override.has(p)) add('selectie', p, SELECT);
+    return [...groups.values()];
+  }
+
+  // A ring points at a part, so it is asked per frame - not once per highlight - whether the quiz
+  // allows one: finding the part IS the question in Aanwijzen and Kies, until the answer is in.
+  const locator = initLocator({ wrap, canvas, camera, visible: partVisible,
+                                rings: () => quiz?.rings() ?? true, signal, onResize, onDestroy });
 
   /** A colour per part for the quiz, over the selection and the hover; an empty list gives them back. */
   function setHighlights(list = []) {
@@ -770,14 +795,18 @@ export function mount(ui, host, config) {
   resize();
 
   const clock = new THREE.Clock();
+  let elapsed = 0;                 // ms since the first frame; the pulse and the rings beat on it
   renderer.setAnimationLoop(() => {
     const dt = Math.min(clock.getDelta(), 0.05);
+    elapsed += dt * 1000;
     keyboardNavigate(dt);
     modes?.update(dt);
     stepProcedureBar();
     stepFlight();
     controls.update();
     renderer.render(scene, camera);
+    // after the render: every matrix stands where this frame drew it, so a ring lands on the part
+    locator.update(elapsed, dt * 1000);
   });
 
   /** Everything this viewer holds on to, given back: listeners, timers, the GPU. */

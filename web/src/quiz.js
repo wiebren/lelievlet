@@ -797,7 +797,15 @@ export function initQuiz({ parts, scene, select, flyTo,
     if (e.key === 'Enter' && from.tagName !== 'BUTTON' && !primary.hidden) { primary.click(); e.preventDefault(); }
   }, { signal });
 
+  /**
+   * Whether a locator ring may point at what is lit (main.js asks per highlight). Benoemen and
+   * Typen light the part as the QUESTION, so a ring is just what is wanted there; Aanwijzen and
+   * Kies ask for the part to be found, and nothing at all may point at it before the answer is in.
+   */
+  const rings = () => !round || !question || question.answered
+    || question.type === 'benoemen' || question.type === 'typen';
+
   onDestroy?.(() => stopPulse());
   quizToggle.disabled = false;      // the model is in: the quiz can be opened
-  return { panelToggled, click, active: () => Boolean(round) };
+  return { panelToggled, click, rings, active: () => Boolean(round) };
 }

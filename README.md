@@ -353,6 +353,26 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   plus de richting waaruit nu gekeken wordt) waarbij het kleinste aantal van zeven steekproefpunten
   van het onderdeel achter andere onderdelen schuilgaat. Onderdelen die in de huidige modus weg zijn,
   worden gedimd en zijn niet aan te klikken.
+- Wat geselecteerd is **ademt**, en wat klein is krijgt een **zoeklicht** (`web/src/locator.js`). De
+  highlight van de selectie - en van de kleuren die de quiz op onderdelen zet, maar nooit die van de
+  hover, die rustig en onmiddellijk blijft - zwelt aan en af in 1.4 s, tussen 55 % en 100 % van de
+  sterkte die `paint()` zette; de overlay van een gebied ademt in zijn dekking mee. Het is het
+  *materiaal* dat gevolgd wordt, elk één keer met de waarde die het van `paint()` kreeg als
+  uitgangspunt (een paar onderdelen delen er een), en die waarde wordt teruggegeven zodra de
+  highlight weg is, zodat er niets van achterblijft. Dekt een opgelicht onderdeel minder dan 44 px
+  van het scherm, dan komt er een ring omheen: een vaste 56 px in beeld (nooit dichter dan 12 px om
+  het onderdeel), in de kleur van de highlight, met een zachte gloed, in een laag direct boven de
+  canvas en onder alle panelen - dus ook te zien als het onderdeel diep in de boot zit, zoals de
+  zwaardbout in de zwaardkast. Hij pingt mee op dezelfde maat, komt binnen vanaf drie keer zijn maat
+  in 450 ms, volgt het onderdeel per frame (ook tijdens een animatie: de bounding spheres worden
+  gecached en alleen bij levende touwen en zeilen een paar keer per seconde opnieuw gemeten) en
+  vervaagt zodra het onderdeel groter dan 56 px wordt - die marge tussen 44 en 56 px voorkomt
+  geflikker precies op de grens. Een selectie van meerdere onderdelen krijgt een ring per onderdeel,
+  hoogstens vier, waarbij onderdelen die op het scherm binnen 40 px van elkaar staan er samen één om
+  hun gezamenlijke midden krijgen. In de quiz verklapt hij niets: bij Benoemen en Typen (waar het
+  onderdeel de vráág is) staat er een ring, bij Aanwijzen en Kies het onderdeel pas nadat het
+  antwoord gegeven is. Met `prefers-reduced-motion: reduce` beweegt er niets: een rustige highlight
+  en een stilstaande ring.
 - Sommige nummers in de tekening duiden een gebied aan, geen object: Boeg (de voorste 0.65 m van de
   romp) en Kleed (de derde baan van het grootzeil, geteld vanaf de schoothoek omhoog, tussen de naden
   van `extras.zeil.naden`). Ze staan als onderdelen in de lijst, gemarkeerd als "gebied", met
@@ -560,7 +580,9 @@ wissen" in het startpaneel wist hem na een inline "Zeker weten?".
 `setHighlights`, `partVisible`, de map met paneelsluiters, en het gereedschap van de insluiting
 (`ui`, `wrap`, `config`, `signal`, `engaged`, `realTarget`, `onDestroy`). `setHighlights` is het enige dat de
 highlighting er speciaal voor heeft gekregen: een kleur per onderdeel, die `refreshHighlight` boven
-de selectie en de hover raadpleegt, zodat de quiz zelf nooit naar een materiaal schrijft.
+de selectie en de hover raadpleegt, zodat de quiz zelf nooit naar een materiaal schrijft. Andersom
+vraagt het zoeklicht (zie boven) elk frame aan de quiz of er een ring getekend mag worden: bij
+Aanwijzen en Kies het onderdeel mag dat pas als het antwoord binnen is.
 
 ## Controles of de geometrie klopt
 
