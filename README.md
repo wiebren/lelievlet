@@ -19,11 +19,13 @@ paginanummers verwijzen naar die druk.
 ## Wat er wel en niet in deze repository staat
 
 De broncode van de viewer (`web/`) en van de model-pipeline (`pipeline/`) staat hier, samen met het
-gebouwde model (`web/public/models/lelievlet.glb` + `lelievlet.parts.json`). Het referentiemateriaal
-waaruit het model is opgebouwd (de officiële DWG van Scouting Nederland, het Vlettenboek, de
-CWO-lesboeken) zit er NIET bij: dat is niet van ons om te verspreiden. Zonder `reference/cad/` zijn de
-eerste twee pipeline-stappen (het extraheren en tessellateren van de CAD-bodies) niet uit te voeren;
-al het overige werkt vanuit het gebouwde model. Er is nog geen licentie gekozen.
+gebouwde model (`web/public/models/lelievlet.glb` + `lelievlet.parts.json`). Van het
+referentiemateriaal (`reference/`) staat hier wat we zelf gemaakt hebben: de notities en indexen met
+de bronnen en hun URL's, de overgenomen maattabellen (CSV, JSON) en het extractiescript. De gedownloade
+stukken zelf (de officiële DWG van Scouting Nederland, het Vlettenboek, de CWO-lesboeken, foto's en
+tekeningen) zitten er niet bij; de indexen zeggen waar ze te halen zijn. Zonder `reference/cad/` zijn
+de eerste twee pipeline-stappen (het extraheren en tessellateren van de CAD-bodies) niet uit te voeren;
+al het overige werkt vanuit het gebouwde model.
 
 ## De viewer draaien
 
@@ -649,5 +651,4 @@ vertices, en duurt een halve minuut. Correcties gaan in `NUDGE` in `pipeline/par
 ## Beeldmateriaal
 
 `web/public/textures/zeilteken.png` is afgeleid van `reference/parts/scoutwiki_lelievlet_zeilteken.png`
-(scoutwiki.scouts.nl); het embleem zelf is het klassenteken van Scouting Nederland. Controleer de
-licentie voordat dit buiten scouting gepubliceerd wordt.
+(scoutwiki.scouts.nl); het embleem zelf is het klassenteken van Scouting Nederland.

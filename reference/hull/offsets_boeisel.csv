@@ -1,0 +1,73 @@
+# Lelievlet - BOEISEL : developed plate offsets for the topside (sheerstrake) plate
+# Source: Vademecum deel 8 "De Lelievlet", 8e druk 1988, page 27
+#         -> vademecum_pages/vademecum_p27.png
+# Transcribed by eye from the scan. VERIFY against the page image before use.
+#
+# Developed (flat) plate, runs 0 .. 5877 along the plate.
+# breedte_dolboord     = "breedte dolboord"      - offset of the upper (gunwale) edge
+# breedte_berghoutnaad = "breedte berghout naad" - offset of the lower seam at the berghout
+# Plate split into 3 pieces on the drawing: 5c (0..~2000), 5b (~2000..~4000), 5a (~4000..5877)
+# Plate thickness 3 mm. 2 off (port + starboard).
+lengte_mm,breedte_dolboord,breedte_berghoutnaad
+0,,57
+5,0,
+100,20,92
+200,42,128
+300,67,163
+400,84,197
+500,105,230
+600,124,263
+700,142,293
+800,159,323
+900,175,350
+1000,190,375
+1100,205,399
+1200,217,421
+1300,230,441
+1400,242,461
+1500,251,478
+1600,260,494
+1700,269,508
+1800,277,520
+1900,285,532
+2000,292,542
+2100,298,550
+2200,303,557
+2300,308,565
+2400,311,570
+2500,315,575
+2600,317,578
+2700,318,580
+2800,320,581
+2900,320,581
+3000,320,581
+3100,320,580
+3200,318,577
+3300,316,572
+3400,313,568
+3500,308,565
+3600,304,562
+3700,297,549
+3800,289,541
+3900,280,532
+4000,270,520
+4100,260,510
+4200,250,497
+4300,238,483
+4400,226,468
+4500,213,452
+4600,200,434
+4700,187,416
+4800,173,397
+4900,159,378
+5000,144,359
+5100,128,338
+5200,112,317
+5300,97,296
+5400,80,272
+5500,64,247
+5600,47,222
+5700,30,196
+5762,,180
+5800,13,120
+5877,0,0

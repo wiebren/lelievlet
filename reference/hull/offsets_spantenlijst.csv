@@ -1,0 +1,40 @@
+# Lelievlet - SPANTENLIJST (frame / offset table)
+# Source: Vademecum voor het waterwerk, deel 8 "De Lelievlet", 8e druk 1988,
+#         page 22 (PDF page 22) -> vademecum_pages/vademecum_p22.png
+# Transcribed by eye from the scan. VERIFY against the page image before use.
+#
+# Columns:
+#   station_mm        = the number printed at the left of each row (365..5365, 500 mm spacing).
+#                       Longitudinal position measured from the SPIEGEL (transom) FORWARD.
+#                       The datum is not printed on p22 itself; it is established by three
+#                       independent cross-checks (see SOURCES.md section 2):
+#                        - p23 carries a "365" dimension from the aft end to station 0 and a
+#                          "245" dimension from station 10 to the stem (365+5000+245 = 5610 ~ LOA)
+#                        - the meetrapport chain from Punt 0 (back of mastkoker) puts the forward
+#                          bulkhead at 3759 mm from the transom; p25 states 3750 mm
+#                        - spant 6 is the max-beam frame (913 x 2 = 1826), matching meetrapport
+#                          item 22 "Breedte t.p.v. spant 6 op berghouthoogte 1822-1830"
+#                       So: spant 0 = 365 mm fwd of the transom, spant 10 = 5365 mm, stem ~5610 mm.
+#   spant_no          = frame number 0..10 as drawn on the body plan above the table
+#   boeisel_height    = "BOVENKANT BOEISEL - HOOGTE uit BASIS" (mm above baseline)
+#   boeisel_halfbeam  = "BOVENKANT BOEISEL - 1/2 BREEDTE" (mm from centreline)
+#   berghout_height   = "BERGHOUT - HOOGTE uit BASIS"
+#   berghout_halfbeam = "BERGHOUT - 1/2 BREEDTE"   (this is the max beam line; spant 6 = 913 -> 1826 total)
+#   onderkant_huid_height   = "ONDERKANT HUID - HOOGTE uit BASIS"  (chine: vlak/kim seam)
+#   onderkant_huid_halfbeam = "ONDERKANT HUID - 1/2 BREEDTE"
+#   kiel_height       = "KIEL - HOOGTE uit BASIS" (centreline of the bottom; 0 at spant 6)
+#
+# Body plan also carries: half-breadth 1750 at boeisel level and 1790 at berghout level
+# (i.e. max beam over berghout 1790 mm) - see the two dimensions at top right of p22.
+station_mm,spant_no,boeisel_height,boeisel_halfbeam,berghout_height,berghout_halfbeam,onderkant_huid_height,onderkant_huid_halfbeam,kiel_height
+365,0,887,515,709,545,400,285,385
+865,1,838,626,628,661,300,371,290
+1365,2,797,719,565,758,206,452,196
+1865,3,767,790,521,830,132,520,122
+2365,4,750,840,500,880,78,566,68
+2865,5,749,872,493,910,40,591,25
+3365,6,760,880,504,913,36,594,0
+3865,7,788,852,539,883,85,568,10
+4365,8,828,768,603,793,203,492,83
+4865,9,883,583,706,608,415,355,268
+5365,10,959,241,855,256,740,139,645

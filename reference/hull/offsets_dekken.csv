@@ -1,0 +1,43 @@
+# Lelievlet - HALF VOORDEK and HALF ACHTERDEK plate outlines
+# Source: Vademecum deel 8 "De Lelievlet", 8e druk 1988, pages 29 (voordek) and 31 (achterdek)
+#         -> vademecum_pages/vademecum_p29.png , vademecum_p31.png
+# Transcribed by eye from the scans. VERIFY against the page images before use.
+#
+# Both decks: "DEKRONDTE 40 mm PER METER" (camber 40 mm per metre).
+# voordek  : part 6, plate 3 mm, stock 1400 x 1700 mm
+# achterdek: part 8, plate 3 mm, stock 1200 x 1500 mm
+# x_mm = along the deck centreline; halfwidth_mm = offset from centreline.
+# On the voordek the note "Dit stuk is recht" marks the 0..112 run as straight.
+deck,x_mm,halfwidth_mm
+voordek,0,0
+voordek,100,149
+voordek,112,166
+voordek,200,252
+voordek,300,341
+voordek,400,423
+voordek,500,492
+voordek,600,554
+voordek,700,607
+voordek,800,655
+voordek,900,697
+voordek,1000,735
+voordek,1100,770
+voordek,1200,800
+voordek,1300,827
+voordek,1367,841
+voordek,1359,0
+achterdek,0,0
+achterdek,20,462
+achterdek,100,486
+achterdek,200,514
+achterdek,300,543
+achterdek,400,571
+achterdek,500,597
+achterdek,600,621
+achterdek,700,642
+achterdek,800,663
+achterdek,900,680
+achterdek,1000,700
+achterdek,1100,720
+achterdek,1200,738
+achterdek,1195,0

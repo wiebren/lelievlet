@@ -1,0 +1,73 @@
+# Lelievlet - HET VLAK (de helft) : developed plate offsets for HALF the bottom plate
+# Source: Vademecum deel 8 "De Lelievlet", 8e druk 1988, page 25
+#         -> vademecum_pages/vademecum_p25.png
+# Transcribed by eye from the scan. VERIFY against the page image before use.
+#
+# These are DEVELOPED (flat, unrolled) plate offsets, not projected hull offsets.
+# lengte_mm = distance along the plate from the datum end (the plate runs 0 .. 5565).
+#   0 is the transom end; 5565 is the bow point (both half-widths converge to 225 there).
+# breedte_onderste_lijn = "breedte onderste lijn"  (mm from the plate centreline)
+# breedte_bovenste_lijn = "breedte bovenste lijn"  (mm from the plate centreline)
+#
+# Notes printed on the same page:
+#   "Achterschot op 968 mm vanaf de spiegel"
+#   "Voorschot op 3750 mm vanaf de spiegel"
+#   Part number circled: 16 (bodemplaat/vlak), plate 4 mm. Bow pieces = part 3.
+lengte_mm,breedte_onderste_lijn,breedte_bovenste_lijn
+0,0,280
+100,,302
+200,,318
+300,,334
+400,,350
+500,,367
+600,,384
+700,,400
+800,,417
+900,,432
+1000,,448
+1100,,462
+1200,,476
+1300,,490
+1400,,502
+1500,,514
+1600,,525
+1700,,535
+1800,,545
+1900,,553
+2000,,561
+2100,,569
+2200,,576
+2300,,581
+2400,,585
+2500,,587
+2600,,591
+2700,,592
+2800,0,594
+2900,0,594
+3000,,593
+3100,,592
+3200,,590
+3300,,589
+3400,0,582
+3500,1,578
+3600,2,568
+3700,3,560
+3800,4,549
+3900,6,536
+4000,9,523
+4100,12,509
+4200,15,493
+4300,20,477
+4400,25,460
+4500,33,442
+4600,42,422
+4700,53,405
+4800,66,384
+4900,80,365
+5000,96,343
+5100,115,324
+5200,136,302
+5300,158,281
+5400,182,260
+5500,207,234
+5565,225,225

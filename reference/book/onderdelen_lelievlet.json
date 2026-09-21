@@ -1,0 +1,338 @@
+[
+ {
+  "nr": 1,
+  "naam": "Klauwval"
+ },
+ {
+  "nr": 2,
+  "naam": "Vaantje"
+ },
+ {
+  "nr": 3,
+  "naam": "Piekenval"
+ },
+ {
+  "nr": 4,
+  "naam": "Gaffeldraad"
+ },
+ {
+  "nr": 5,
+  "naam": "Marllijn"
+ },
+ {
+  "nr": 6,
+  "naam": "Gaffel"
+ },
+ {
+  "nr": 7,
+  "naam": "Tophoek"
+ },
+ {
+  "nr": 8,
+  "naam": "Zeillat in zak"
+ },
+ {
+  "nr": 9,
+  "naam": "Kleed"
+ },
+ {
+  "nr": 10,
+  "naam": "B.B. want"
+ },
+ {
+  "nr": 11,
+  "naam": "Dirk of kraanlijn"
+ },
+ {
+  "nr": 12,
+  "naam": "Grootzeil"
+ },
+ {
+  "nr": 13,
+  "naam": "Achterlijk"
+ },
+ {
+  "nr": 14,
+  "naam": "Schoothoek"
+ },
+ {
+  "nr": 15,
+  "naam": "Wervel"
+ },
+ {
+  "nr": 16,
+  "naam": "Pettenlijntje"
+ },
+ {
+  "nr": 17,
+  "naam": "Giek"
+ },
+ {
+  "nr": 18,
+  "naam": "Grootschoot"
+ },
+ {
+  "nr": 19,
+  "naam": "Onderlijk grootzeil"
+ },
+ {
+  "nr": 20,
+  "naam": "Halshoek"
+ },
+ {
+  "nr": 21,
+  "naam": "Lummelbeslag"
+ },
+ {
+  "nr": 22,
+  "naam": "Voorlijk grootzeil"
+ },
+ {
+  "nr": 23,
+  "naam": "Rijglijn"
+ },
+ {
+  "nr": 24,
+  "naam": "Klauw"
+ },
+ {
+  "nr": 25,
+  "naam": "Klauwhoek"
+ },
+ {
+  "nr": 26,
+  "naam": "Strop van de gaffel"
+ },
+ {
+  "nr": 27,
+  "naam": "Mastring"
+ },
+ {
+  "nr": 28,
+  "naam": "Mast"
+ },
+ {
+  "nr": 29,
+  "naam": "Fokkenval"
+ },
+ {
+  "nr": 30,
+  "naam": "Voorstag"
+ },
+ {
+  "nr": 31,
+  "naam": "Fok"
+ },
+ {
+  "nr": 32,
+  "naam": "Voorlijk fok"
+ },
+ {
+  "nr": 33,
+  "naam": "Tophoek"
+ },
+ {
+  "nr": 34,
+  "naam": "Halshoek of -broek fok"
+ },
+ {
+  "nr": 35,
+  "naam": "Onderlijk fok"
+ },
+ {
+  "nr": 36,
+  "naam": "Schoothoek fok"
+ },
+ {
+  "nr": 37,
+  "naam": "Fokkenschoot"
+ },
+ {
+  "nr": 38,
+  "naam": "Kettinkje"
+ },
+ {
+  "nr": 39,
+  "naam": "Hanenkam"
+ },
+ {
+  "nr": 40,
+  "naam": "Voorstag spanner"
+ },
+ {
+  "nr": 41,
+  "naam": "Dolboord"
+ },
+ {
+  "nr": 42,
+  "naam": "Boeisel"
+ },
+ {
+  "nr": 43,
+  "naam": "Wantketting of spanner"
+ },
+ {
+  "nr": 44,
+  "naam": "Kim"
+ },
+ {
+  "nr": 45,
+  "naam": "Vlak"
+ },
+ {
+  "nr": 46,
+  "naam": "Spiegel"
+ },
+ {
+  "nr": 47,
+  "naam": "Scheg"
+ },
+ {
+  "nr": 48,
+  "naam": "Zwaard"
+ },
+ {
+  "nr": 49,
+  "naam": "Zwaardhout"
+ },
+ {
+  "nr": 50,
+  "naam": "Zwaardloper"
+ },
+ {
+  "nr": 51,
+  "naam": "Zwaardkast"
+ },
+ {
+  "nr": 52,
+  "naam": "Mastkoker"
+ },
+ {
+  "nr": 53,
+  "naam": "Mastbout"
+ },
+ {
+  "nr": 54,
+  "naam": "Grendelbout"
+ },
+ {
+  "nr": 55,
+  "naam": "Kikker"
+ },
+ {
+  "nr": 56,
+  "naam": "Dol"
+ },
+ {
+  "nr": 57,
+  "naam": "Dolpot"
+ },
+ {
+  "nr": 58,
+  "naam": "Berghout"
+ },
+ {
+  "nr": 59,
+  "naam": "Doft"
+ },
+ {
+  "nr": 60,
+  "naam": "Voordek"
+ },
+ {
+  "nr": 61,
+  "naam": "Luchtkast"
+ },
+ {
+  "nr": 62,
+  "naam": "Mangat"
+ },
+ {
+  "nr": 63,
+  "naam": "Buikdenning"
+ },
+ {
+  "nr": 64,
+  "naam": "Sleepoog"
+ },
+ {
+  "nr": 65,
+  "naam": "Hijsogen"
+ },
+ {
+  "nr": 66,
+  "naam": "Grootschootoog"
+ },
+ {
+  "nr": 67,
+  "naam": "Leiogen fokkenschoot"
+ },
+ {
+  "nr": 68,
+  "naam": "Landvastogen"
+ },
+ {
+  "nr": 69,
+  "naam": "Achterdek"
+ },
+ {
+  "nr": 70,
+  "naam": "Wrikgat"
+ },
+ {
+  "nr": 71,
+  "naam": "Helmstok"
+ },
+ {
+  "nr": 72,
+  "naam": "Roerkoning"
+ },
+ {
+  "nr": 73,
+  "naam": "Roerhaken"
+ },
+ {
+  "nr": 74,
+  "naam": "Vingerlingen"
+ },
+ {
+  "nr": 75,
+  "naam": "Roerblad"
+ },
+ {
+  "nr": 76,
+  "naam": "Vlaggenstok"
+ },
+ {
+  "nr": 77,
+  "naam": "Knop"
+ },
+ {
+  "nr": 78,
+  "naam": "Vlag"
+ },
+ {
+  "nr": 79,
+  "naam": "Boeg"
+ },
+ {
+  "nr": 80,
+  "naam": "Schootring"
+ },
+ {
+  "nr": 81,
+  "naam": "Leuver"
+ },
+ {
+  "nr": 82,
+  "naam": "Hanepootloper"
+ },
+ {
+  "nr": 83,
+  "naam": "Dodemanseind"
+ },
+ {
+  "nr": 84,
+  "naam": "Spant"
+ }
+]

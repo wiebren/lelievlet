@@ -1,0 +1,72 @@
+# Lelievlet - DE KIMPLAAT : developed plate offsets for the chine (kim) plate
+# Source: Vademecum deel 8 "De Lelievlet", 8e druk 1988, page 26
+#         -> vademecum_pages/vademecum_p26.png
+# Transcribed by eye from the scan. VERIFY against the page image before use.
+#
+# Developed (flat) plate, runs 0 .. 5842 along the plate.
+# breedte_vlaknaad     = "breedte vlaknaad"     - offset of the seam against the vlak (bottom plate)
+# breedte_berghoutnaad = "breedte berghout naad"- offset of the seam at the berghout (chine/boeisel seam)
+# Plate is split into 3 pieces on the drawing: 4c (0..~2000), 4b (~2000..~4000), 4a (~4000..5842)
+# Plate thickness 3 mm. 2 off (port + starboard).
+lengte_mm,breedte_vlaknaad,breedte_berghoutnaad
+0,237,237
+100,209,258
+200,182,279
+300,157,299
+400,134,320
+500,113,339
+600,94,358
+700,76,377
+800,61,396
+900,49,414
+1000,37,432
+1100,29,449
+1200,22,465
+1300,16,480
+1400,11,494
+1500,8,507
+1600,5,518
+1700,3,528
+1800,2,538
+1900,0,547
+2000,0,554
+2100,0,560
+2200,1,565
+2300,1,569
+2400,2,571
+2500,2,572
+2600,2,572
+2700,3,569
+2800,3,567
+2900,3,562
+3000,2,558
+3100,2,552
+3200,2,549
+3300,2,544
+3400,2,538
+3500,2,532
+3600,2,528
+3700,2,522
+3800,1,516
+3900,1,510
+4000,0,504
+4100,0,499
+4200,1,492
+4300,1,488
+4400,1,482
+4500,1,477
+4600,2,472
+4700,3,465
+4800,3,460
+4900,4,453
+5000,5,448
+5100,5,442
+5200,5,435
+5300,5,429
+5400,5,422
+5500,5,415
+5588,5,409
+5600,5,390
+5700,5,230
+5800,5,72
+5842,5,5

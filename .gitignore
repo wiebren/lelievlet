@@ -6,6 +6,14 @@ web/dist-lib/
 __pycache__/
 .DS_Store
 
-# The reference material (official DWG, Vlettenboek, course books) is not ours to redistribute.
-# The pipeline needs reference/cad/ to rebuild the model; the built model is in web/public/models/.
-reference/
+# Of the reference material only our own work is tracked: the notes and indexes, the transcribed
+# tables and the extraction script. The downloaded documents, drawings, photographs, the DWG and
+# the bodies extracted from it stay out. The pipeline needs reference/cad/ to rebuild the model;
+# the built model is in web/public/models/.
+reference/**
+!reference/**/
+!reference/**/*.md
+!reference/**/*.csv
+!reference/**/*.json
+!reference/cad/extract_sab.py
+!reference/cad/vertex_preview.png
