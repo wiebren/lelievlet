@@ -284,14 +284,14 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const planReef = (turns) => {
     if (Math.abs(reef.turns - turns) < 1e-6 && reef.slack + reef.slide + reef.pull < 1e-6) return;
     reefing = new Procedure('Reven', reef, [
-      { key: 'slack', to: 1, seconds: 0.7, label: stap('Vallen vieren') },
-      { key: 'slide', to: 1, seconds: 1.1, label: stap('Schootring naar de nok') },
-      { key: 'pull', to: 1, seconds: 0.5, label: stap('Giek naar achteren trekken') },
-      { key: 'turns', to: turns, seconds: 1.25 * Math.max(Math.abs(turns - reef.turns), 0.4), label: stap('Giek draaien') },
-      { key: 'pull', to: 0, seconds: 0.5, label: stap('Giek terug in het lummelbeslag') },
-      { key: 'hoop', to: turns > 0 ? 1 : 0, seconds: 0.9, label: stap('Grootschoot verhangen') },
-      { key: 'slide', to: 0, seconds: 1.1, label: stap('Schootring terug') },
-      { key: 'slack', to: 0, seconds: 0.7, label: stap('Vallen doorzetten') },
+      { key: 'slack', to: 1, seconds: 0.7, label: stap('Vallen vieren'), back: stap('Vallen doorzetten') },
+      { key: 'slide', to: 1, seconds: 1.1, label: stap('Schootring naar de nok'), back: stap('Schootring terug') },
+      { key: 'pull', to: 1, seconds: 0.5, label: stap('Giek naar achteren trekken'), back: stap('Giek terug in het lummelbeslag') },
+      { key: 'turns', to: turns, seconds: 1.25 * Math.max(Math.abs(turns - reef.turns), 0.4), label: stap('Giek draaien'), back: stap('Giek terugdraaien') },
+      { key: 'pull', to: 0, seconds: 0.5, label: stap('Giek terug in het lummelbeslag'), back: stap('Giek naar achteren trekken') },
+      { key: 'hoop', to: turns > 0 ? 1 : 0, seconds: 0.9, label: stap('Grootschoot verhangen'), back: stap('Grootschoot terughangen') },
+      { key: 'slide', to: 0, seconds: 1.1, label: stap('Schootring terug'), back: stap('Schootring naar de nok') },
+      { key: 'slack', to: 0, seconds: 0.7, label: stap('Vallen doorzetten'), back: stap('Vallen vieren') },
     ]);
     reef = reefing.values; reefing.command(reefing.total); shown = reefing;
   };
@@ -822,21 +822,21 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // "Zeilen gestreken" and "Mast gestreken" are three moments on it.
   const rigging = new Procedure('Tuig', { head: 0, anchor: 0, zwaard: 0, jib: 0, mik: 0, main: 0, furl: 0, ties: 0,
     fokoff: 0, low: 0, pin: 0, grendel: 0, ring: 0, hook: 0, mast: 0 }, [
-    { key: 'head', to: 1, seconds: 1.5, label: stap('Kop in de wind') },
-    { key: 'anchor', to: 1, seconds: 4, label: stap('Anker uit') },
-    { key: 'zwaard', to: 1, seconds: 1.5, label: stap('Midzwaard op') },
-    { key: 'jib', to: 1, seconds: 2, label: stap('Fok strijken') },
-    { key: 'mik', to: 1, seconds: 1.5, label: stap('Mik zetten') },
-    { key: 'main', to: 1, seconds: 2.5, label: stap('Grootzeil strijken') },
-    { key: 'furl', to: 1, seconds: 1.5, label: stap('Zeil opdoeken') },
-    { key: 'ties', to: 1, seconds: 1.2, label: stap('Zeilbinders om') },
-    { key: 'fokoff', to: 1, seconds: 2, label: stap('Fok afnemen') },
-    { key: 'low', to: 1, seconds: 2, label: stap('Tuig in de onderste haak van de mik') },
-    { key: 'pin', to: 1, seconds: 1.8, label: stap('Lummelbout uit') },
-    { key: 'grendel', to: 1, seconds: 1.5, label: stap('Grendelbout uit') },
-    { key: 'ring', to: 1, seconds: 1.2, label: stap('Ring van de pelikaanhaak omhoog') },
-    { key: 'hook', to: 1, seconds: 1.8, label: stap('Pelikaanhaak uit de hanekam') },
-    { key: 'mast', to: 1, seconds: 5, label: stap('Mast strijken') },
+    { key: 'head', to: 1, seconds: 1.5, label: stap('Kop in de wind'), back: stap('Afvallen') },
+    { key: 'anchor', to: 1, seconds: 4, label: stap('Anker uit'), back: stap('Anker op') },
+    { key: 'zwaard', to: 1, seconds: 1.5, label: stap('Midzwaard op'), back: stap('Midzwaard neer') },
+    { key: 'jib', to: 1, seconds: 2, label: stap('Fok strijken'), back: stap('Fok hijsen') },
+    { key: 'mik', to: 1, seconds: 1.5, label: stap('Mik zetten'), back: stap('Mik wegnemen') },
+    { key: 'main', to: 1, seconds: 2.5, label: stap('Grootzeil strijken'), back: stap('Grootzeil hijsen') },
+    { key: 'furl', to: 1, seconds: 1.5, label: stap('Zeil opdoeken'), back: stap('Zeil losmaken') },
+    { key: 'ties', to: 1, seconds: 1.2, label: stap('Zeilbinders om'), back: stap('Zeilbinders af') },
+    { key: 'fokoff', to: 1, seconds: 2, label: stap('Fok afnemen'), back: stap('Fok aanslaan') },
+    { key: 'low', to: 1, seconds: 2, label: stap('Tuig in de onderste haak van de mik'), back: stap('Tuig terug in de vork van de mik') },
+    { key: 'pin', to: 1, seconds: 1.8, label: stap('Lummelbout uit'), back: stap('Lummelbout in') },
+    { key: 'grendel', to: 1, seconds: 1.5, label: stap('Grendelbout uit'), back: stap('Grendelbout in') },
+    { key: 'ring', to: 1, seconds: 1.2, label: stap('Ring van de pelikaanhaak omhoog'), back: stap('Ring van de pelikaanhaak omlaag') },
+    { key: 'hook', to: 1, seconds: 1.8, label: stap('Pelikaanhaak uit de hanekam'), back: stap('Pelikaanhaak in de hanekam') },
+    { key: 'mast', to: 1, seconds: 5, label: stap('Mast strijken'), back: stap('Mast zetten') },
   ]);
   const strike = rigging.values;
   const RIG_AT = { op: 0, gestreken: rigging.after('ties'), mast: rigging.total };
@@ -1683,7 +1683,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   /** For the progress bar: the procedure last set going, as plain data, and the handles to steer it. */
   const procedure = () => (shown && {
     name: shown.name, t: shown.t, total: shown.total, playing: shown.playing, resting: shown.resting,
-    label: shown.current?.label ?? '', steps: shown.steps.map((s) => ({ label: s.label, begin: s.begin, end: s.end })),
+    label: shown.label, index: shown.index, backwards: shown.direction < 0,
+    steps: shown.steps.map((s) => ({ label: s.label, back: s.back, begin: s.begin, end: s.end })),
   });
   const procedureControl = {
     play: () => shown?.play(), pause: () => shown?.pause(), next: () => shown?.step(1), previous: () => shown?.step(-1),

@@ -760,9 +760,8 @@ export function mount(ui, host, config) {
       }));
     }
     if (!procDragging) procTime.value = String(p.t);
-    const index = p.steps.findIndex((s) => p.t < s.end - 1e-6);        // the step the label is about
-    const at = index < 0 ? p.steps.length : index + 1;
-    const step = p.steps.length ? `${at}/${p.steps.length}  ${p.label}` : p.label;
+    // the step the label is about, and named the way the procedure is going (Fok strijken, Fok hijsen)
+    const step = p.steps.length ? `${p.index + 1}/${p.steps.length}  ${p.label}` : p.label;
     if (procStep.textContent !== step) procStep.textContent = step;
     if (procName.textContent !== p.name) procName.textContent = p.name;
     if (procPlaying !== p.playing) {

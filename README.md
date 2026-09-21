@@ -132,7 +132,7 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 | `toestand.selectie` | id of lijst ids | — | Onderdelen die geselecteerd zijn, met hun infotegel; de camera gaat erheen, tenzij er ook een `aanzicht` of `camera` is. `null` of `[]` heft de selectie op. |
 | `toestand.camera` | `{ positie, doel }` | — | Het precieze standpunt: `positie` is waar de camera staat, `doel` waar hij naar kijkt, elk `[x, y, z]` in meters in de assen van het model (x van spiegel naar boeg, y omhoog, z naar stuurboord). Gaat voor `aanzicht`. Het makkelijkst te krijgen uit het paneel van `debug.toestand`. |
 | `namen.onderdelen[id]` | string | — | Hernoemt een onderdeel overal: hovertip, infotegel, de lijst Onderdelen (ook de samenvoeging van bakboord/stuurboord, die op namen werkt) en de terugkoppeling van de quiz. Sleutel is de onderdeel-id, bijvoorbeeld `{ hommerring: 'Mastring' }`. |
-| `namen.stappen[label]` | string | — | Hernoemt een stap van een procedure (Reven, Tuig). Sleutel is het standaardlabel, bijvoorbeeld `{ 'Fok strijken': 'Fok neer' }`. |
+| `namen.stappen[label]` | string | — | Hernoemt een stap van een procedure (Reven, Tuig). Sleutel is het standaardlabel, bijvoorbeeld `{ 'Fok strijken': 'Fok neer' }`. Elke stap heeft ook een naam voor de andere kant op, die de balk toont als de procedure achteruit loopt (Fok hijsen, Anker op, Mast zetten, …); die hernoem je op dezelfde manier: `{ 'Fok hijsen': 'Fok op' }`. |
 | `namen.commandos[key]` | string of object | — | Hernoemt een roeicommando. Een string is het knoplabel; `{ knop, roep }` zet ook de woorden die de roerganger roept. Sleutels: `slag` `haal` `opriemen` `strijk` `stopaf` `lopen` `over` `op` `geroeid`. |
 | `namen.quiz[nr of naam]` | string | — | Hernoemt een quizvraag, op nummer of op de standaardnaam: `{ 27: 'Hommerring', Kleed: 'Baan' }`. |
 | `quiz.weg` | array | `[]` | Nummers of namen die niet gevraagd worden: `[27, 'Kleed']`. |
@@ -467,7 +467,9 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   gezet; grootzeil in plooien omlaag terwijl de gaffel langs de mast zakt en vlak wordt gelegd (het bovenlijk blijft aan de gaffel: elk punt van het doek gaat mee met de gaffel, naar gelang hoe hoog het tussen onderlijk en bovenlijk zit), de nok
   van de giek 1.1 graden opgetild in de vork van de mik, kraanlijn strak (`mainBend.warp`); het doek
   opgedoekt tot een rol op de giek (onderdeel "Opgedoekt grootzeil"); drie zeilbinders (dubbel
-  elastiek, twee ballen) om zeil, giek en gaffel. Hijsen laat het achterstevoren lopen.
+  elastiek, twee ballen) om zeil, giek en gaffel. Hijsen laat het achterstevoren lopen; de balk noemt
+  dan elke stap bij zijn omgekeerde naam (Zeilbinders af, Grootzeil hijsen, … Afvallen), en staat hij
+  stil, dan de stap die als laatste gedaan is.
 - Met de hand: slepen aan het helmhout stuurt (de roeronderdelen, vlaggenstok en vlag draaien om de
   schuine roerkoning; een tabel zet de peiling van de aanwijzer om in de hoek om die as; het slepen
   wordt in de capture-fase afgevangen zodat OrbitControls het nooit ziet). Een klik op een dol zet hem
