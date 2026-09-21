@@ -904,7 +904,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const rope = new RopeLine(2, 0.003, byId.get('fokkenval').meshes[0].material);
     rope.mesh.visible = false;
     joinPart(rope.mesh, 'fokkenval');
-    return { meshes, home, at: new THREE.Vector3(), rope };
+    return { meshes, home, at: new THREE.Vector3(), down: new THREE.Vector3(), rope };
   })();
   // the sail made up on the giek, and the zeilbinders round sail, giek and gaffel
   const stowed = (() => {
@@ -1272,10 +1272,12 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       // the harpje of the fokkenval comes down the stay with the head of the fok, the val paying out
       // after it; once the fok is off, the val is hauled back up to where it was
       if (valHarp) {
-        const down = warpPoint(jibBend, valHarp.at.copy(valHarp.home)).sub(valHarp.home).multiplyScalar(1 - off);
+        // `at` is where the harpje is now; the displacement is worked out on a vector of its own
+        const at = warpPoint(jibBend, valHarp.at.copy(valHarp.home));
+        const down = valHarp.down.subVectors(at, valHarp.home).multiplyScalar(1 - off);
         for (const m of valHarp.meshes) m.position.add(down);
         valHarp.rope.mesh.visible = down.lengthSq() > 1e-6 && now.sails > 0.5;
-        if (valHarp.rope.mesh.visible) valHarp.rope.set([valHarp.home, valHarp.at.copy(valHarp.home).add(down)]);
+        if (valHarp.rope.mesh.visible) valHarp.rope.set([valHarp.home, at.copy(valHarp.home).add(down)]);
       }
       if (off > 0.7) for (const m of byId.get('fokkenschoot').meshes) m.visible = false;
       for (const m of grendel) m.visible = strike.grendel <= 0.97;
