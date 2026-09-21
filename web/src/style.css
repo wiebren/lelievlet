@@ -1,0 +1,320 @@
+:root {
+  --bg-top: #cfe3f1;
+  --bg-bottom: #f4f7f9;
+  --panel: rgba(255, 255, 255, 0.92);
+  --text: #16222e;
+  --muted: #5b6b7a;
+  --accent: #0b5cad;
+  --line: rgba(22, 34, 46, 0.12);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--text);
+  background: linear-gradient(var(--bg-top), var(--bg-bottom));
+}
+
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; outline: none; }
+
+#sidebar {
+  position: fixed; top: 178px; left: 16px; width: 230px; max-height: calc(100% - 194px); overflow: auto;
+  padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+#sidebar h1 { margin: 0; font-size: 20px; }
+#sidebar .sub { margin: 2px 0 12px; color: var(--muted); font-size: 12px; }
+#sidebar h2 { margin: 14px 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+#groups { list-style: none; margin: 0; padding: 0; }
+#groups li { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+#groups label { flex: 1; cursor: pointer; }
+#groups .count { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+/* Onderdelen: the same panel as the eye menu, in the same corner (only one of the two is open).
+   Its list scrolls inside the panel, which stops well clear of the control bar at the bottom. */
+#parts {
+  position: fixed; top: 178px; left: 16px; width: 250px; max-height: calc(100% - 254px);
+  display: flex; flex-direction: column; z-index: 3;
+  padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+#parts header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+#parts h2 { margin: 0; font-size: 16px; }
+#parts-search {
+  width: 100%; font: inherit; font-size: 15px; padding: 5px 8px; border-radius: 8px;
+  border: 1px solid var(--line); background: #fff; color: var(--text);
+}
+#parts-search:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+#parts-list { flex: 1 1 auto; min-height: 0; overflow: auto; margin: 8px -6px 0; padding: 0 6px; }
+#parts-list section { margin-bottom: 4px; }
+#parts-list .group-head {
+  display: flex; align-items: center; gap: 6px; width: 100%; padding: 4px 0; border: 0; background: none;
+  font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: left;
+}
+#parts-list .group-head .title { flex: 1; }
+#parts-list .group-head .count { font-variant-numeric: tabular-nums; }
+#parts-list .group-head svg { flex: none; transition: transform 0.15s; }
+#parts-list .group-head[aria-expanded="false"] svg { transform: rotate(-90deg); }
+#parts-list ul { list-style: none; margin: 0 0 6px; padding: 0; }
+#parts-list .part {
+  display: flex; align-items: baseline; gap: 6px; width: 100%; padding: 4px 8px;
+  border: 0; background: none; border-radius: 8px; text-align: left;
+}
+#parts-list .part .times { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+#parts-list .part .gebied { color: var(--muted); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; }
+#parts-list .part[aria-current="true"], #parts-list .part[aria-current="true"]:hover { background: var(--accent); color: #fff; }
+#parts-list .part[aria-current="true"] .times, #parts-list .part[aria-current="true"] .gebied { color: #fff; opacity: 0.75; }
+#parts-list .part:disabled { color: var(--muted); opacity: 0.45; cursor: default; }
+#parts-list .part:disabled:hover { color: var(--muted); }
+
+.icon-button {
+  position: fixed; top: 16px; right: 16px; width: 44px; height: 44px; display: grid; place-items: center;
+  padding: 0; border-radius: 50%; background: var(--panel); backdrop-filter: blur(8px);
+}
+.icon-button[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
+#view-toggle { right: auto; left: 16px; }
+#parts-toggle { top: 70px; right: auto; left: 16px; }
+#about-toggle { top: auto; bottom: 16px; }
+
+#about {
+  position: fixed; right: 16px; bottom: 70px; width: 290px; max-height: calc(100% - 100px); overflow: auto;
+  padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  backdrop-filter: blur(8px); z-index: 3;
+}
+#about header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+#about h2 { margin: 0; font-size: 16px; }
+#about h3 { margin: 14px 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+#about p { margin: 0; font-size: 13px; color: var(--muted); }
+#about a { color: var(--accent); }
+.links { list-style: none; margin: 0; padding: 0; font-size: 13px; }
+.links li { margin-bottom: 7px; color: var(--muted); line-height: 1.35; }
+
+#customize {
+  position: fixed; top: 70px; right: 16px; width: 250px; max-height: calc(100% - 170px); overflow: auto;
+  padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+#customize header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+#customize h2 { margin: 0; font-size: 16px; }
+#customize h3 { margin: 16px 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.link-button { border: 0; background: none; padding: 0; color: var(--muted); }
+.field { display: block; margin-top: 10px; }
+.field span { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+.field input[type="text"] {
+  width: 100%; font: inherit; font-size: 15px; padding: 5px 8px; border-radius: 8px;
+  border: 1px solid var(--line); background: #fff; color: var(--text);
+}
+.with-color { display: flex; gap: 8px; align-items: stretch; }
+.with-color input[type="text"] { flex: 1; min-width: 0; }
+.with-color input[type="color"] {
+  flex: none; width: 38px; height: auto; padding: 0; border: 1px solid var(--line); border-radius: 8px;
+  background: none; cursor: pointer;
+}
+.field input:focus, .color-row input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.color-row { display: flex; align-items: center; gap: 10px; padding: 3px 0; cursor: pointer; }
+.color-row input[type="color"] {
+  width: 34px; height: 24px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: none; cursor: pointer;
+}
+#customize-reset { margin-top: 14px; width: 100%; }
+
+.hint { margin: 10px 0 0; color: var(--muted); font-size: 12px; }
+
+.buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+button {
+  font: inherit; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line);
+  background: #fff; color: var(--text); cursor: pointer;
+}
+button:hover { border-color: var(--accent); color: var(--accent); }
+
+/* The control bar: icons along the bottom, each with its control in a popover above it.
+   The popovers are laid out against the bar, so a panel can hang over either side of its icon. */
+#controls {
+  /* the bar starts half an icon left of centre, so Modus sits dead centre and stays put while the
+     icons to its right come and go with the mode */
+  position: fixed; bottom: 16px; left: calc(50% - 22px); z-index: 5; display: flex; gap: 8px;
+}
+#controls .icon-button { position: relative; top: auto; right: auto; left: auto; }
+.popover .boorden { display: flex; gap: 14px; }
+.popover .caption { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); text-align: center; }
+.popover .spoken { margin: 2px 0 8px; max-width: 330px; font-style: italic; text-align: center; }
+.popover .reef { display: grid; gap: 6px; min-width: 190px; font-size: 13px; }
+.popover .reef input { width: 100%; accent-color: var(--accent); }
+#controls .badge {
+  position: absolute; right: 1px; bottom: 1px; min-width: 16px; padding: 0 3px; border-radius: 999px;
+  background: var(--accent); color: #fff; font-size: 10px; line-height: 16px; font-variant-numeric: tabular-nums;
+}
+.popover {
+  position: absolute; bottom: 100%; margin-bottom: 8px; padding: 8px 18px;
+  width: max-content; max-width: calc(100vw - 16px);   /* as wide as its choices, not as narrow as the bar it hangs on */
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; backdrop-filter: blur(8px);
+}
+.popover .choices { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+.popover .choices button { border: 0; border-radius: 999px; padding: 5px 14px; background: none; white-space: nowrap; }
+.popover .choices button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+
+/* Koers: a slim bar with the names of the courses floating above it; the whole panel only exists
+   while its icon is open, so they need no hiding of their own */
+#wind-panel { width: min(620px, calc(100vw - 16px)); }
+#course { display: block; width: 100%; margin: 2px 0 0; accent-color: var(--accent); }
+#wind-panel .ticks { position: relative; height: 7px; margin: 0 8px; }
+#wind-panel .ticks span { position: absolute; top: 0; width: 1px; height: 6px; background: var(--muted); }
+#course-markers {
+  position: absolute; left: 26px; right: 26px; bottom: 100%; height: 64px;
+}
+#course-markers button {
+  position: absolute; bottom: 8px; transform: translateX(-50%); padding: 3px 8px; font-size: 12px; white-space: nowrap;
+  background: var(--panel); backdrop-filter: blur(8px);
+}
+/* fok te loevert sits too close to voor de wind: same row, moved outwards past the end of the slider */
+#course-markers button.out-right { transform: translateX(calc(-50% + 62px)); }
+#course-markers button.out-left { transform: translateX(calc(-50% - 62px)); }
+#course-markers .caption {
+  position: absolute; bottom: 40px; transform: translateX(-50%); font-size: 11px; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--muted); white-space: nowrap;
+}
+#course-markers button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+
+/* The progress bar of the running procedure, in the same strip as the control bar. main.js sets
+   --procedure-lift to how far the open popover it has to ride over reaches, and --procedure-top to
+   how far it reaches up, which is where the info tile steps over it. */
+#procedure {
+  position: fixed; left: 50%; bottom: calc(68px + var(--procedure-lift, 0px)); transform: translateX(-50%);
+  z-index: 4; width: min(520px, calc(100vw - 16px)); display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  backdrop-filter: blur(8px); transition: opacity 0.35s;
+}
+/* out of sight once a finished procedure has had its moment: visibility waits for the fade, and
+   takes the buttons out of reach of the pointer and of the tab key */
+#procedure.faded { opacity: 0; visibility: hidden; transition: opacity 0.35s, visibility 0s 0.35s; }
+#procedure .icon-button { position: relative; top: auto; right: auto; left: auto; width: 40px; height: 40px; }
+#procedure .track { flex: 1; min-width: 0; }
+#procedure .head { display: flex; align-items: baseline; gap: 8px; font-size: 13px; }
+#procedure .step {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+#procedure .caption { flex: none; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+#procedure-time { display: block; width: 100%; margin: 2px 0 0; accent-color: var(--accent); }
+#procedure .ticks { position: relative; height: 7px; margin: 0 8px; }
+#procedure .ticks span { position: absolute; top: 0; width: 1px; height: 6px; background: var(--muted); }
+
+#info {
+  position: fixed; right: 76px; bottom: 16px; z-index: 2; min-width: 240px; max-width: 340px; padding: 12px 16px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; backdrop-filter: blur(8px);
+}
+#info .group { color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+#info .name { font-size: 20px; font-weight: 600; margin: 2px 0 4px; }
+#info .dims, #info .model { color: var(--muted); font-variant-numeric: tabular-nums; }
+#info .model b { color: var(--text); font-weight: 600; }
+#info .model .more { margin-left: 6px; opacity: 0.7; cursor: help; }
+
+#hover {
+  position: fixed; pointer-events: none; padding: 3px 8px; border-radius: 6px; font-size: 13px;
+  background: rgba(22, 34, 46, 0.88); color: #fff; transform: translate(12px, 12px); white-space: nowrap;
+}
+
+[hidden] { display: none !important; }
+
+#loading { position: fixed; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 16px; }
+
+@media (max-width: 1100px) {
+  #info { right: 16px; bottom: 76px; }      /* out of the way of the control bar */
+}
+
+/* the progress bar holds the middle of that same strip: only a wide screen has room beside it */
+@media (max-width: 1360px) {
+  body.procedure-open #info { bottom: var(--procedure-top, 76px); }
+}
+
+@media (max-width: 640px) {
+  #sidebar { width: auto; right: 16px; max-height: 38%; }
+  /* as wide as the screen allows, and short enough to leave the control bar and the info tile free */
+  #parts { width: auto; right: 16px; max-height: calc(100% - 354px); }
+  #procedure { padding: 8px 10px; gap: 6px; }      /* full width, with the buttons still 40 px */
+}
+
+/* ---------------------------------------------------------------- Oefenen (quiz)
+   The start panel is the third in the top left corner (only one of the three is open at a time),
+   so its icon sits under Onderdelen and those panels start 54 px lower. The card of a running
+   round hangs above the control bar, on the same foot as the progress bar and lifted over an open
+   popover by the same --procedure-lift. While a round runs, body.quiz-on takes away everything
+   that would give an answer away, and body.quiz-los gives the isolated part a plain backdrop. */
+#quiz-toggle { top: 124px; right: auto; left: 16px; }
+#quiz {
+  position: fixed; top: 178px; left: 16px; width: 250px; max-height: calc(100% - 254px); overflow: auto;
+  z-index: 3; padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+#quiz header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+#quiz h2 { margin: 0; font-size: 16px; }
+#quiz h3 { margin: 14px 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+#quiz .choices { display: flex; flex-wrap: wrap; gap: 4px; }
+#quiz .choices button { border: 0; border-radius: 999px; padding: 4px 12px; background: none; }
+#quiz .choices button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+#quiz #quiz-start, #quiz #quiz-wrong { margin-top: 12px; width: 100%; }
+#quiz .quiz-clear { margin-top: 10px; }
+#quiz .quiz-clear button { color: var(--accent); }
+
+/* the card: question, answers, feedback and what to do next, in one box */
+#quiz-card {
+  position: fixed; left: 50%; bottom: calc(68px + var(--procedure-lift, 0px)); transform: translateX(-50%);
+  z-index: 4; width: min(520px, calc(100vw - 32px)); padding: 10px 14px 12px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; backdrop-filter: blur(8px);
+}
+#quiz-card .head { display: flex; align-items: baseline; gap: 10px; font-size: 12px; color: var(--muted); }
+#quiz-card .head .count { flex: none; font-variant-numeric: tabular-nums; }
+#quiz-card .head .score { flex: 1; font-variant-numeric: tabular-nums; }
+#quiz-card .head .stop { flex: none; color: var(--accent); }
+#quiz-card .vraag { margin: 3px 0 0; font-size: 19px; font-weight: 600; }
+#quiz-card .hint { margin: 2px 0 0; }
+#quiz-card .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
+#quiz-card .answer { display: flex; align-items: baseline; gap: 8px; text-align: left; }
+#quiz-card .answer .key { flex: none; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+#quiz-card .answer:disabled { opacity: 1; }
+#quiz-card .answer.goed { border-color: var(--quiz-goed); background: var(--quiz-goed-bg); color: var(--quiz-goed); }
+#quiz-card .answer.fout { border-color: var(--quiz-fout); background: var(--quiz-fout-bg); color: var(--quiz-fout); }
+#quiz-card .answer.goed .key, #quiz-card .answer.fout .key { color: inherit; }
+/* Kies het onderdeel: a chip per lit part, in the colour that part is lit in */
+#quiz-card .answers.chips { display: flex; gap: 8px; }
+#quiz-card .chip {
+  display: grid; place-items: center; width: 44px; height: 38px; padding: 0;
+  border: 2px solid var(--chip); border-radius: 10px; background: var(--chip); color: #fff;
+}
+#quiz-card .chip .letter { font-size: 17px; font-weight: 600; line-height: 1; }
+#quiz-card .chip:hover, #quiz-card .chip:focus-visible { color: #fff; outline: 2px solid var(--text); outline-offset: 2px; }
+#quiz-card .chip.goed { box-shadow: 0 0 0 3px var(--quiz-goed); }
+#quiz-card .chip.fout { box-shadow: 0 0 0 3px var(--quiz-fout); opacity: 0.55; }
+/* Typen: the field keeps every key to itself, so nothing reaches the camera */
+#quiz-card .typed {
+  width: 100%; margin-top: 10px; font: inherit; font-size: 16px; padding: 6px 10px; border-radius: 8px;
+  border: 1px solid var(--line); background: #fff; color: var(--text);
+}
+#quiz-card .typed:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+#quiz-card .feedback { display: flex; align-items: baseline; gap: 6px; margin-top: 10px; font-size: 14px; }
+#quiz-card .feedback .mark { font-size: 16px; font-weight: 700; }
+#quiz-card .feedback.goed { color: var(--quiz-goed); }
+#quiz-card .feedback.fout { color: var(--quiz-fout); }
+#quiz-card .actions { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+#quiz-card .actions .primary { font-weight: 600; }
+#quiz-card .actions .secondary { margin-left: auto; color: var(--accent); }
+
+:root {
+  --quiz-goed: #147a45;
+  --quiz-fout: #b3261e;
+  --quiz-goed-bg: rgba(20, 122, 69, 0.1);
+  --quiz-fout-bg: rgba(179, 38, 30, 0.1);
+  --quiz-los-bg: #dfe9f1;      /* the backdrop of a part lifted out of the boat */
+}
+
+/* while a round runs, nothing outside the card may name a part */
+body.quiz-on #hover, body.quiz-on #info, body.quiz-on #procedure { display: none; }
+body.quiz-los { background: var(--quiz-los-bg); }
+
+@media (max-width: 640px) {
+  #quiz { width: auto; right: 16px; max-height: calc(100% - 354px); }
+  #quiz-card .answers { grid-template-columns: 1fr; }
+}

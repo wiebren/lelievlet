@@ -1,0 +1,2549 @@
+[
+ {
+  "id": "achterdek",
+  "naam": "Achterdek",
+  "groep": "romp",
+  "materiaal": "achterdek",
+  "handles": [
+   "5873"
+  ],
+  "afmetingen_mm": [
+   1185,
+   205,
+   1476
+  ],
+  "triangles": 1336,
+  "vertices": 1046
+ },
+ {
+  "id": "achterschot",
+  "naam": "Schot achterste luchtkast",
+  "groep": "romp",
+  "materiaal": "kuip",
+  "handles": [
+   "59F2"
+  ],
+  "afmetingen_mm": [
+   33,
+   431,
+   1500
+  ],
+  "triangles": 76,
+  "vertices": 108
+ },
+ {
+  "id": "berghout_bb",
+  "naam": "Berghout (bakboord)",
+  "groep": "romp",
+  "materiaal": "berghout",
+  "handles": [
+   "5A11"
+  ],
+  "afmetingen_mm": [
+   5500,
+   475,
+   930
+  ],
+  "triangles": 10462,
+  "vertices": 10172
+ },
+ {
+  "id": "berghout_sb",
+  "naam": "Berghout (stuurboord)",
+  "groep": "romp",
+  "materiaal": "berghout",
+  "handles": [
+   "58F5"
+  ],
+  "afmetingen_mm": [
+   5500,
+   475,
+   930
+  ],
+  "triangles": 10472,
+  "vertices": 10178
+ },
+ {
+  "id": "boegrand",
+  "naam": "Dwarsbuis voordek",
+  "groep": "romp",
+  "materiaal": "dolboord",
+  "handles": [
+   "5A1F"
+  ],
+  "afmetingen_mm": [
+   10,
+   71,
+   642
+  ],
+  "triangles": 2344,
+  "vertices": 2260
+ },
+ {
+  "id": "boeisel_bb",
+  "naam": "Boeisel (bakboord)",
+  "groep": "romp",
+  "materiaal": "romp",
+  "handles": [
+   "5827"
+  ],
+  "afmetingen_mm": [
+   5598,
+   513,
+   918
+  ],
+  "triangles": 4904,
+  "vertices": 3915
+ },
+ {
+  "id": "boeisel_sb",
+  "naam": "Boeisel (stuurboord)",
+  "groep": "romp",
+  "materiaal": "romp",
+  "handles": [
+   "5A33"
+  ],
+  "afmetingen_mm": [
+   5598,
+   513,
+   918
+  ],
+  "triangles": 4882,
+  "vertices": 3904
+ },
+ {
+  "id": "dekcontour",
+  "naam": "Contour boeisel",
+  "groep": "romp",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5A6F"
+  ],
+  "afmetingen_mm": [
+   5576,
+   264,
+   1773
+  ],
+  "triangles": 11049,
+  "vertices": 10956
+ },
+ {
+  "id": "dolboord_bb",
+  "naam": "Dolboord (bakboord)",
+  "groep": "romp",
+  "materiaal": "dolboord",
+  "handles": [
+   "5A3B"
+  ],
+  "afmetingen_mm": [
+   5609,
+   279,
+   903
+  ],
+  "triangles": 10091,
+  "vertices": 9732
+ },
+ {
+  "id": "dolboord_sb",
+  "naam": "Dolboord (stuurboord)",
+  "groep": "romp",
+  "materiaal": "dolboord",
+  "handles": [
+   "5A65"
+  ],
+  "afmetingen_mm": [
+   5614,
+   279,
+   903
+  ],
+  "triangles": 10998,
+  "vertices": 10228
+ },
+ {
+  "id": "kim_bb",
+  "naam": "Kim (bakboord)",
+  "groep": "romp",
+  "materiaal": "romp",
+  "handles": [
+   "5A0B"
+  ],
+  "afmetingen_mm": [
+   5483,
+   919,
+   917
+  ],
+  "triangles": 4484,
+  "vertices": 3630
+ },
+ {
+  "id": "kim_sb",
+  "naam": "Kim (stuurboord)",
+  "groep": "romp",
+  "materiaal": "romp",
+  "handles": [
+   "5A0C"
+  ],
+  "afmetingen_mm": [
+   5483,
+   919,
+   917
+  ],
+  "triangles": 4490,
+  "vertices": 3633
+ },
+ {
+  "id": "mastkoker",
+  "naam": "Mastkoker",
+  "groep": "romp",
+  "materiaal": "zwaardkast",
+  "handles": [
+   "5853"
+  ],
+  "afmetingen_mm": [
+   120,
+   790,
+   102
+  ],
+  "triangles": 916,
+  "vertices": 964
+ },
+ {
+  "id": "scheg",
+  "naam": "Scheg",
+  "groep": "romp",
+  "materiaal": "romp",
+  "handles": [
+   "5881"
+  ],
+  "afmetingen_mm": [
+   1022,
+   240,
+   6
+  ],
+  "triangles": 52,
+  "vertices": 66
+ },
+ {
+  "id": "spanten",
+  "naam": "Spanten (wrangen)",
+  "groep": "romp",
+  "materiaal": "kuip",
+  "handles": [
+   "5831",
+   "5833",
+   "5835",
+   "5837",
+   "5838",
+   "5839",
+   "583A",
+   "59FB",
+   "5A02"
+  ],
+  "afmetingen_mm": [
+   2250,
+   188,
+   1174
+  ],
+  "triangles": 694,
+  "vertices": 942
+ },
+ {
+  "id": "spiegel",
+  "naam": "Spiegel",
+  "groep": "romp",
+  "materiaal": "romp",
+  "handles": [
+   "582A"
+  ],
+  "afmetingen_mm": [
+   380,
+   568,
+   960
+  ],
+  "triangles": 148,
+  "vertices": 170
+ },
+ {
+  "id": "spiegelrand",
+  "naam": "Dolboord over de spiegel",
+  "groep": "romp",
+  "materiaal": "dolboord",
+  "handles": [
+   "5A6C"
+  ],
+  "afmetingen_mm": [
+   44,
+   53,
+   883
+  ],
+  "triangles": 2873,
+  "vertices": 2710
+ },
+ {
+  "id": "vlak_bb",
+  "naam": "Vlak (bakboord)",
+  "groep": "romp",
+  "materiaal": "romp",
+  "handles": [
+   "583C"
+  ],
+  "afmetingen_mm": [
+   5249,
+   956,
+   596
+  ],
+  "triangles": 4458,
+  "vertices": 3590
+ },
+ {
+  "id": "vlak_sb",
+  "naam": "Vlak (stuurboord)",
+  "groep": "romp",
+  "materiaal": "romp",
+  "handles": [
+   "583F"
+  ],
+  "afmetingen_mm": [
+   5249,
+   956,
+   596
+  ],
+  "triangles": 4440,
+  "vertices": 3581
+ },
+ {
+  "id": "voordek",
+  "naam": "Voordek",
+  "groep": "romp",
+  "materiaal": "voordek",
+  "handles": [
+   "59D4"
+  ],
+  "afmetingen_mm": [
+   1359,
+   159,
+   1682
+  ],
+  "triangles": 3266,
+  "vertices": 1774
+ },
+ {
+  "id": "voorplecht",
+  "naam": "Voorplecht",
+  "groep": "romp",
+  "materiaal": "bakskleur",
+  "handles": [
+   "5A1A",
+   "5A1B",
+   "5A23"
+  ],
+  "afmetingen_mm": [
+   307,
+   66,
+   644
+  ],
+  "triangles": 3808,
+  "vertices": 2994
+ },
+ {
+  "id": "voorschot",
+  "naam": "Schot voorste luchtkast",
+  "groep": "romp",
+  "materiaal": "kuip",
+  "handles": [
+   "59E9"
+  ],
+  "afmetingen_mm": [
+   33,
+   607,
+   1712
+  ],
+  "triangles": 76,
+  "vertices": 108
+ },
+ {
+  "id": "wrikgat",
+  "naam": "Wrikgat",
+  "groep": "romp",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5A6C"
+  ],
+  "afmetingen_mm": [
+   65,
+   64,
+   97
+  ],
+  "triangles": 645,
+  "vertices": 733
+ },
+ {
+  "id": "borghaak_spiegel",
+  "naam": "Haak van het borgkettinkje",
+  "groep": "roer",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   48,
+   49,
+   8
+  ],
+  "triangles": 5628,
+  "vertices": 3030
+ },
+ {
+  "id": "borgkettinkje",
+  "naam": "Borgkettinkje",
+  "groep": "roer",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   154,
+   375,
+   98
+  ],
+  "triangles": 4036,
+  "vertices": 2190
+ },
+ {
+  "id": "borgoog_roer",
+  "naam": "Oog van het borgkettinkje",
+  "groep": "roer",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   16,
+   35,
+   6
+  ],
+  "triangles": 384,
+  "vertices": 200
+ },
+ {
+  "id": "helmstok",
+  "naam": "Helmstok",
+  "groep": "roer",
+  "materiaal": "hout_gelakt",
+  "handles": [
+   "5737"
+  ],
+  "afmetingen_mm": [
+   911,
+   292,
+   30
+  ],
+  "triangles": 384,
+  "vertices": 462
+ },
+ {
+  "id": "roerblad",
+  "naam": "Roerblad",
+  "groep": "roer",
+  "materiaal": "romp",
+  "handles": [
+   "58B7"
+  ],
+  "afmetingen_mm": [
+   587,
+   508,
+   6
+  ],
+  "triangles": 100,
+  "vertices": 112
+ },
+ {
+  "id": "roerhaken",
+  "naam": "Roerhaken",
+  "groep": "roer",
+  "materiaal": "romp",
+  "handles": [
+   "58B8"
+  ],
+  "afmetingen_mm": [
+   501,
+   703,
+   41
+  ],
+  "triangles": 900,
+  "vertices": 960
+ },
+ {
+  "id": "roerkoning",
+  "naam": "Roerkoning",
+  "groep": "roer",
+  "materiaal": "romp",
+  "handles": [
+   "58B8"
+  ],
+  "afmetingen_mm": [
+   610,
+   892,
+   35
+  ],
+  "triangles": 140,
+  "vertices": 146
+ },
+ {
+  "id": "roerkop",
+  "naam": "Roerkop (helmstokbeslag)",
+  "groep": "roer",
+  "materiaal": "bakskleur",
+  "handles": [
+   "58C8"
+  ],
+  "afmetingen_mm": [
+   217,
+   112,
+   32
+  ],
+  "triangles": 892,
+  "vertices": 1140
+ },
+ {
+  "id": "vingerlingen",
+  "naam": "Vingerlingen",
+  "groep": "roer",
+  "materiaal": "romp",
+  "handles": [
+   "5A27",
+   "5A2B",
+   "5A2F"
+  ],
+  "afmetingen_mm": [
+   474,
+   684,
+   41
+  ],
+  "triangles": 568,
+  "vertices": 586
+ },
+ {
+  "id": "zwaard",
+  "naam": "Zwaard",
+  "groep": "zwaard",
+  "materiaal": "romp",
+  "handles": [
+   "5857"
+  ],
+  "afmetingen_mm": [
+   907,
+   791,
+   6
+  ],
+  "triangles": 668,
+  "vertices": 702
+ },
+ {
+  "id": "zwaardkast",
+  "naam": "Zwaardkast",
+  "groep": "zwaard",
+  "materiaal": "zwaardkast",
+  "handles": [
+   "5843",
+   "5855"
+  ],
+  "afmetingen_mm": [
+   951,
+   512,
+   100
+  ],
+  "triangles": 1612,
+  "vertices": 1688
+ },
+ {
+  "id": "zwaardloper_boven",
+  "naam": "Zwaardloper",
+  "groep": "zwaard",
+  "materiaal": "zwaardkast",
+  "handles": [
+   "585B",
+   "5976"
+  ],
+  "afmetingen_mm": [
+   131,
+   463,
+   50
+  ],
+  "triangles": 4736,
+  "vertices": 2944
+ },
+ {
+  "id": "zwaardloper_onder",
+  "naam": "Zwaardloper",
+  "groep": "zwaard",
+  "materiaal": "zwaardkast",
+  "handles": [
+   "585D"
+  ],
+  "afmetingen_mm": [
+   42,
+   335,
+   16
+  ],
+  "triangles": 1480,
+  "vertices": 1488
+ },
+ {
+  "id": "zwaardstrippen",
+  "naam": "Strippen zwaardsleuf",
+  "groep": "zwaard",
+  "materiaal": "romp",
+  "handles": [
+   "585F",
+   "5860"
+  ],
+  "afmetingen_mm": [
+   190,
+   40,
+   26
+  ],
+  "triangles": 440,
+  "vertices": 452
+ },
+ {
+  "id": "bakskist",
+  "naam": "Bakskist",
+  "groep": "interieur",
+  "materiaal": "hout_gelakt",
+  "handles": [],
+  "afmetingen_mm": [
+   609,
+   365,
+   380
+  ],
+  "triangles": 84,
+  "vertices": 252
+ },
+ {
+  "id": "bakskist_beslag",
+  "naam": "Beslag van de bakskist",
+  "groep": "interieur",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   303,
+   128,
+   394
+  ],
+  "triangles": 48,
+  "vertices": 144
+ },
+ {
+  "id": "bakskist_deksel",
+  "naam": "Deksel van de bakskist",
+  "groep": "interieur",
+  "materiaal": "hout_gelakt",
+  "handles": [],
+  "afmetingen_mm": [
+   610,
+   443,
+   126
+  ],
+  "triangles": 200,
+  "vertices": 600
+ },
+ {
+  "id": "bakskist_handvatten",
+  "naam": "Handvatten van de bakskist",
+  "groep": "interieur",
+  "materiaal": "touw",
+  "handles": [],
+  "afmetingen_mm": [
+   640,
+   93,
+   177
+  ],
+  "triangles": 1856,
+  "vertices": 984
+ },
+ {
+  "id": "buikdenning",
+  "naam": "Buikdenning (vlonders)",
+  "groep": "interieur",
+  "materiaal": "hout_vlonder",
+  "handles": [
+   "5616",
+   "5619",
+   "561A",
+   "561B",
+   "561E",
+   "561F",
+   "5620",
+   "5623",
+   "5626",
+   "5629",
+   "562C",
+   "562D",
+   "562E",
+   "5631",
+   "5632",
+   "5633",
+   "5636",
+   "5639",
+   "563D",
+   "5640"
+  ],
+  "afmetingen_mm": [
+   2640,
+   122,
+   1247
+  ],
+  "triangles": 488,
+  "vertices": 768
+ },
+ {
+  "id": "doft_achter",
+  "naam": "Achterste doft",
+  "groep": "interieur",
+  "materiaal": "hout_gelakt",
+  "handles": [
+   "5742"
+  ],
+  "afmetingen_mm": [
+   208,
+   25,
+   1675
+  ],
+  "triangles": 116,
+  "vertices": 160
+ },
+ {
+  "id": "doft_voor",
+  "naam": "Voorste doft (mastdoft)",
+  "groep": "interieur",
+  "materiaal": "hout_gelakt",
+  "handles": [
+   "5744"
+  ],
+  "afmetingen_mm": [
+   208,
+   25,
+   1773
+  ],
+  "triangles": 116,
+  "vertices": 160
+ },
+ {
+  "id": "dofthouders",
+  "naam": "Dofthouders",
+  "groep": "interieur",
+  "materiaal": "kuip",
+  "handles": [
+   "58D5",
+   "58DD",
+   "58E5",
+   "58ED"
+  ],
+  "afmetingen_mm": [
+   1207,
+   73,
+   1793
+  ],
+  "triangles": 144,
+  "vertices": 288
+ },
+ {
+  "id": "ehbo_koffer",
+  "naam": "EHBO-koffer",
+  "groep": "interieur",
+  "materiaal": "kunststof_wit",
+  "handles": [],
+  "afmetingen_mm": [
+   262,
+   87,
+   196
+  ],
+  "triangles": 1360,
+  "vertices": 4080
+ },
+ {
+  "id": "hoosblik",
+  "naam": "Hoosblik",
+  "groep": "interieur",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   262,
+   119,
+   150
+  ],
+  "triangles": 428,
+  "vertices": 1284
+ },
+ {
+  "id": "meerpen",
+  "naam": "Meerpen",
+  "groep": "interieur",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   478,
+   35,
+   70
+  ],
+  "triangles": 956,
+  "vertices": 1668
+ },
+ {
+  "id": "anker",
+  "naam": "Anker",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   150,
+   573,
+   410
+  ],
+  "triangles": 1040,
+  "vertices": 2568
+ },
+ {
+  "id": "ankerketting",
+  "naam": "Ankerketting",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   480,
+   571,
+   230
+  ],
+  "triangles": 11664,
+  "vertices": 5832
+ },
+ {
+  "id": "ankeroog",
+  "naam": "Ankeroog",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   64,
+   82,
+   9
+  ],
+  "triangles": 1200,
+  "vertices": 610
+ },
+ {
+  "id": "beslag_fok",
+  "naam": "Beslag schoothoek fok",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "546D",
+   "5475"
+  ],
+  "afmetingen_mm": [
+   36,
+   8,
+   23
+  ],
+  "triangles": 5684,
+  "vertices": 3642
+ },
+ {
+  "id": "beslag_gaffel",
+  "naam": "Banden van de gaffeldraad",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "51EE",
+   "51F8",
+   "51FE",
+   "539D"
+  ],
+  "afmetingen_mm": [
+   1015,
+   1139,
+   52
+  ],
+  "triangles": 16613,
+  "vertices": 11083
+ },
+ {
+  "id": "dolpotten_bb",
+  "naam": "Dolpotten (bakboord)",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   1951,
+   128,
+   125
+  ],
+  "triangles": 876,
+  "vertices": 2628
+ },
+ {
+  "id": "dolpotten_sb",
+  "naam": "Dolpotten (stuurboord)",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   1951,
+   128,
+   125
+  ],
+  "triangles": 876,
+  "vertices": 2628
+ },
+ {
+  "id": "grendelbout",
+  "naam": "Grendelbout",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   25,
+   25,
+   126
+  ],
+  "triangles": 224,
+  "vertices": 672
+ },
+ {
+  "id": "grootschootoog",
+  "naam": "Grootschootoog",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5900"
+  ],
+  "afmetingen_mm": [
+   14,
+   75,
+   68
+  ],
+  "triangles": 1724,
+  "vertices": 1766
+ },
+ {
+  "id": "grootschootoog_steun",
+  "naam": "Steun grootschootoog",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5A0D"
+  ],
+  "afmetingen_mm": [
+   70,
+   60,
+   3
+  ],
+  "triangles": 20,
+  "vertices": 36
+ },
+ {
+  "id": "hanekam",
+  "naam": "Hanekam",
+  "groep": "beslag",
+  "materiaal": "bakskleur",
+  "handles": [
+   "589A"
+  ],
+  "afmetingen_mm": [
+   200,
+   33,
+   5
+  ],
+  "triangles": 528,
+  "vertices": 538
+ },
+ {
+  "id": "hanepootloper",
+  "naam": "Hanepootloper",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5209",
+   "5211",
+   "5217"
+  ],
+  "afmetingen_mm": [
+   46,
+   49,
+   23
+  ],
+  "triangles": 9972,
+  "vertices": 6788
+ },
+ {
+  "id": "harpje_strop",
+  "naam": "Harpje",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5267",
+   "526F",
+   "5275"
+  ],
+  "afmetingen_mm": [
+   23,
+   63,
+   17
+  ],
+  "triangles": 10260,
+  "vertices": 6854
+ },
+ {
+  "id": "harpjes",
+  "naam": "Harpjes",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5132",
+   "513A",
+   "5140",
+   "5148",
+   "515C",
+   "5164",
+   "53A7",
+   "53AF",
+   "5420",
+   "5428",
+   "542E"
+  ],
+  "afmetingen_mm": [
+   2153,
+   4330,
+   1792
+  ],
+  "triangles": 32131,
+  "vertices": 20926
+ },
+ {
+  "id": "harpjes_mast",
+  "naam": "Harpjes",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "516A",
+   "5172",
+   "5178",
+   "5180",
+   "518C",
+   "5194",
+   "51A6",
+   "51AE",
+   "51B4",
+   "51BC"
+  ],
+  "afmetingen_mm": [
+   125,
+   910,
+   125
+  ],
+  "triangles": 27283,
+  "vertices": 17620
+ },
+ {
+  "id": "hijsogen",
+  "naam": "Hijsogen",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5867",
+   "586B",
+   "5876",
+   "587A"
+  ],
+  "afmetingen_mm": [
+   2629,
+   156,
+   1134
+  ],
+  "triangles": 13326,
+  "vertices": 7123
+ },
+ {
+  "id": "kettinkje_fok",
+  "naam": "Kettinkje",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "53DF",
+   "53E9",
+   "53F3",
+   "53FD"
+  ],
+  "afmetingen_mm": [
+   69,
+   187,
+   18
+  ],
+  "triangles": 12864,
+  "vertices": 13216
+ },
+ {
+  "id": "kikkers_mastkoker",
+  "naam": "Kikkers op de mastkoker",
+  "groep": "beslag",
+  "materiaal": "zwaardkast",
+  "handles": [
+   "591C",
+   "5920",
+   "5924",
+   "5928"
+  ],
+  "afmetingen_mm": [
+   185,
+   290,
+   188
+  ],
+  "triangles": 12792,
+  "vertices": 6848
+ },
+ {
+  "id": "kikkers_voordek",
+  "naam": "Kikkers op het voordek",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "592C",
+   "5930"
+  ],
+  "afmetingen_mm": [
+   146,
+   12,
+   991
+  ],
+  "triangles": 5666,
+  "vertices": 3057
+ },
+ {
+  "id": "landvastogen",
+  "naam": "Landvastogen",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "589B",
+   "589F"
+  ],
+  "afmetingen_mm": [
+   32,
+   22,
+   857
+  ],
+  "triangles": 6590,
+  "vertices": 3525
+ },
+ {
+  "id": "leiogen_bb",
+  "naam": "Leiogen fokkenschoot (bakboord)",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5943",
+   "5947",
+   "594B",
+   "594F"
+  ],
+  "afmetingen_mm": [
+   1668,
+   83,
+   156
+  ],
+  "triangles": 22428,
+  "vertices": 12081
+ },
+ {
+  "id": "leiogen_sb",
+  "naam": "Leiogen fokkenschoot (stuurboord)",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5953",
+   "5957",
+   "595B",
+   "595F"
+  ],
+  "afmetingen_mm": [
+   1668,
+   83,
+   156
+  ],
+  "triangles": 22262,
+  "vertices": 11998
+ },
+ {
+  "id": "leuvers",
+  "naam": "Leuvers",
+  "groep": "beslag",
+  "materiaal": "rvs",
+  "handles": [],
+  "afmetingen_mm": [
+   1404,
+   3385,
+   29
+  ],
+  "triangles": 2760,
+  "vertices": 4740
+ },
+ {
+  "id": "mastbout",
+  "naam": "Mastbout",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   25,
+   25,
+   126
+  ],
+  "triangles": 224,
+  "vertices": 672
+ },
+ {
+  "id": "mikhouders",
+  "naam": "Mikhouders",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   27,
+   300,
+   27
+  ],
+  "triangles": 448,
+  "vertices": 1344
+ },
+ {
+  "id": "schootring",
+  "naam": "Schootring",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "559C",
+   "55AA"
+  ],
+  "afmetingen_mm": [
+   44,
+   138,
+   117
+  ],
+  "triangles": 11758,
+  "vertices": 8759
+ },
+ {
+  "id": "sleepogen",
+  "naam": "Sleepogen",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   34,
+   28,
+   857
+  ],
+  "triangles": 6590,
+  "vertices": 3525
+ },
+ {
+  "id": "sleepoog_boeg",
+  "naam": "Sleepoog",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   65,
+   82,
+   11
+  ],
+  "triangles": 3284,
+  "vertices": 1757
+ },
+ {
+  "id": "strop_gaffel",
+  "naam": "Strop van de gaffel",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "525D"
+  ],
+  "afmetingen_mm": [
+   7,
+   106,
+   136
+  ],
+  "triangles": 6066,
+  "vertices": 3492
+ },
+ {
+  "id": "wantputting_bb",
+  "naam": "Wantputting (bakboord)",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5980"
+  ],
+  "afmetingen_mm": [
+   70,
+   77,
+   9
+  ],
+  "triangles": 214,
+  "vertices": 244
+ },
+ {
+  "id": "wantputting_sb",
+  "naam": "Wantputting (stuurboord)",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5981"
+  ],
+  "afmetingen_mm": [
+   70,
+   77,
+   9
+  ],
+  "triangles": 214,
+  "vertices": 244
+ },
+ {
+  "id": "gaffel",
+  "naam": "Gaffel",
+  "groep": "rondhout",
+  "materiaal": "hout_gelakt",
+  "handles": [
+   "5693"
+  ],
+  "afmetingen_mm": [
+   1792,
+   2048,
+   91
+  ],
+  "triangles": 2367,
+  "vertices": 2323
+ },
+ {
+  "id": "giek",
+  "naam": "Giek",
+  "groep": "rondhout",
+  "materiaal": "hout_gelakt",
+  "handles": [
+   "5706",
+   "5706",
+   "5706"
+  ],
+  "afmetingen_mm": [
+   2754,
+   81,
+   51
+  ],
+  "triangles": 3430,
+  "vertices": 2170
+ },
+ {
+  "id": "hommerring",
+  "naam": "Hommerring",
+  "groep": "rondhout",
+  "materiaal": "bakskleur",
+  "handles": [
+   "56A3"
+  ],
+  "afmetingen_mm": [
+   105,
+   35,
+   138
+  ],
+  "triangles": 3011,
+  "vertices": 1720
+ },
+ {
+  "id": "klauw",
+  "naam": "Klauw",
+  "groep": "rondhout",
+  "materiaal": "hout_gelakt",
+  "handles": [
+   "5693"
+  ],
+  "afmetingen_mm": [
+   340,
+   249,
+   126
+  ],
+  "triangles": 1241,
+  "vertices": 1287
+ },
+ {
+  "id": "lummelbeslag",
+  "naam": "Lummelbeslag",
+  "groep": "rondhout",
+  "materiaal": "bakskleur",
+  "handles": [
+   "5706"
+  ],
+  "afmetingen_mm": [
+   62,
+   36,
+   14
+  ],
+  "triangles": 904,
+  "vertices": 958
+ },
+ {
+  "id": "lummelbout",
+  "naam": "Lummelbout",
+  "groep": "rondhout",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5728"
+  ],
+  "afmetingen_mm": [
+   8,
+   60,
+   8
+  ],
+  "triangles": 140,
+  "vertices": 146
+ },
+ {
+  "id": "mast",
+  "naam": "Mast",
+  "groep": "rondhout",
+  "materiaal": "hout_gelakt",
+  "handles": [
+   "56A3"
+  ],
+  "afmetingen_mm": [
+   90,
+   5270,
+   91
+  ],
+  "triangles": 1934,
+  "vertices": 1350
+ },
+ {
+  "id": "mastband_lummel",
+  "naam": "Mastband met lummelbeslag",
+  "groep": "rondhout",
+  "materiaal": "bakskleur",
+  "handles": [
+   "56A3"
+  ],
+  "afmetingen_mm": [
+   106,
+   47,
+   86
+  ],
+  "triangles": 962,
+  "vertices": 2560
+ },
+ {
+  "id": "masttopring",
+  "naam": "Masttopring",
+  "groep": "rondhout",
+  "materiaal": "bakskleur",
+  "handles": [
+   "56A3"
+  ],
+  "afmetingen_mm": [
+   124,
+   35,
+   124
+  ],
+  "triangles": 3963,
+  "vertices": 2287
+ },
+ {
+  "id": "wervel",
+  "naam": "Wervel",
+  "groep": "rondhout",
+  "materiaal": "bakskleur",
+  "handles": [
+   "5706"
+  ],
+  "afmetingen_mm": [
+   20,
+   92,
+   51
+  ],
+  "triangles": 1050,
+  "vertices": 2656
+ },
+ {
+  "id": "fok",
+  "naam": "Fok",
+  "groep": "zeil",
+  "materiaal": "zeildoek",
+  "handles": [
+   "5434"
+  ],
+  "afmetingen_mm": [
+   1858,
+   4000,
+   730
+  ],
+  "zeil": {
+   "breedte_m": 1.9955,
+   "hoogte_m": 4.0405,
+   "omtrek": [
+    [
+     0.06512,
+     0.03568
+    ],
+    [
+     0.0,
+     0.04399
+    ],
+    [
+     0.71591,
+     1.0
+    ],
+    [
+     0.72505,
+     1.0
+    ],
+    [
+     1.0,
+     0.01097
+    ],
+    [
+     0.93322,
+     0.00702
+    ],
+    [
+     0.86625,
+     0.00394
+    ],
+    [
+     0.79914,
+     0.00174
+    ],
+    [
+     0.73193,
+     0.00043
+    ],
+    [
+     0.66468,
+     0.0
+    ],
+    [
+     0.59743,
+     0.00045
+    ],
+    [
+     0.53023,
+     0.00179
+    ],
+    [
+     0.46312,
+     0.004
+    ],
+    [
+     0.39615,
+     0.0071
+    ],
+    [
+     0.32938,
+     0.01107
+    ],
+    [
+     0.26284,
+     0.01592
+    ],
+    [
+     0.19659,
+     0.02164
+    ],
+    [
+     0.13066,
+     0.02823
+    ]
+   ],
+   "naden": [
+    [
+     0.9587,
+     0.15955,
+     0.03988,
+     0.09724
+    ],
+    [
+     0.89564,
+     0.38635,
+     0.22218,
+     0.34068
+    ],
+    [
+     0.83259,
+     0.61315,
+     0.40448,
+     0.58412
+    ],
+    [
+     0.76954,
+     0.83996,
+     0.58678,
+     0.82756
+    ]
+   ],
+   "bolling": {
+    "normaal": [
+     0.35318,
+     0.14119,
+     -0.92484
+    ],
+    "reikwijdte_m": 1.9155
+   }
+  },
+  "triangles": 2811,
+  "vertices": 1502
+ },
+ {
+  "id": "fok_achterlijk",
+  "naam": "Achterlijk fok",
+  "groep": "zeil",
+  "materiaal": "zeil_lijk",
+  "handles": [],
+  "afmetingen_mm": [
+   346,
+   3682,
+   694
+  ],
+  "triangles": 1050,
+  "vertices": 806
+ },
+ {
+  "id": "fok_halshoek",
+  "naam": "Halshoek fok",
+  "groep": "zeil",
+  "materiaal": "zeil_hoek",
+  "handles": [],
+  "afmetingen_mm": [
+   169,
+   211,
+   72
+  ],
+  "triangles": 100,
+  "vertices": 72
+ },
+ {
+  "id": "fok_onderlijk",
+  "naam": "Onderlijk fok",
+  "groep": "zeil",
+  "materiaal": "zeil_lijk",
+  "handles": [],
+  "afmetingen_mm": [
+   1595,
+   199,
+   631
+  ],
+  "triangles": 560,
+  "vertices": 426
+ },
+ {
+  "id": "fok_schoothoek",
+  "naam": "Schoothoek fok",
+  "groep": "zeil",
+  "materiaal": "zeil_hoek",
+  "handles": [],
+  "afmetingen_mm": [
+   170,
+   197,
+   72
+  ],
+  "triangles": 122,
+  "vertices": 92
+ },
+ {
+  "id": "fok_tophoek",
+  "naam": "Tophoek fok",
+  "groep": "zeil",
+  "materiaal": "zeil_hoek",
+  "handles": [],
+  "afmetingen_mm": [
+   92,
+   177,
+   42
+  ],
+  "triangles": 72,
+  "vertices": 56
+ },
+ {
+  "id": "fok_voorlijk",
+  "naam": "Voorlijk fok",
+  "groep": "zeil",
+  "materiaal": "zeil_lijk",
+  "handles": [],
+  "afmetingen_mm": [
+   1481,
+   3595,
+   25
+  ],
+  "triangles": 1072,
+  "vertices": 820
+ },
+ {
+  "id": "grootzeil",
+  "naam": "Grootzeil",
+  "groep": "zeil",
+  "materiaal": "zeildoek",
+  "handles": [
+   "5603"
+  ],
+  "afmetingen_mm": [
+   2600,
+   4601,
+   0
+  ],
+  "zeil": {
+   "breedte_m": 2.6,
+   "hoogte_m": 4.6013,
+   "omtrek": [
+    [
+     0.69003,
+     0.95227
+    ],
+    [
+     0.66085,
+     1.0
+    ],
+    [
+     0.0,
+     0.57592
+    ],
+    [
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     0.0
+    ],
+    [
+     0.99454,
+     0.05737
+    ],
+    [
+     0.98756,
+     0.11468
+    ],
+    [
+     0.97907,
+     0.17193
+    ],
+    [
+     0.96906,
+     0.2291
+    ],
+    [
+     0.95754,
+     0.28618
+    ],
+    [
+     0.94451,
+     0.34315
+    ],
+    [
+     0.92997,
+     0.40001
+    ],
+    [
+     0.91393,
+     0.45674
+    ],
+    [
+     0.89639,
+     0.51333
+    ],
+    [
+     0.87852,
+     0.5628
+    ],
+    [
+     0.85937,
+     0.61213
+    ],
+    [
+     0.83895,
+     0.66129
+    ],
+    [
+     0.81726,
+     0.71028
+    ],
+    [
+     0.79432,
+     0.75909
+    ],
+    [
+     0.77011,
+     0.8077
+    ],
+    [
+     0.74466,
+     0.85611
+    ],
+    [
+     0.71796,
+     0.9043
+    ]
+   ],
+   "naden": [
+    [
+     0.98975,
+     0.0967,
+     0.0968,
+     0.0
+    ],
+    [
+     0.95611,
+     0.29243,
+     0.0,
+     0.18889
+    ],
+    [
+     0.90479,
+     0.48625,
+     0.0,
+     0.38827
+    ],
+    [
+     0.83168,
+     0.67771,
+     0.02198,
+     0.59003
+    ],
+    [
+     0.73862,
+     0.86701,
+     0.39575,
+     0.82988
+    ]
+   ],
+   "teken": {
+    "midden_boven": [
+     0.44017,
+     0.71031
+    ],
+    "breedte_m": 0.38
+   },
+   "cijfers": {
+    "sb_midden_boven": [
+     0.44017,
+     0.56905
+    ],
+    "bb_midden_boven": [
+     0.44017,
+     0.48212
+    ],
+    "hoogte_m": 0.3,
+    "breedte_m": 0.2,
+    "tussenruimte_m": 0.06
+   },
+   "bolling": {
+    "normaal": [
+     0.0,
+     0.0,
+     -1.0
+    ]
+   }
+  },
+  "triangles": 5895,
+  "vertices": 3068
+ },
+ {
+  "id": "grootzeil_achterlijk",
+  "naam": "Achterlijk grootzeil",
+  "groep": "zeil",
+  "materiaal": "zeil_lijk",
+  "handles": [],
+  "afmetingen_mm": [
+   884,
+   4325,
+   2
+  ],
+  "triangles": 1266,
+  "vertices": 996
+ },
+ {
+  "id": "grootzeil_bovenlijk",
+  "naam": "Bovenlijk grootzeil",
+  "groep": "zeil",
+  "materiaal": "zeil_lijk",
+  "handles": [],
+  "afmetingen_mm": [
+   1573,
+   1775,
+   2
+  ],
+  "triangles": 622,
+  "vertices": 488
+ },
+ {
+  "id": "grootzeil_halshoek",
+  "naam": "Halshoek grootzeil",
+  "groep": "zeil",
+  "materiaal": "zeil_hoek",
+  "handles": [],
+  "afmetingen_mm": [
+   180,
+   180,
+   4
+  ],
+  "triangles": 116,
+  "vertices": 90
+ },
+ {
+  "id": "grootzeil_klauwhoek",
+  "naam": "Klauwhoek",
+  "groep": "zeil",
+  "materiaal": "zeil_hoek",
+  "handles": [],
+  "afmetingen_mm": [
+   180,
+   315,
+   4
+  ],
+  "triangles": 160,
+  "vertices": 110
+ },
+ {
+  "id": "grootzeil_onderlijk",
+  "naam": "Onderlijk grootzeil",
+  "groep": "zeil",
+  "materiaal": "zeil_lijk",
+  "handles": [],
+  "afmetingen_mm": [
+   2312,
+   60,
+   2
+  ],
+  "triangles": 624,
+  "vertices": 490
+ },
+ {
+  "id": "grootzeil_schoothoek",
+  "naam": "Schoothoek grootzeil",
+  "groep": "zeil",
+  "materiaal": "zeil_hoek",
+  "handles": [],
+  "afmetingen_mm": [
+   180,
+   180,
+   4
+  ],
+  "triangles": 122,
+  "vertices": 88
+ },
+ {
+  "id": "grootzeil_tophoek",
+  "naam": "Tophoek grootzeil (piek)",
+  "groep": "zeil",
+  "materiaal": "zeil_hoek",
+  "handles": [],
+  "afmetingen_mm": [
+   178,
+   180,
+   4
+  ],
+  "triangles": 72,
+  "vertices": 58
+ },
+ {
+  "id": "grootzeil_voorlijk",
+  "naam": "Voorlijk grootzeil",
+  "groep": "zeil",
+  "materiaal": "zeil_lijk",
+  "handles": [],
+  "afmetingen_mm": [
+   60,
+   2362,
+   2
+  ],
+  "triangles": 632,
+  "vertices": 494
+ },
+ {
+  "id": "grootzeil_zeilnummer",
+  "naam": "Zeilnummer",
+  "groep": "zeil",
+  "materiaal": "zeil_nummer",
+  "handles": [],
+  "afmetingen_mm": [
+   980,
+   700,
+   5
+  ],
+  "triangles": 1584,
+  "vertices": 888
+ },
+ {
+  "id": "grootzeil_zeilteken",
+  "naam": "Zeilteken",
+  "groep": "zeil",
+  "materiaal": "zeil_teken",
+  "handles": [],
+  "afmetingen_mm": [
+   380,
+   541,
+   5
+  ],
+  "triangles": 1120,
+  "vertices": 630
+ },
+ {
+  "id": "zeillatten",
+  "naam": "Zeillatten",
+  "groep": "zeil",
+  "materiaal": "zeillat",
+  "handles": [
+   "5607",
+   "5608",
+   "5609",
+   "560A",
+   "560B",
+   "560C"
+  ],
+  "afmetingen_mm": [
+   1058,
+   2610,
+   5
+  ],
+  "triangles": 474,
+  "vertices": 366
+ },
+ {
+  "id": "pelikaanhaak_ring",
+  "naam": "Ring van de pelikaanhaak",
+  "groep": "staand_want",
+  "materiaal": "rvs",
+  "handles": [],
+  "afmetingen_mm": [
+   45,
+   40,
+   46
+  ],
+  "triangles": 288,
+  "vertices": 144
+ },
+ {
+  "id": "voorstag",
+  "naam": "Voorstag met spanner",
+  "groep": "staand_want",
+  "materiaal": "rvs",
+  "handles": [
+   "51D0"
+  ],
+  "afmetingen_mm": [
+   1850,
+   4574,
+   7
+  ],
+  "triangles": 4199,
+  "vertices": 3328
+ },
+ {
+  "id": "voorstagspanner",
+  "naam": "Voorstagspanner met pelikaanhaak",
+  "groep": "staand_want",
+  "materiaal": "rvs",
+  "handles": [],
+  "afmetingen_mm": [
+   89,
+   209,
+   57
+  ],
+  "triangles": 896,
+  "vertices": 692
+ },
+ {
+  "id": "want_bb",
+  "naam": "Bakboord want",
+  "groep": "staand_want",
+  "materiaal": "rvs",
+  "handles": [
+   "51C2"
+  ],
+  "afmetingen_mm": [
+   325,
+   3818,
+   809
+  ],
+  "triangles": 3105,
+  "vertices": 2830
+ },
+ {
+  "id": "want_sb",
+  "naam": "Stuurboord want",
+  "groep": "staand_want",
+  "materiaal": "rvs",
+  "handles": [
+   "519A"
+  ],
+  "afmetingen_mm": [
+   325,
+   3818,
+   809
+  ],
+  "triangles": 3871,
+  "vertices": 3210
+ },
+ {
+  "id": "wantketting_bb",
+  "naam": "Wantketting (bakboord)",
+  "groep": "staand_want",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   26,
+   114,
+   36
+  ],
+  "triangles": 1296,
+  "vertices": 648
+ },
+ {
+  "id": "wantketting_sb",
+  "naam": "Wantketting (stuurboord)",
+  "groep": "staand_want",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   26,
+   114,
+   36
+  ],
+  "triangles": 1296,
+  "vertices": 648
+ },
+ {
+  "id": "achterlandvast",
+  "naam": "Achterlandvast",
+  "groep": "lopend_want",
+  "materiaal": "touw_zwart",
+  "handles": [],
+  "afmetingen_mm": [
+   838,
+   156,
+   380
+  ],
+  "triangles": 7256,
+  "vertices": 3646
+ },
+ {
+  "id": "ankerlijn",
+  "naam": "Ankerlijn",
+  "groep": "lopend_want",
+  "materiaal": "touw",
+  "handles": [],
+  "afmetingen_mm": [
+   2124,
+   763,
+   576
+  ],
+  "triangles": 5312,
+  "vertices": 2692
+ },
+ {
+  "id": "blok_fokkenschoot_bb",
+  "naam": "Blok fokkenschoot (bakboord)",
+  "groep": "lopend_want",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5449",
+   "544F",
+   "5453",
+   "5457",
+   "545B",
+   "545F",
+   "5467"
+  ],
+  "afmetingen_mm": [
+   61,
+   77,
+   16
+  ],
+  "triangles": 7006,
+  "vertices": 4914
+ },
+ {
+  "id": "blok_fokkenschoot_sb",
+  "naam": "Blok fokkenschoot (stuurboord)",
+  "groep": "lopend_want",
+  "materiaal": "verzinkt",
+  "handles": [
+   "548C",
+   "5492",
+   "5496",
+   "549A",
+   "549E",
+   "54A2",
+   "54AA"
+  ],
+  "afmetingen_mm": [
+   61,
+   77,
+   16
+  ],
+  "triangles": 7006,
+  "vertices": 4914
+ },
+ {
+  "id": "blok_fokkenval",
+  "naam": "Blok fokkenval",
+  "groep": "lopend_want",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5408"
+  ],
+  "afmetingen_mm": [
+   45,
+   79,
+   16
+  ],
+  "triangles": 7961,
+  "vertices": 5547
+ },
+ {
+  "id": "blok_grootschoot_giek",
+  "naam": "Bovenblok grootschoot",
+  "groep": "lopend_want",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5551",
+   "5557",
+   "555D",
+   "5563",
+   "5569",
+   "556D",
+   "5575",
+   "557B",
+   "5581",
+   "5585",
+   "558D",
+   "5593",
+   "5597"
+  ],
+  "afmetingen_mm": [
+   45,
+   145,
+   17
+  ],
+  "triangles": 18407,
+  "vertices": 12546
+ },
+ {
+  "id": "blok_grootschoot_kuip",
+  "naam": "Onderblok grootschoot",
+  "groep": "lopend_want",
+  "materiaal": "verzinkt",
+  "handles": [
+   "55C2",
+   "55C8",
+   "55CC",
+   "55D0",
+   "55D8",
+   "55DE",
+   "55E4",
+   "55E8",
+   "55EB",
+   "55EF",
+   "55F3"
+  ],
+  "afmetingen_mm": [
+   45,
+   97,
+   28
+  ],
+  "triangles": 8240,
+  "vertices": 5906
+ },
+ {
+  "id": "blok_klauwval",
+  "naam": "Blok klauwval",
+  "groep": "lopend_want",
+  "materiaal": "verzinkt",
+  "handles": [
+   "5291",
+   "5299",
+   "529F",
+   "52A5",
+   "52A9",
+   "52AD",
+   "52B1"
+  ],
+  "afmetingen_mm": [
+   47,
+   77,
+   16
+  ],
+  "triangles": 6626,
+  "vertices": 4628
+ },
+ {
+  "id": "blok_piekenval",
+  "naam": "Blok piekenval",
+  "groep": "lopend_want",
+  "materiaal": "verzinkt",
+  "handles": [
+   "521D",
+   "5225",
+   "5241",
+   "5247",
+   "524B",
+   "524F",
+   "5253"
+  ],
+  "afmetingen_mm": [
+   54,
+   73,
+   16
+  ],
+  "triangles": 7054,
+  "vertices": 4908
+ },
+ {
+  "id": "borglijntje_lummelbout",
+  "naam": "Borglijntje lummelbout",
+  "groep": "lopend_want",
+  "materiaal": "touw",
+  "handles": [],
+  "afmetingen_mm": [
+   79,
+   25,
+   14
+  ],
+  "triangles": 1328,
+  "vertices": 688
+ },
+ {
+  "id": "dodemanseind",
+  "naam": "Dodemanseind",
+  "groep": "lopend_want",
+  "materiaal": "touw",
+  "handles": [],
+  "afmetingen_mm": [
+   1216,
+   817,
+   72
+  ],
+  "triangles": 1512,
+  "vertices": 774
+ },
+ {
+  "id": "fokkenschoot",
+  "naam": "Fokkenschoot",
+  "groep": "lopend_want",
+  "materiaal": "touw",
+  "handles": [
+   "547B",
+   "5484"
+  ],
+  "afmetingen_mm": [
+   725,
+   362,
+   1730
+  ],
+  "triangles": 1400,
+  "vertices": 714
+ },
+ {
+  "id": "fokkenval",
+  "naam": "Fokkenval",
+  "groep": "lopend_want",
+  "materiaal": "touw",
+  "handles": [
+   "5437"
+  ],
+  "afmetingen_mm": [
+   184,
+   5109,
+   81
+  ],
+  "triangles": 3710,
+  "vertices": 3048
+ },
+ {
+  "id": "gaffeldraad",
+  "naam": "Gaffeldraad",
+  "groep": "lopend_want",
+  "materiaal": "rvs",
+  "handles": [
+   "5205"
+  ],
+  "afmetingen_mm": [
+   925,
+   1043,
+   4
+  ],
+  "triangles": 1524,
+  "vertices": 1566
+ },
+ {
+  "id": "grootschoot",
+  "naam": "Grootschoot met blokken",
+  "groep": "lopend_want",
+  "materiaal": "touw",
+  "handles": [
+   "55F7"
+  ],
+  "afmetingen_mm": [
+   485,
+   986,
+   327
+  ],
+  "triangles": 11521,
+  "vertices": 11187
+ },
+ {
+  "id": "klauwval",
+  "naam": "Klauwval",
+  "groep": "lopend_want",
+  "materiaal": "touw",
+  "handles": [
+   "52B5"
+  ],
+  "afmetingen_mm": [
+   132,
+   4231,
+   91
+  ],
+  "triangles": 2879,
+  "vertices": 1901
+ },
+ {
+  "id": "marllijn_gaffel",
+  "naam": "Marllijn (gaffel)",
+  "groep": "lopend_want",
+  "materiaal": "touw",
+  "handles": [
+   "52E9"
+  ],
+  "afmetingen_mm": [
+   1661,
+   1873,
+   56
+  ],
+  "triangles": 6552,
+  "vertices": 3283
+ },
+ {
+  "id": "marllijn_giek",
+  "naam": "Marllijn (giek)",
+  "groep": "lopend_want",
+  "materiaal": "touw",
+  "handles": [
+   "5324"
+  ],
+  "afmetingen_mm": [
+   2473,
+   59,
+   56
+  ],
+  "triangles": 6552,
+  "vertices": 3283
+ },
+ {
+  "id": "pettenlijntje",
+  "naam": "Pettenlijntje",
+  "groep": "lopend_want",
+  "materiaal": "touw",
+  "handles": [],
+  "afmetingen_mm": [
+   1021,
+   47,
+   63
+  ],
+  "triangles": 736,
+  "vertices": 396
+ },
+ {
+  "id": "piekenval",
+  "naam": "Piekenval",
+  "groep": "lopend_want",
+  "materiaal": "touw",
+  "handles": [
+   "5257"
+  ],
+  "afmetingen_mm": [
+   562,
+   4911,
+   70
+  ],
+  "triangles": 3604,
+  "vertices": 2321
+ },
+ {
+  "id": "rijglijn",
+  "naam": "Rijglijn",
+  "groep": "lopend_want",
+  "materiaal": "touw",
+  "handles": [
+   "535D"
+  ],
+  "afmetingen_mm": [
+   232,
+   2628,
+   118
+  ],
+  "triangles": 6880,
+  "vertices": 3800
+ },
+ {
+  "id": "voorlandvast",
+  "naam": "Voorlandvast",
+  "groep": "lopend_want",
+  "materiaal": "touw_zwart",
+  "handles": [],
+  "afmetingen_mm": [
+   1348,
+   365,
+   552
+  ],
+  "triangles": 8584,
+  "vertices": 4310
+ },
+ {
+  "id": "riem_bb",
+  "naam": "Roeiriem (bakboord)",
+  "groep": "roeien",
+  "materiaal": "hout_gelakt",
+  "handles": [
+   "576B"
+  ],
+  "afmetingen_mm": [
+   2808,
+   54,
+   100
+  ],
+  "triangles": 5230,
+  "vertices": 3182
+ },
+ {
+  "id": "riem_sb",
+  "naam": "Roeiriem (stuurboord)",
+  "groep": "roeien",
+  "materiaal": "hout_gelakt",
+  "handles": [
+   "5760"
+  ],
+  "afmetingen_mm": [
+   2808,
+   54,
+   100
+  ],
+  "triangles": 5556,
+  "vertices": 3345
+ },
+ {
+  "id": "wrikriem",
+  "naam": "Wrikriem",
+  "groep": "roeien",
+  "materiaal": "hout_gelakt",
+  "handles": [
+   "5755"
+  ],
+  "afmetingen_mm": [
+   3120,
+   60,
+   111
+  ],
+  "triangles": 4416,
+  "vertices": 2767
+ }
+]

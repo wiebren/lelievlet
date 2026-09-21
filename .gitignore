@@ -1,0 +1,10 @@
+build/
+build_log.txt
+node_modules/
+web/dist/
+__pycache__/
+.DS_Store
+
+# The reference material (official DWG, Vlettenboek, course books) is not ours to redistribute.
+# The pipeline needs reference/cad/ to rebuild the model; the built model is in web/public/models/.
+reference/
