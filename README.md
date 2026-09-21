@@ -1,332 +1,427 @@
 # Lelievlet 3D
 
-Interactive 3D model of the lelievlet (Scouting Nederland) for instruction lessons, part-name
-quizzes and group-colour customisation. Geometry comes from the official Scouting Nederland CAD
-model; names and dimensions are checked against the Vlettenboek and the class rules.
+Interactief 3D-model van de lelievlet (Scouting Nederland) voor instructielessen, quizzen over
+onderdeelnamen en het aanpassen van de groepskleuren. De geometrie komt uit het officiële CAD-model
+van Scouting Nederland; namen en maten zijn gecontroleerd aan de hand van het Vlettenboek en het
+klassenreglement.
 
-| Folder | What |
+| Map | Wat |
 |---|---|
-| `reference/` | Source material and its index — start at `reference/README.md` |
-| `pipeline/` | DWG bodies → meshes → `web/public/models/lelievlet.glb` |
+| `reference/` | Bronmateriaal en de index daarop — begin bij `reference/README.md` |
+| `pipeline/` | DWG-bodies → meshes → `web/public/models/lelievlet.glb` |
 | `web/` | Vite + three.js viewer |
-| `build/` | Generated: mesh cache, tessellation report, preview renders (safe to delete) |
+| `build/` | Gegenereerd: mesh-cache, tessellatierapport, preview-renders (kan zonder bezwaar weg) |
 
-## What is and is not in this repository
+## Wat er wel en niet in deze repository staat
 
-The source of the viewer (`web/`) and of the model pipeline (`pipeline/`) are here, together with the
-built model (`web/public/models/lelievlet.glb` + `lelievlet.parts.json`). The reference material the
-model was built from (the official Scouting Nederland DWG, the Vlettenboek, the CWO course books) is
-NOT included: it is not ours to redistribute. Without `reference/cad/` the first two pipeline steps
-(extracting and tessellating the CAD bodies) cannot be run; everything else works from the built model.
-No licence has been chosen yet.
+De broncode van de viewer (`web/`) en van de model-pipeline (`pipeline/`) staat hier, samen met het
+gebouwde model (`web/public/models/lelievlet.glb` + `lelievlet.parts.json`). Het referentiemateriaal
+waaruit het model is opgebouwd (de officiële DWG van Scouting Nederland, het Vlettenboek, de
+CWO-lesboeken) zit er NIET bij: dat is niet van ons om te verspreiden. Zonder `reference/cad/` zijn de
+eerste twee pipeline-stappen (het extraheren en tessellateren van de CAD-bodies) niet uit te voeren;
+al het overige werkt vanuit het gebouwde model. Er is nog geen licentie gekozen.
 
-## Run the viewer
+## De viewer draaien
 
     cd web && pnpm install && pnpm dev        # http://localhost:5173
 
-## Rebuild the model
+## Het model opnieuw bouwen
 
     OCP='--python 3.12 --with cadquery-ocp>=7.8,<7.9 --with ezdxf --with numpy'
-    uv run $OCP python3 pipeline/tessellate_all.py --force      # ACIS bodies -> build/mesh (≈15 s)
+    uv run $OCP python3 pipeline/tessellate_all.py --force      # ACIS-bodies -> build/mesh (≈15 s)
     uv run --python 3.12 --with numpy --with scipy python3 pipeline/build_glb.py
     uv run --python 3.12 --with numpy --with pillow python3 pipeline/render_preview.py build/preview/iso.png --view iso
 
-`cadquery-ocp` is pinned to 7.8: the 8.x wheels dropped the `TColgp`/`TColStd` array classes.
+`cadquery-ocp` staat vast op 7.8: in de 8.x-wheels zijn de array-klassen `TColgp`/`TColStd` vervallen.
 
 ## Pipeline
 
-1. `reference/cad/extract_sab.py` pulls the 222 binary ACIS bodies out of the DWG (see
-   `reference/cad/README.md` for why `dwg2dxf` must not be used).
-2. `pipeline/acis_occ.py` rebuilds each body in OpenCascade: analytic surfaces exactly, spline
-   surfaces from their NURBS data, loops from the ACIS co-edge directions; faces are sewn per
-   body and closed shells oriented as solids. On tori and spheres both sides of a loop are
-   bounded, so there the ACIS rule decides which side is the face (flip the loops iff the face is
-   reversed with respect to the rebuilt surface; verified on 1372 of 1373 unambiguous faces).
-   Picking the smaller side instead loses every eye, ring and shackle bow. When those loops
-   enclose a negative area they are the weld of an eye and the face is the whole surface minus
-   that patch, which OpenCascade cannot mesh (the patch crosses the seam); the whole surface is
-   emitted instead, since the patch is buried inside the part the eye is welded to. 6934 of 6936 faces convert; the two misses are a
-   0.6 mm sliver on the giek and a 3 mm cylinder wall inside one rigging fitting.
-3. `pipeline/tessellate_all.py` meshes with exact surface normals and a per-body triangle budget
-   (ropes are coarsened) — ≈ 500 k triangles in total.
-4. `pipeline/parts.py` names the bodies (handle → part id, Dutch name, group, material), identified
-   by size and position against the Vlettenboek. Unlisted rigging hardware falls into one
-   collective part for now.
-5. `pipeline/sails.py` replaces the flat 0.1 mm CAD sails by cambered cloth on the same outline,
-   with UVs, panel seams measured from the zeilplan (Vlettenboek p. 60: cross-cut, 90 cm cloth,
-   perpendicular to clew → peak/head) and the positions of zeilteken and cijfers (p. 58: lelie + V
-   38 cm wide, cijfers 30 × 20 cm, stuurboord het hoogst). The viewer paints the texture
-   (`web/src/sails.js`) so the sail number can be changed live.
-6. `pipeline/rigging.py` regenerates geometry the CAD gets wrong. The blocks of the
-   fokkenschoot are drawn on the second leioog; they belong on the forward one by the want
-   (bodies 5943 / 5953), so `NUDGE` in `pipeline/parts.py` carries them there and the sheet runs
-   schoothoek -> block -> hand of the crew (the viewer lays it live, see below). The roerkop is drawn as two
-   loose 2 mm side plates; it is one plate folded over a radius with the helmstok slotting up
-   into it from below, so the folded band along their top edge is generated and added.
-   It also regenerates both marllijnen with proper marlsteken (the CAD winds a
-   plain helix): line along the lijk, one tucked turn at every zeilring, first ring at 100 mm,
-   then every 200 mm. Drawn Ø4 instead of the specified Ø3 so it stays visible.
-   `pipeline/hardware.py` adds fittings from the holes the CAD does have: the **mastbout** (top
-   hole of the mastkoker, through the mast) and the **grendelbout** (bottom hole, in front of
-   the mast foot), round lips with a hole on the mastband so the lummelbout stands in them, the
-   **borglijntje** from the lummelbout to the eye on the beslagband of the giek, and the foot of
-   each wantputting, carried down onto the dolboord (the CAD stops it 9 mm above, in mid-air;
-   the plate itself is not moved, so the harpje of the want still goes through its hole).
-   It also builds the six **dolpotten** (Vlettenboek p. 23 and p. 35): 3/4" pipe 100 mm long,
-   open at both ends, standing vertical against the inboard side of the dolboord with its top
-   level with it, at x = 4412 / 3432 / 2488 both sides, each with the 4 mm plate that fills the
-   wedge between pot and boeisel over its lower 50 mm. Sheer and beam change along the boat, so
-   the dolboord circle and the inside of the plating are measured at every station. The dollen
-   themselves are built in the viewer, on `extras.tuig.dolpotten`.
-   The two **mikhouders** are the same pipe, 50 mm long, standing one above the other on the
-   centreline against the forward face of the achterschot — a flat vertical plate at x = 2041.2,
-   so the wall touches it along a line and no filler plate is needed — the upper one with its top
-   40 mm below the top edge of that face and the lower one 250 mm under it. The **mik** itself
-   (Vademecum p. 35) is built in the viewer (`makeMik`), on `extras.tuig.mik`.
-   `pipeline/sleepogen.py` makes the **sleepogen** on the outside of the spiegel by mirroring the
-   landvastogen (CAD bodies 589B, 589F) in the middle plane of the plate.
-   `pipeline/anchor.py` adds the **ankergerei**, of which the CAD has nothing: the **anker**
-   (the galvanised Danforth of scoutingvlet.nl, about 7.5 kg — no dimensions are published, so
-   its 6 mm plate is stepped off two photographs and comes to 7.6 kg of steel), its metre of 6 mm
-   **ankerketting** (DIN 766, 54 links of a stadium-shaped ring each) and about 6.4 m of 12 mm
-   **ankerlijn**. It is stowed to starboard, a bakskist going against the same bulkhead to port:
-   the anchor leans forward against the aft face of the voorschot (a flat plate at x = 4758.2),
-   its fluke tops on that face and the lower edges of its tripping plates on the buikdenning,
-   which runs to within 2 mm of the bulkhead. The shank has swung 12° back out of the fluke plane
-   (it turns on the crown tube, up to about 32° either way) and so stands plumb: lying in that
-   plane it would go through the bulkhead, being both longer and thicker than the flukes.
-   Chain and coil lie on the boards beside
-   it and the line leads over the voorschot, along the voordek (its height sampled from body 59D4
-   so the rope lies on the deck) and up the V of the bow to the **ankeroog**. That eye is the same
-   fitting as the landvastogen on the spiegel (Vademecum p. 35, bodies 589B/589F, measured off
-   them: 9 mm bar, 96 mm long, arch 25.6 mm proud), welded by its feet into the seam where the two
-   vlak plates meet at the stem, 70 mm under the voorplecht. Both ends are on
-   `extras.tuig.anker` for the viewer.
-   `pipeline/bakskist.py` (the chest on the vlonders, hollow, with lid, hinges and rope handles; `placement()`
-   gives the inside frame for stowing things in it) and `pipeline/landvasten.py` (achterlandvast on the port
-   landvastoog, coiled on the achterdek; voorlandvast coiled on the voordek, over the dolboord to the
-   sleepoog on the stem) follow the same pattern: a module with `build(mesh_dir)`, added in `build_glb.py`.
-   `pipeline/bakskist_inhoud.py`: what lies in the chest, placed in its own (pitched) frame: the
-   **meerpen**, the **hoosblik** and the white **EHBO-koffer** with raised red lettering.
-   `pipeline/fokbeslag.py`: ten **leuvers** (stagleuvers 51.5 x 27 mm) with their jaws on the axis of the
-   voorstag and their tails on the luff of the fok (the CAD sets the fok 37 to 46 mm off its stay; the
-   leuvers bridge that), and the **voorstagspanner met pelikaanhaak**: hook through the frontmost hole of
-   the hanekam, eye pinned to the thimble of the stay, keeper ring over arm and stay. It replaces the CAD's
-   harpje there (bodies 514E, 5156, in `DROP`). In the viewer the leuvers swing with the fok and slide down
-   the stay when the fok is struck.
-   `pipeline/wantkettingen.py`: the **wantketting** at the foot of either want — six links of the same
-   6 mm chain as the ankerketting, on the wire's own line between the bow of the harpje in the
-   wantputting and the spliced thimble eye. The CAD runs the wire down to that harpje, so the module
-   also shortens it (`hardware.reshape` sends bodies 51C2 / 519A to it): the mesh is cut square to the
-   axis 5 mm above the splice, the eye lifted 115.8 mm along it and the plain wire it now covers
-   dropped. Both ends of each want go on `extras.tuig.wanten` for the viewer.
-7. `pipeline/build_glb.py` writes the GLB: metres, Y up, x from transom to bow, z to starboard;
-   scene graph group → part, with `extras` (id, naam, groep, materiaal, DWG handles, size).
+1. `reference/cad/extract_sab.py` haalt de 222 binaire ACIS-bodies uit de DWG (zie
+   `reference/cad/README.md` voor waarom `dwg2dxf` niet gebruikt mag worden).
+2. `pipeline/acis_occ.py` bouwt elke body opnieuw op in OpenCascade: analytische oppervlakken exact,
+   spline-oppervlakken uit hun NURBS-data, loops uit de co-edge-richtingen van ACIS; faces worden per
+   body aan elkaar genaaid en gesloten shells als solid georiënteerd. Bij tori en bollen zijn beide
+   zijden van een loop begrensd, dus daar bepaalt de ACIS-regel welke kant de face is (keer de loops
+   om dan en slechts dan als de face omgekeerd is ten opzichte van het herbouwde oppervlak;
+   geverifieerd op 1372 van de 1373 eenduidige faces). Wie in plaats daarvan de kleinste kant kiest,
+   verliest elk oog, elke ring en elke harpbeugel. Omsluiten die loops een negatief oppervlak, dan
+   zijn ze de las van een oog en is de face het hele oppervlak min die patch, wat OpenCascade niet
+   kan meshen (de patch kruist de naad); in plaats daarvan wordt het hele oppervlak uitgevoerd, want
+   de patch zit verborgen in het onderdeel waar het oog op gelast is. 6934 van de 6936 faces
+   converteren; de twee missers zijn een splinter van 0.6 mm op de giek en een cilinderwand van 3 mm
+   binnen in een tuigbeslag.
+3. `pipeline/tessellate_all.py` mesht met exacte oppervlaktenormalen en een driehoekbudget per body
+   (touwwerk wordt grover gemaakt) — ≈ 500 k driehoeken in totaal.
+4. `pipeline/parts.py` benoemt de bodies (handle → onderdeel-id, Nederlandse naam, groep, materiaal),
+   geïdentificeerd op maat en positie aan de hand van het Vlettenboek. Tuigbeslag dat er niet in staat
+   valt voorlopig onder één verzamelonderdeel.
+5. `pipeline/sails.py` vervangt de vlakke CAD-zeilen van 0.1 mm door bol zeildoek op dezelfde omtrek,
+   met UV's, baannaden opgemeten uit het zeilplan (Vlettenboek p. 60: dwarsgesneden, doek van 90 cm,
+   loodrecht op schoothoek → tophoek/kop) en de plaats van zeilteken en cijfers (p. 58: lelie + V
+   38 cm breed, cijfers 30 × 20 cm, stuurboord het hoogst). De viewer tekent de texture
+   (`web/src/sails.js`), zodat het zeilnummer live te wijzigen is.
+6. `pipeline/rigging.py` genereert geometrie opnieuw die in de CAD niet klopt. De blokken van de
+   fokkenschoot zijn op het tweede leioog getekend; ze horen op het voorste, bij het want
+   (bodies 5943 / 5953), dus `NUDGE` in `pipeline/parts.py` brengt ze daarheen en de schoot loopt
+   schoothoek -> blok -> hand van de bemanning (de viewer legt hem live, zie verderop). De roerkop is
+   getekend als twee losse zijplaten van 2 mm; het is één plaat die over een radius is omgezet, met
+   de helmstok die er van onderen in steekt, dus de omgezette band langs de bovenrand wordt
+   gegenereerd en toegevoegd.
+   Ook beide marllijnen worden opnieuw gegenereerd, met echte marlsteken (de CAD windt een
+   gewone spiraal): lijn langs het lijk, bij elke zeilring één ingestoken slag, eerste ring op 100 mm,
+   daarna om de 200 mm. Getekend als Ø4 in plaats van de voorgeschreven Ø3, zodat hij zichtbaar blijft.
+   `pipeline/hardware.py` voegt beslag toe vanuit de gaten die de CAD wél heeft: de **mastbout**
+   (bovenste gat van de mastkoker, dwars door de mast) en de **grendelbout** (onderste gat, vóór de
+   mastvoet), ronde lippen met een gat op de mastband zodat de lummelbout daarin staat, het
+   **borglijntje** van de lummelbout naar het oog op de beslagband van de giek, en de voet van
+   elke wantputting, doorgetrokken tot op het dolboord (de CAD laat hem 9 mm erboven eindigen, in de
+   lucht; de plaat zelf wordt niet verplaatst, zodat het harpje van het want nog steeds door het gat gaat).
+   Ook bouwt het de zes **dolpotten** (Vlettenboek p. 23 en p. 35): 3/4"-buis van 100 mm lang,
+   aan beide einden open, verticaal tegen de binnenkant van het dolboord met de bovenkant gelijk
+   daarmee, op x = 4412 / 3432 / 2488 aan beide zijden, elk met de plaat van 4 mm die over de onderste
+   50 mm de wig tussen pot en boeisel opvult. Zeeg en breedte lopen over de boot uiteen, dus de cirkel
+   van het dolboord en de binnenkant van de beplating worden bij elk spant opgemeten. De dollen
+   zelf worden in de viewer gebouwd, op `extras.tuig.dolpotten`.
+   De twee **mikhouders** zijn dezelfde buis, 50 mm lang, boven elkaar op de hartlijn tegen de
+   voorkant van het achterschot — een vlakke verticale plaat op x = 2041.2, zodat de wand hem langs
+   een lijn raakt en er geen vulplaat nodig is — de bovenste met zijn bovenkant 40 mm onder de
+   bovenrand van dat vlak en de onderste 250 mm daaronder. De **mik** zelf
+   (Vademecum p. 35) wordt in de viewer gebouwd (`makeMik`), op `extras.tuig.mik`.
+   `pipeline/sleepogen.py` maakt de **sleepogen** aan de buitenkant van de spiegel door de
+   landvastogen (CAD-bodies 589B, 589F) te spiegelen in het middenvlak van de plaat.
+   `pipeline/anchor.py` voegt het **ankergerei** toe, waarvan de CAD niets heeft: het **anker**
+   (de gegalvaniseerde Danforth van scoutingvlet.nl, ongeveer 7.5 kg — er zijn geen maten
+   gepubliceerd, dus de plaat van 6 mm is van twee foto's afgepast en komt uit op 7.6 kg staal), de
+   meter **ankerketting** van 6 mm (DIN 766, 54 schalmen van elk een stadionvormige ring) en
+   ongeveer 6.4 m **ankerlijn** van 12 mm. Het ligt aan stuurboord opgeborgen, met een bakskist tegen
+   hetzelfde schot aan bakboord: het anker leunt voorover tegen de achterkant van het voorschot (een
+   vlakke plaat op x = 4758.2), met de toppen van de vloeien tegen dat vlak en de onderranden van de
+   stabilisatorplaten op de buikdenning, die tot op 2 mm van het schot doorloopt. De schacht is 12°
+   uit het vlak van de vloeien gedraaid (hij draait op de kruisbuis, tot ongeveer 32° naar beide
+   kanten) en staat daardoor rechtop: in dat vlak zou hij door het schot steken, omdat hij zowel
+   langer als dikker is dan de vloeien. Ketting en opgeschoten lijn liggen naast het anker op de
+   denning en de lijn loopt over het voorschot, langs het voordek (de hoogte daarvan is uit body 59D4
+   bemonsterd zodat het touw op het dek ligt) en omhoog door de V van de boeg naar het **ankeroog**.
+   Dat oog is hetzelfde beslag als de landvastogen op de spiegel (Vademecum p. 35, bodies 589B/589F,
+   daarvan afgemeten: staf van 9 mm, 96 mm lang, beugel 25.6 mm uitstekend), met de voetjes gelast in
+   de naad waar de twee vlakplaten bij de steven samenkomen, 70 mm onder de voorplecht. Beide
+   uiteinden staan voor de viewer op `extras.tuig.anker`.
+   `pipeline/bakskist.py` (de kist op de vlonders, hol, met deksel, scharnieren en touwhandvatten;
+   `placement()` geeft het binnenframe om er spullen in op te bergen) en `pipeline/landvasten.py`
+   (achterlandvast op het bakboord landvastoog, opgeschoten op het achterdek; voorlandvast
+   opgeschoten op het voordek, over het dolboord naar het sleepoog op de steven) volgen hetzelfde
+   patroon: een module met `build(mesh_dir)`, toegevoegd in `build_glb.py`.
+   `pipeline/bakskist_inhoud.py`: wat er in de kist ligt, geplaatst in het eigen (hellende) frame
+   daarvan: de **meerpen**, het **hoosblik** en de witte **EHBO-koffer** met verhoogde rode letters.
+   `pipeline/fokbeslag.py`: tien **leuvers** (stagleuvers 51.5 x 27 mm) met hun bek om de as van het
+   voorstag en hun staart op het voorlijk van de fok (de CAD zet de fok 37 tot 46 mm van zijn stag af;
+   de leuvers overbruggen dat), en de **voorstagspanner met pelikaanhaak**: haak door het voorste gat
+   van de hanekam, oog gepend aan de kous van het stag, borgring over arm en stag. Het vervangt het
+   harpje dat de CAD daar heeft (bodies 514E, 5156, in `DROP`). In de viewer zwaaien de leuvers met de
+   fok mee en glijden ze langs het stag omlaag als de fok gestreken wordt.
+   `pipeline/wantkettingen.py`: de **wantketting** onderaan elk want — zes schalmen van dezelfde
+   ketting van 6 mm als de ankerketting, op de lijn van de draad zelf tussen de beugel van het harpje
+   in de wantputting en het gesplitste kousoog. De CAD laat de draad tot aan dat harpje doorlopen, dus
+   de module kort hem ook in (`hardware.reshape` stuurt bodies 51C2 / 519A daarheen): de mesh wordt
+   haaks op de as afgesneden, 5 mm boven de splits, het oog wordt 115.8 mm langs die as omhooggezet en
+   de kale draad die het nu bedekt vervalt. Beide uiteinden van elk want gaan voor de viewer op
+   `extras.tuig.wanten`.
+7. `pipeline/build_glb.py` schrijft de GLB: meters, Y omhoog, x van spiegel naar boeg, z naar
+   stuurboord; scene graph groep → onderdeel, met `extras` (id, naam, groep, materiaal, DWG-handles, size).
 
-## Aanpassen (customisation)
+## Aanpassen
 
-The gear button opens the menu (`web/src/customize.js`): zeilnummer, naam and plaats (lettering
-projected onto the boeisel as decals at voordek / achterdek, both sides — `web/src/hulltext.js`),
-a bakskleur and one colour per paint zone. The bakskleur (material `bakskleur`) accents roerkop,
-voorplecht, hanekam, the metal mast bands (lummel band, hommerring, masttopring), the giekbeslag
-at both ends of the boom, and 5 cm painted bands: 5 cm from the ends of the doften and the
-helmstok, and just past the handle of every oar. The metal pieces are faces of the CAD solids
-split off as parts of their own (`REGION_SPLITS`); the painted bands are cut into the mesh along
-two planes (`BANDS`, `cut_bands` in `pipeline/build_glb.py`). Zones are glTF material
-names assigned in `pipeline/parts.py`: romp (incl. everything below the waterline), berghout,
-boeisel, dolboord, voordek, achterdek, kuip, zwaardkast (incl.
-zwaardloper, mastkoker and its kikkers). Settings persist in `localStorage`.
-All user-facing text is Dutch.
+De tandwielknop opent het menu (`web/src/customize.js`): zeilnummer, naam en plaats (belettering die
+als decals op het boeisel wordt geprojecteerd ter hoogte van voordek / achterdek, aan beide zijden —
+`web/src/hulltext.js`), een bakskleur en één kleur per verfzone. De bakskleur (materiaal `bakskleur`)
+accentueert roerkop, voorplecht, hanekam, de metalen mastbanden (lummelband, hommerring,
+masttopring), het giekbeslag aan beide einden van de giek, en geschilderde banden van 5 cm: 5 cm
+vanaf de uiteinden van de doften en de helmstok, en net voorbij de handgreep van elke riem. De
+metalen delen zijn faces van de CAD-solids die als eigen onderdelen zijn afgesplitst
+(`REGION_SPLITS`); de geschilderde banden worden langs twee vlakken in de mesh gesneden (`BANDS`,
+`cut_bands` in `pipeline/build_glb.py`). Zones zijn glTF-materiaalnamen die in `pipeline/parts.py`
+worden toegekend: romp (incl. alles onder de waterlijn), berghout, boeisel, dolboord, voordek,
+achterdek, kuip, zwaardkast (incl. zwaardloper, mastkoker en de kikkers daarop). Instellingen blijven
+bewaard in `localStorage`. Alle tekst naar de gebruiker toe is Nederlands.
 
-## Modes and animation
+## Modi en animatie
 
-`web/src/modes.js` switches between Zeilen, Roeien and Wrikken and, in Zeilen, trims the sails for
-a course to the wind. The controls are one bar of icons along the bottom of the screen - Modus,
-Wind, Midzwaard, Riemen - and each icon opens its control in a popover above it: one at a time,
-closed again by the same icon, another icon, Escape or a click outside. Each icon draws its own
-state (the mode it is in, the compass needle turned to the wind, the board down/half/up, the number
-of riemen); Wind only shows in Zeilen and Riemen only in Roeien, and the bar re-centres without
-them. The course slider is mirrored: the centre is aan de wind, to the right the
-wind comes over starboard, to the left over port, so crossing the centre is going overstag; both
-ends run to voor de wind and fok te loevert. Its labels show whenever the wind panel is open. The boat
-stays put; a wind arrow moves round it.
-All values ease towards their targets, so every change is an animation.
+`web/src/modes.js` schakelt tussen Zeilen, Roeien en Wrikken en trimt in Zeilen de zeilen voor een
+koers ten opzichte van de wind. De bediening is één balk met iconen onderlangs het scherm - Modus,
+Wind, Midzwaard, Riemen - en elk icoon opent zijn bediening in een popover erboven: één tegelijk,
+weer te sluiten met hetzelfde icoon, een ander icoon, Escape of een klik ernaast. Elk icoon tekent
+zijn eigen toestand (de modus waarin hij staat, de kompasnaald naar de wind gedraaid, het zwaard
+neer/half/op, het aantal riemen); Wind verschijnt alleen in Zeilen en Riemen alleen in Roeien, en de
+balk centreert zich opnieuw zonder die. De koersschuif is gespiegeld: het midden is aan de wind, naar
+rechts komt de wind over stuurboord, naar links over bakboord, dus door het midden gaan is overstag
+gaan; beide uiteinden lopen door tot voor de wind en fok te loevert. De labels zijn zichtbaar zolang
+het windpaneel open staat. De boot blijft liggen; een windpijl draait eromheen.
+Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een animatie.
 
-- Gaff, mainsail, their lacing and hardware turn about the (exactly vertical) mast. The giek
-  turns on the lummelbout, which stands 52 mm aft of the mast in the lips of the mastband, and
-  is aimed so its nok stays under the schoothoek. The fok turns about the voorstag; past 180°
-  it crosses to windward (fok te loevert).
-- The fokkenschoten are not stretched CAD ropes but laid anew every frame (`RopeLine`,
-  `roundTheFront` in `web/src/rig.js`): the sheet to leeward runs straight from the schoothoek
-  to its block, the one to windward goes round the front of the mast first. Each block hangs on
-  its leioog between the two parts of its sheet.
-- Both sails are exported flat with a bend weight per vertex and bent in the viewer, because the
-  belly is always to leeward and changes side when the boat tacks (grootzeil and its battens:
-  designed belly, a little fuller off the wind).
-- Every edge and corner of both sails is its own named part (voorlijk, achterlijk, onderlijk,
-  bovenlijk; hals-, schoot-, klauw- and tophoek): a 6 cm strip of tape along each edge and a
-  reinforcement patch in each corner, generated in `pipeline/sails.py` on both faces.
-- The fok is a flat triangle bent by the wind: exported flat with a bend weight per vertex
-  (`_BOLLING`), bent in the viewer with single curvature (luff straight, corners fixed, foot and
-  leech bowing out). Depth follows the course, goes through flat while the fok crosses the boat
-  and turns inside out for fok te loevert. The slider's short stretch past 180° snaps on release.
-- Piekenval and klauwval, which only follow a moving end, are stretched per vertex
+- Gaffel, grootzeil, hun rijglijn en beslag draaien om de (exact verticale) mast. De giek draait op
+  de lummelbout, die 52 mm achter de mast in de lippen van de mastband staat, en wordt zo gericht dat
+  de nok onder de schoothoek blijft. De fok draait om het voorstag; voorbij 180° gaat hij naar loef
+  (fok te loevert).
+- De fokkenschoten zijn geen opgerekte CAD-touwen maar worden elk frame opnieuw gelegd (`RopeLine`,
+  `roundTheFront` in `web/src/rig.js`): de lijzijdige schoot loopt recht van de schoothoek naar zijn
+  blok, de loefzijdige gaat eerst om de voorkant van de mast heen. Elk blok hangt aan zijn leioog
+  tussen de twee parten van zijn schoot.
+- Beide zeilen worden vlak geëxporteerd met een buiggewicht per vertex en in de viewer gebogen, want
+  de buik zit altijd aan lij en wisselt van kant als de boot overstag gaat (grootzeil en zijn
+  zeillatten: ontworpen buik, iets voller bij ruimere wind).
+- Elk lijk en elke hoek van beide zeilen is een eigen benoemd onderdeel (voorlijk, achterlijk,
+  onderlijk, bovenlijk; hals-, schoot-, klauw- en tophoek): een strook band van 6 cm langs elk lijk en
+  een versterkingslap in elke hoek, aan beide zijden gegenereerd in `pipeline/sails.py`.
+- De fok is een vlakke driehoek die door de wind bol wordt gezet: vlak geëxporteerd met een
+  buiggewicht per vertex (`_BOLLING`), in de viewer gebogen met enkelvoudige kromming (voorlijk
+  recht, hoeken vast, onderlijk en achterlijk bollen uit). De diepte volgt de koers, gaat door vlak
+  heen terwijl de fok overkomt en keert binnenstebuiten voor fok te loevert. Het korte stuk van de
+  schuif voorbij 180° springt bij loslaten terug.
+- Piekenval en klauwval, die alleen een bewegend uiteinde volgen, worden per vertex opgerekt
   (`RopeStretch` in `web/src/rig.js`).
-- The grootschoot is a tackle reeved anew every frame (`RopeLine`): made fast to the hondsvot
-  under the upper block, round one sheave of the lower block, over the upper sheave, round the
-  other lower sheave and on to the hand of the helmsman, who sits to windward on the achterdek.
-  The CAD draws the lower block 40 mm aft of the grootschootoog with its shackle beside the eye;
-  `NUDGE` moves it so the shackle pin passes under the top of the eye.
-- Axes and anchors come from the CAD via `pipeline/rig_data.py` (root node `extras.tuig`). That
-  file also sorts the unnamed hardware into what travels with giek, gaffel or fok.
-- The view menu (groups, camera views) sits behind the eye button; Aanpassen behind the gear;
-  the boat controls behind the icons of the bottom bar.
-- A running procedure (Reven, Tuig) shows its progress bar `#procedure` above the control bar: previous
-  step, play/pause, next step and a slider over the whole timeline with a tick at every step boundary,
-  the number and the Dutch label of the step it is in, and the name of the procedure. It plays by
-  itself; dragging the slider scrubs and pauses, play takes it on to what was commanded. It rides
-  above an open popover (`--procedure-lift`) and the info tile steps over it (`--procedure-top`).
-  Once the procedure is at rest it fades out after 2.5 s, unless its own panel is open, it is hovered
-  or it has the focus - so a finished procedure can be scrubbed back through from "Tuig" or "Reven".
-- Onderdelen, under the eye button, lists every part by group, searchable, with one row per name
-  (four dollen are one row "Dol ×4"). A bakboord and a stuurboord twin share one row under the name
-  without the side ("Wantputting (bakboord)" and "(stuurboord)" -> "Wantputting", counted as one);
-  clicking it takes the twin on the side the camera looks from, or the nearest one, and clicking
-  again hands over the other. The search still matches the side in the names behind such a row.
-  A row selects its part or parts - the same highlight and
-  info tile as a click on the model, and the row of a part clicked on the model is marked in the
-  list - and flies the camera to it: the bounding sphere of its meshes as they stand right now,
-  seen from the candidate direction (8 azimuths × two elevations, plus the one we are looking
-  from) that leaves the fewest of seven sample points of the part hidden behind other parts.
-  Parts that are away in the current mode are dimmed and cannot be picked.
-- Some numbers in the drawing name an area, not an object: Boeg (the forward 0.65 m of the romp)
-  and Kleed (the third baan of the grootzeil, counted from the schoothoek up, between the seams of
-  `extras.zeil.naden`). They stand in the list like parts, marked "gebied", with "Gebied, geen los
-  onderdeel" in place of the dimensions. `web/src/regions.js` defines each one as a few part ids
-  plus a predicate over the triangles of their meshes, and builds the highlight as an overlay that
-  shares the position and normal attributes of those meshes (so it bends with the sail) and hangs
-  under them (so it swings with them). It only shows while its row is picked and is never pickable
-  itself - a click on the boeg still selects Boeisel, Vlak or Berghout.
-- A windvaan on the masthead (built in `web/src/rig.js`, not in the CAD) turns so its wire frame
-  points into the wind and the red vane streams downwind.
-- Midzwaard neer / half / op (in every mode). The board swings about the zwaardbout at its
-  forward-bottom corner - the CAD has that bolt as a hole in the plate, and the Vlettenboek p. 38
-  gives the swing radius (R=880). The zwaardloper is a linkage and only ever turns on its pins:
-  the foot of the lower link is pinned to the board (both have a hole at the same place), the
-  links are pinned together at the knuckle, and the kast top is a 250 mm slot so the loper hangs
-  plumb over its foot. The three stops are solved from those holes in `pipeline/rig_data.py`
-  (`board_stops`): **neer** the loper's shoulder plate lands on the kast top (board 14.3° below
-  the drawn position, which is itself the stop on the loper's middle hole); **half** the borgpen
-  through the lowest hole of the upper link rests on the kast top (+6.6°); **op** the pin through
-  the board's own hole rests there (+34.3°), the foot pin is then above the kast and the loper
-  folds away - lower link turning on the foot pin to lie aft along the kast, upper link turning
-  on the knuckle pin to hang down behind it. The pin is only in at a stop; in between it hangs
-  on its kettinkje from an eye on the kast top.
-- Wervel and pettenlijntje (`pipeline/hardware.py`): the CAD draws the wervel as a 12 x 55 mm bar with
-  two dimples; it is rebuilt a little longer and wider (18 x 92 mm) with a real hole in each end. The
-  kraanlijn is made fast in the upper hole. The pettenlijntje runs from the free hoop on the port
-  end of the schootring aft under the giek, through the eye under the aft beslagband and through
-  the lower hole, with a stopper knot behind it.
-- Procedures (`web/src/procedure.js`): reven, zeilen strijken and mast strijken are timelines of steps, each
-  taking one value from where it was to where it has to be in a given time and carrying a Dutch label.
-  A timeline can be played either way, paused, stepped and scrubbed; `initModes()` hands the progress bar
-  `procedure()` (plain data) and `procedureControl` (play, pause, next, previous, scrub). The rig is ONE
-  timeline: "Zeilen op" is its start, "Zeilen gestreken" the end of the zeilbinders step, "Mast gestreken"
-  its end. A reef is a fresh timeline from the present state to the chosen number of turns.
-- Mast strijken (second half of the rig's timeline): fok taken off; the made-up sail with giek and gaffel,
-  one stiff bundle carried by two points, goes from the fork of the mik into its lower hook; lummelbout
-  drawn (it hangs on its borglijntje under the giek) and the bundle's forward end comes down on the
-  mastdoft; grendelbout out; keeper ring slid up the pelikaanhaak; hook out of the hanekam; mast down aft
-  on the mastbout (74.6 degrees) into the fork of the mik, top beyond the spiegel, with bands, blocks,
-  harpjes, vallen, windvaan and kraanlijn block; the voorstag folds along the mast; the wanten are laid
-  live and hang slack over the mik; the vallen's ends stay on the gaffel (their deltas are taken back
-  into the mast's own frame).
-- Zeilen strijken, control "Tuig" (Zeilen op / Zeilen gestreken), the same kind of sequencer as reven:
-  head to wind (boom, fok and wind arrow amidships, no belly); anchor out (the stowed anker, ketting and
-  lijn give way to a line paid out from the ankeroog over the bow into the water); fok down its stay
-  into a bundle on the voordek (`jibBend.warp`); mik set; grootzeil down in folds while the gaffel comes
-  down the mast and is laid flat, the nok of the giek lifted 1.1 degrees into the fork of the mik, kraanlijn
-  taut (`mainBend.warp`); the cloth made up into a roll on the giek (part "Opgedoekt grootzeil"); three
-  zeilbinders (double elastic, two balls) round sail, giek and gaffel. Hoisting runs it backwards.
-- By hand: dragging the helmstok steers (the rudder parts, vlaggenstok and flag turn about the raked
-  roerkoning; a table converts the pointer's bearing into the angle about that axis; the drag is taken
-  in the capture phase so OrbitControls never sees it). A click on a dol ships or unships it (not while
-  an oar is pulled in it), a click on the mik or its holders sets or stows it; a change of mode puts
-  them back where they belong. A click on the bakskist shuts or opens its lid (modelled open; the lid and
-  what is screwed to it turn about the hinge line from `extras.tuig.bakskist`). A click on anker, ketting
-  or lijn lets the anchor go or weighs it: lifted by its shackle, carried over the voordek, swung out over
-  the starboard bow and lowered to the bottom along a spline; the ketting is one mesh whose 54 links are
-  posed as rigid pieces along its run, the lijn is laid live over the rail to the ankeroog. Zeilen strijken
-  drives the same animation and waits for it.
-- The foot of the grootzeil follows the giek, which swings on the lummelbout, while its head follows the
-  gaffel round the mast 52 mm further forward; `Bend.shift` takes the cloth over evenly from the one to
-  the other, so there is no gap between sail and giek at any sheeting angle, reefed or not.
-- Reven (rolrif), control "Reven" with the number of turns of the giek. A small sequencer in
-  `web/src/modes.js` runs the steps in order, each one value driven to its goal, and replans from
-  wherever it is when the order changes: ease the vallen; slide the schootring aft to the nok; pull the
-  giek 3 cm aft against the spring in the lummelbeslag (a shaft shows in the gap); turn the giek; let it
-  spring back; shift the grootschoot to the port hoop of the schootring, which turns 37 degrees round the
-  giek; slide the ring forward; set up the vallen. `Bend` does the cloth: the foot first travels a quarter
-  turn from the top of the giek to its side, after that cloth is wound on (the roll grows 1.2 mm a turn),
-  the sail above comes down by that length with the gaffel, klauw, vallen and rijglijn, and leaves the
-  roll beside the giek. The cloth mesh is too coarse to wind into a spiral, so wound cloth is gathered
-  at the roll and the roll is a part of its own ("Rif"). The pettenlijntje is laid live between the
-  starboard hoop and the wervel, neither of which turns with the giek, and hangs in a bight when slack.
-- Dodemanseind (`pipeline/hardware.py`): two turns round the gaffel 10 cm from the nok, then slack to
-  the hanepootloper, the point on the gaffeldraad where the piekenval is made fast; swings with the gaffel.
-- Dirk of kraanlijn (not in the CAD): from the wervel up over a small block (`makeBlokje`) on the
-  port eye of the masttopring, the one eye that carries nothing, and down to the upper port kikker
-  on the mastkoker, the only free one. Laid every frame: it hangs slack, swings with the giek and
-  lies against the cloth when the sail bellies to port.
-- Vlaggenstok, knop and vlag (`web/src/flag.js`): a bent staff (straight in the tube, then curving over aft, tapered) standing in the open top of the
-  roerkoning, a 1" tube, so it rakes 33.7 degrees aft with the rudder; the knop is a 2 cm disc with a
-  rounded edge in the bakskleur; the Dutch flag streams downwind under sail, hangs when there is
-  no wind, and the lot is drawn out of the tube for wrikken.
-- Mik (`makeMik`): under sail it lies on the buikdenning on the port side of the kuip; with the sails
-  down (roeien, wrikken) it is carried over and stands in the two mikhouders on the achterschot, fork
-  up and square to the boat, its foot on the vlak.
-- Dollen: the boat has six dolpotten (pipeline) but four dollen (`makeDol`, `makeKnevel` in
-  `web/src/rig.js`), in the potten by the two doften. A dol stands in its pot, turning with the
-  oar, only while an oar is pulled in it; otherwise it is lifted out and hangs inboard, upside
-  down, on its kettinkje, which runs through the pot to a knevel that cannot pass the bore
-  (`layChain` lays the links along the path over the rim).
-- Five parts the CAD does not have are built in the viewer (`web/src/rig.js`) and registered as
-  ordinary pickable parts: the **zwaardbout**, the **borgpen**, its **kettinkje**, the
-  **windvaan**, and the fold of the **roerkop**.
-- The two blocks of the grootschoot hang in the sheet: each is aimed along the line from the
-  schootring to the grootschootoog, so they tilt as the boom swings.
-- Zeilteken and zeilnummer are parts of their own (pickable, named), thin patches lying on the
-  cloth with their own painted texture, mirrored on the starboard side. They bend and swing
-  with the sail like the lijken and hoeken.
-- Roeicommando's (control "Roeicommando", Katwijk rowing book H2): each boord has its own commando - op slag,
-  haalt op gelijk (single strokes with a wait), op riemen, strijkt gelijk (the same stroke run backwards), stopt
-  af, riemen lopen / over / op / geroeid. A commando is a pose (`COMMANDS` in `web/src/modes.js`: power, how far
-  down, swung aft, blade upright or flat, how far inboard, standing on the vlonder, in the dol or stowed) that
-  every oar of that boord eases into; the panel shows the words the roerganger would call for the two boorden
-  together, with "op… riemen" first unless both have to be obeyed at once. Different commando's on the two
-  boorden give the flauwe, scherpe and zeer scherpe bocht; a green arrow on the water shows which way the
-  boat goes (the boat itself stays put).
-- Roeien: sails fade out and the stroke (inpik - haal - uitpik - recover) simply runs, one per
-  3.2 s; three set-ups - 2 naast elkaar, 2 kruislings, 4 riemen (the second pair
-  of oars is added in the viewer); Wrikken: the wrikriem in the wrikgat,
-  1.4 m inboard at 50 degrees, with a figure-of-eight motion. The CAD has no dollen; each oar lies
-  50 mm above the rim of its dolpot.
+- De grootschoot is een talie die elk frame opnieuw wordt geschoren (`RopeLine`): vastgezet aan de
+  hondsvot onder het bovenste blok, om de ene schijf van het onderste blok, over de bovenste schijf,
+  om de andere onderste schijf en door naar de hand van de roerganger, die aan loef op het achterdek
+  zit. De CAD tekent het onderste blok 40 mm achter het grootschootoog met het harpje naast het oog;
+  `NUDGE` verplaatst het zo dat de harppen onder de bovenkant van het oog door gaat.
+- Assen en ankerpunten komen uit de CAD via `pipeline/rig_data.py` (rootnode `extras.tuig`). Dat
+  bestand sorteert ook het niet-benoemde beslag naar wat met giek, gaffel of fok meebeweegt.
+- Het weergavemenu (groepen, camerastandpunten) zit achter de oogknop; Aanpassen achter het tandwiel;
+  de bediening van de boot achter de iconen van de onderste balk.
+- Een lopende procedure (Reven, Tuig) toont zijn voortgangsbalk `#procedure` boven de bedieningsbalk:
+  vorige stap, play/pause, volgende stap en een schuif over de hele timeline met een streepje bij elke
+  stapgrens, het nummer en het Nederlandse label van de stap waarin hij zit, en de naam van de
+  procedure. Hij speelt vanzelf af; slepen aan de schuif scrubt en pauzeert, play brengt hem verder
+  naar wat opgedragen was. Hij ligt boven een geopende popover (`--procedure-lift`) en de infotegel
+  stapt eroverheen (`--procedure-top`). Zodra de procedure stilligt vervaagt hij na 2.5 s, tenzij zijn
+  eigen paneel open staat, de muis erboven hangt of hij de focus heeft - zo kan een afgelopen
+  procedure vanuit "Tuig" of "Reven" teruggescrubd worden.
+- Onderdelen, onder de oogknop, somt elk onderdeel per groep op, doorzoekbaar, met één regel per naam
+  (vier dollen zijn één regel "Dol ×4"). Een bakboord- en een stuurboordtweeling delen één regel onder
+  de naam zonder de zijde ("Wantputting (bakboord)" en "(stuurboord)" -> "Wantputting", als één
+  geteld); een klik erop pakt de tweeling aan de kant waar de camera vandaan kijkt, of de
+  dichtstbijzijnde, en nog een klik levert de andere. De zoekfunctie vindt de zijde in de namen achter
+  zo'n regel nog steeds. Een regel selecteert zijn onderdeel of onderdelen - dezelfde highlight en
+  infotegel als een klik op het model, en de regel van een onderdeel dat op het model is aangeklikt
+  wordt in de lijst gemarkeerd - en vliegt de camera ernaartoe: de bounding sphere van de meshes zoals
+  die er op dat moment bij staan, gezien vanuit de kandidaatrichting (8 azimuts × twee hoogtehoeken,
+  plus de richting waaruit nu gekeken wordt) waarbij het kleinste aantal van zeven steekproefpunten
+  van het onderdeel achter andere onderdelen schuilgaat. Onderdelen die in de huidige modus weg zijn,
+  worden gedimd en zijn niet aan te klikken.
+- Sommige nummers in de tekening duiden een gebied aan, geen object: Boeg (de voorste 0.65 m van de
+  romp) en Kleed (de derde baan van het grootzeil, geteld vanaf de schoothoek omhoog, tussen de naden
+  van `extras.zeil.naden`). Ze staan als onderdelen in de lijst, gemarkeerd als "gebied", met
+  "Gebied, geen los onderdeel" in plaats van de afmetingen. `web/src/regions.js` definieert elk gebied
+  als een paar onderdeel-id's plus een predicaat over de driehoeken van hun meshes, en bouwt de
+  highlight als een overlay die de position- en normal-attributen van die meshes deelt (zodat hij met
+  het zeil meebuigt) en eronder hangt (zodat hij met ze meezwaait). Hij verschijnt alleen zolang zijn
+  regel geselecteerd is en is zelf nooit aan te klikken - een klik op de boeg selecteert nog steeds
+  Boeisel, Vlak of Berghout.
+- Een windvaan in de masttop (gebouwd in `web/src/rig.js`, niet in de CAD) draait zo dat het
+  draadframe in de wind wijst en de rode vaan met de wind mee uitstaat.
+- Midzwaard neer / half / op (in elke modus). Het zwaard draait om de zwaardbout in zijn voorste
+  onderhoek - de CAD heeft die bout als een gat in de plaat, en het Vlettenboek p. 38 geeft de
+  draairadius (R=880). De zwaardloper is een stangenstelsel en draait uitsluitend op zijn pennen: de
+  voet van de onderste stang is aan het zwaard gepend (beide hebben op dezelfde plek een gat), de
+  stangen zijn bij het knikpunt aan elkaar gepend, en de bovenkant van de kast is een sleuf van
+  250 mm, zodat de loper loodrecht boven zijn voet hangt. De drie standen worden in
+  `pipeline/rig_data.py` uit die gaten opgelost (`board_stops`): **neer** de schouderplaat van de
+  loper komt op de kasttop te liggen (zwaard 14.3° onder de getekende stand, die zelf de stand op het
+  middelste gat van de loper is); **half** de borgpen door het onderste gat van de bovenste stang
+  rust op de kasttop (+6.6°); **op** de pen door het gat van het zwaard zelf rust daar (+34.3°), de
+  voetpen zit dan boven de kast en de loper klapt weg - de onderste stang draait op de voetpen om
+  achterover langs de kast te liggen, de bovenste stang draait op de knikpen om erachter naar beneden
+  te hangen. De pen zit er alleen bij een stand in; daartussenin hangt hij aan zijn kettinkje aan een
+  oog op de kasttop.
+- Wervel en pettenlijntje (`pipeline/hardware.py`): de CAD tekent de wervel als een staaf van
+  12 x 55 mm met twee putjes; hij wordt iets langer en breder opnieuw opgebouwd (18 x 92 mm), met in
+  beide einden een echt gat. De kraanlijn wordt in het bovenste gat vastgezet. Het pettenlijntje loopt
+  van de vrije beugel aan het bakboordeind van de schootring naar achteren onder de giek door, door
+  het oog onder de achterste beslagband en door het onderste gat, met een stopperknoop erachter.
+- Procedures (`web/src/procedure.js`): reven, zeilen strijken en mast strijken zijn timelines van
+  stappen, die elk één waarde in een gegeven tijd van waar hij stond naar waar hij moet zijn brengen en
+  een Nederlands label dragen. Een timeline kan beide kanten op worden afgespeeld, gepauzeerd, stap
+  voor stap doorlopen en gescrubd; `initModes()` geeft de voortgangsbalk `procedure()` (kale data) en
+  `procedureControl` (play, pause, volgende, vorige, scrub). Het tuig is ÉÉN timeline: "Zeilen op" is
+  het begin, "Zeilen gestreken" het einde van de stap zeilbinders, "Mast gestreken" het einde ervan.
+  Een rif is een nieuwe timeline vanaf de huidige stand naar het gekozen aantal slagen.
+- Mast strijken (tweede helft van de timeline van het tuig): fok eraf; het opgedoekte zeil met giek en
+  gaffel, één stijve bundel die op twee punten wordt gedragen, gaat van de vork van de mik in de
+  onderste haak daarvan; lummelbout eruit (die hangt aan zijn borglijntje onder de giek) en het
+  voorste eind van de bundel komt op de mastdoft; grendelbout eruit; borgring omhoog over de
+  pelikaanhaak geschoven; haak uit de hanekam; mast naar achteren neer om de mastbout (74.6 graden) in
+  de vork van de mik, de top voorbij de spiegel, met banden, blokken, harpjes, vallen, windvaan en
+  kraanlijnblok; het voorstag vouwt zich langs de mast; de wanten worden live gelegd en hangen slap
+  over de mik; de einden van de vallen blijven op de gaffel (hun delta's worden teruggerekend naar het
+  eigen assenstelsel van de mast).
+- Zeilen strijken, bediening "Tuig" (Zeilen op / Zeilen gestreken), dezelfde soort sequencer als
+  reven: kop in de wind (giek, fok en windpijl midscheeps, geen buik); anker uit (het opgeborgen
+  anker, de ketting en de lijn maken plaats voor een lijn die vanaf het ankeroog over de boeg in het
+  water wordt gevierd); fok langs zijn stag omlaag tot een bundel op het voordek (`jibBend.warp`); mik
+  gezet; grootzeil in plooien omlaag terwijl de gaffel langs de mast zakt en vlak wordt gelegd, de nok
+  van de giek 1.1 graden opgetild in de vork van de mik, kraanlijn strak (`mainBend.warp`); het doek
+  opgedoekt tot een rol op de giek (onderdeel "Opgedoekt grootzeil"); drie zeilbinders (dubbel
+  elastiek, twee ballen) om zeil, giek en gaffel. Hijsen laat het achterstevoren lopen.
+- Met de hand: slepen aan de helmstok stuurt (de roeronderdelen, vlaggenstok en vlag draaien om de
+  schuine roerkoning; een tabel zet de peiling van de aanwijzer om in de hoek om die as; het slepen
+  wordt in de capture-fase afgevangen zodat OrbitControls het nooit ziet). Een klik op een dol zet hem
+  op of neemt hem eruit (niet zolang er een riem in getrokken wordt), een klik op de mik of zijn
+  houders zet hem op of bergt hem op; een moduswisseling zet ze terug waar ze horen. Een klik op de
+  bakskist sluit of opent het deksel (in open stand gemodelleerd; het deksel en wat eraan vastgeschroefd
+  zit draaien om de scharnierlijn uit `extras.tuig.bakskist`). Een klik op anker, ketting of lijn laat
+  het anker vallen of haalt het op: opgepakt aan zijn harpje, over het voordek gedragen, over de
+  stuurboordboeg uitgezwaaid en langs een spline naar de bodem gevierd; de ketting is één mesh waarvan
+  de 54 schalmen als starre stukken langs zijn verloop worden geplaatst, de lijn wordt live over het
+  dolboord naar het ankeroog gelegd. Zeilen strijken stuurt dezelfde animatie aan en wacht erop.
+- Het onderlijk van het grootzeil volgt de giek, die op de lummelbout zwaait, terwijl het bovenlijk de
+  gaffel volgt, die 52 mm verder naar voren om de mast draait; `Bend.shift` neemt het doek gelijkmatig
+  over van de een naar de ander, zodat er bij geen enkele schootstand een gat tussen zeil en giek valt,
+  gereefd of niet.
+- Reven (rolrif), bediening "Reven" met het aantal slagen van de giek. Een kleine sequencer in
+  `web/src/modes.js` doorloopt de stappen op volgorde, elk één waarde die naar zijn doel wordt
+  gedreven, en plant opnieuw vanaf waar hij op dat moment is als de opdracht verandert: vallen vieren;
+  de schootring naar achteren naar de nok schuiven; de giek 3 cm naar achteren trekken tegen de veer in
+  het lummelbeslag in (er komt een as in de spleet tevoorschijn); de giek ronddraaien; hem terug laten
+  veren; de grootschoot verzetten naar de bakboordbeugel van de schootring, die 37 graden om de giek
+  draait; de ring naar voren schuiven; de vallen doorzetten. `Bend` doet het doek: het onderlijk legt
+  eerst een kwartslag af van de bovenkant van de giek naar de zijkant, daarna wordt er doek opgewonden
+  (de rol groeit 1.2 mm per slag), het zeil erboven zakt over die lengte omlaag met gaffel, klauw,
+  vallen en rijglijn, en laat de rol naast de giek achter. De mesh van het doek is te grof om tot een
+  spiraal op te winden, dus opgewonden doek wordt bij de rol samengetrokken en de rol is een eigen
+  onderdeel ("Rif"). Het pettenlijntje wordt live gelegd tussen de stuurboordbeugel en de wervel, die
+  geen van beide met de giek meedraaien, en hangt in een bocht als het slap staat.
+- Dodemanseind (`pipeline/hardware.py`): twee slagen om de gaffel op 10 cm van de nok, daarna slap
+  naar de hanepootloper, het punt op de gaffeldraad waar de piekenval is vastgezet; zwaait met de
+  gaffel mee.
+- Dirk of kraanlijn (niet in de CAD): van de wervel omhoog over een blokje (`makeBlokje`) aan het
+  bakboordoog van de masttopring, het enige oog dat niets draagt, en omlaag naar de bovenste
+  bakboordkikker op de mastkoker, de enige vrije. Elk frame gelegd: hij hangt slap, zwaait met de giek
+  mee en ligt tegen het doek aan als het zeil naar bakboord bolt.
+- Vlaggenstok, knop en vlag (`web/src/flag.js`): een gebogen stok (recht in de buis, daarna naar
+  achteren overbuigend, taps) die in de open bovenkant van de roerkoning staat, een 1"-buis, zodat hij
+  met het roer mee 33.7 graden achteroverhelt; de knop is een schijf van 2 cm met een afgeronde rand in
+  de bakskleur; de Nederlandse vlag waait onder zeil met de wind mee uit, hangt stil als er geen wind
+  is, en het geheel wordt voor het wrikken uit de buis getrokken.
+- Mik (`makeMik`): onder zeil ligt hij op de buikdenning aan bakboord in de kuip; met de zeilen
+  gestreken (roeien, wrikken) wordt hij overgezet en staat hij in de twee mikhouders op het
+  achterschot, vork omhoog en haaks op de boot, met zijn voet op het vlak.
+- Dollen: de boot heeft zes dolpotten (pipeline) maar vier dollen (`makeDol`, `makeKnevel` in
+  `web/src/rig.js`), in de potten bij de twee doften. Een dol staat alleen in zijn pot, meedraaiend met
+  de riem, zolang er een riem in getrokken wordt; anders is hij eruit gelicht en hangt hij binnenboord
+  ondersteboven aan zijn kettinkje, dat door de pot loopt naar een knevel die niet door de boring kan
+  (`layChain` legt de schalmen langs het pad over de rand).
+- Vijf onderdelen die de CAD niet heeft, worden in de viewer gebouwd (`web/src/rig.js`) en als gewone
+  aanklikbare onderdelen geregistreerd: de **zwaardbout**, de **borgpen**, het **kettinkje** daarvan,
+  de **windvaan** en de omzetting van de **roerkop**.
+- De twee blokken van de grootschoot hangen in de schoot: elk is gericht langs de lijn van de
+  schootring naar het grootschootoog, zodat ze kantelen als de giek uitzwaait.
+- Zeilteken en zeilnummer zijn eigen onderdelen (aanklikbaar, benoemd), dunne lappen die op het doek
+  liggen met hun eigen getekende texture, gespiegeld aan stuurboord. Ze buigen en zwaaien met het zeil
+  mee, net als de lijken en hoeken.
+- Roeicommando's (bediening "Roeicommando", Katwijks roeiboek H2): elk boord heeft zijn eigen commando
+  - op slag, haalt op gelijk (losse slagen met een wachtmoment), op riemen, strijkt gelijk (dezelfde
+  slag achterstevoren), stopt af, riemen lopen / over / op / geroeid. Een commando is een houding
+  (`COMMANDS` in `web/src/modes.js`: kracht, hoe ver omlaag, hoe ver naar achteren gehaald, blad
+  verticaal of vlak, hoe ver binnenboord, staand op de vlonder, in de dol of opgeborgen) waar elke riem
+  van dat boord soepel naartoe gaat; het paneel toont de woorden die de roerganger voor de twee boorden
+  samen zou roepen, met "op… riemen" eerst, tenzij beide tegelijk moeten worden opgevolgd. Verschillende
+  commando's op de twee boorden geven de flauwe, scherpe en zeer scherpe bocht; een groene pijl op het
+  water laat zien welke kant de boot op gaat (de boot zelf blijft liggen).
+- Roeien: de zeilen vervagen en de slag (inpik - haal - uitpik - oprijden) loopt eenvoudigweg door, één
+  per 3.2 s; drie opstellingen - 2 naast elkaar, 2 kruislings, 4 riemen (het tweede paar riemen wordt
+  in de viewer toegevoegd); Wrikken: de wrikriem in het wrikgat, 1.4 m binnenboord onder 50 graden, met
+  een achtvormige beweging. De CAD heeft geen dollen; elke riem ligt 50 mm boven de rand van zijn
+  dolpot.
 
-## Checks that the geometry is right
+## Quiz (Oefenen)
 
-`pipeline/check_attached.py [gap_mm]` lists every fitting (body shorter than 1.5 m) that is further
-than the gap from every other body, i.e. hangs in mid-air, with the body nearest to it. It works on
-surfaces, not vertices, and takes half a minute. Fixes go into `NUDGE` in `pipeline/parts.py`.
+De studentenmuts, derde in de linkerkolom, opent **Oefenen** (`web/src/quiz.js`, de styling ervan in
+één gemarkeerd blok onderaan `web/src/style.css`). Er wordt alleen gevraagd naar de genummerde namen
+op de onderdelentekening van de klasse — `web/src/quizdata.js`, één entry per naam met de id's van de
+onderdelen die het *zijn* (`delen`), de onderdelen die bij een klik goed gerekend worden omdat ze
+erbij horen (`ook`), en of het de moeite waard is om het los te tonen (`los`). Het model heeft veel
+meer onderdelen dan er geleerd hoeven te worden. Id's worden bij het opstarten tegen `parts`
+opgezocht; een entry waarvan geen enkel onderdeel uit `delen` in het model zit valt af, en wat is
+afgevallen wordt één keer met `console.info` gelogd.
 
-- Hull plating 5599 × 1836 mm (class: 5600 ± 50 × 1800).
-- Plate volume ÷ area gives 3.96 mm for the vlak and 2.99 mm for the decks; the Vlettenboek
-  specifies 4 and 3 mm.
-- Chine half-breadth 596 (Vlettenboek spantenlijst 594), berghout 918 (913), zwaardkast
-  946 × 500 (950 × 497–503), mast foot at 365 in both, fokkeschoot lei-ogen at 282 / 742 / 1142 /
-  1942 mm aft of the mastkoker, inside the Vlettenboek's tolerance bands.
+Vijf soorten oefening, en Gemengd, die per vraag één soort trekt uit wat de entry toelaat:
 
-## Artwork
+- **Aanwijzen** — de naam staat er en het onderdeel moet aangeklikt worden. De klik krijgt de gewone
+  selectie-highlight en de kaart biedt Bevestigen / Annuleren aan, zonder ooit te noemen wat er
+  geraakt is. Goed als de id van het aangeklikte onderdeel in `delen` of `ook` staat; bij een gebied
+  (Boeg, Kleed) als de klik op een van de onderdelen landde waar het gebied op ligt *én* binnen het
+  gebied zelf — `regionAt` in `web/src/regions.js` beantwoordt dat aan de hand van de driehoeken die
+  de overlay bedekt. Fout: de kaart noemt wat er in plaats daarvan is aangeklikt, en de camera vliegt
+  naar het echte onderdeel en licht het op.
+- **Benoemen** — het onderdeel wordt opgelicht en aangevlogen, en er worden vier namen aangeboden. De
+  drie foute worden op aannemelijkheid gekozen: dezelfde uitgang van het eerste woord (de families
+  …lijk, …hoek en …val), een woord gemeen, dezelfde groep, en daarna willekeurig.
+- **Typen** — hetzelfde, maar de naam moet getypt worden. De beoordeling is mild: ongevoelig voor
+  hoofdletters, accenten en leestekens, een "de"/"het" ervoor valt weg, enkelvoud en meervoud zijn
+  allebei goed, één typefout per zes letters wordt vergeven (twee omgewisselde buurletters tellen als
+  één), de alternatieven die een naam draagt worden geaccepteerd ("Dirk" of "kraanlijn", "halshoek"
+  of "halsbroek"), en de kern van een naam zonder het "van de …" ook — maar alleen waar één entry
+  daarop antwoordt: "tophoek" alleen vraagt om de hele naam, want beide zeilen hebben er een. De
+  juiste schrijfwijze wordt achteraf altijd getoond. Het veld houdt elke toets voor zich, zodat er
+  niets bij de camera terechtkomt.
+- **Kies het onderdeel** — de kaart noemt een onderdeel en er lichten vier onderdelen tegelijk op,
+  elk in een eigen kleur, met op de kaart een chip in die kleur met de letter A–D; met de muis boven
+  een chip of met de focus erop gaat het bijbehorende onderdeel ademen. De concurrenten zijn de
+  dichtstbijzijnde onderdelen, waarbij een onderdeel uit dezelfde groep half zo ver telt.
+- **Los onderdeel** — alleen entries die als `los` zijn gemarkeerd. Het onderdeel hangt alleen voor
+  een egale achtergrond, beeldvullend gekaderd en langzaam draaiend tot de gebruiker de besturing
+  overneemt, daarna vier namen zoals bij Benoemen. `modes.js` schrijft `mesh.visible` elk frame
+  opnieuw, dus de rest van de boot is niet te verbergen: het onderdeel wordt op **layer 1** gezet en
+  de camera wordt op alleen die layer ingesteld (de lampen krijgen bij het opstarten één keer te
+  horen dat ze elke layer moeten verlichten; het water, de windpijl en de lucht staan op layer 0 en
+  vallen vanzelf weg). Een naam die voor een reeks eenvormige onderdelen staat — leuvers, dollen,
+  hijsogen — zou een veld spikkels opleveren, dus wordt er één van gekaderd: de meshes worden in hun
+  losse shells opgedeeld door de driehoeken af te lopen. Camera-layers, de near-grens en de
+  achtergrond worden teruggezet zodra de vraag of de ronde eindigt, hoe die ook eindigt.
 
-`web/public/textures/zeilteken.png` is derived from `reference/parts/scoutwiki_lelievlet_zeilteken.png`
-(scoutwiki.scouts.nl); the emblem itself is the class insignia of Scouting Nederland. Check the
-licence before publishing outside scouting.
+Zolang een ronde loopt staat de viewer in quizmodus (`body.quiz-on`): de hovertooltip, de infotegel
+en de voortgangsbalk zijn uit beeld, Onderdelen is gesloten en de knop ervan uitgeschakeld, en een
+klik op het model gaat naar de quiz in plaats van naar de selectie en naar `modes.click` — er valt
+geen anker midden in een vraag. De kaart hangt boven de bedieningsbalk, over een geopende popover
+heen, op dezelfde `--procedure-lift` die de voortgangsbalk gebruikt. Alles is met het toetsenbord te
+bedienen: 1–4 (en A–D) kiezen, Enter bevestigt en gaat door, Escape neemt een keuze terug.
+
+Vragen worden zonder herhaling getrokken tot de pool op is, met een weging naar wat er misgaat
+(`(1 + fout × 2) / (1 + goed)`). Entries waarvan de onderdelen er in de modus waarin de boot staat
+niet zijn vallen af, via dezelfde `partVisible` als de onderdelenlijst, en het startpaneel meldt het
+als een groot deel van de pool weg is. Een keuze voor **Niveau** (CWO I / II / III) verschijnt zodra
+`quizdata.js` entries een `niveau` geeft; niveau L vraagt alles met `niveau <= L`, en een entry
+zonder niveau telt als III. De ronde eindigt in een resultatenkaart met de score, de beste reeks en
+de namen die fout gingen, en **Oefen fouten** maakt een ronde van niets dan de entries die deze
+gebruiker het vaakst fout heeft.
+
+De score per entry en de totalen aller tijden staan in `localStorage` onder de enkele sleutel
+`lelievlet.quiz.v1` — `{ v: 1, totaal: { goed, fout, rondes, beste }, per: { <nr>: { goed, fout,
+laatst } } }`. Elke toegang is afgeschermd, zodat de quiz net zo goed werkt zonder storage; "Score
+wissen" in het startpaneel wist hem na een inline "Zeker weten?".
+
+`main.js` geeft de quiz wat hij nodig heeft via één aanroep `initQuiz({ … })` na `initModes` en
+`initRegions`: `parts`, `camera`, `controls`, `scene`, `select`, `flyTo`, `startFlight`,
+`setHighlights`, `partVisible` en de map met paneelsluiters. `setHighlights` is het enige dat de
+highlighting er speciaal voor heeft gekregen: een kleur per onderdeel, die `refreshHighlight` boven
+de selectie en de hover raadpleegt, zodat de quiz zelf nooit naar een materiaal schrijft.
+
+## Controles of de geometrie klopt
+
+`pipeline/check_attached.py [gap_mm]` somt elk stuk beslag op (body korter dan 1.5 m) dat van elke
+andere body verder af staat dan die gap, dus in de lucht hangt, met de body die er het dichtst bij
+ligt. Het werkt op oppervlakken, niet op vertices, en duurt een halve minuut. Correcties gaan in
+`NUDGE` in `pipeline/parts.py`.
+
+- Rompbeplating 5599 × 1836 mm (klasse: 5600 ± 50 × 1800).
+- Plaatvolume ÷ oppervlak geeft 3.96 mm voor het vlak en 2.99 mm voor de dekken; het Vlettenboek
+  schrijft 4 en 3 mm voor.
+- Halve breedte op de kim 596 (Vlettenboek spantenlijst 594), berghout 918 (913), zwaardkast
+  946 × 500 (950 × 497–503), mastvoet op 365 in beide, lei-ogen van de fokkeschoot op 282 / 742 / 1142 /
+  1942 mm achter de mastkoker, binnen de tolerantiebanden van het Vlettenboek.
+
+## Beeldmateriaal
+
+`web/public/textures/zeilteken.png` is afgeleid van `reference/parts/scoutwiki_lelievlet_zeilteken.png`
+(scoutwiki.scouts.nl); het embleem zelf is het klassenteken van Scouting Nederland. Controleer de
+licentie voordat dit buiten scouting gepubliceerd wordt.
