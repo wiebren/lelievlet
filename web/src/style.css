@@ -16,7 +16,6 @@
   --quiz-fout: #b3261e;
   --quiz-goed-bg: rgba(20, 122, 69, 0.1);
   --quiz-fout-bg: rgba(179, 38, 30, 0.1);
-  --quiz-los-bg: #dfe9f1;      /* the backdrop of a part lifted out of the boat */
 }
 
 * { box-sizing: border-box; }
@@ -319,7 +318,7 @@ button:hover { border-color: var(--accent); color: var(--accent); }
    so its icon sits under Onderdelen and those panels start 54 px lower. The card of a running
    round hangs above the control bar, on the same foot as the progress bar and lifted over an open
    popover by the same --procedure-lift. While a round runs, .lv.quiz-on takes away everything
-   that would give an answer away, and .lv.quiz-los gives the isolated part a plain backdrop. */
+   that would give an answer away. */
 #quiz-toggle { top: 124px; right: auto; left: 16px; }
 #quiz {
   position: absolute; top: 178px; left: 16px; width: 250px; max-height: calc(100% - 254px); overflow: auto;
@@ -401,7 +400,6 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 
 /* while a round runs, nothing outside the card may name a part */
 .lv.quiz-on #hover, .lv.quiz-on #info, .lv.quiz-on #procedure { display: none; }
-.lv.quiz-los { background: var(--quiz-los-bg); }
 
 @container (max-width: 640px) {
   #quiz { width: auto; right: 16px; max-height: calc(100% - 354px); }

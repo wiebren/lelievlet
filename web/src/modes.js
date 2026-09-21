@@ -171,7 +171,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const GIEK = ['giek', 'wervel', 'lummelbeslag', 'marllijn_giek', 'schootring', 'borglijntje_lummelbout'];
   const MAIN = ['grootzeil', 'zeillatten', 'gaffel', 'klauw', 'marllijn_gaffel',
     'gaffeldraad', 'rijglijn', 'beslag_gaffel', 'strop_gaffel', 'harpje_strop', 'hanepootloper', 'dodemanseind'];
-  const JIB = ['fok', 'beslag_fok', 'leuvers'];
+  const JIB = ['fok', 'leuvers'];
   // lopend want goes away with the sails - but not the lines that have nothing to do with them
   const MOORING = ['ankerlijn', 'achterlandvast', 'voorlandvast'];
   const running = parts.filter((p) => p.extras.groep === 'lopend_want' && !MOORING.includes(p.extras.id)).map((p) => p.extras.id);
@@ -323,6 +323,11 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
         sailRig.push(rope.mesh);                                     // fades with the sails, like the rope it replaces
       }
     }
+    // no harpje in the schoothoek: the schoot is one line, knotted into the cringle at its middle
+    const knot = new THREE.Mesh(new THREE.SphereGeometry(tuig.fokkenschoot.straal_m * 2.4, 12, 8), material);
+    knot.scale.set(1, 1.35, 1);
+    knot.userData.part = part.node; part.node.add(knot); part.meshes.push(knot); sailRig.push(knot);
+    jibSheets.knot = knot;
   }
   const mastRound = tuig.fokkenschoot.mast_straal_m + tuig.fokkenschoot.straal_m + 0.006;
   const clewNow = new THREE.Vector3(); const toClew = new THREE.Vector3(); const toHand = new THREE.Vector3();
@@ -345,6 +350,23 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     node.traverse((m) => { if (m.isMesh) { m.userData.part = node; part.meshes.push(m); } });
     parts.push(part);
     return node;
+  };
+  /** More geometry for a part that is there already: it is picked, lit and listed as that part. */
+  const joinPart = (node, id) => {
+    const part = byId.get(id) ?? parts.find((p) => p.extras.id === id);
+    part.node.parent.add(node);
+    node.traverse((m) => { if (m.isMesh) { m.userData.part = part.node; part.meshes.push(m); } });
+    return node;
+  };
+  /** Parts of the model that are taught as one: `ids` become geometry of `into` and leave the list. */
+  const foldParts = (into, ids) => {
+    for (const id of ids) {
+      const part = byId.get(id);
+      if (!part) continue;
+      for (const m of part.meshes) { m.userData.part = byId.get(into).node; byId.get(into).meshes.push(m); }
+      parts.splice(parts.indexOf(part), 1);
+      byId.delete(id);
+    }
   };
   const bout = makeZwaardbout();                                  // the zwaard swings on it
   bout.position.copy(boardPivot);
@@ -442,7 +464,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const dirkDown = new RopeLine(3, dirkInfo.straal_m, dirkMaterial);      // the fall to the kikker
   const dirkKnot = new THREE.Mesh(new THREE.SphereGeometry(0.006, 12, 8), dirkMaterial);   // stopper knot behind the wervel
   const dirkNode = new THREE.Group(); dirkNode.add(dirk.mesh, dirkDown.mesh, dirkKnot);
-  addPart(dirkNode, 'kraanlijn', 'Dirk of kraanlijn', 'lopend_want', 'grootschoot', [8, 4300, 2900]);
+  addPart(dirkNode, 'kraanlijn', 'Kraanlijn', 'lopend_want', 'grootschoot', [8, 4300, 2900]);
   sailRig.push(dirk.mesh, dirkDown.mesh, dirkKnot, ...parts.find((p) => p.extras.id === 'blok_kraanlijn').meshes);
   const dirkEnd = V(dirkInfo.wervel); const dirkFall = dirkInfo.val.map(V);
   const bellyMax = Math.max(...mainBend.items.map((item) => item.weights.reduce((a, b) => Math.max(a, b), 0)));
@@ -558,9 +580,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const MAST_DOWN = Math.PI / 2 - Math.atan2(1.3338 + 0.045 - mastBolt.y, mastBolt.x - MIK_X);   // until it lies in the fork
   const STAY_FOLD = deg(22.5);                                      // the angle between voorstag and mast
   const mastSet = meshesOf(['mast', 'mastband_lummel', 'hommerring', 'masttopring', 'harpjes_mast', 'blok_piekenval',
-    'blok_klauwval', 'blok_fokkenval', 'piekenval', 'klauwval', 'fokkenval']);
+    'blok_klauwval', 'blok_fokkenval', 'piekenval', 'klauwval', 'fokkenval', 'harpje_fokkenval']);
   const staySet = meshesOf(['voorstag', 'voorstagspanner']); const stayRing = meshesOf(['pelikaanhaak_ring']);
-  const fokGear = meshesOf(['kettinkje_fok']);
+  const fokGear = meshesOf(['kettinkje_fok', 'harpjes_fok']);       // what leaves the boat with the fok
   const grendel = meshesOf(['grendelbout']); const lummelbout = meshesOf(['lummelbout']); const borglijn = meshesOf(['borglijntje_lummelbout']);
   const qMast = new THREE.Quaternion(); const qStay = new THREE.Quaternion(); const qBundle = new THREE.Quaternion();
   const bundleFrom = new THREE.Vector3(); const bundleTo = new THREE.Vector3(); const nokFrom = new THREE.Vector3(); const nokTo = new THREE.Vector3();
@@ -663,6 +685,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // -- bakskist: modelled with its lid open; a click shuts or opens it
   const kist = tuig.bakskist ? { lid: meshesOf(['bakskist_deksel']), hinge: V(tuig.bakskist.scharnier), axis: V(tuig.bakskist.richting).normalize(),
     shut: deg(tuig.bakskist.open_graden), open: 1, want: 1 } : null;
+  foldParts('bakskist', ['bakskist_deksel', 'bakskist_beslag', 'bakskist_handvatten']);      // one part to name; the lid still swings
 
   // -- zeilen strijken. In order: head to wind, anchor out, fok down and bundled on its stay, mik
   // set, grootzeil down with giek and gaffel into the fork of the mik, sail rolled up between
@@ -673,7 +696,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const rigging = new Procedure('Tuig', { head: 0, anchor: 0, jib: 0, mik: 0, main: 0, furl: 0, ties: 0,
     fokoff: 0, low: 0, pin: 0, grendel: 0, ring: 0, hook: 0, mast: 0 }, [
     { key: 'head', to: 1, seconds: 1.5, label: stap('Kop in de wind') },
-    { key: 'anchor', to: 1, seconds: 8, label: stap('Anker uit') },
+    { key: 'anchor', to: 1, seconds: 4, label: stap('Anker uit') },
     { key: 'jib', to: 1, seconds: 2, label: stap('Fok strijken') },
     { key: 'mik', to: 1, seconds: 1.5, label: stap('Mik zetten') },
     { key: 'main', to: 1, seconds: 2.5, label: stap('Grootzeil strijken') },
@@ -741,6 +764,17 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     }
   };
   const warpPoint = (bend, p) => { const P = [p.x, p.y, p.z]; bend.warp(P); return p.set(P[0], P[1], P[2]); };
+  const valHarp = (() => {
+    const meshes = meshesOf(['harpje_fokkenval']);
+    if (!meshes.length) return null;
+    const box = new THREE.Box3();
+    for (const m of meshes) { m.geometry.computeBoundingBox(); box.union(m.geometry.boundingBox); }
+    const home = box.getCenter(new THREE.Vector3()); home.y = box.max.y;      // where the val is made fast to it
+    const rope = new RopeLine(2, 0.003, byId.get('fokkenval').meshes[0].material);
+    rope.mesh.visible = false;
+    joinPart(rope.mesh, 'fokkenval');
+    return { meshes, home, at: new THREE.Vector3(), rope };
+  })();
   // the sail made up on the giek, and the zeilbinders round sail, giek and gaffel
   const stowed = (() => {
     const mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.085, 2.55, 20, 8), new THREE.MeshStandardMaterial({ color: 0xd8d3c3, roughness: 0.95 }));
@@ -785,7 +819,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   addPart(vane, 'windvaan', 'Windvaan', 'rondhout', 'mast', [275, 95, 4]);
   scene.add(water, wind);
   // vlaggenstok in the top of the roerkoning, with its knop (bakskleur, like the roerkop) and the flag
-  const flyFlag = initFlag({ foot: V(tuig.vlaggenstok.voet), axis: V(tuig.vlaggenstok.richting), addPart,
+  const flyFlag = initFlag({ foot: V(tuig.vlaggenstok.voet), axis: V(tuig.vlaggenstok.richting), addPart, joinPart,
                              accent: byId.get('roerkop').meshes.find((m) => m.material.name === 'bakskleur').material });
 
   // -- state: targets are set by the UI, the smoothed values chase them
@@ -821,7 +855,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     if (anchorGear) {
       if (rigging.t > 1e-6) { anchorGear.u = strike.anchor; anchorGear.want = Math.round(strike.anchor); }   // the procedure has it
       else {
-        const gap = anchorGear.want - anchorGear.u; const step = 0.13 * dt;   // by hand: about eight seconds from chest to bottom
+        const gap = anchorGear.want - anchorGear.u; const step = 0.25 * dt;   // by hand: four seconds from chest to bottom
         anchorGear.u = Math.abs(gap) <= step ? anchorGear.want : anchorGear.u + Math.sign(gap) * step;
       }
     }
@@ -937,6 +971,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     onGaffel(hanepoot, tmp); if (bundled) withBundle(tmp);
     peakHalyard.update(delta.copy(offMast(tmp, tmp)).sub(hanepoot));
     rotatedPoint(warpPoint(jibBend, clewNow.copy(jibClew)), stayTack, stayAxis, jibAngle, clewNow);
+    jibSheets.knot.position.copy(clewNow);
     for (const sheet of jibSheets) {
       // to leeward the sheet runs straight to its block; to windward it goes round the front of
       // the mast first. While the schoothoek crosses the boat the one route eases into the other.
@@ -1072,7 +1107,16 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     // fok taken off: lifted clear of the stay, then gone, with all that belongs to it
     {
       const off = smoothstep(strike.fokoff);
-      for (const set of [jibMeshes, fokGear]) for (const m of set) { m.position.y += 0.25 * off; if (off > 0.7) m.visible = false; }
+      for (const m of jibMeshes) { m.position.y += 0.25 * off; if (off > 0.7) m.visible = false; }   // posed afresh every frame
+      for (const m of fokGear) { m.position.y = 0.25 * off; m.visible = off <= 0.7; }               // these are not: set, never added to
+      // the harpje of the fokkenval comes down the stay with the head of the fok, the val paying out
+      // after it; once the fok is off, the val is hauled back up to where it was
+      if (valHarp) {
+        const down = warpPoint(jibBend, valHarp.at.copy(valHarp.home)).sub(valHarp.home).multiplyScalar(1 - off);
+        for (const m of valHarp.meshes) m.position.add(down);
+        valHarp.rope.mesh.visible = down.lengthSq() > 1e-6 && now.sails > 0.5;
+        if (valHarp.rope.mesh.visible) valHarp.rope.set([valHarp.home, valHarp.at.copy(valHarp.home).add(down)]);
+      }
       if (off > 0.7) for (const m of byId.get('fokkenschoot').meshes) m.visible = false;
       for (const m of grendel) m.visible = strike.grendel <= 0.97;
       if (strike.pin > 0.03) for (const m of borglijn) m.visible = false;   // the live line to the hanging bout takes over

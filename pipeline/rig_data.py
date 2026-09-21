@@ -100,8 +100,6 @@ class Rig:
         if _seg_dist(centre, *self.gaff) < 160 or _seg_dist(centre, *self.gaffeldraad) < 120 \
                 or np.linalg.norm(centre - self.hanepoot) < 150:
             return "gaffel"
-        if np.linalg.norm(centre - self.fok_clew) < 150:
-            return "fok"
         return None
 
     def extras(self):

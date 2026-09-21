@@ -3,13 +3,12 @@ import { QUIZ } from './quizdata.js';
 import { regionAt } from './regions.js';
 import { quizEntries, quizNaam } from './config.js';
 
-// Oefenen: a quiz over the numbered names of the parts drawing of the class (quizdata.js). Five
+// Oefenen: a quiz over the numbered names of the parts drawing of the class (quizdata.js). Four
 // kinds of exercise, all drawn from the same pool:
 //   aanwijzen  a name is given and the part has to be clicked (pick first, then Bevestigen)
 //   benoemen   the part is highlighted and flown to, and four names are offered
 //   typen      the part is highlighted and its name has to be typed, forgivingly judged
 //   kies       a name is given and four parts light up, each in its own colour: pick the right one
-//   los        the part is shown on its own, without the rest of the boat, then four names
 // and Gemengd, which draws a kind per question from the ones the entry allows.
 //
 // While a round runs the viewer is in quiz mode (.lv.quiz-on): the hover tooltip, the info tile,
@@ -26,7 +25,7 @@ import { quizEntries, quizNaam } from './config.js';
 
 const STORE = 'lelievlet.quiz.v1';
 const LENGTHS = { 10: 10, 20: 20, alles: Infinity };
-const CHOICES = 4;                     // names offered by benoemen and los, parts lit by kies
+const CHOICES = 4;                     // names offered by benoemen, parts lit by kies
 const ENOUGH = 0.8;                    // below this share of the pool in view the panel says so
 const TOP_LEVEL = 3;                   // CWO III: everything, and where an entry without a niveau lands
 
@@ -38,17 +37,6 @@ const PULSE_HZ = 2.2;                  // how fast the part of a hovered chip br
 const PULSE_DEPTH = 0.55;              // how far towards white it goes
 const KIN = 0.5;                       // a rival of the same groep counts as half as far away
 const KIN_SAMPLES = 24;                // vertices sampled per mesh to say where a part stands
-
-// los: the part hangs alone in front of a plain background, framed from the same corner the iso
-// view looks from and turning slowly until the user takes the controls
-const LOS_DIR = new THREE.Vector3(-0.55, 0.35, 0.78).normalize();
-const LOS_MARGIN = 1.25;               // how much room is left around it: it has to fill the view
-const LOS_NEAR = 0.05;                 // m: the closest the camera may come while it is isolated
-const LOS_SPIN = 1.6;                  // OrbitControls' own unit; slow enough to read the shape
-const LOS_MS = 420;                    // the flight to the isolated part is short: nothing on the way
-const LOS_SPREAD = 3;                  // shells this much further apart than the biggest of them are
-const LOS_CLUSTER = 1.2;               // a set of look-alikes: one of them is framed, not the field
-const LOS_SHELLS = 200000;             // above this many indices a mesh is framed whole: no splitting
 
 const MARKS = { goed: '✓', fout: '✗' };   // 'bijna' - the name was not wrong, only not enough - gets none
 
@@ -83,7 +71,7 @@ const TYPOS_PER = 6;                   // letters per typo that is forgiven
 
 /**
  * The forms a name answers to: the whole of it, its head without the "van de …" qualifier, and
- * the alternatives it names itself ("Dirk of kraanlijn", "Halshoek of -broek"). A head that
+ * the alternatives it names itself ("Halshoek of -broek"). A head that
  * several entries share is not enough on its own; `owners` below knows which those are.
  */
 function keysOf(naam) {
@@ -128,7 +116,7 @@ function close(typed, key) {
   return room > 0 && Math.min(levenshtein(typed, key), levenshtein(stem(typed), stem(key))) <= room;
 }
 
-export function initQuiz({ parts, camera, controls, scene, select, flyTo, startFlight,
+export function initQuiz({ parts, scene, select, flyTo,
                            setHighlights, partVisible, closePanel,
                            ui, wrap, config, signal, engaged, realTarget, onDestroy }) {
   const $ = (id) => ui.getElementById(id);
@@ -146,13 +134,13 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
     const naam = quizNaam(config, q.nr, q.naam);
     const delen = q.delen.map((id) => byId.get(id)).filter(Boolean);
     const ook = (q.ook ?? []).map((id) => byId.get(id)).filter(Boolean);
-    table.push({ nr: q.nr, naam, niveau: q.niveau ?? TOP_LEVEL, los: Boolean(q.los), eigen: Boolean(q.eigen),
+    table.push({ nr: q.nr, naam, niveau: q.niveau ?? TOP_LEVEL, eigen: Boolean(q.eigen),
                  delen: q.delen.map((id) => ({ id, ok: byId.has(id) })),
                  ook: (q.ook ?? []).map((id) => ({ id, ok: byId.has(id) })),
                  gevraagd: delen.length > 0 });
     if (!delen.length) { dropped.push(`${q.nr} ${naam}`); continue; }
     pool.push({
-      nr: q.nr, naam, delen, los: Boolean(q.los), niveau: q.niveau ?? TOP_LEVEL,
+      nr: q.nr, naam, delen, niveau: q.niveau ?? TOP_LEVEL,
       ids: new Set([...delen, ...ook].map((p) => p.extras.id)),   // a click on any of these is right
       gebied: delen.find((p) => p.extras.gebied) ?? null,         // Boeg, Kleed: an area, not an object
       groep: delen[0].extras.groep, woorden: new Set(wordsOf(naam)), staart: tailOf(naam),
@@ -169,9 +157,6 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
     for (const key of entry.keys) owners.set(key, [...(owners.get(key) ?? []), entry]);
   }
   const levelled = asked.some((q) => q.niveau);    // no niveau anywhere: the selector stays away
-
-  // the isolated part is lit like any other: the lights are told to light layer 1 as well
-  scene.traverse((o) => { if (o.isLight) o.layers.enableAll(); });
 
   // ---------------------------------------------------------------- the score, kept in localStorage
   // { v: 1, totaal: { goed, fout, rondes, beste }, per: { <nr>: { goed, fout, laatst } } }
@@ -198,7 +183,7 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
   // ---------------------------------------------------------------- picking the questions
   /** What can be asked right now: in the model, up to the niveau, there in the mode the boat is in. */
   const there = (entry) => entry.delen.some(partVisible);
-  const supports = (entry, kind) => (kind === 'los' ? entry.los : kind === 'kies' ? !entry.gebied : true);
+  const supports = (entry, kind) => (kind === 'kies' ? !entry.gebied : true);
   const eligible = (kind) => pool.filter((e) => e.niveau <= level && supports(e, kind) && there(e));
 
   /** Spaced repetition, light: what went wrong comes back sooner, what goes well comes back later. */
@@ -232,7 +217,6 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
   function typeFor(entry, kind) {
     if (kind !== 'gemengd') return kind;
     const options = ['aanwijzen', 'benoemen', 'typen'];
-    if (entry.los) options.push('los');
     if (!entry.gebied && eligible('kies').length > CHOICES - 1) options.push('kies');
     return options[Math.floor(Math.random() * options.length)];
   }
@@ -419,13 +403,13 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
     const rows = table.map((e) => {
       const stats = store.per[e.nr] ?? { goed: 0, fout: 0 };
       const tr = document.createElement('tr');
-      const cells = [String(e.nr), e.naam, String(e.niveau), e.los ? 'ja' : '', '', '',
+      const cells = [String(e.nr), e.naam, String(e.niveau), '', '',
                      e.eigen ? 'eigen' : '', `${stats.goed}/${stats.fout}`];
       cells.forEach((text, i) => {
-        const td = el('td', i === 6 && e.eigen ? 'eigen' : null, text);
+        const td = el('td', i === 5 && e.eigen ? 'eigen' : null, text);
         if (i === 1) td.classList.add('wide');
-        if (i === 4) { td.replaceChildren(idCell(e.delen)); td.classList.add('wide'); }
-        if (i === 5) { td.replaceChildren(idCell(e.ook)); td.classList.add('wide'); }
+        if (i === 3) { td.replaceChildren(idCell(e.delen)); td.classList.add('wide'); }
+        if (i === 4) { td.replaceChildren(idCell(e.ook)); td.classList.add('wide'); }
         if (!e.gevraagd) td.classList.add('ontbreekt');
         tr.append(td);
       });
@@ -433,7 +417,7 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
     });
     const entryTable = document.createElement('table');
     const head = document.createElement('tr');
-    for (const text of ['nr', 'naam', 'niveau', 'los', 'delen', 'ook', 'eigen', 'goed/fout']) head.append(el('th', null, text));
+    for (const text of ['nr', 'naam', 'niveau', 'delen', 'ook', 'eigen', 'goed/fout']) head.append(el('th', null, text));
     entryTable.append(head, ...rows);
 
     const covered = new Set(table.flatMap((e) => [...e.delen, ...e.ook]).map((d) => d.id));
@@ -580,107 +564,6 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
     if (!question?.answered) showLit();
   }
 
-  // ---------------------------------------------------------------- los: the part on its own
-  // modes.js rewrites mesh.visible every frame, so the rest of the boat cannot be switched off.
-  // Instead the part is put on layer 1 and the camera is told to look at that layer only: the boat,
-  // the water and the wind arrow are all on layer 0 and fall away by themselves.
-  const isolated = [];
-  let isolatedOn = false;
-  let nearWas = 0;
-  const losBox = new THREE.Box3();
-
-  function isolate(entry) {
-    for (const p of entry.delen) {
-      for (const m of p.meshes) m.traverse((o) => { o.layers.enable(1); isolated.push(o); });
-    }
-    isolatedOn = true;
-    camera.layers.set(1);
-    nearWas = controls.minDistance;
-    controls.minDistance = LOS_NEAR;
-    wrap.classList.add('quiz-los');
-    frameLos(losFocus(entry));
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = LOS_SPIN;
-  }
-
-  /** Puts the layers back exactly as they were, however the question or the round ended. */
-  function restore() {
-    if (!isolatedOn) return;
-    for (const o of isolated) o.layers.disable(1);
-    isolated.length = 0;
-    isolatedOn = false;
-    camera.layers.set(0);
-    controls.minDistance = nearWas;
-    controls.autoRotate = false;
-    wrap.classList.remove('quiz-los');
-  }
-  controls.addEventListener('start', () => { controls.autoRotate = false; });   // the user takes over
-
-  /**
-   * The world box of every shell of a mesh, found by walking its triangles: one box per leuver,
-   * per dol, per hijsoog. A set of look-alikes is often merged into one mesh, and the CAD body
-   * handle only tells them apart where the geometry came from the CAD at all.
-   */
-  function shells(mesh) {
-    const index = mesh.geometry.index;
-    const position = mesh.geometry.attributes.position;
-    mesh.updateWorldMatrix(true, false);
-    if (!index || index.count > LOS_SHELLS) return [new THREE.Box3().setFromObject(mesh, true)];
-    const parent = new Int32Array(position.count).fill(-1);
-    const find = (i) => {
-      while (parent[i] >= 0) { if (parent[parent[i]] >= 0) parent[i] = parent[parent[i]]; i = parent[i]; }
-      return i;
-    };
-    const join = (a, b) => { const x = find(a); const y = find(b); if (x !== y) parent[x] = y; };
-    for (let t = 0; t < index.count; t += 3) {
-      join(index.getX(t), index.getX(t + 1));
-      join(index.getX(t + 1), index.getX(t + 2));
-    }
-    const boxes = new Map();
-    for (let t = 0; t < index.count; t++) {
-      const i = index.getX(t);
-      const root = find(i);
-      if (!boxes.has(root)) boxes.set(root, new THREE.Box3());
-      boxes.get(root).expandByPoint(_v.fromBufferAttribute(position, i).applyMatrix4(mesh.matrixWorld));
-    }
-    return [...boxes.values()];
-  }
-
-  /**
-   * What is framed. Normally the whole part, but a name that stands for a set of look-alikes
-   * spread over the boat - leuvers, the four dollen, the hijsogen - would be a field of specks:
-   * one of them, with whatever stands right against it, fills the view instead. All stay lit.
-   */
-  function losFocus(entry) {
-    scene.updateMatrixWorld();
-    const boxes = entry.delen.flatMap((p) => p.meshes).filter((m) => m.visible)
-      .flatMap(shells).filter((b) => !b.isEmpty());
-    const size = new THREE.Vector3();
-    const whole = boxes.reduce((out, b) => out.union(b), new THREE.Box3());
-    if (boxes.length < 2 || whole.isEmpty()) return whole;
-    const span = (b) => b.getSize(size).length();
-    const biggest = boxes.reduce((a, b) => (span(b) > span(a) ? b : a));
-    const radius = Math.max(span(biggest) / 2, 0.01);
-    if (span(whole) / 2 < radius * LOS_SPREAD) return whole;
-    const centre = biggest.getCenter(new THREE.Vector3());
-    const near = biggest.clone();
-    const at = new THREE.Vector3();
-    for (const b of boxes) if (b.getCenter(at).distanceTo(centre) < radius * LOS_CLUSTER) near.union(b);
-    return near;
-  }
-
-  /** The part fills the view: its bounding sphere as it stands now, seen from the iso corner. */
-  function frameLos(box) {
-    losBox.copy(box);
-    if (losBox.isEmpty()) return;
-    const centre = losBox.getCenter(new THREE.Vector3());
-    const radius = Math.max(losBox.getSize(new THREE.Vector3()).length() / 2, 0.02);
-    const half = THREE.MathUtils.degToRad(camera.fov / 2);
-    const opening = Math.min(half, Math.atan(Math.tan(half) * camera.aspect));
-    const dist = Math.max(radius / Math.sin(opening) * LOS_MARGIN, LOS_NEAR + radius);
-    startFlight(centre.clone().addScaledVector(LOS_DIR, dist), centre, LOS_MS);
-  }
-
   // ---------------------------------------------------------------- a round
   function startRound(kind_, length_, fouten) {
     const ready = fouten ? wrongPool() : eligible(kind_);
@@ -696,7 +579,6 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
   /** Clears whatever the last question left behind, in the scene and on the card. */
   function clearQuestion() {
     stopPulse();
-    restore();
     setHighlights([]);
     select([]);
     answers.replaceChildren();
@@ -733,9 +615,10 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
       flyTo(lit.flatMap((e) => e.delen));
       return;
     }
-    // benoemen, typen and los all show the part itself and ask for its name
-    if (type === 'los') { isolate(entry); setHint('Het onderdeel is uit de boot gelicht; je kunt er omheen draaien.'); }
-    else { select(entry.delen); flyTo(entry.delen); setHint(''); }
+    // benoemen and typen both show the part itself and ask for its name
+    select(entry.delen);
+    flyTo(entry.delen);
+    setHint('');
     if (type === 'typen') {
       vraag.textContent = 'Hoe heet dit onderdeel?';
       typed.hidden = false;
@@ -774,7 +657,7 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
     answers.hidden = false;
   }
 
-  /** Benoemen, los and kies: a choice is made and counts at once. */
+  /** Benoemen and kies: a choice is made and counts at once. */
   function answer(i) {
     if (!question || question.answered) return;
     const { entry, type } = question;
@@ -788,7 +671,6 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
     }
     stopPulse();
     setHighlights([]);
-    restore();                                     // the boat comes back around the part
     select(entry.delen);
     flyTo(entry.delen);
     // kies named the part in the question already: what is worth saying is which one was picked
@@ -915,7 +797,7 @@ export function initQuiz({ parts, camera, controls, scene, select, flyTo, startF
     if (e.key === 'Enter' && from.tagName !== 'BUTTON' && !primary.hidden) { primary.click(); e.preventDefault(); }
   }, { signal });
 
-  onDestroy?.(() => { stopPulse(); restore(); });
+  onDestroy?.(() => stopPulse());
   quizToggle.disabled = false;      // the model is in: the quiz can be opened
   return { panelToggled, click, active: () => Boolean(round) };
 }

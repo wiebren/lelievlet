@@ -69,7 +69,6 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
       <button type="button" data-kind="benoemen" aria-pressed="false">Benoemen</button>
       <button type="button" data-kind="typen" aria-pressed="false">Typen</button>
       <button type="button" data-kind="kies" aria-pressed="false">Kies het onderdeel</button>
-      <button type="button" data-kind="los" aria-pressed="false">Los onderdeel</button>
       <button type="button" data-kind="gemengd" aria-pressed="false">Gemengd</button>
     </div>
     <h3>Lengte</h3>

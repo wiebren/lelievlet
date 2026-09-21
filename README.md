@@ -113,10 +113,10 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 | `namen.commandos[key]` | string of object | — | Hernoemt een roeicommando. Een string is het knoplabel; `{ knop, roep }` zet ook de woorden die de roerganger roept. Sleutels: `slag` `haal` `opriemen` `strijk` `stopaf` `lopen` `over` `op` `geroeid`. |
 | `namen.quiz[nr of naam]` | string | — | Hernoemt een quizvraag, op nummer of op de standaardnaam: `{ 27: 'Hommerring', Kleed: 'Baan' }`. |
 | `quiz.weg` | array | `[]` | Nummers of namen die niet gevraagd worden: `[27, 'Kleed']`. |
-| `quiz.erbij` | array | `[]` | Eigen vragen: `[{ naam, delen: ['id', …], ook: ['id', …], niveau: 1, los: true, nr: 200 }]`. `naam` en een niet-lege `delen` zijn verplicht; zonder `nr` krijgt de vraag er zelf een vanaf 1000, zonder `niveau` geldt III. |
+| `quiz.erbij` | array | `[]` | Eigen vragen: `[{ naam, delen: ['id', …], ook: ['id', …], niveau: 1, nr: 200 }]`. `naam` en een niet-lege `delen` zijn verplicht; zonder `nr` krijgt de vraag er zelf een vanaf 1000, zonder `niveau` geldt III. |
 | `quiz.niveau` | 1 \| 2 \| 3 | `3` | Het niveau waarop het startpaneel opent. De gebruiker kan het daarna zelf wisselen. |
 | `debug.modelnummer` | boolean | `false` | Toont de regel "Modelnummer" in de infotegel: de CAD-handle van de body waarop geklikt is. Een hulpmiddel bij het modelleren, niets voor een verkenner. |
-| `debug.quiztabellen` | boolean | `false` | Zet een link **Tabellen** in het startpaneel van Oefenen, die de opgeloste quizconfiguratie als tabel toont: nr, naam (na hernoemen), niveau, los, `delen` en `ook` (elke id die in het geladen model niet bestaat staat rood), of het een eigen vraag is, en de score per vraag. Daaronder een tweede tabel met alle onderdelen waar geen enkele vraag over gaat. |
+| `debug.quiztabellen` | boolean | `false` | Zet een link **Tabellen** in het startpaneel van Oefenen, die de opgeloste quizconfiguratie als tabel toont: nr, naam (na hernoemen), niveau, `delen` en `ook` (elke id die in het geladen model niet bestaat staat rood), of het een eigen vraag is, en de score per vraag. Daaronder een tweede tabel met alle onderdelen waar geen enkele vraag over gaat. |
 | `debug` | `true` \| `false` | — | `debug: true` zet beide hulpmiddelen tegelijk aan, `debug: false` beide uit. |
 
 De ontwikkelpagina (`web/index.html`) geeft `debug: import.meta.env.DEV` mee: onder `pnpm dev` staan
@@ -134,7 +134,7 @@ markup die vroeger de body van `index.html` was, in één `<div class="lv">`), e
 `web/src/main.js` aan. Er draait niets meer op importniveau: alles wat `main.js` deed zit in die
 functie, en geen enkel `src`-bestand houdt nog veranderlijke toestand op moduleniveau. Elk
 `document.getElementById` is een opzoeking in de shadow root geworden, alles wat op `document.body`
-stond (`quiz-on`, `quiz-los`, `procedure-open`, `--procedure-lift`, `--procedure-top`) staat nu op
+stond (`quiz-on`, `procedure-open`, `--procedure-lift`, `--procedure-top`) staat nu op
 `.lv`, en elke listener op `window` of `document` hangt aan een `AbortSignal` die `destroy()` afvuurt.
 Omdat een gebeurtenis buiten de shadow root naar het hostelement wordt omgericht, leest de code die
 moet weten waar een klik of toets echt begon `e.composedPath()[0]` in plaats van `e.target`. De
@@ -189,11 +189,11 @@ pagina geen `assets` op te geven.
    38 cm breed, cijfers 30 × 20 cm, stuurboord het hoogst). De viewer tekent de texture
    (`web/src/sails.js`), zodat het zeilnummer live te wijzigen is.
 6. `pipeline/rigging.py` genereert geometrie opnieuw die in de CAD niet klopt. De blokken van de
-   fokkenschoot zijn op het tweede leioog getekend; ze horen op het voorste, bij het want
+   fokkenschoot zijn op het tweede leioog getekend; ze horen op het voorste, bij het zijstag
    (bodies 5943 / 5953), dus `NUDGE` in `pipeline/parts.py` brengt ze daarheen en de schoot loopt
    schoothoek -> blok -> hand van de bemanning (de viewer legt hem live, zie verderop). De roerkop is
    getekend als twee losse zijplaten van 2 mm; het is één plaat die over een radius is omgezet, met
-   de helmstok die er van onderen in steekt, dus de omgezette band langs de bovenrand wordt
+   het helmhout die er van onderen in steekt, dus de omgezette band langs de bovenrand wordt
    gegenereerd en toegevoegd.
    Ook beide marllijnen worden opnieuw gegenereerd, met echte marlsteken (de CAD windt een
    gewone spiraal): lijn langs het lijk, bij elke zeilring één ingestoken slag, eerste ring op 100 mm,
@@ -203,7 +203,7 @@ pagina geen `assets` op te geven.
    mastvoet), ronde lippen met een gat op de mastband zodat de lummelbout daarin staat, het
    **borglijntje** van de lummelbout naar het oog op de beslagband van de giek, en de voet van
    elke wantputting, doorgetrokken tot op het dolboord (de CAD laat hem 9 mm erboven eindigen, in de
-   lucht; de plaat zelf wordt niet verplaatst, zodat het harpje van het want nog steeds door het gat gaat).
+   lucht; de plaat zelf wordt niet verplaatst, zodat het harpje van het zijstag nog steeds door het gat gaat).
    Ook bouwt het de zes **dolpotten** (Vlettenboek p. 23 en p. 35): 3/4"-buis van 100 mm lang,
    aan beide einden open, verticaal tegen de binnenkant van het dolboord met de bovenkant gelijk
    daarmee, op x = 4412 / 3432 / 2488 aan beide zijden, elk met de plaat van 4 mm die over de onderste
@@ -224,7 +224,7 @@ pagina geen `assets` op te geven.
    ongeveer 6.4 m **ankerlijn** van 12 mm. Het ligt aan stuurboord opgeborgen, met een bakskist tegen
    hetzelfde schot aan bakboord: het anker leunt voorover tegen de achterkant van het voorschot (een
    vlakke plaat op x = 4758.2), met de toppen van de vloeien tegen dat vlak en de onderranden van de
-   stabilisatorplaten op de buikdenning, die tot op 2 mm van het schot doorloopt. De schacht is 12°
+   stabilisatorplaten op de vlonder, die tot op 2 mm van het schot doorloopt. De schacht is 12°
    uit het vlak van de vloeien gedraaid (hij draait op de kruisbuis, tot ongeveer 32° naar beide
    kanten) en staat daardoor rechtop: in dat vlak zou hij door het schot steken, omdat hij zowel
    langer als dikker is dan de vloeien. Ketting en opgeschoten lijn liggen naast het anker op de
@@ -247,12 +247,12 @@ pagina geen `assets` op te geven.
    van de hanekam, oog gepend aan de kous van het stag, borgring over arm en stag. Het vervangt het
    harpje dat de CAD daar heeft (bodies 514E, 5156, in `DROP`). In de viewer zwaaien de leuvers met de
    fok mee en glijden ze langs het stag omlaag als de fok gestreken wordt.
-   `pipeline/wantkettingen.py`: de **wantketting** onderaan elk want — zes schalmen van dezelfde
+   `pipeline/wantkettingen.py`: de **wantketting** onderaan elk zijstag — zes schalmen van dezelfde
    ketting van 6 mm als de ankerketting, op de lijn van de draad zelf tussen de beugel van het harpje
    in de wantputting en het gesplitste kousoog. De CAD laat de draad tot aan dat harpje doorlopen, dus
    de module kort hem ook in (`hardware.reshape` stuurt bodies 51C2 / 519A daarheen): de mesh wordt
    haaks op de as afgesneden, 5 mm boven de splits, het oog wordt 115.8 mm langs die as omhooggezet en
-   de kale draad die het nu bedekt vervalt. Beide uiteinden van elk want gaan voor de viewer op
+   de kale draad die het nu bedekt vervalt. Beide uiteinden van elk zijstag gaan voor de viewer op
    `extras.tuig.wanten`.
 7. `pipeline/build_glb.py` schrijft de GLB: meters, Y omhoog, x van spiegel naar boeg, z naar
    stuurboord; scene graph groep → onderdeel, met `extras` (id, naam, groep, materiaal, DWG-handles, size).
@@ -264,7 +264,7 @@ als decals op het boeisel wordt geprojecteerd ter hoogte van voordek / achterdek
 `web/src/hulltext.js`), een bakskleur en één kleur per verfzone. De bakskleur (materiaal `bakskleur`)
 accentueert roerkop, voorplecht, hanekam, de metalen mastbanden (lummelband, hommerring,
 masttopring), het giekbeslag aan beide einden van de giek, en geschilderde banden van 5 cm: 5 cm
-vanaf de uiteinden van de doften en de helmstok, en net voorbij de handgreep van elke riem. De
+vanaf de uiteinden van de doften en het helmhout, en net voorbij de handgreep van elke riem. De
 metalen delen zijn faces van de CAD-solids die als eigen onderdelen zijn afgesplitst
 (`REGION_SPLITS`); de geschilderde banden worden langs twee vlakken in de mesh gesneden (`BANDS`,
 `cut_bands` in `pipeline/build_glb.py`). Zones zijn glTF-materiaalnamen die in `pipeline/parts.py`
@@ -396,7 +396,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   voorste eind van de bundel komt op de mastdoft; grendelbout eruit; borgring omhoog over de
   pelikaanhaak geschoven; haak uit de hanekam; mast naar achteren neer om de mastbout (74.6 graden) in
   de vork van de mik, de top voorbij de spiegel, met banden, blokken, harpjes, vallen, windvaan en
-  kraanlijnblok; het voorstag vouwt zich langs de mast; de wanten worden live gelegd en hangen slap
+  kraanlijnblok; het voorstag vouwt zich langs de mast; de zijstagen worden live gelegd en hangen slap
   over de mik; de einden van de vallen blijven op de gaffel (hun delta's worden teruggerekend naar het
   eigen assenstelsel van de mast).
 - Zeilen strijken, bediening "Tuig" (Zeilen op / Zeilen gestreken), dezelfde soort sequencer als
@@ -407,13 +407,14 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   van de giek 1.1 graden opgetild in de vork van de mik, kraanlijn strak (`mainBend.warp`); het doek
   opgedoekt tot een rol op de giek (onderdeel "Opgedoekt grootzeil"); drie zeilbinders (dubbel
   elastiek, twee ballen) om zeil, giek en gaffel. Hijsen laat het achterstevoren lopen.
-- Met de hand: slepen aan de helmstok stuurt (de roeronderdelen, vlaggenstok en vlag draaien om de
+- Met de hand: slepen aan het helmhout stuurt (de roeronderdelen, vlaggenstok en vlag draaien om de
   schuine roerkoning; een tabel zet de peiling van de aanwijzer om in de hoek om die as; het slepen
   wordt in de capture-fase afgevangen zodat OrbitControls het nooit ziet). Een klik op een dol zet hem
   op of neemt hem eruit (niet zolang er een riem in getrokken wordt), een klik op de mik of zijn
   houders zet hem op of bergt hem op; een moduswisseling zet ze terug waar ze horen. Een klik op de
   bakskist sluit of opent het deksel (in open stand gemodelleerd; het deksel en wat eraan vastgeschroefd
-  zit draaien om de scharnierlijn uit `extras.tuig.bakskist`). Een klik op de zwaardloper (of zijn
+  zit draaien om de scharnierlijn uit `extras.tuig.bakskist`; deksel, beslag en handvatten zijn in de
+  GLB eigen onderdelen en worden bij het laden in het onderdeel Bakskist gevouwen, `foldParts`). Een klik op de zwaardloper (of zijn
   borgpen) zet het midzwaard een stand verder: neer, half, op en weer neer. Een klik op anker, ketting of lijn laat
   het anker vallen of haalt het op: opgepakt aan zijn harpje, over het voordek gedragen, over de
   stuurboordboeg uitgezwaaid en langs een spline naar de bodem gevierd; de ketting is één mesh waarvan
@@ -439,7 +440,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
 - Dodemanseind (`pipeline/hardware.py`): twee slagen om de gaffel op 10 cm van de nok, daarna slap
   naar de hanepootloper, het punt op de gaffeldraad waar de piekenval is vastgezet; zwaait met de
   gaffel mee.
-- Dirk of kraanlijn (niet in de CAD): van de wervel omhoog over een blokje (`makeBlokje`) aan het
+- Kraanlijn (niet in de CAD): van de wervel omhoog over een blokje (`makeBlokje`) aan het
   bakboordoog van de masttopring, het enige oog dat niets draagt, en omlaag naar de bovenste
   bakboordkikker op de mastkoker, de enige vrije. Elk frame gelegd: hij hangt slap, zwaait met de giek
   mee en ligt tegen het doek aan als het zeil naar bakboord bolt.
@@ -448,7 +449,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   met het roer mee 33.7 graden achteroverhelt; de knop is een schijf van 2 cm met een afgeronde rand in
   de bakskleur; de Nederlandse vlag waait onder zeil met de wind mee uit, hangt stil als er geen wind
   is, en het geheel wordt voor het wrikken uit de buis getrokken.
-- Mik (`makeMik`): onder zeil ligt hij op de buikdenning aan bakboord in de kuip; met de zeilen
+- Mik (`makeMik`): onder zeil ligt hij op de vlonder aan bakboord in de kuip; met de zeilen
   gestreken (roeien, wrikken) wordt hij overgezet en staat hij in de twee mikhouders op het
   achterschot, vork omhoog en haaks op de boot, met zijn voet op het vlak.
 - Dollen: de boot heeft zes dolpotten (pipeline) maar vier dollen (`makeDol`, `makeKnevel` in
@@ -491,10 +492,9 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
 De studentenmuts opent **Oefenen** (`web/src/quiz.js`, de styling ervan in
 één gemarkeerd blok onderaan `web/src/style.css`). Er wordt alleen gevraagd naar de genummerde namen
 op de onderdelentekening van de klasse — `web/src/quizdata.js`, één entry per naam met de id's van de
-onderdelen die het *zijn* (`delen`), de onderdelen die bij een klik goed gerekend worden omdat ze
-erbij horen (`ook`), en of het de moeite waard is om het los te tonen (`los`). Het model heeft veel
-meer onderdelen dan er geleerd hoeven te worden. Id's worden bij het opstarten tegen `parts`
-opgezocht; een entry waarvan geen enkel onderdeel uit `delen` in het model zit valt af, en wat is
+onderdelen die het *zijn* (`delen`) en de onderdelen die bij een klik goed gerekend worden omdat ze
+erbij horen (`ook`). Het model heeft veel meer onderdelen dan er geleerd hoeven te worden. Id's
+worden bij het opstarten tegen `parts` opgezocht; een entry waarvan geen enkel onderdeel uit `delen` in het model zit valt af, en wat is
 afgevallen wordt één keer met `console.info` gelogd.
 
 Welke vragen een insluitende pagina stelt, bepaalt zij zelf: `quizEntries()` in `web/src/config.js`
@@ -502,7 +502,7 @@ haalt `quiz.weg` uit de standaardlijst en zet `quiz.erbij` erachteraan, en `name
 vraag. `debug.quiztabellen` zet een link **Tabellen** in het startpaneel die laat zien wat daar
 uiteindelijk uit kwam — handig om te zien of een `weg` of `erbij` terechtkwam waar hij hoorde.
 
-Vijf soorten oefening, en Gemengd, die per vraag één soort trekt uit wat de entry toelaat:
+Vier soorten oefening, en Gemengd, die per vraag één soort trekt uit wat de entry toelaat:
 
 - **Aanwijzen** — de naam staat er en het onderdeel moet aangeklikt worden. De klik krijgt de gewone
   selectie-highlight en de kaart biedt Bevestigen / Annuleren aan, zonder ooit te noemen wat er
@@ -517,8 +517,7 @@ Vijf soorten oefening, en Gemengd, die per vraag één soort trekt uit wat de en
 - **Typen** — hetzelfde, maar de naam moet getypt worden. De beoordeling is mild: ongevoelig voor
   hoofdletters, accenten en leestekens, een "de"/"het" ervoor valt weg, enkelvoud en meervoud zijn
   allebei goed, één typefout per zes letters wordt vergeven (twee omgewisselde buurletters tellen als
-  één), de alternatieven die een naam draagt worden geaccepteerd ("Dirk" of "kraanlijn", "halshoek"
-  of "halsbroek"), en de kern van een naam zonder het "van de …" ook — maar alleen waar één entry
+  één), de alternatieven die een naam draagt worden geaccepteerd ("halshoek" of "halsbroek"), en de kern van een naam zonder het "van de …" ook — maar alleen waar één entry
   daarop antwoordt: "tophoek" alleen vraagt om de hele naam, want beide zeilen hebben er een. De
   juiste schrijfwijze wordt achteraf altijd getoond. Het veld houdt elke toets voor zich, zodat er
   niets bij de camera terechtkomt.
@@ -526,16 +525,6 @@ Vijf soorten oefening, en Gemengd, die per vraag één soort trekt uit wat de en
   elk in een eigen kleur, met op de kaart een chip in die kleur met de letter A–D; met de muis boven
   een chip of met de focus erop gaat het bijbehorende onderdeel ademen. De concurrenten zijn de
   dichtstbijzijnde onderdelen, waarbij een onderdeel uit dezelfde groep half zo ver telt.
-- **Los onderdeel** — alleen entries die als `los` zijn gemarkeerd. Het onderdeel hangt alleen voor
-  een egale achtergrond, beeldvullend gekaderd en langzaam draaiend tot de gebruiker de besturing
-  overneemt, daarna vier namen zoals bij Benoemen. `modes.js` schrijft `mesh.visible` elk frame
-  opnieuw, dus de rest van de boot is niet te verbergen: het onderdeel wordt op **layer 1** gezet en
-  de camera wordt op alleen die layer ingesteld (de lampen krijgen bij het opstarten één keer te
-  horen dat ze elke layer moeten verlichten; het water, de windpijl en de lucht staan op layer 0 en
-  vallen vanzelf weg). Een naam die voor een reeks eenvormige onderdelen staat — leuvers, dollen,
-  hijsogen — zou een veld spikkels opleveren, dus wordt er één van gekaderd: de meshes worden in hun
-  losse shells opgedeeld door de driehoeken af te lopen. Camera-layers, de near-grens en de
-  achtergrond worden teruggezet zodra de vraag of de ronde eindigt, hoe die ook eindigt.
 
 Zolang een ronde loopt staat de viewer in quizmodus (`body.quiz-on`): de hovertooltip, de infotegel
 en de voortgangsbalk zijn uit beeld, Onderdelen is gesloten en de knop ervan uitgeschakeld, en een

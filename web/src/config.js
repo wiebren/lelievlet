@@ -22,7 +22,7 @@
 //     },
 //     quiz: {
 //       weg: [27, 'Kleed'],                          // numbers or names to leave out
-//       erbij: [{ naam: 'Anker', delen: ['anker'], niveau: 1, los: true }],
+//       erbij: [{ naam: 'Anker', delen: ['anker'], niveau: 1 }],
 //       niveau: 2,                                   // level the start panel opens on
 //     },
 //     debug: { modelnummer: true, quiztabellen: true },

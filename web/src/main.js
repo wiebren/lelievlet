@@ -167,7 +167,7 @@ export function mount(ui, host, config) {
     for (const p of parts) groups.get(p.extras.groep)?.parts.push(p);   // after initModes: it adds the windvaan
     buildGroupList();
     buildPartList();
-    quiz = initQuiz({ parts, camera, controls, scene, select, flyTo, startFlight,
+    quiz = initQuiz({ parts, scene, select, flyTo,
                       setHighlights, partVisible, closePanel,
                       ui, wrap, config, signal, engaged, realTarget, onDestroy });   // Oefenen
     setView('iso', false);

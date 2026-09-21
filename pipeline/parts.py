@@ -92,7 +92,7 @@ _add("5980", "wantputting_bb", "Wantputting (bakboord)", "beslag", "verzinkt")
 _add("5981", "wantputting_sb", "Wantputting (stuurboord)", "beslag", "verzinkt")
 _add("589A", "hanekam", "Hanekam", "beslag", "bakskleur")
 _add("58B7", "roerblad", "Roerblad", "roer", "romp")
-_add("58C8", "roerkop", "Roerkop (helmstokbeslag)", "roer", "bakskleur")
+_add("58C8", "roerkop", "Roerkop (helmhoutbeslag)", "roer", "bakskleur")
 
 # ---- profiles (StiffenerSolids) and contour parts
 _add("58B8", "roerkoning", "Roerkoning", "roer", "romp")
@@ -117,7 +117,7 @@ _add("592C 5930", "kikkers_voordek", "Kikkers op het voordek", "beslag", "verzin
 # ---- interior wood
 _add("5742", "doft_achter", "Achterste doft", "interieur", "hout_gelakt")
 _add("5744", "doft_voor", "Voorste doft (mastdoft)", "interieur", "hout_gelakt")
-_add("5737", "helmstok", "Helmstok", "roer", "hout_gelakt")
+_add("5737", "helmstok", "Helmhout", "roer", "hout_gelakt")
 
 # ---- spars, sails
 _add("56A3", "mast", "Mast", "rondhout", "hout_gelakt")
@@ -135,14 +135,16 @@ _add("5209 5211 5217", "hanepootloper", "Hanepootloper", "beslag", "verzinkt")  
 _add("53DF 53E9 53F3 53FD", "kettinkje_fok", "Kettinkje", "beslag", "verzinkt")           # 38: hals of the fok to the hanekam
 _add("5253 521D 5225 524F 5241 524B 5247", "blok_piekenval", "Blok piekenval", "lopend_want", "verzinkt")
 _add("52B1 5299 5291 52AD 529F 52A9 52A5", "blok_klauwval", "Blok klauwval", "lopend_want", "verzinkt")
+_add("515C 5164 53A7 53AF", "harpjes_fok", "Harpjes", "beslag", "verzinkt")           # either end of that kettinkje; they come off with the fok
+_add("5420 5428 542E", "harpje_fokkenval", "Harpje", "beslag", "verzinkt")            # fokkenval to the head of the fok
 _add("5408", "blok_fokkenval", "Blok fokkenval", "lopend_want", "verzinkt")
 # the harpjes on the masttopring and the hommerring go down with the mast, so they are a part of their own
 _add("516A 5172 5178 5180 51BC 51AE 51B4 51A6 5194 518C", "harpjes_mast", "Harpjes", "beslag", "verzinkt")
 
 # ---- standing and running rigging (the long bodies of StagSolids)
 _add("51D0", "voorstag", "Voorstag met spanner", "staand_want", "rvs")
-_add("51C2", "want_bb", "Bakboord want", "staand_want", "rvs")
-_add("519A", "want_sb", "Stuurboord want", "staand_want", "rvs")
+_add("51C2", "want_bb", "Bakboord zijstag", "staand_want", "rvs")
+_add("519A", "want_sb", "Stuurboord zijstag", "staand_want", "rvs")
 _add("5437", "fokkenval", "Fokkenval", "lopend_want", "touw")
 _add("52B5", "klauwval", "Klauwval", "lopend_want", "touw")
 _add("5257", "piekenval", "Piekenval", "lopend_want", "touw")
@@ -166,7 +168,7 @@ _add("576B", "riem_bb", "Roeiriem (bakboord)", "roeien", "hout_gelakt")
 PARTS = P
 
 DEFAULT_BY_LAYER = {
-    "BuikdenningSolids": ("buikdenning", "Buikdenning (vlonders)", "interieur", "hout_vlonder"),
+    "BuikdenningSolids": ("buikdenning", "Vlonder", "interieur", "hout_vlonder"),
     "StagSolids": ("harpjes", "Harpjes", "beslag", "verzinkt"),      # what is left once the named fittings below are out
     "StiffenerSolids": ("profiel", "Profiel", "romp", "verzinkt"),
     "PartSolids-Frame": ("plaatdeel", "Plaatdeel", "romp", "kuip"),
@@ -189,7 +191,6 @@ TWO_TONE = {
 HARDWARE = {
     "giek": ("schootring", "Schootring", "beslag", "verzinkt"),
     "gaffel": ("beslag_gaffel", "Banden van de gaffeldraad", "beslag", "verzinkt"),
-    "fok": ("beslag_fok", "Beslag schoothoek fok", "beslag", "verzinkt"),
 }
 
 # Stretches of a body that are a part of their own: handle -> [(axis, min, max, part entry)], DWG mm,
@@ -239,7 +240,8 @@ BAND_MATERIAL = "bakskleur"
 # of the schootring, the end face of an axle pin that was never drawn.
 # 514E, 5156: the harpje between voorstag and hanekam; the voorstagspanner with its pelikaanhaak
 # (pipeline/fokbeslag.py) takes its place.
-DROP = {"559B", "514E", "5156"}
+# 546D 5475: a harpje drawn in the schoothoek of the fok; the fokkenschoot is knotted to the sail
+DROP = {"559B", "514E", "5156", "546D", "5475"}
 
 # Small corrections to the CAD, in DWG mm (dx, dy, dz). The blocks of the fokkenschoot are drawn
 # on the second leioog; they belong on the forward one by the want (5943 to port, 5953 to

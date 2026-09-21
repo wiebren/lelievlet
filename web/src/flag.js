@@ -28,7 +28,7 @@ function makeTricolour() {
  * addPart registers a node as a pickable part; accent is the shared bakskleur material.
  * Returns update(t, windAngle, wind 0..1, present 0..1, turn): turn = how the rudder is turned (quaternion).
  */
-export function initFlag({ foot, axis, addPart, accent }) {
+export function initFlag({ foot, axis, addPart, joinPart, accent }) {
   const wood = new THREE.MeshStandardMaterial({ color: 0xb07a3f, roughness: 0.55 });
 
   // Centre-line from the rim of the tube (the origin), in model space. It bends in the vertical
@@ -94,7 +94,7 @@ export function initFlag({ foot, axis, addPart, accent }) {
   const hoist = [];                                                   // where the flag is made fast, down from the knop
   for (let j = 0; j <= NV; j++) hoist.push(along(STAFF_L - 0.03 - (HOIST * j) / NV));
   addPart(staff, 'vlaggenstok', 'Vlaggenstok', 'roer', 'roerkoning', [25, 1000, 25]);
-  addPart(knop, 'vlaggenstok_knop', 'Knop van de vlaggenstok', 'roer', 'roerkoning', [68, 20, 68]);
+  joinPart(knop, 'vlaggenstok');                                      // the knop is part of the stok
   addPart(flag, 'vlag', 'Vlag', 'roer', 'roerkoning', [750, 500, 1]);
 
   const from = new THREE.Vector3(); const out = new THREE.Vector3();
