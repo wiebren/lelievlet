@@ -344,6 +344,24 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     <p><a href="https://github.com/wiebren/lelievlet" target="_blank" rel="noreferrer">github.com/wiebren/lelievlet</a></p>
   </aside>
 
+  <!-- debug.toestand: where the viewer is, as the configuration to start there -->
+  <button id="toestand-toggle" class="icon-button" type="button" aria-label="Toestand" aria-expanded="false" aria-controls="toestand" title="Toestand" hidden>
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M8.5 4.5c-2 0-2.5 1-2.5 2.6v2.3c0 1.3-.7 2.1-2 2.6 1.3.5 2 1.3 2 2.6v2.3c0 1.6.5 2.6 2.5 2.6"/>
+      <path d="M15.5 4.5c2 0 2.5 1 2.5 2.6v2.3c0 1.3.7 2.1 2 2.6-1.3.5-2 1.3-2 2.6v2.3c0 1.6-.5 2.6-2.5 2.6"/>
+    </svg>
+  </button>
+
+  <aside id="toestand" hidden>
+    <header>
+      <h2>Toestand</h2>
+      <button id="toestand-close" type="button" class="link-button" aria-label="Sluiten">Sluiten</button>
+    </header>
+    <p class="hint">Zo begint een viewer hier: geef dit mee aan <code>create()</code>.</p>
+    <pre id="toestand-json"></pre>
+    <button id="toestand-copy" type="button">Kopieer als JSON</button>
+  </aside>
+
   <div id="info" hidden>
     <div class="group" id="info-group"></div>
     <div class="name" id="info-name"></div>

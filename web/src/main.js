@@ -60,7 +60,7 @@ export function mount(ui, host, config) {
   const CORNER = ['sidebar', 'parts', 'quiz'];   // these share the top left corner: only one is open at a time
   for (const [button, panel, onToggle] of [['view-toggle', 'sidebar'], ['parts-toggle', 'parts', partsPanelToggled],
                                            ['quiz-toggle', 'quiz', (open) => quiz?.panelToggled(open)],
-                                           ['about-toggle', 'about']]) {
+                                           ['about-toggle', 'about'], ['toestand-toggle', 'toestand', (open) => toestandToggled(open)]]) {
     const toggle = $(button);
     const aside = $(panel);
     const setOpen = (open) => {
@@ -77,6 +77,7 @@ export function mount(ui, host, config) {
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && engaged()) setOpen(false); }, { signal });
   }
   $('about-close').addEventListener('click', () => closePanel.get('about')());
+  $('toestand-close').addEventListener('click', () => closePanel.get('toestand')());
   $('parts-close').addEventListener('click', () => closePanel.get('parts')());
 
   const canvas = $('scene');
@@ -841,8 +842,16 @@ export function mount(ui, host, config) {
 
   function applyState(want = {}, direct = false) {
     modes.apply(want, { direct });
-    const { aanzicht, selectie } = want;
-    if (aanzicht !== undefined) {
+    const { aanzicht, selectie, camera: view } = want;
+    const point = (v) => Array.isArray(v) && v.length === 3 && v.every(Number.isFinite);
+    if (view !== undefined) {                              // the exact viewpoint; it wins over aanzicht
+      if (point(view?.positie) && point(view?.doel)) {
+        const position = new THREE.Vector3(...view.positie); const target = new THREE.Vector3(...view.doel);
+        if (direct) { flight = null; camera.position.copy(position); controls.target.copy(target); controls.update(); }
+        else startFlight(position, target, 600);
+      } else console.warn(`[lelievlet] toestand.camera: ${JSON.stringify(view)} kent de viewer niet ({ positie: [x, y, z], doel: [x, y, z] })`);
+    }
+    if (aanzicht !== undefined && view === undefined) {
       if (aanzicht in VIEWS) setView(VIEWS[aanzicht], !direct);
       else console.warn(`[lelievlet] toestand.aanzicht: ${JSON.stringify(aanzicht)} kent de viewer niet (${Object.keys(VIEWS).join(', ')})`);
     }
@@ -852,7 +861,7 @@ export function mount(ui, host, config) {
       const missing = ids.filter((id) => !list.some((p) => p.extras.id === id));
       if (missing.length) console.warn(`[lelievlet] toestand.selectie: geen onderdeel met id ${missing.join(', ')}`);
       select(list);
-      if (list.length && aanzicht === undefined) {         // an aanzicht asked for as well keeps its own camera
+      if (list.length && aanzicht === undefined && view === undefined) {   // a camera asked for as well keeps its own place
         scene.updateMatrixWorld();
         flyTo(list);
         if (direct && flight) {
@@ -868,11 +877,50 @@ export function mount(ui, host, config) {
     if (loaded) applyState(want, direct); else early = merge(early, want);
   }
 
-  /** Where the viewer is now, in the form set() takes; null until the model is in. */
+  /** Where the viewer is now, in the form set() takes (with the camera, not the aanzicht); null until the model is in. */
   function get() {
     if (!loaded) return null;
-    return { ...modes.current(), selectie: selected.map((p) => p.extras.id) };
+    const at = (v) => v.toArray().map((x) => Math.round(x * 1000) / 1000);   // to the millimetre
+    const to = flight ? flight.toTarget : controls.target;                   // mid-flight: where it is going
+    return { ...modes.current(), selectie: selected.map((p) => p.extras.id),
+             camera: { positie: at(flight ? flight.to : camera.position), doel: at(to) } };
   }
+
+  // debug.toestand: the state as it is, written as the configuration that starts a viewer there. It
+  // follows the boat and the camera while the panel is open.
+  $('toestand-toggle').hidden = !config.debug.toestand;
+  let toestandPoll = null;
+  onDestroy(() => clearInterval(toestandPoll));
+  function toestandText() {
+    const now = get();
+    if (!now) return '';
+    const { commando, selectie, camera: view, ...rest } = now;
+    const toestand = { ...rest, commando: commando.bb === commando.sb ? commando.bb : commando };
+    if (selectie.length) toestand.selectie = selectie.length === 1 ? selectie[0] : selectie;
+    toestand.camera = view;
+    // one line per point: [x, y, z] reads better than a number per line
+    return JSON.stringify({ toestand }, null, 2).replace(/\[\s+([^\]]*?)\s+\]/g, (_, inner) => `[${inner.split(/,\s+/).join(', ')}]`);
+  }
+  function toestandToggled(open) {
+    clearInterval(toestandPoll);
+    toestandPoll = null;
+    if (!open) return;
+    const pre = $('toestand-json');
+    const refresh = () => { const text = toestandText(); if (pre.textContent !== text) pre.textContent = text; };
+    refresh();
+    toestandPoll = setInterval(refresh, 300);
+  }
+  $('toestand-copy').addEventListener('click', async () => {
+    const button = $('toestand-copy');
+    try {
+      await navigator.clipboard.writeText(toestandText());
+      button.textContent = 'Gekopieerd';
+    } catch {                                           // no clipboard (http, or refused): select it to copy by hand
+      getSelection().selectAllChildren($('toestand-json'));
+      button.textContent = 'Selecteer en kopieer zelf';
+    }
+    setTimeout(() => { button.textContent = 'Kopieer als JSON'; }, 1500);
+  });
 
   const debug = { camera, controls, scene, parts, rows, held, keyboardNavigate, select, flyTo,
                   sideOf, pickTwin, config,

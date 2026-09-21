@@ -34,9 +34,10 @@
 //       commando: 'slag',                            // for the whole boat, or { bb: 'strijk', sb: 'haal' }
 //       zwaard: 'half',                              // neer | half | op
 //       aanzicht: 'zij',                             // 3d | zij | boven | voor | achter
-//       selectie: ['hommerring'],                    // part ids; the camera goes to them unless aanzicht is given
+//       selectie: ['hommerring'],                    // part ids; the camera goes to them unless aanzicht or camera is given
+//       camera: { positie: [-2.1, 2.4, 4.6], doel: [2.4, 1.6, 0] },   // model space, metres; wins over aanzicht
 //     },
-//     debug: { modelnummer: true, quiztabellen: true },
+//     debug: { modelnummer: true, quiztabellen: true, toestand: true },
 //   })
 //
 // The Aanpassen values REPLACE the viewer's own defaults for this instance; what the user saved in
@@ -49,7 +50,7 @@ export const DEFAULTS = {
   toestand: {},
   namen: { onderdelen: {}, stappen: {}, commandos: {}, quiz: {} },
   quiz: { weg: [], erbij: [], niveau: 3 },
-  debug: { modelnummer: false, quiztabellen: false },
+  debug: { modelnummer: false, quiztabellen: false, toestand: false },
 };
 
 const isPlain = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -69,7 +70,7 @@ export function merge(base, over) {
  */
 export function resolveConfig(given = {}) {
   const config = merge(DEFAULTS, given);
-  if (given.debug === true) config.debug = { modelnummer: true, quiztabellen: true };
+  if (given.debug === true) config.debug = Object.fromEntries(Object.keys(DEFAULTS.debug).map((key) => [key, true]));
   if (given.debug === false) config.debug = { ...DEFAULTS.debug };
   const unknown = Object.keys(given).filter((key) => !(key in DEFAULTS));
   if (unknown.length) console.warn(`[lelievlet] onbekende instelling(en): ${unknown.join(', ')}`);

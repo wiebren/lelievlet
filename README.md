@@ -89,8 +89,9 @@ en verandert alleen wat je meegeeft. Het loopt via dezelfde weg als de knoppen: 
 laten zien wat de pagina zette, en een procedure (Tuig, Reven) speelt af met zijn voortgangsbalk.
 Met `direct: true` staat de boot er meteen. Een `set()` vóór `ready` wacht op het model en gaat dan
 samen met de `toestand` uit de configuratie in één keer in. `get()` geeft een object in dezelfde vorm
-terug, met `commando` altijd als `{ bb, sb }` en `selectie` als lijst ids; `aanzicht` zit er niet in,
-want na één sleep met de muis klopt dat niet meer. Een waarde die de viewer niet kent wordt met een
+terug, met `commando` altijd als `{ bb, sb }`, `selectie` als lijst ids en het standpunt als
+`camera` (op de millimeter; tijdens een vlucht waar hij heen gaat). `aanzicht` zit er niet in, want
+na één sleep met de muis klopt dat niet meer — `camera` wel. Een waarde die de viewer niet kent wordt met een
 `console.warn` gemeld en overgeslagen; de rest van de toestand gaat gewoon door.
 
 `create(element, config)` werpt een `TypeError` als het eerste argument geen element is. Na
@@ -128,7 +129,8 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 | `toestand.commando` | string of `{ bb, sb }` | `'slag'` | Het roeicommando (sleutels als bij `namen.commandos`). Een string geldt voor de hele boot; per boord kan alleen `haal` `opriemen` `strijk` `stopaf` `lopen`, en een boord dat je weglaat blijft zoals het was. |
 | `toestand.zwaard` | `'neer'` \| `'half'` \| `'op'` | volgt de koers | Het midzwaard. Zonder deze sleutel gaat het op bij roeien, wrikken en voor de wind, en anders neer. |
 | `toestand.aanzicht` | `'3d'` \| `'zij'` \| `'boven'` \| `'voor'` \| `'achter'` | `'3d'` | Het camerastandpunt, zoals de knoppen in het oogmenu. |
-| `toestand.selectie` | id of lijst ids | — | Onderdelen die geselecteerd zijn, met hun infotegel; de camera gaat erheen, tenzij er ook een `aanzicht` is. `null` of `[]` heft de selectie op. |
+| `toestand.selectie` | id of lijst ids | — | Onderdelen die geselecteerd zijn, met hun infotegel; de camera gaat erheen, tenzij er ook een `aanzicht` of `camera` is. `null` of `[]` heft de selectie op. |
+| `toestand.camera` | `{ positie, doel }` | — | Het precieze standpunt: `positie` is waar de camera staat, `doel` waar hij naar kijkt, elk `[x, y, z]` in meters in de assen van het model (x van spiegel naar boeg, y omhoog, z naar stuurboord). Gaat voor `aanzicht`. Het makkelijkst te krijgen uit het paneel van `debug.toestand`. |
 | `namen.onderdelen[id]` | string | — | Hernoemt een onderdeel overal: hovertip, infotegel, de lijst Onderdelen (ook de samenvoeging van bakboord/stuurboord, die op namen werkt) en de terugkoppeling van de quiz. Sleutel is de onderdeel-id, bijvoorbeeld `{ hommerring: 'Mastring' }`. |
 | `namen.stappen[label]` | string | — | Hernoemt een stap van een procedure (Reven, Tuig). Sleutel is het standaardlabel, bijvoorbeeld `{ 'Fok strijken': 'Fok neer' }`. |
 | `namen.commandos[key]` | string of object | — | Hernoemt een roeicommando. Een string is het knoplabel; `{ knop, roep }` zet ook de woorden die de roerganger roept. Sleutels: `slag` `haal` `opriemen` `strijk` `stopaf` `lopen` `over` `op` `geroeid`. |
@@ -138,10 +140,11 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 | `quiz.niveau` | 1 \| 2 \| 3 | `3` | Het niveau waarop het startpaneel opent. De gebruiker kan het daarna zelf wisselen. |
 | `debug.modelnummer` | boolean | `false` | Toont de regel "Modelnummer" in de infotegel: de CAD-handle van de body waarop geklikt is. Een hulpmiddel bij het modelleren, niets voor een verkenner. |
 | `debug.quiztabellen` | boolean | `false` | Zet een link **Tabellen** in het startpaneel van Oefenen, die de opgeloste quizconfiguratie als tabel toont: nr, naam (na hernoemen), niveau, `delen` en `ook` (elke id die in het geladen model niet bestaat staat rood), of het een eigen vraag is, en de score per vraag. Daaronder een tweede tabel met alle onderdelen waar geen enkele vraag over gaat. |
-| `debug` | `true` \| `false` | — | `debug: true` zet beide hulpmiddelen tegelijk aan, `debug: false` beide uit. |
+| `debug.toestand` | boolean | `false` | Zet een icoon `{ }` rechtsonder, boven de (i). Het paneel toont de toestand waarin de viewer nu staat als de configuratie om daar te beginnen (`{ "toestand": { … } }`, zie `get()`, met het camerastandpunt), bijgewerkt zolang het open staat, met een knop **Kopieer als JSON**. |
+| `debug` | `true` \| `false` | — | `debug: true` zet alle hulpmiddelen tegelijk aan, `debug: false` alle uit. |
 
 De ontwikkelpagina (`web/index.html`) geeft `debug: import.meta.env.DEV` mee: onder `pnpm dev` staan
-beide hulpmiddelen dus aan, in een build niet.
+alle hulpmiddelen dus aan, in een build niet.
 
 Staat een van de debugvlaggen aan, dan heeft de handle er een `debugHandle` bij: camera, controls,
 scene, parts, en de handles van `modes`, `regions` en `quiz`. In de Vite-ontwikkelserver staat
