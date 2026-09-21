@@ -127,7 +127,7 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 | `toestand.reven` | 0–5 | `0` | Het aantal slagen van het grootzeil om de giek. |
 | `toestand.roeien` | `'naast'` \| `'kruis'` \| `'vier'` | `'kruis'` | Twee riemen naast elkaar, twee kruislings of vier. |
 | `toestand.commando` | string of `{ bb, sb }` | `'slag'` | Het roeicommando (sleutels als bij `namen.commandos`). Een string geldt voor de hele boot; per boord kan alleen `haal` `opriemen` `strijk` `stopaf` `lopen`, en een boord dat je weglaat blijft zoals het was. |
-| `toestand.zwaard` | `'neer'` \| `'half'` \| `'op'` | volgt de koers | Het midzwaard. Zonder deze sleutel gaat het op bij roeien, wrikken en voor de wind, en anders neer. |
+| `toestand.zwaard` | `'neer'` \| `'half'` \| `'op'` | volgt de koers | Het midzwaard. Zonder deze sleutel gaat het op bij roeien, wrikken, voor de wind en voor anker, en anders neer. Met het tuig gestreken of de mast neer staat het altijd op (de stap Midzwaard op). |
 | `toestand.aanzicht` | `'3d'` \| `'zij'` \| `'boven'` \| `'voor'` \| `'achter'` | `'3d'` | Het camerastandpunt, zoals de knoppen in het oogmenu. |
 | `toestand.selectie` | id of lijst ids | — | Onderdelen die geselecteerd zijn, met hun infotegel; de camera gaat erheen, tenzij er ook een `aanzicht` of `camera` is. `null` of `[]` heft de selectie op. |
 | `toestand.camera` | `{ positie, doel }` | — | Het precieze standpunt: `positie` is waar de camera staat, `doel` waar hij naar kijkt, elk `[x, y, z]` in meters in de assen van het model (x van spiegel naar boeg, y omhoog, z naar stuurboord). Gaat voor `aanzicht`. Het makkelijkst te krijgen uit het paneel van `debug.toestand`. |
@@ -409,8 +409,9 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
 - Een windvaan in de masttop (gebouwd in `web/src/rig.js`, niet in de CAD) draait zo dat het
   draadframe in de wind wijst en de rode vaan met de wind mee uitstaat.
 - Midzwaard neer / half / op, zonder eigen bediening: een klik op het zwaard, de zwaardloper of de
-  borgpen zet het een stand verder, en het volgt de boot - op bij roeien, wrikken en voor de wind, weer
-  neer bij elke andere koers (het beweegt als dát verandert; stond het op half, dan blijft het half).
+  borgpen zet het een stand verder, en het volgt de boot - op bij roeien, wrikken, voor de wind en zodra een met de hand uitgegooid
+  anker op de bodem ligt, weer neer bij elke andere koers en als het anker weer binnen is (het beweegt
+  als dát verandert; stond het op half, dan blijft het half).
   Het zwaard draait om de zwaardbout in zijn voorste
   onderhoek - de CAD heeft die bout als een gat in de plaat, en het Vlettenboek p. 38 geeft de
   draairadius (R=880). De zwaardloper is een stangenstelsel en draait uitsluitend op zijn pennen: de
@@ -462,7 +463,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
 - Zeilen strijken, bediening "Tuig" (Zeilen op / Zeilen gestreken), dezelfde soort sequencer als
   reven: kop in de wind (giek, fok en windpijl midscheeps, geen buik); anker uit (het opgeborgen
   anker, de ketting en de lijn maken plaats voor een lijn die vanaf het ankeroog over de boeg in het
-  water wordt gevierd); fok langs zijn stag omlaag tot een bundel op het voordek (`jibBend.warp`); mik
+  water wordt gevierd); midzwaard op; fok langs zijn stag omlaag tot een bundel op het voordek (`jibBend.warp`); mik
   gezet; grootzeil in plooien omlaag terwijl de gaffel langs de mast zakt en vlak wordt gelegd (het bovenlijk blijft aan de gaffel: elk punt van het doek gaat mee met de gaffel, naar gelang hoe hoog het tussen onderlijk en bovenlijk zit), de nok
   van de giek 1.1 graden opgetild in de vork van de mik, kraanlijn strak (`mainBend.warp`); het doek
   opgedoekt tot een rol op de giek (onderdeel "Opgedoekt grootzeil"); drie zeilbinders (dubbel

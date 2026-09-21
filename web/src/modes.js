@@ -820,10 +820,11 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // step is one value run to its goal.
   // One timeline for the rig: sails struck is its first half, mast down the whole of it. "Zeilen op",
   // "Zeilen gestreken" and "Mast gestreken" are three moments on it.
-  const rigging = new Procedure('Tuig', { head: 0, anchor: 0, jib: 0, mik: 0, main: 0, furl: 0, ties: 0,
+  const rigging = new Procedure('Tuig', { head: 0, anchor: 0, zwaard: 0, jib: 0, mik: 0, main: 0, furl: 0, ties: 0,
     fokoff: 0, low: 0, pin: 0, grendel: 0, ring: 0, hook: 0, mast: 0 }, [
     { key: 'head', to: 1, seconds: 1.5, label: stap('Kop in de wind') },
     { key: 'anchor', to: 1, seconds: 4, label: stap('Anker uit') },
+    { key: 'zwaard', to: 1, seconds: 1.5, label: stap('Midzwaard op') },
     { key: 'jib', to: 1, seconds: 2, label: stap('Fok strijken') },
     { key: 'mik', to: 1, seconds: 1.5, label: stap('Mik zetten') },
     { key: 'main', to: 1, seconds: 2.5, label: stap('Grootzeil strijken') },
@@ -1008,6 +1009,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
         const gap = anchorGear.want - anchorGear.u; const step = 0.25 * dt;   // by hand: four seconds from chest to bottom
         anchorGear.u = Math.abs(gap) <= step ? anchorGear.want : anchorGear.u + Math.sign(gap) * step;
       }
+      trimBoard();                                                  // on the bottom, or back aboard: the midzwaard follows
     }
     if (kist) {
       kist.open += (kist.want - kist.open) * (1 - Math.exp(-dt * 3.5));
@@ -1034,7 +1036,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     chase('sculling', scullOar.byHand ?? (state.mode === 'wrikken' ? 1 : 0), dt, 2.5);   // by the mode, or put out by a click
     now.t += dt;
     // midzwaard: 0 = neer, 1 = half, 2 = op
-    const s = now.board;
+    const s = now.board + (2 - now.board) * smoothstep(strike.zwaard);   // the Tuig procedure raises it after the anchor
     // half -> op: the board is all the way up by s = 1.6, the links fold over s = 1.5 .. 2 once
     // the foot pin has cleared the kast top
     const angle = s <= 1 ? THREE.MathUtils.lerp(boardAngles[0], boardAngles[1], s)
@@ -1508,12 +1510,14 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     return Math.sign(value) * (CLOSE_HAULED + Math.max(Math.abs(value) - HEAD_GAP, 0));
   };
   // The midzwaard has no control of its own: a click on it or its zwaardloper sets it a stop further,
-  // and it follows the boat - up for rowing, sculling and running before the wind, down again for
-  // any other course (it moves when that changes, so what was set by hand in between is left alone).
+  // and it follows the boat - up for rowing, sculling, running before the wind and lying at anchor,
+  // down again otherwise (it moves when that changes, so what was set by hand in between is left
+  // alone). An anchor let go by the Tuig procedure is not counted: that raises it in a step of its own.
   const setBoard = (value) => { state.midzwaard = value; };
   let boardRaised = null;
   const trimBoard = () => {
-    const up = state.mode !== 'zeilen' || Math.abs(state.course) >= RUN;
+    const anchored = anchorGear && rigging.t < 1e-6 && anchorGear.u > 0.999;
+    const up = state.mode !== 'zeilen' || Math.abs(state.course) >= RUN || anchored;
     if (up === boardRaised) return;
     boardRaised = up;
     if (up) setBoard('op'); else if (state.midzwaard === 'op') setBoard('neer');
@@ -1737,7 +1741,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   /** Where the boat is going, in the form apply() takes. */
   const current = () => ({
     modus: state.mode, tuig: state.rig ?? 'op', koers: state.course, reven: reefWanted,
-    roeien: state.rowing, commando: { ...state.commando }, zwaard: state.midzwaard,
+    roeien: state.rowing, commando: { ...state.commando },
+    zwaard: strike.zwaard > 0.5 ? 'op' : state.midzwaard,           // the Tuig procedure holds it up
   });
   return { update, state, click, reveal, helm: helmControl, procedure, procedureControl, apply, current };
 }
