@@ -23,6 +23,31 @@ function makeTricolour() {
   return texture;
 }
 
+/** Black, with a white skull over crossed bones. */
+function makeJollyRoger() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 300; canvas.height = 200;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#111111'; ctx.fillRect(0, 0, 300, 200);
+  ctx.translate(0, -22);
+  ctx.fillStyle = '#f2efe6'; ctx.strokeStyle = '#f2efe6'; ctx.lineCap = 'round';
+  for (const [x0, y0, x1, y1] of [[100, 150, 200, 190], [200, 150, 100, 190]]) {      // bones
+    ctx.lineWidth = 14; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    for (const [x, y] of [[x0, y0], [x1, y1]]) {
+      for (const d of [-7, 7]) { ctx.beginPath(); ctx.arc(x + d, y + (x === x0 ? -4 : 4) * Math.sign(d), 9, 0, Math.PI * 2); ctx.fill(); }
+    }
+  }
+  ctx.beginPath(); ctx.arc(150, 82, 48, 0, Math.PI * 2); ctx.fill();                  // skull
+  ctx.fillRect(122, 105, 56, 38);
+  ctx.fillStyle = '#111111';
+  for (const x of [131, 169]) { ctx.beginPath(); ctx.arc(x, 84, 13, 0, Math.PI * 2); ctx.fill(); }
+  ctx.beginPath(); ctx.moveTo(150, 100); ctx.lineTo(143, 114); ctx.lineTo(157, 114); ctx.closePath(); ctx.fill();
+  for (const x of [134, 146, 158]) ctx.fillRect(x, 128, 4, 15);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 /**
  * foot: top end of the roerkoning on its axis, axis: unit vector up along it (model space).
  * addPart registers a node as a pickable part; accent is the shared bakskleur material.
@@ -102,7 +127,7 @@ export function initFlag({ foot, axis, addPart, joinPart, accent }) {
   const DOWN = new THREE.Vector3(0, -1, 0);
 
   const leanNow = new THREE.Vector3();
-  return (t, windAngle, wind, present, turn) => {
+  const fly = (t, windAngle, wind, present, turn) => {
     // taken out for wrikken: drawn up out of the tube, then gone
     const drawn = (1 - present) * 0.4;
     lifted.copy(foot).addScaledVector(axis, drawn);
@@ -132,4 +157,11 @@ export function initFlag({ foot, axis, addPart, joinPart, accent }) {
     cloth.computeVertexNormals();
     cloth.computeBoundingSphere();
   };
+  /** Another cloth on the same staff. */
+  fly.change = () => {
+    flag.material.map.dispose();
+    flag.material.map = makeJollyRoger();
+    flag.material.needsUpdate = true;
+  };
+  return fly;
 }

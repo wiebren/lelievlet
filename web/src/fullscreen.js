@@ -41,7 +41,7 @@ export function initFullscreen({ ui, host, config, signal, engaged, realTarget, 
     button.setAttribute('aria-pressed', String(on));
     button.setAttribute('aria-label', label);
     button.title = label;
-    for (const icon of icons) icon.hidden = (icon.dataset.icon === 'compress') !== on;
+    for (const icon of icons) icon.toggleAttribute('hidden', (icon.dataset.icon === 'compress') !== on);
   }
 
   // The fallback: the host lies over the page, which must not scroll away under it. What the page

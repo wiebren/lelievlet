@@ -12,6 +12,7 @@ import { initLocator } from './locator.js';
 import { initFullscreen } from './fullscreen.js';
 import { makeAsset } from './assets.js';
 import { naamVan, merge } from './config.js';
+import { addEdges } from './edges.js';
 
 // One viewer, from end to end. Nothing here runs at import time: `mount` is called once per
 // embedded viewer with the shadow root it owns, so two of them on one page share no state at all.
@@ -90,7 +91,7 @@ export function mount(ui, host, config) {
   const pmrem = new THREE.PMREMGenerator(renderer);
   const environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.environment = environment;
-  scene.environmentIntensity = 0.55;
+  scene.environmentIntensity = 0.4;
 
   const camera = new THREE.PerspectiveCamera(35, 1, 0.05, 200);
   const controls = new OrbitControls(camera, canvas);
@@ -100,9 +101,9 @@ export function mount(ui, host, config) {
   controls.minDistance = 0.15;
   controls.maxDistance = 60;
 
-  const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+  const sun = new THREE.DirectionalLight(0xffffff, 1.4);
   sun.position.set(4, 9, 6);
-  scene.add(sun, new THREE.HemisphereLight(0xdfefff, 0x6b7785, 0.35));
+  scene.add(sun, new THREE.HemisphereLight(0xdfefff, 0x6b7785, 0.25));
 
   // Model space: x = transom -> bow, y = up, z = starboard, metres.
   const parts = [];            // { node, extras, meshes[] }
@@ -169,6 +170,7 @@ export function mount(ui, host, config) {
     for (const p of parts) groups.get(p.extras.groep)?.parts.push(p);   // after initModes: it adds the windvaan
     buildGroupList();
     buildPartList();
+    addEdges(parts);                                         // every part there is by now, the viewer's own too
     quiz = initQuiz({ parts, scene, select, flyTo,
                       setHighlights, partVisible, closePanel,
                       ui, wrap, config, signal, engaged, realTarget, onDestroy });   // Oefenen
@@ -568,9 +570,15 @@ export function mount(ui, host, config) {
     return seen;
   }
 
-  function flyTo(list) {
-    const box = worldBox(list, partBox);
-    if (box.isEmpty()) return;
+  /**
+   * Returns whether the camera is on its way. `box`: the room to frame, when it is more than where the
+   * parts are now (a step of a procedure takes them somewhere); `low`: looked at from the side, the
+   * way something being done is best followed, instead of from above - and square onto the plane the
+   * movement is in, when the box is flat (the midzwaard swings fore and aft: seen from abeam);
+   * `ms`: how long the flight takes.
+   */
+  function flyTo(list, { box = worldBox(list, partBox), low = false, ms = FLIGHT_MS } = {}) {
+    if (box.isEmpty()) return false;
     const centre = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
     const radius = Math.max(size.length() / 2, 0.02);
@@ -584,7 +592,7 @@ export function mount(ui, host, config) {
     const occluders = parts.filter((p) => !list.includes(p) && p.node.parent.visible)
       .flatMap((p) => p.meshes).filter((m) => m.visible);    // the water and the wind arrow are no parts
     const candidates = [camera.position.clone().sub(controls.target).normalize()];   // ties keep the camera where it is
-    for (const elevation of ELEVATIONS) {
+    for (const elevation of low ? LOW_ELEVATIONS : ELEVATIONS) {
       const e = THREE.MathUtils.degToRad(elevation);
       for (let i = 0; i < AZIMUTHS; i++) {
         const a = (i / AZIMUTHS) * 2 * Math.PI;
@@ -594,6 +602,10 @@ export function mount(ui, host, config) {
 
     const origin = new THREE.Vector3();
     const deadline = performance.now() + SEARCH_MS;
+    // the thinnest side of the box, and how flat it is: 1 for a sheet, 0 for a cube
+    const extents = [size.x, size.y, size.z];
+    const thin = extents.indexOf(Math.min(...extents));
+    const flat = 1 - extents[thin] / Math.max(Math.max(...extents.filter((_, i) => i !== thin)), 1e-6);
     let best = candidates[0]; let bestScore = -Infinity; let bestSeen = 0; let bestAway = dist;
     const to0 = new THREE.Vector3();
     for (const dir of candidates) {
@@ -608,7 +620,8 @@ export function mount(ui, host, config) {
       }
       away = Math.min(away, controls.maxDistance);
       origin.copy(centre).addScaledVector(dir, away);
-      const bonus = 0.3 * dir.y - (away > 2.2 ? 1 : 0);   // backing out along the length of the boat ends up too far off
+      const lift = low ? -0.6 * Math.abs(dir.y - LOW_Y) + SQUARE_ON * flat * Math.abs(dir.getComponent(thin)) : 0.3 * dir.y;
+      const bonus = lift - (away > Math.max(2.2, dist * 1.3) ? 1 : 0);   // backing out along the length of the boat ends up too far off
       const seen = countVisible(origin, points, occluders, bestScore - bonus);
       const score = bonus + seen;
       if (score > bestScore) { bestScore = score; best = dir; bestSeen = seen; bestAway = away; }
@@ -618,7 +631,8 @@ export function mount(ui, host, config) {
     // through whatever is in front of them for as long as they are selected.
     for (const p of list) p.xray = bestSeen < XRAY_BELOW;
     refreshHighlight();
-    startFlight(centre.clone().addScaledVector(best, bestAway), centre);
+    startFlight(centre.clone().addScaledVector(best, bestAway), centre, ms);
+    return true;
   }
 
   /** Camera and target travel together; a new flight, a drag or a zoom replaces this one. */
@@ -704,8 +718,24 @@ export function mount(ui, host, config) {
     const p = modes?.procedure();
     if (p) modes.procedureControl[p.playing ? 'pause' : 'play']();
   });
-  $('procedure-previous').addEventListener('click', () => modes?.procedureControl.previous());
-  $('procedure-next').addEventListener('click', () => modes?.procedureControl.next());
+  // A step on its own is shown: the camera first goes to the parts it is about - all the room they
+  // take up while it plays, from the side - and then it plays.
+  const stepBox = new THREE.Box3();
+  function stepProcedure(direction) {
+    const focus = modes?.procedureControl.focus(direction);
+    let flying = false;
+    if (focus?.length) {
+      const span = new THREE.Box3();
+      modes.procedureControl.across(direction, () => span.union(worldBox(focus, stepBox)));
+      flying = !span.isEmpty() && flyTo(focus, { box: span, low: true, ms: STEP_FLIGHT_MS });
+      // what cannot be seen from anywhere (the midzwaard going up into its kast) is selected for the
+      // step: lit, and drawn through the boat
+      if (flying && focus.some((p) => p.xray)) { select(focus); for (const p of focus) p.xray = true; refreshHighlight(); }
+    }
+    modes?.procedureControl.step(direction, flying ? STEP_FLIGHT_MS / 1000 : 0);
+  }
+  $('procedure-previous').addEventListener('click', () => stepProcedure(-1));
+  $('procedure-next').addEventListener('click', () => stepProcedure(1));
 
   // Dragging the thumb scrubs, which pauses; on release it stays where it was let go and the user
   // presses play to go on. Arrow keys on the focused slider come through the same input event, so the
@@ -766,7 +796,8 @@ export function mount(ui, host, config) {
     if (procName.textContent !== p.name) procName.textContent = p.name;
     if (procPlaying !== p.playing) {
       procPlaying = p.playing;
-      for (const icon of procIcons) icon.hidden = (icon.dataset.icon === 'pause') !== p.playing;
+      // the icons are SVG groups, which have no hidden property: the attribute has to be set
+      for (const icon of procIcons) icon.toggleAttribute('hidden', (icon.dataset.icon === 'pause') !== p.playing);
       procPlay.setAttribute('aria-label', p.playing ? 'Pauzeren' : 'Afspelen');
       procPlay.title = procPlay.getAttribute('aria-label');
     }
@@ -937,6 +968,11 @@ const AZIMUTHS = 8;
 // Candidate directions; the one we are looking from is added. The steep ones are there for what lies
 // down in the boat (mastkoker, zwaardloper): that can only be seen from above, through the open kuip.
 const ELEVATIONS = [40, 65, 15, 85];
+// A step of a procedure is followed from the side, a little above the boat.
+const LOW_ELEVATIONS = [20, 8, 35];
+const LOW_Y = Math.sin(THREE.MathUtils.degToRad(20));
+const SQUARE_ON = 3;                   // how much looking square onto a flat movement weighs, in sample points seen
+const STEP_FLIGHT_MS = 1400;           // the camera goes to a step at half the speed of a click in the list
 const SAMPLES = [[0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
 const MARGIN = 1.6;                    // room left around the part
 const FLIGHT_MS = 700;

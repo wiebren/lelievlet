@@ -443,12 +443,15 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 #quiz-card .typed:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 #quiz-card .feedback { display: flex; align-items: baseline; gap: 6px; margin-top: 10px; font-size: 14px; }
 #quiz-card .feedback .mark { font-size: 16px; font-weight: 700; }
-#quiz-card .feedback.bijna { color: var(--accent); }   /* the name was not wrong, only not enough */
-#quiz-card .feedback.goed { color: var(--quiz-goed); }
-#quiz-card .feedback.fout { color: var(--quiz-fout); }
+/* right or wrong is shown by the whole card: its border and a tint over it; 'bijna' - the name was
+   not wrong, only not enough - in the accent */
+#quiz-card { transition: border-color 0.15s, box-shadow 0.15s, background 0.15s; }
+#quiz-card.goed { border-color: var(--quiz-goed); box-shadow: 0 0 0 2px var(--quiz-goed); background: linear-gradient(var(--quiz-goed-bg), var(--quiz-goed-bg)), var(--panel); }
+#quiz-card.fout { border-color: var(--quiz-fout); box-shadow: 0 0 0 2px var(--quiz-fout); background: linear-gradient(var(--quiz-fout-bg), var(--quiz-fout-bg)), var(--panel); }
+#quiz-card.bijna { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
 #quiz-card .actions { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
-#quiz-card .actions .primary { font-weight: 600; }
-#quiz-card .actions .secondary { margin-left: auto; color: var(--accent); }
+#quiz-card .actions .primary { font-weight: 600; margin-left: auto; }
+#quiz-card .actions .secondary { color: var(--accent); }
 
 /* while a round runs, nothing outside the card may name a part */
 .lv.quiz-on #hover, .lv.quiz-on #info, .lv.quiz-on #procedure { display: none; }

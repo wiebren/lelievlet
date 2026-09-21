@@ -194,7 +194,7 @@ export function makeBorgpen() {
   const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.0065, 0.0065, 0.085, 14), steel);
   pin.rotation.x = Math.PI / 2;                    // lies athwartships, along model z
   const ring = new THREE.Mesh(new THREE.TorusGeometry(0.013, 0.0028, 8, 20), steel);
-  ring.position.z = 0.056;
+  ring.position.z = 0.056; ring.rotation.y = Math.PI / 2;   // through an eye in the end: in line with the pin
   group.add(pin, ring);
   group.userData.materials = [steel];
   group.userData.ring = 0.056;                     // where the chain is shackled on
@@ -316,6 +316,7 @@ export function makeDol() {
   group.userData.materials = [steel];
   group.userData.eye = new THREE.Vector3(0, eyeY, 0);
   group.userData.seat = SEAT;
+  group.userData.tip = new THREE.Vector2(HALF + (legLen / 3) * Math.sin(FLARE), TIP);   // inside of a leg at its end
   group.userData.pin = PIN_L;
   return group;
 }
@@ -449,6 +450,62 @@ export function makeMik() {
   group.userData.fork = fork;
   group.userData.sideFork = sideFork;
   group.userData.radius = BAR_R;
+  return group;
+}
+
+/**
+ * Stootwil: a dark blue fender, 300 mm over all and 82 ø, its ends rounded shut. Hangs from the
+ * origin, its axis down -y.
+ */
+export function makeStootwil() {
+  const vinyl = new THREE.MeshStandardMaterial({ color: 0x1a2b52, roughness: 0.45 });
+  const L = 0.300; const R = 0.041; const END = 0.040;          // END: how far the rounding runs
+  const profile = [];
+  for (let k = 0; k <= 12; k++) {                               // top: from the pole out to the side
+    const a = (Math.PI / 2) * (k / 12);
+    profile.push(new THREE.Vector2(R * Math.sin(a), -END * (1 - Math.cos(a))));
+  }
+  for (let k = 0; k <= 12; k++) {                               // bottom: from the side in to the pole
+    const a = (Math.PI / 2) * (k / 12);
+    profile.push(new THREE.Vector2(R * Math.cos(a), -(L - END) - END * Math.sin(a)));
+  }
+  const body = new THREE.Mesh(new THREE.LatheGeometry(profile, 32), vinyl);
+  const group = new THREE.Group();
+  group.add(body);
+  group.userData.length = L;
+  group.userData.radius = R;
+  return group;
+}
+
+const galvanised = () => new THREE.MeshStandardMaterial({ color: 0x9aa0a6, metalness: 0.75, roughness: 0.45 });
+
+/**
+ * A rivet across the boat (along z) through `centre`, `half` from the middle to either outer face:
+ * a shank of radius r, closed with a flattened head on both faces. Built where it is in model space.
+ */
+export function makeRivet(centre, r, half) {
+  const steel = galvanised();
+  const group = new THREE.Group();
+  const shank = new THREE.CylinderGeometry(r, r, 2 * half, 16).rotateX(Math.PI / 2);
+  group.add(new THREE.Mesh(shank.translate(centre.x, centre.y, centre.z), steel));
+  for (const side of [-1, 1]) {
+    const head = new THREE.SphereGeometry(r * 1.6, 20, 6, 0, Math.PI * 2, 0, Math.PI / 2);
+    head.scale(1, 0.35, 1).rotateX(side * Math.PI / 2).translate(centre.x, centre.y, centre.z + side * half);
+    group.add(new THREE.Mesh(head, steel));
+  }
+  return group;
+}
+
+/** Short hex-head bolts standing in holes of a flat plate: `points` are the hole centres on its top. */
+export function makeBolts(points, r) {
+  const steel = galvanised();
+  const group = new THREE.Group();
+  const HEAD = 0.004;                            // M6: 10 mm across the flats, 4 mm high
+  for (const p of points) {
+    const head = new THREE.CylinderGeometry(r * 1.9, r * 1.9, HEAD, 6).translate(p.x, p.y + HEAD / 2, p.z);
+    const washer = new THREE.CylinderGeometry(r * 2.1, r * 2.1, 0.0012, 20).translate(p.x, p.y + 0.0006, p.z);
+    group.add(new THREE.Mesh(head, steel), new THREE.Mesh(washer, steel));
+  }
   return group;
 }
 

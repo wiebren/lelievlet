@@ -465,7 +465,7 @@ export function initQuiz({ parts, scene, select, flyTo,
   const primary = Object.assign(el('button', 'primary'), { type: 'button' });
   const extra = Object.assign(el('button', 'extra'), { type: 'button' });
   const secondary = Object.assign(el('button', 'link-button secondary'), { type: 'button' });
-  actions.append(primary, extra, secondary);
+  actions.append(secondary, extra, primary);             // the main action on the right
   card.append(head, vraag, hint, answers, typed, feedback, actions);
   wrap.append(card);
   // the control bar closes its popover on a pointerdown outside it; the card keeps its own presses
@@ -497,6 +497,7 @@ export function initQuiz({ parts, scene, select, flyTo,
   function setFeedback(text, mood = null) {
     feedback.replaceChildren();
     feedback.className = `feedback${mood ? ` ${mood}` : ''}`;
+    for (const m of ['goed', 'fout', 'bijna']) card.classList.toggle(m, mood === m);   // the whole card shows it
     feedback.hidden = !text;
     if (!text) return;
     if (MARKS[mood]) feedback.append(el('span', 'mark', MARKS[mood]));
