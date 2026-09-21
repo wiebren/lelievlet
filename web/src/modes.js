@@ -850,11 +850,30 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const qTilt = new THREE.Quaternion(); const qGaff = new THREE.Quaternion(); const throatTo = new THREE.Vector3();
   const ATHWART = new THREE.Vector3(0, 0, 1);
   const clothMeshes = mainMeshes.filter((m) => m.geometry.attributes._bolling);
+  // The bovenlijk is laced to the gaffel, from the klauwhoek (throat) to the tophoek: coming down,
+  // the cloth goes where the gaffel goes, all of it at the head and less the nearer it is to the
+  // foot, which stays on the giek. update() says how the gaffel moves (gaffStrike), before the sail is laid.
+  const peak = (() => {                                             // the tophoek: the highest point of the cloth
+    const best = new THREE.Vector3(0, -Infinity, 0); const v = new THREE.Vector3();
+    for (const mesh of meshesOf(['grootzeil'])) {
+      const pos = mesh.geometry.attributes.position;
+      for (let i = 0; i < pos.count; i++) if (v.fromBufferAttribute(pos, i).y > best.y) best.copy(v);
+    }
+    return best.setZ(0);
+  })();
+  const gaffStrike = { reefDrop: 0, drop: 0, tilt: 0 };             // what a rif lowers it by; what striking adds; its turn towards level
+  const headRest = new THREE.Vector3(); const headNow = new THREE.Vector3(); const throatRest = new THREE.Vector3();
   mainBend.warp = (P) => {                                          // the grootzeil coming down in folds, then gathered on the giek
     const m = smoothstep(strike.main); const f = smoothstep(strike.furl);
     const h = Math.max(P[1] - boomPivot.y, 0);
+    const foot = mainBend.foot;
+    // the point of the bovenlijk above this one, where it is now and where the gaffel takes it
+    throatRest.copy(throat).setY(throat.y - gaffStrike.reefDrop);
+    headRest.lerpVectors(throat, peak, clamp((throat.x - P[0]) / (throat.x - peak.x), 0, 1)).setY(headRest.y - gaffStrike.reefDrop);
+    headNow.copy(headRest).sub(throatRest).applyAxisAngle(ATHWART, gaffStrike.tilt).add(throatRest).setY(headNow.y - gaffStrike.drop);
+    const up = clamp((P[1] - foot) / Math.max(headRest.y - foot, 0.05), 0, 1);
+    P[0] += up * (headNow.x - headRest.x); P[1] += up * (headNow.y - headRest.y);
     P[2] += 0.04 * m * (1 - f) * Math.sin(h * 26) * Math.min(h * 4, 1);
-    P[1] = boomPivot.y + h * (1 - 0.93 * m);
     P[1] = THREE.MathUtils.lerp(P[1], boomPivot.y + 0.085 + (P[1] - boomPivot.y - 0.085) * 0.4, f);
     P[2] *= 1 - 0.5 * f;
   };
@@ -1065,7 +1084,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     // struck, the gaffel comes all the way down the mast and is laid flat on the rolled sail
     const lowered = smoothstep(strike.main);
     const gaffelDrop = THREE.MathUtils.lerp(sailDrop, throat.y - STOWED_Y, lowered);
-    qTilt.setFromAxisAngle(ATHWART, GAFFEL_RISE * smoothstep(clamp(strike.main * 1.6 - 0.6, 0, 1)));
+    gaffStrike.reefDrop = sailDrop; gaffStrike.drop = gaffelDrop - sailDrop;
+    gaffStrike.tilt = GAFFEL_RISE * smoothstep(clamp(strike.main * 1.6 - 0.6, 0, 1));
+    qTilt.setFromAxisAngle(ATHWART, gaffStrike.tilt);
     qGaff.setFromAxisAngle(UP, boomAngle).multiply(qTilt);
     rotatedPoint(throat, mastPivot, UP, boomAngle, throatTo).y -= gaffelDrop;
     carry(gaffelSet, throat, throatTo, qGaff);

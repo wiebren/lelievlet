@@ -463,7 +463,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   reven: kop in de wind (giek, fok en windpijl midscheeps, geen buik); anker uit (het opgeborgen
   anker, de ketting en de lijn maken plaats voor een lijn die vanaf het ankeroog over de boeg in het
   water wordt gevierd); fok langs zijn stag omlaag tot een bundel op het voordek (`jibBend.warp`); mik
-  gezet; grootzeil in plooien omlaag terwijl de gaffel langs de mast zakt en vlak wordt gelegd, de nok
+  gezet; grootzeil in plooien omlaag terwijl de gaffel langs de mast zakt en vlak wordt gelegd (het bovenlijk blijft aan de gaffel: elk punt van het doek gaat mee met de gaffel, naar gelang hoe hoog het tussen onderlijk en bovenlijk zit), de nok
   van de giek 1.1 graden opgetild in de vork van de mik, kraanlijn strak (`mainBend.warp`); het doek
   opgedoekt tot een rol op de giek (onderdeel "Opgedoekt grootzeil"); drie zeilbinders (dubbel
   elastiek, twee ballen) om zeil, giek en gaffel. Hijsen laat het achterstevoren lopen.
