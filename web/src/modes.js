@@ -178,6 +178,53 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // the named edges and corners of a sail (grootzeil_voorlijk, fok_schoothoek, ...) belong to it
   const ofSail = (sail) => parts.map((p) => p.extras.id).filter((id) => id.startsWith(`${sail}_`));
   MAIN.push(...ofSail('grootzeil')); JIB.push(...ofSail('fok'));
+  // The gaffeldraad is laid anew in the gaffel's own (CAD) frame and carried along with it: taut in
+  // a triangle up to the hanepootloper while the piekenval carries the gaffel, a slack bight beside
+  // the gaffel once that lies on the made-up sail. The wire keeps its length.
+  const peakSpan = (() => {
+    const part = byId.get('gaffeldraad'); const old = part.meshes[0];
+    const pos = old.geometry.attributes.position; const p = new THREE.Vector3();
+    const a = new THREE.Vector3(Infinity, 0, 0); const b = new THREE.Vector3(-Infinity, 0, 0);
+    let zLo = Infinity; let zHi = -Infinity;
+    for (let i = 0; i < pos.count; i++) {
+      p.fromBufferAttribute(pos, i);
+      if (p.x < a.x) a.copy(p);
+      if (p.x > b.x) b.copy(p);
+      zLo = Math.min(zLo, p.z); zHi = Math.max(zHi, p.z);
+    }
+    const chord = new THREE.Vector3().subVectors(b, a); const c = chord.length(); chord.normalize();
+    const apex = new THREE.Vector3(); let far = -1;                  // where the hanepootloper rides
+    for (let i = 0; i < pos.count; i++) {
+      p.fromBufferAttribute(pos, i);
+      const off = p.clone().sub(a); off.addScaledVector(chord, -off.dot(chord));
+      if (off.lengthSq() > far) { far = off.lengthSq(); apex.copy(p); }
+    }
+    const ta = clamp(apex.clone().sub(a).dot(chord) / c, 0.1, 0.9);
+    const length = a.distanceTo(apex) + apex.distanceTo(b);
+    const sag = Math.sqrt(Math.max((3 * c * (length - c)) / 8, 0));   // of a shallow bight as long as the wire
+    const N = 24; const ia = Math.round(ta * N);
+    const rope = new RopeLine(N + 1, clamp((zHi - zLo) / 2, 0.0015, 0.004), old.material);
+    const home = part.node.parent;
+    old.visible = false; old.geometry.dispose(); part.node.removeFromParent();
+    part.node = new THREE.Group(); part.node.name = 'gaffeldraad'; home.add(part.node);
+    rope.mesh.userData.part = part.node; part.node.add(rope.mesh); part.meshes = [rope.mesh];
+    const path = Array.from({ length: N + 1 }, () => new THREE.Vector3());
+    const dir = new THREE.Vector3(); const hang = new THREE.Vector3(); const moved = new THREE.Vector3();
+    /** slack 0..1; toRest: the rotation that takes a direction of the world into the gaffel's rest frame */
+    const lay = (slack, toRest) => {
+      dir.set(0, -0.45, -0.9).applyQuaternion(toRest);               // off to bakboord and down, over the side of the bundle
+      dir.addScaledVector(chord, -dir.dot(chord)).normalize();
+      for (let i = 0; i <= N; i++) {
+        const t = i <= ia ? (ta * i) / ia : ta + ((1 - ta) * (i - ia)) / (N - ia);
+        if (i <= ia) path[i].lerpVectors(a, apex, i / ia); else path[i].lerpVectors(apex, b, (i - ia) / (N - ia));
+        hang.lerpVectors(a, b, t).addScaledVector(dir, 4 * sag * t * (1 - t));
+        path[i].lerp(hang, slack);
+      }
+      rope.set(path);
+      return moved.subVectors(path[ia], apex);                       // how far the hanepootloper has come with it
+    };
+    return { lay };
+  })();
   const mainMeshes = meshesOf(MAIN); const jibMeshes = meshesOf(JIB);
   const sailRig = meshesOf([...new Set([...MAIN, ...GIEK, 'lummelbout', ...JIB, ...running])]);   // fades out when the sails are down
 
@@ -296,6 +343,18 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const hanepoot = V(tuig.hanepoot);
   const peakHalyard = new RopeStretch(meshesOf(['piekenval']),      // only its far end hangs on the gaff
     (p) => (Math.hypot(p.x - mastPivot.x, p.z - mastPivot.z) > 0.15 ? 1 : 0));
+  // what rides on the gaffeldraad goes where its bight goes: the loper whole, the dodemanseind by its end
+  const loperRide = new RopeStretch(meshesOf(['hanepootloper']), () => 1);
+  const deadReach = (() => {
+    let reach = 0;
+    for (const m of meshesOf(['dodemanseind'])) {
+      const pos = m.geometry.attributes.position; const p = new THREE.Vector3();
+      for (let i = 0; i < pos.count; i++) reach = Math.max(reach, p.fromBufferAttribute(pos, i).distanceTo(hanepoot));
+    }
+    return reach || 1;
+  })();
+  const deadRide = new RopeStretch(meshesOf(['dodemanseind']), (p) => 1 - clamp(p.distanceTo(hanepoot) / deadReach, 0, 1));
+  const qRest = new THREE.Quaternion(); const peakAt = new THREE.Vector3();
   // -- fokkenschoten: schoothoek -> block on the forward leioog -> hand of the crew. They are laid
   // anew for every position of the fok, because the sheet to windward goes round the front of
   // the mast and the one to leeward runs straight. Each block hangs in its sheet.
@@ -968,7 +1027,11 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const jibAngle = -deg(now.jib - FOK_CAD);
     pivotRotate(jibMeshes, stayTack, stayAxis, jibAngle);
     // the vallen lie in the mast's own frame once it turns, so their ends are taken back into it
-    onGaffel(hanepoot, tmp); if (bundled) withBundle(tmp);
+    // the gaffeldraad carries the gaffel until that lies down; only then does it go slack
+    qRest.copy(qGaff); if (bundled) qRest.premultiply(qBundle);
+    const ridden = peakSpan.lay(smoothstep(clamp((strike.main - 0.75) / 0.25, 0, 1)), qRest.invert());
+    loperRide.update(ridden); deadRide.update(ridden);
+    onGaffel(peakAt.copy(hanepoot).add(ridden), tmp); if (bundled) withBundle(tmp);
     peakHalyard.update(delta.copy(offMast(tmp, tmp)).sub(hanepoot));
     rotatedPoint(warpPoint(jibBend, clewNow.copy(jibClew)), stayTack, stayAxis, jibAngle, clewNow);
     jibSheets.knot.position.copy(clewNow);

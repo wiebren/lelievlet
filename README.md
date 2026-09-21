@@ -399,6 +399,12 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   kraanlijnblok; het voorstag vouwt zich langs de mast; de zijstagen worden live gelegd en hangen slap
   over de mik; de einden van de vallen blijven op de gaffel (hun delta's worden teruggerekend naar het
   eigen assenstelsel van de mast).
+- De gaffeldraad is geen CAD-mesh meer maar een live draad in het assenstelsel van de gaffel: strak in
+  een driehoek naar de hanepootloper zolang de piekenval de gaffel draagt, en pas als de gaffel op het
+  opgedoekte zeil ligt een slappe bocht van dezelfde lengte over de bakboordkant van de bundel.
+  Hanepootloper, het eind van de piekenval en het dodemanseind gaan met de bocht mee. De fok neemt bij
+  "Fok afnemen" zijn kettinkje en de harpjes aan de hals mee; het harpje van de fokkenval komt met de
+  top van de fok langs het voorstag omlaag, en de fokkenschoot zit met een knoop aan de schoothoek.
 - Zeilen strijken, bediening "Tuig" (Zeilen op / Zeilen gestreken), dezelfde soort sequencer als
   reven: kop in de wind (giek, fok en windpijl midscheeps, geen buik); anker uit (het opgeborgen
   anker, de ketting en de lijn maken plaats voor een lijn die vanaf het ankeroog over de boeg in het
