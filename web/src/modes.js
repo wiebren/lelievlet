@@ -235,7 +235,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     return { lay };
   })();
   const mainMeshes = meshesOf(MAIN); const jibMeshes = meshesOf(JIB);
-  const sailRig = meshesOf([...new Set([...MAIN, ...GIEK, 'lummelbout', ...JIB, ...running])]);   // fades out when the sails are down
+  // fades out when the sails are down - with what shackles the fok on, which goes ashore with it
+  const sailRig = meshesOf([...new Set([...MAIN, ...GIEK, 'lummelbout', ...JIB, ...running, 'kettinkje_fok', 'harpjes_fok', 'harpje_fokkenval'])]);
 
   const mastPivot = V(tuig.mast.punt);
   const boomPivot = V(tuig.lummelbout); const boomEnd = V(tuig.giek_nok);
@@ -1212,7 +1213,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     {
       const off = smoothstep(strike.fokoff);
       for (const m of jibMeshes) { m.position.y += 0.25 * off; if (off > 0.7) m.visible = false; }   // posed afresh every frame
-      for (const m of fokGear) { m.position.y = 0.25 * off; m.visible = off <= 0.7; }               // these are not: set, never added to
+      for (const m of fokGear) { m.position.y = 0.25 * off; m.visible = off <= 0.7 && now.sails > 0.02; }   // these are not: set, never added to
       // the harpje of the fokkenval comes down the stay with the head of the fok, the val paying out
       // after it; once the fok is off, the val is hauled back up to where it was
       if (valHarp) {
