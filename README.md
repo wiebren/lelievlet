@@ -410,7 +410,8 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   op of neemt hem eruit (niet zolang er een riem in getrokken wordt), een klik op de mik of zijn
   houders zet hem op of bergt hem op; een moduswisseling zet ze terug waar ze horen. Een klik op de
   bakskist sluit of opent het deksel (in open stand gemodelleerd; het deksel en wat eraan vastgeschroefd
-  zit draaien om de scharnierlijn uit `extras.tuig.bakskist`). Een klik op anker, ketting of lijn laat
+  zit draaien om de scharnierlijn uit `extras.tuig.bakskist`). Een klik op de zwaardloper (of zijn
+  borgpen) zet het midzwaard een stand verder: neer, half, op en weer neer. Een klik op anker, ketting of lijn laat
   het anker vallen of haalt het op: opgepakt aan zijn harpje, over het voordek gedragen, over de
   stuurboordboeg uitgezwaaid en langs een spline naar de bodem gevierd; de ketting is één mesh waarvan
   de 54 schalmen als starre stukken langs zijn verloop worden geplaatst, de lijn wordt live over het

@@ -1414,6 +1414,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const d = dollen.find((x) => id === `dol_${x.key}` || id === `dolketting_${x.key}`);
     if (d && !d.busy) d.byHand = d.seated > 0.5 ? 0 : 1;
     if (id === 'mik' || id === 'mikhouders') mikPose.byHand = mikPose.up > 0.5 ? 0 : 1;
+    // the zwaardloper (or its borgpen) sets the midzwaard one stop further: neer, half, op and round again
+    if (id.startsWith('zwaardloper') || id === 'borgpen' || id === 'kettinkje') setBoard({ neer: 'half', half: 'op', op: 'neer' }[state.midzwaard]);
     if (kist && id.startsWith('bakskist')) kist.want = kist.want > 0.5 ? 0 : 1;
     if (anchorGear && ['anker', 'ankerketting', 'ankerlijn'].includes(id) && rigging.t < 1e-6) anchorGear.want = anchorGear.want > 0.5 ? 0 : 1;
   };
