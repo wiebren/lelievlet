@@ -241,6 +241,9 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 /* fok te loevert sits too close to voor de wind: same row, moved outwards past the end of the slider */
 /* kop in de wind: dead centre, a row up, between the two captions */
 #course-markers button.upper { bottom: 35px; }
+/* aan de wind, either side of the gap: a little towards the middle, clear of halve wind */
+#course-markers button.near-right { transform: translateX(calc(-50% - 8px)); }
+#course-markers button.near-left { transform: translateX(calc(-50% + 8px)); }
 #course-markers button.out-right { transform: translateX(calc(-50% + 62px)); }
 #course-markers button.out-left { transform: translateX(calc(-50% - 62px)); }
 #course-markers .caption {
@@ -248,15 +251,22 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   text-transform: uppercase; color: var(--muted); white-space: nowrap;
 }
 #course-markers button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
-/* a narrow viewer: the names are set smaller and every other one a row up, so that they stay apart */
-@container (max-width: 735px) {
-  #course-markers { height: 104px; }
+/* a narrow viewer: the names are set smaller and spread over three rows, so that neighbours in a
+   row are 135 degrees of course apart; fok te loevert is drawn in from the ends of the slider */
+@container (max-width: 900px) {
+  #course-markers { height: 128px; }
   #course-markers button { font-size: 10.5px; padding: 2px 4px; }
-  #course-markers button.alt { bottom: 32px; }
-  #course-markers button.upper { bottom: 56px; }
-  #course-markers .caption { bottom: 84px; font-size: 10px; }
-  #course-markers button.out-right { transform: translateX(calc(-50% + 30px)); }
-  #course-markers button.out-left { transform: translateX(calc(-50% - 30px)); }
+  #course-markers button.r1 { bottom: 32px; }
+  #course-markers button.r2 { bottom: 56px; }
+  #course-markers button.upper { bottom: 80px; }
+  #course-markers .caption { bottom: 108px; font-size: 10px; }
+  #course-markers button.near-right { transform: translateX(calc(-50% + 15px)); }
+  #course-markers button.near-left { transform: translateX(calc(-50% - 15px)); }
+  #course-markers button.out-right { bottom: 80px; transform: translateX(calc(-100% + 24px)); }   /* beside kop in de wind */
+  #course-markers button.out-left { bottom: 80px; transform: translateX(-24px); }
+}
+@container (max-width: 350px) {
+  #course-markers .caption { font-size: 8.5px; letter-spacing: 0.03em; }
 }
 
 /* The progress bar of the running procedure, in the same strip as the control bar. main.js sets

@@ -1396,10 +1396,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     slider.value = String(toSlider(course));
     slider.setAttribute('aria-valuetext', nameOf(course));
     needle.setAttribute('transform', `rotate(${Math.round(course)} 12 12)`);   // the cloud sits where the wind comes from, the bow being up
-    for (const b of markers.querySelectorAll('button')) {           // aan de wind is one button for both tacks
-      const c = Number(b.dataset.course);
-      b.setAttribute('aria-pressed', String(c === CLOSE_HAULED ? Math.abs(course) === c : c === course));
-    }
+    for (const b of markers.querySelectorAll('button')) b.setAttribute('aria-pressed', String(Number(b.dataset.course) === course));
     trimBoard();
   };
   const fromSlider = (value) => {                                   // the middle of the gap is kop in de wind, its sides aan de wind
@@ -1510,25 +1507,20 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   slider.min = String(-SLIDER_MAX); slider.max = String(SLIDER_MAX);
   for (const side of [-1, 1]) {
     for (const m of MARKERS) {
-      if (side === -1 && m.course === CLOSE_HAULED) continue;       // one shared marker in the middle
       const course = side * m.course;
       const b = Object.assign(document.createElement('button'), { type: 'button', textContent: m.label });
       b.dataset.course = String(course);
       const at = (c) => `${((toSlider(c) + SLIDER_MAX) / (2 * SLIDER_MAX)) * 100}%`;
-      b.style.left = m.course === CLOSE_HAULED ? '50%' : at(course);   // one name for both tacks, over the gap
+      b.style.left = at(course);
       if (m.course === LOEVERT) b.classList.add(side < 0 ? 'out-left' : 'out-right');   // same row, moved outwards
-      if (m.course === 90 || m.course === RUN) b.classList.add('alt');   // a row up where the viewer is narrow
-      if (m.course === CLOSE_HAULED) {
-        b.addEventListener('click', () => setCourse((Math.sign(state.course) || 1) * CLOSE_HAULED));
-      } else {
-        b.addEventListener('click', () => setCourse(course));
-      }
+      if (m.course === 90) b.classList.add('r1');                    // rows up, where the viewer is narrow
+      if (m.course === 135) b.classList.add('r2');
+      if (m.course === CLOSE_HAULED) b.classList.add(side < 0 ? 'near-left' : 'near-right');   // nudged to keep clear of its neighbours
+      b.addEventListener('click', () => setCourse(course));
       markers.append(b);
-      for (const c of m.course === CLOSE_HAULED ? [course, -course] : [course]) {
-        const tick = document.createElement('span');
-        tick.style.left = at(c);
-        ticks.append(tick);
-      }
+      const tick = document.createElement('span');
+      tick.style.left = at(course);
+      ticks.append(tick);
     }
   }
   {
