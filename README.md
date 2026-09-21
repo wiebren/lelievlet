@@ -283,9 +283,11 @@ koers ten opzichte van de wind. De bediening is één balk met iconen onderlangs
 Wind, Reven, Tuig, Riemen, Roeicommando - en elk icoon opent zijn bediening in een popover erboven: één tegelijk,
 weer te sluiten met hetzelfde icoon, een ander icoon, Escape of een klik ernaast. Elk icoon tekent
 zijn eigen toestand (de modus waarin hij staat, de wolk met pijl gedraaid naar waar de wind vandaan komt, het aantal riemen); Wind verschijnt alleen in Zeilen en Riemen alleen in Roeien, en de
-balk centreert zich opnieuw zonder die. De koersschuif is gespiegeld: het midden is aan de wind, naar
-rechts komt de wind over stuurboord, naar links over bakboord, dus door het midden gaan is overstag
-gaan; beide uiteinden lopen door tot voor de wind en fok te loevert. De labels zijn zichtbaar zolang
+balk centreert zich opnieuw zonder die. De koersschuif is gespiegeld: precies in het midden ligt de boot met de kop in de
+wind (koers 0, zoals voor anker: giek en fok midscheeps, en de zeilen vangen niets en klapperen zacht -
+`Bend.flutter`, golven die van het voorlijk naar achteren lopen, met het bollinggewicht als omhullende
+zodat het doek stil blijft waar het vastzit), aan weerszijden daarvan begint aan de wind, naar rechts
+komt de wind over stuurboord, naar links over bakboord, dus door het midden gaan is overstag gaan; beide uiteinden lopen door tot voor de wind en fok te loevert. De labels zijn zichtbaar zolang
 het windpaneel open staat. De boot blijft liggen; een windpijl draait eromheen.
 Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een animatie.
 

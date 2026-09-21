@@ -25,8 +25,11 @@ const FOK_BEND = [[45, 0.06], [90, 0.10], [135, 0.13], [180, 0.15]];
 const MAIN_BEND = [[45, 0.8], [90, 1.0], [180, 1.15]];
 
 const CLOSE_HAULED = 45; const RUN = 180; const LOEVERT = 195;      // courses; LOEVERT = fok te loevert
-// The slider is mirrored: 0 = aan de wind, to the right wind over starboard, to the left over port.
-const SLIDER_MAX = LOEVERT - CLOSE_HAULED;
+// The slider is mirrored: dead centre is kop in de wind (course 0), HEAD_GAP to either side of it aan
+// de wind begins, to the right with the wind over starboard, to the left over port.
+const HEAD_GAP = 30;
+const SLIDER_MAX = LOEVERT - CLOSE_HAULED + HEAD_GAP;
+const HEAD_TO_WIND = 'Kop in de wind';
 const MARKERS = [
   { course: CLOSE_HAULED, label: 'Aan de wind' },
   { course: 90, label: 'Halve wind' },
@@ -78,6 +81,7 @@ class Bend {
     this.foot = 0; this.luff = 1;                                   // where the foot is and how high the cloth stands above it
     this.warp = null; this.warpKey = 0; this.warped = 0;            // warp(p): last say over a vertex, for a sail coming down
     this.reef = null;       // { foot, axisY, radius, side, luff, layer }: set for a sail that is reefed by rolling
+    this.flutter = 0; this.time = 0;   // head to wind the cloth catches nothing and shakes: metres per unit of weight, and when
   }
 
   /** How far the giek has to be turned (radians) before cloth starts to go round it: the foot first
@@ -100,7 +104,9 @@ class Bend {
   /** depth: belly; phi: how far the giek is rolled (radians); slack: 0..1, the val eased a little */
   set(depth, phi = 0, slack = 0) {
     if (Math.abs(depth - this.depth) < 2e-4 && Math.abs(phi - this.phi) < 1e-4 && Math.abs(slack - this.slack) < 1e-3
-        && this.shift.distanceToSquared(this.shifted) < 1e-9 && this.warpKey === this.warped) return;
+        && this.shift.distanceToSquared(this.shifted) < 1e-9 && this.warpKey === this.warped && this.flutter < 1e-4 && !this.fluttered) return;
+    this.fluttered = this.flutter >= 1e-4;                          // one more pass after it dies down, to lay the cloth still
+    const shake = this.flutter; const t = this.time;
     this.warped = this.warpKey;
     const P = [0, 0, 0];
     this.depth = depth; this.phi = phi; this.slack = slack; this.shifted.copy(this.shift);
@@ -119,6 +125,9 @@ class Bend {
       const a = geometry.attributes.position.array;
       for (let i = 0, j = 0; i < weights.length; i++, j += 3) {
         let w = weights[i] * depth; let y = rest[j + 1]; let z = rest[j + 2];
+        // waves running aft from the luff, held where the cloth is held (the weight is 0 there), two of
+        // them out of step so that it never repeats neatly
+        if (shake) w += weights[i] * shake * (Math.sin(6.9 * t + 5.2 * rest[j]) + 0.5 * Math.sin(11.3 * t + 9.1 * rest[j] + 2.4 * y));
         if (reef) {
           const s = Math.max(y - reef.foot, 0);                             // cloth between this point and the foot
           if (s >= W) {                                                     // still flying: down, and beside the giek
@@ -887,7 +896,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // -- state: targets are set by the UI, the smoothed values chase them
   // rowPhase 0..1 runs inpik -> haal -> uitpik -> recover; rowLength is half the sweep of the oar (radians)
   const state = { commando: { bb: 'slag', sb: 'slag' }, mode: 'zeilen', course: 90, midzwaard: 'neer', rowing: 'kruis', rowPhase: 0, rowLength: 0.42 };
-  const now = { boom: 0, jib: FOK_CAD, jibBend: 0.08, mainBend: 1, board: 0, sails: 1, rowing: 0, sculling: 0, windAngle: deg(90), t: 0 };
+  const now = { boom: 0, jib: FOK_CAD, jibBend: 0.08, mainBend: 1, board: 0, sails: 1, rowing: 0, sculling: 0, flutter: 0, windAngle: deg(90), t: 0 };
   const chase = (key, target, dt, rate = 4.5) => { now[key] += (target - now[key]) * (1 - Math.exp(-dt * rate)); };
 
   const q = new THREE.Quaternion(); const roll = new THREE.Quaternion(); const dir = new THREE.Vector3();
@@ -925,8 +934,10 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       kist.open += (kist.want - kist.open) * (1 - Math.exp(-dt * 3.5));
       pivotRotate(kist.lid, kist.hinge, kist.axis, kist.shut * (1 - kist.open));
     }
-    const upwind = 1 - smoothstep(strike.head);                     // head to wind: everything amidships and shaking
-    chase('boom', sailing ? side * interp(BOOM, course) * upwind : 0, dt);
+    const headUp = Math.max(smoothstep(strike.head), state.course === 0 ? 1 : 0);
+    const upwind = 1 - headUp;                                      // head to wind: everything amidships and shaking
+    chase('flutter', sailing ? headUp : 0, dt, 2.2);
+    chase('boom', sailing ? side * interp(BOOM, course) * upwind + 1.6 * now.flutter * Math.sin(1.9 * now.t) : 0, dt);   // the giek wanders a little
     chase('jib', sailing ? side * THREE.MathUtils.lerp(interp(FOK, course), FOK_TE_LOEVERT, loevert) * upwind : FOK_CAD, dt);
     chase('jibBend', interp(FOK_BEND, course) * upwind, dt);
     chase('mainBend', interp(MAIN_BEND, course) * upwind, dt);
@@ -1127,6 +1138,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     sheetHaul.set(haulPath);
     // Bellies to leeward: the side the sail stands on, flat while it crosses the boat. For the
     // fok that also turns it inside out when it is set to windward (fok te loevert).
+    mainBend.flutter = 0.16 * now.flutter * (1 - smoothstep(strike.main)); mainBend.time = now.t;
     mainBend.set(now.mainBend * clamp(now.boom / 8, -1, 1), phi, reef.slack);
     // the roll turns and goes aft with the giek; it is scaled about the giek's axis to the size it has grown to
     reefRoll.visible = mainBend.rollRadius > 0 && now.sails > 0.5;
@@ -1167,6 +1179,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     mainBend.warpKey = strike.main * 7 + strike.furl; jibBend.warpKey = strike.jib;
     layAnchor();
     slideHanks(smoothstep(strike.jib));
+    jibBend.flutter = 0.05 * now.flutter * (1 - smoothstep(strike.jib)); jibBend.time = now.t + 1.3;
     jibBend.set(now.jibBend * jibInfo.reikwijdte_m * clamp(now.jib / 10, -1, 1));
     setOpacity(sailRig, now.sails);
     // made up: the cloth gives way to the roll on the giek, and the binders go on
@@ -1371,8 +1384,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const ticks = windPanel.querySelector('.ticks');
   const needle = $('wind-needle');
 
-  const toSlider = (course) => Math.sign(course) * (Math.abs(course) - CLOSE_HAULED);
+  const toSlider = (course) => (course === 0 ? 0 : Math.sign(course) * (Math.abs(course) - CLOSE_HAULED + HEAD_GAP));
   const nameOf = (course) => {
+    if (course === 0) return HEAD_TO_WIND;
     const c = Math.abs(course);
     const m = c > RUN ? MARKERS[4] : c >= 158 ? MARKERS[3] : c >= 112 ? MARKERS[2] : c >= 68 ? MARKERS[1] : MARKERS[0];
     return `${m.label}, wind over ${course < 0 ? 'bakboord' : 'stuurboord'}`;
@@ -1381,13 +1395,16 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     state.course = course;
     slider.value = String(toSlider(course));
     slider.setAttribute('aria-valuetext', nameOf(course));
-    needle.setAttribute('transform', `rotate(${Math.round(course) - 90} 12 12)`);   // the cloud sits where the wind comes from, the bow being to the right
-    for (const b of markers.querySelectorAll('button')) b.setAttribute('aria-pressed', String(Number(b.dataset.course) === course));
+    needle.setAttribute('transform', `rotate(${Math.round(course)} 12 12)`);   // the cloud sits where the wind comes from, the bow being up
+    for (const b of markers.querySelectorAll('button')) {           // aan de wind is one button for both tacks
+      const c = Number(b.dataset.course);
+      b.setAttribute('aria-pressed', String(c === CLOSE_HAULED ? Math.abs(course) === c : c === course));
+    }
     trimBoard();
   };
-  const fromSlider = (value) => {                                   // at dead centre keep the tack we were on
-    const side = Math.sign(value) || Math.sign(state.course) || 1;
-    return side * (CLOSE_HAULED + Math.abs(value));
+  const fromSlider = (value) => {                                   // the middle of the gap is kop in de wind, its sides aan de wind
+    if (Math.abs(value) < HEAD_GAP / 2) return 0;
+    return Math.sign(value) * (CLOSE_HAULED + Math.max(Math.abs(value) - HEAD_GAP, 0));
   };
   // The midzwaard has no control of its own: a click on it or its zwaardloper sets it a stop further,
   // and it follows the boat - up for rowing, sculling and running before the wind, down again for
@@ -1497,18 +1514,29 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       const course = side * m.course;
       const b = Object.assign(document.createElement('button'), { type: 'button', textContent: m.label });
       b.dataset.course = String(course);
-      b.style.left = `${((toSlider(course) + SLIDER_MAX) / (2 * SLIDER_MAX)) * 100}%`;
+      const at = (c) => `${((toSlider(c) + SLIDER_MAX) / (2 * SLIDER_MAX)) * 100}%`;
+      b.style.left = m.course === CLOSE_HAULED ? '50%' : at(course);   // one name for both tacks, over the gap
       if (m.course === LOEVERT) b.classList.add(side < 0 ? 'out-left' : 'out-right');   // same row, moved outwards
+      if (m.course === 90 || m.course === RUN) b.classList.add('alt');   // a row up where the viewer is narrow
       if (m.course === CLOSE_HAULED) {
         b.addEventListener('click', () => setCourse((Math.sign(state.course) || 1) * CLOSE_HAULED));
       } else {
         b.addEventListener('click', () => setCourse(course));
       }
       markers.append(b);
-      const tick = document.createElement('span');
-      tick.style.left = b.style.left;
-      ticks.append(tick);
+      for (const c of m.course === CLOSE_HAULED ? [course, -course] : [course]) {
+        const tick = document.createElement('span');
+        tick.style.left = at(c);
+        ticks.append(tick);
+      }
     }
+  }
+  {
+    const b = Object.assign(document.createElement('button'), { type: 'button', textContent: HEAD_TO_WIND, className: 'upper' });
+    b.dataset.course = '0'; b.style.left = '50%';
+    b.addEventListener('click', () => setCourse(0));
+    markers.append(b);
+    const tick = document.createElement('span'); tick.style.left = '50%'; ticks.append(tick);
   }
   for (const [text, left] of [['wind over bakboord', '25%'], ['wind over stuurboord', '75%']]) {
     const caption = Object.assign(document.createElement('span'), { className: 'caption', textContent: text });

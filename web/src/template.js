@@ -190,7 +190,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     <button id="wind-toggle" class="icon-button" type="button" aria-label="Wind" title="Wind" aria-expanded="false" aria-controls="wind-panel">
       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" overflow="visible" aria-hidden="true">
         <!-- a cloud blowing: the cloud sits where the wind comes from, the arrow points where it goes -->
-        <g id="wind-needle" transform="rotate(0 12 12)">
+        <g id="wind-needle" transform="rotate(90 12 12)">
           <path d="M7 10.5h10a3.2 3.2 0 0 0 .6-6.35A4.6 4.6 0 0 0 10.2 3.1 2.2 2.2 0 0 0 6.6 4.6 3.1 3.1 0 0 0 7 10.5z"/>
           <path d="M10.6 13v4.6M13.4 13v4.6M8.2 17.6 12 22.4l3.8-4.8"/>
         </g>
