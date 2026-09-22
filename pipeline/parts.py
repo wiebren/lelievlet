@@ -259,3 +259,15 @@ NUDGE["5900"] = (0.0, 0.0, -2.0)
 # the CAD leaves 2.8 mm of air there. Moved square onto the plating (found by check_attached.py).
 NUDGE["592C"] = (1.9, 3.3, 0.1)
 NUDGE["5930"] = (1.9, -3.3, 0.1)
+# The helmstok is drawn 10 mm to port of the roerkop, one cheek of the slot through it; moved onto
+# the middle of the slot (the cheeks stand 28 mm apart round y = -7.8, on the roer's centre line).
+NUDGE["5737"] = (0.0, -10.2, 5.8)                 # and 6 mm up, snug under the top of the roerkop
+# The kettinkje of the fok is drawn 23 mm short: the harpje at its top (53A7, pin 53AF) stands
+# clear of the last link, where the one at its foot hangs in the first. Carried down the chain
+# until it hangs in its link the same way. Its pin goes through the halshoek of the fok, so the
+# tack comes down with it: FOK_TACK is the corner the rest of the pipeline uses, and
+# pipeline/sails.py stretches the cloth to it.
+HALS_SHIFT = (7.1, 0.0, -22.0)
+NUDGE |= {h: HALS_SHIFT for h in ("53A7", "53AF")}
+FOK_TACK_CAD = (6126.2, -7.3, 1266.7)
+FOK_TACK = tuple(c + s for c, s in zip(FOK_TACK_CAD, HALS_SHIFT))

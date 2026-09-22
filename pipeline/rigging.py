@@ -146,7 +146,6 @@ def folded_band(p0, p1, y_centre, r_in, r_out, segments=28):
 # Where each fokkenschoot runs: schoothoek -> the block on the forward leioog, by the want ->
 # the hand of the crew. DWG mm; y is mirrored for the other side. The viewer lays the sheet anew
 # for every position of the fok; what is built here is the sheet as the CAD has the sails.
-SCHOOT_VOET = (4037.8, 868.5, 749.8)          # top of the leioog: the block is shackled on here
 SCHOOT_HOEP = (4060.0, 862.4, 787.5)          # middle of the sheave of that block
 SCHOOT_HAND = (3550.0, 430.0, 862.0)          # crew sitting by the mastdoft
 SCHOOT_R = 4.0                                # the sheet is drawn 8 mm

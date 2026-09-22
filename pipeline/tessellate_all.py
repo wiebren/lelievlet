@@ -22,10 +22,18 @@ OUT = ROOT / "build" / "mesh"
 BUDGET = 12000          # triangles per body before the tessellation is coarsened
 
 
-def deflection(size):
+# Long thin tubes: the dolboord, the rails and the berghouten run the length of the boat, so by
+# size they would get the coarsest tessellation, but they are 20 mm pipes made of many faces, and
+# at 1 mm the seams between those faces open into slits. They get the fine setting of a fitting.
+TUBES = {"5A3B", "5A65", "5A6C", "5A1F", "5A11", "58F5"}
+
+
+def deflection(size, handle=None):
     """Finer tessellation for small fittings, coarser for the big plates (mm)."""
+    if handle in TUBES:
+        return 0.2
     diag = float(np.linalg.norm(size))
-    return min(1.0, max(0.03, diag * 0.0015))
+    return min(1.0, max(0.1, diag * 0.004))       # 0.1 mm at the finest: below that a fitting only gets heavier, not rounder
 
 
 def main():
@@ -54,10 +62,10 @@ def main():
                 raise RuntimeError("nothing built")
             # Ropes and wires are long sweeps of a tiny circle: the default angular tolerance
             # explodes on them. Coarsen step by step until the body fits its budget.
-            lin = deflection(rec["size"])
+            lin = deflection(rec["size"], rec["handle"])
             for ang, lin_k in ((0.35, 1.0), (0.6, 2.0), (0.9, 4.0)):
                 V, N, F, G = tessellate(shape, linear=lin * lin_k, angular=ang, with_face_ids=True)
-                if len(F) <= BUDGET:
+                if len(F) <= BUDGET or rec["handle"] in TUBES:     # a tube is not coarsened: that is what opens its seams
                     break
             row["angular"] = ang
             if len(F) == 0:

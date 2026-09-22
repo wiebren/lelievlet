@@ -6,9 +6,13 @@ Everything is in CAD millimetres (x forward, y to port, z up), like the bodies i
   build()    returns parts that have no CAD body - mastbout, grendelbout, borglijntje lummelbout,
              the two mikhouders, the six dolpotten with their gusset plates
 """
+from pathlib import Path
+
 import numpy as np
 
 from rigging import tube
+
+MESH = Path(__file__).resolve().parent.parent / "build" / "mesh"
 
 # -- mastkoker: both bolts run athwartships through holes (r = 6) in its sides, y = -51.1 .. 50.9
 MASTBOUT = (4361.2, 745.2)          # (x, z) through the mast itself, on its centreline
@@ -95,15 +99,22 @@ def pipe(a, b, r_out, r_in, sides=28):
 
 
 def bolt(x, z, y_head, y_nut, radius=5.8):
-    """Hex bolt lying athwartships: head against one side of the koker, washer and nut on the other."""
-    s = np.sign(y_nut - y_head)
+    """Hex bolt lying athwartships: head against one side, washer and nut on the other. Head, nut
+    and washer are sized to the bolt (an M12 as drawn for the mastbout)."""
+    s = np.sign(y_nut - y_head); k = radius / 5.8
     P = lambda y: (x, y, z)
     return _join([
-        prism(P(y_head - s * 1), P(y_nut + s * 16), radius, 20, True),             # shank and thread end
-        prism(P(y_head - s * 8), P(y_head), 10.5, 6, False),                         # head
-        prism(P(y_nut), P(y_nut + s * 2), 12.5, 24, True),                           # washer
-        prism(P(y_nut + s * 2), P(y_nut + s * 11), 10.5, 6, False),                  # nut
+        prism(P(y_head - s * 1), P(y_nut + s * 16 * k), radius, 20, True),         # shank and thread end
+        prism(P(y_head - s * 8 * k), P(y_head), 10.5 * k, 6, False),                 # head
+        prism(P(y_nut), P(y_nut + s * 2 * k), 12.5 * k, 24, True),                   # washer
+        prism(P(y_nut + s * 2 * k), P(y_nut + s * 11 * k), 10.5 * k, 6, False),      # nut
     ])
+
+
+# -- roerkop: the two M6 bolts through its cheeks and the helmhout between them, in the holes the
+# CAD draws (x, z), heads to port; the cheeks stand at y = 8.2 (port) and -23.9
+ROERKOP_BOLTS = ((658.3, 1027.4), (766.0, 1058.7))
+ROERKOP_CHEEKS = (8.2, -23.9)
 
 
 def lug(origin, u, v, w0, w1, radius, hole, reach):
@@ -222,7 +233,7 @@ def dodemanseind():
     return _join([tube(np.vstack([turns, span]), DODEMANSEIND_R, 8), bead(HANEPOOTLOPER, 6.0)])
 
 
-PUTTING_FOOT, PUTTING_LEAN = 741.0, 0.0513     # how far down the plate goes; it leans with the boeisel
+PUTTING_FOOT, PUTTING_LEAN = 757.0, 0.0513     # down to the top edge of the boeisel (z 758.8 there), not under the dolboord; it leans with the boeisel
 
 
 def putting_foot(V, N, F, G):
@@ -235,7 +246,7 @@ def putting_foot(V, N, F, G):
     x0, x1 = foot[:, 0].min(), foot[:, 0].max()
     ya, yb = sorted([foot[:, 1].min(), foot[:, 1].max()], key=abs)
     shift = side * PUTTING_LEAN * (z0 - PUTTING_FOOT)
-    top = [(x0, ya, z0 + 0.5), (x1, ya, z0 + 0.5), (x1, yb, z0 + 0.5), (x0, yb, z0 + 0.5)]
+    top = [(x0, ya, z0), (x1, ya, z0), (x1, yb, z0), (x0, yb, z0)]   # flush with the plate's end: no overlap to shimmer
     bottom = [(x, y + shift, PUTTING_FOOT) for x, y, _ in top]
     P = np.array(top + bottom); mid = P.mean(0)
     quads = [(0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7), (4, 5, 6, 7)]
@@ -266,10 +277,321 @@ def slide_notch(V):
     return V
 
 
+# -- zwaardkast (5843): the CAD solid is inside out bar the top flange on one side, so the viewer,
+# which only draws front faces, shows every edge of the 4 mm plates open. And its aft end stands at
+# x 3365 while the slot in the vlak ends at x 3352.2, which leaves a hole in the bottom behind it:
+# the foot of the (sloping) end plate is moved aft until its face meets the end of the slot at the
+# height of the vlak (z 46 .. 50); its top stays where it is.
+KAST_FOOT_X, KAST_FOOT_SHIFT = 3370.0, -14.5
+
+
+VLAK_UNDER_KAST = "PartSolids-Long_Shell_583F"   # the starboard vlak: its underside is where the kast ends
+
+
+def zwaardkast(V, N, F, G):
+    V = V.copy(); V[V[:, 0] < KAST_FOOT_X, 0] += KAST_FOOT_SHIFT
+    # the CAD runs the plates of the kast 13 mm out through the bottom: everything below the
+    # underside of the vlak, which rockers along the slot, is brought up flush with it
+    Vv, _ = _load(MESH, VLAK_UNDER_KAST)
+    near = Vv[np.abs(Vv[:, 1]) < 60.0]
+    order = np.argsort(near[:, 0])
+    xs, zs = near[order, 0], near[order, 2]
+    low = np.minimum.accumulate(zs[::-1])[::-1] if zs[0] > zs[-1] else np.minimum.accumulate(zs)   # the underside rockers one way
+    V[:, 2] = np.maximum(V[:, 2], np.interp(V[:, 0], xs, low))
+    return outward(V, N, F, G)
+
+
+# -- kim (5A0B, 5A0C) on the vlak (583C, 583F): the two plates are butted at the chine, end face to
+# end face, but the CAD leaves 0.3 mm between them aft and 0.8 mm at the stem - a slit the light
+# shows through - and sets the kim's end face 3.5 mm up the vlak's, which leaves a lit strip of
+# that face showing outside. The kim's end face is laid onto the vlak's: its outer corner onto the
+# vlak's outer corner, its inner corner onto the inner one.
+KIM_ON = {"5A0B": "583C", "5A0C": "583F"}
+KIM_REACH = 2.5              # the end faces are this close together; nothing else of the two is
+STRIP_SPAN = 60.0            # along the seam, the stretch of end face a corner is judged against
+
+
+def _closest_on_triangles(P, T):
+    """For every point P[i], the closest point on any of the triangles T[i, k] (k candidates each)."""
+    p = P[:, None, :]
+    a, b, c = T[:, :, 0], T[:, :, 1], T[:, :, 2]
+    n = np.cross(b - a, c - a); n /= np.maximum(np.linalg.norm(n, axis=2, keepdims=True), 1e-12)
+    q = p - ((p - a) * n).sum(2, keepdims=True) * n                  # onto the plane
+    inside = np.ones(q.shape[:2], bool)
+    for u, v in ((a, b), (b, c), (c, a)):
+        inside &= (np.cross(v - u, q - u) * n).sum(2) >= 0
+    best = np.where(inside[..., None], q, np.nan)
+    for u, v in ((a, b), (b, c), (c, a)):                          # or on one of its edges
+        e = v - u
+        t = np.clip(((p - u) * e).sum(2) / np.maximum((e * e).sum(2), 1e-12), 0, 1)
+        s = u + t[..., None] * e
+        closer = np.isnan(best[..., 0]) | (np.linalg.norm(s - p, axis=2) < np.linalg.norm(best - p, axis=2))
+        best = np.where((closer & ~inside)[..., None], s, best)
+    d = np.linalg.norm(best - p, axis=2)
+    return best[np.arange(len(P)), d.argmin(1)], d.min(1)
+
+
+def _near(P, V, F, reach):
+    """Which points P come within `reach` of the mesh V, F."""
+    T = V[F]
+    boxed = ((P[:, None, :] >= T.min(1) - reach) & (P[:, None, :] <= T.max(1) + reach)).all(2)
+    rows = np.flatnonzero(boxed.any(1))
+    near = np.zeros(len(P), bool)
+    if len(rows):
+        cand = np.argsort(~boxed[rows], axis=1, kind="stable")[:, :int(boxed[rows].sum(1).max())]
+        near[rows] = _closest_on_triangles(P[rows], T[cand])[1] < reach
+    return near
+
+
+def _outer_corner(P):
+    """For the points of a thin end face along the chine: which lie on its outer (lower) edge. Round
+    each point the face is fitted locally; its middle axis runs across the face, turned upward."""
+    out = np.zeros(len(P), bool)
+    for i, p in enumerate(P):
+        local = P[np.abs(P[:, 0] - p[0]) < STRIP_SPAN]
+        c = local.mean(0)
+        across = np.linalg.svd(local - c)[2][1] if len(local) > 2 else np.array([0.0, 0.0, 1.0])
+        out[i] = (p - c) @ (across if across[2] > 0 else -across) < 0
+    return out
+
+
+def _onto_edge(P, E):
+    """Closest points on the polyline through E (sorted along x) for every point P."""
+    E = E[np.argsort(E[:, 0])]
+    a, b = E[:-1][None], E[1:][None]
+    t = np.clip(((P[:, None] - a) * (b - a)).sum(2) / np.maximum(((b - a) ** 2).sum(2), 1e-12), 0, 1)
+    S = a + t[..., None] * (b - a)
+    return S[np.arange(len(P)), np.linalg.norm(S - P[:, None], axis=2).argmin(1)]
+
+
+def kim(handle, V, F):
+    from pathlib import Path
+    Vv, Fv = _load(Path(__file__).resolve().parent.parent / "build" / "mesh", f"PartSolids-Long_Shell_{KIM_ON[handle]}")
+    Pk, first, back = np.unique(V.round(4), axis=0, return_index=True, return_inverse=True)   # a corner is shared by the faces that meet in it
+    Pk = V[first]
+    Pv = np.unique(Vv.round(4), axis=0)
+    kim_end = np.flatnonzero(_near(Pk, Vv, Fv, KIM_REACH))
+    vlak_end = Pv[_near(Pv, V, F, KIM_REACH + 3.5)]                  # its outer corner stands off the kim
+    if len(kim_end) < 2 or len(vlak_end) < 4:
+        return V
+    k_out = _outer_corner(Pk[kim_end]); v_out = _outer_corner(vlak_end)
+    P = Pk[kim_end]; to = P.copy()
+    to[k_out] = _onto_edge(P[k_out], vlak_end[v_out])
+    to[~k_out] = _onto_edge(P[~k_out], vlak_end[~v_out])
+    # where the chine ends, at the stem head and the spiegel, the end face turns and its corners stop:
+    # there the kim only closes up onto the nearest point of the vlak
+    off = np.linalg.norm(to - P, axis=1) > KIM_REACH + 3.5
+    if off.any():
+        T = Vv[Fv]
+        cand = np.argsort(np.linalg.norm(T.mean(1)[None] - P[off][:, None], axis=2), axis=1)[:, :40]
+        to[off] = _closest_on_triangles(P[off], T[cand])[0]
+    Pk = Pk.copy(); Pk[kim_end] = to
+    return Pk[back.ravel()]
+
+
+def outward(V, N, F, G):
+    """Turn every B-rep face of a closed body that points into it outward again: a ray from just in
+    front of the face that crosses the body an odd number of times started inside it."""
+    T = V[F]; e1 = T[:, 1] - T[:, 0]; e2 = T[:, 2] - T[:, 0]
+    n = np.cross(e1, e2); area = np.linalg.norm(n, axis=1)
+    rays = np.array([[0.37, 0.56, 0.74], [-0.60, 0.21, 0.77], [0.45, -0.80, -0.39]])
+    rays /= np.linalg.norm(rays, axis=1, keepdims=True)
+    F = F.copy(); N = N.copy()
+    for g in np.unique(G):
+        tris = np.flatnonzero(G == g); i = tris[np.argmax(area[tris])]
+        if area[i] < 1e-9:
+            continue
+        o = T[i].mean(axis=0) + n[i] / area[i] * 0.01
+        inside = 0
+        for d in rays:                                     # Moeller-Trumbore against every triangle
+            p = np.cross(d, e2); det = (e1 * p).sum(1); ok = np.abs(det) > 1e-12
+            inv = np.where(ok, 1.0 / np.where(ok, det, 1.0), 0.0); s = o - T[:, 0]
+            u = (s * p).sum(1) * inv; q = np.cross(s, e1); v = (q * d).sum(1) * inv; t = (e2 * q).sum(1) * inv
+            inside += int((ok & (u >= 0) & (v >= 0) & (u + v <= 1) & (t > 1e-6)).sum()) % 2
+        if inside >= 2:
+            F[tris] = F[tris][:, ::-1]
+            N[np.unique(F[tris])] *= -1.0
+    return V, N, F, G
+
+
+# -- mast: the CAD keeps the square heel going 200 mm above the mastkoker and only then tapers it
+# to the round spar, so the taper ends right under the mastband. Brought down: the heel rounds off
+# from the top of the koker up, and is a plain round tube well before the band.
+MAST_KOKER_TOP, MAST_ROUND_CAD, MAST_ROUND, MAST_BAND = 745.2, 1150.0, 950.0, 1288.0
+MAST_AXIS, MAST_R = (4361.2, -1.1), 39.3       # the round spar above the heel: its axis and radius
+
+
+def mast_taper(V):
+    """Piecewise linear in z: the heel-to-round stretch above the koker compressed to end at
+    MAST_ROUND, the round tube above stretched to the band; nothing else moves."""
+    V = V.copy(); z = V[:, 2]
+    lower = (z > MAST_KOKER_TOP) & (z <= MAST_ROUND_CAD)
+    upper = (z > MAST_ROUND_CAD) & (z < MAST_BAND)
+    V[lower, 2] = MAST_KOKER_TOP + (z[lower] - MAST_KOKER_TOP) * (MAST_ROUND - MAST_KOKER_TOP) / (MAST_ROUND_CAD - MAST_KOKER_TOP)
+    V[upper, 2] = MAST_ROUND + (z[upper] - MAST_ROUND_CAD) * (MAST_BAND - MAST_ROUND) / (MAST_BAND - MAST_ROUND_CAD)
+    return V
+
+
+def mast_round(V, N, F, G, split_at):
+    """The stretch between the heel and the band as one plain tube: the CAD's recess there, and
+    the few big triangles it is drawn with, go, and a cylinder wall of MAST_R takes their place.
+    It reaches a little into the heel below and the band above, where it is hidden inside them."""
+    V, N, F, G = split_at(V, N, F, G, 2, MAST_ROUND)
+    V, N, F, G = split_at(V, N, F, G, 2, MAST_BAND - 0.05)
+    c = V[F].mean(axis=1)
+    r = np.linalg.norm(c[:, :2] - MAST_AXIS, axis=1)
+    drop = (c[:, 2] > MAST_ROUND) & (c[:, 2] < MAST_BAND - 0.05) & (r < MAST_R + 1.0)
+    F, G = F[~drop], G[~drop]
+    v, n, f = prism((*MAST_AXIS, MAST_ROUND - 3.0), (*MAST_AXIS, MAST_BAND + 2.0), MAST_R, 64, True)
+    F = np.vstack([F, f + len(V)]); G = np.concatenate([G, np.full(len(f), int(G.max()) + 1)])
+    return np.vstack([V, v]), np.vstack([N, n]), F, G
+
+
+# -- bent bars: kikkers and leiogen are one round bar bent to shape. The CAD tessellates their
+# torus and cylinder faces to a few thousand triangles each; the bar is swept anew along its own
+# centre line instead, which reads the same and costs a fifth of that.
+BARS = "5920 5928 591C 5924 592C 5930 594B 594F 5947 5943 595B 595F 5957 5953".split()
+BAR_SIDES, BAR_STEP = 10, 3.0
+BAR_REACH = 35.0             # a straight leg has no vertices along it: the next axis point can be this far on
+
+
+def bar_tube(V, N, F, G):
+    """A bent bar over again as a sweep: its two cut ends are the flat faces, its radius the half
+    width of one of them, and its centre line the wall a radius in along the surface normals,
+    chained from the one end to the other."""
+    flat = [g for g in np.unique(G) if np.linalg.norm(N[np.unique(F[G == g])] - N[np.unique(F[G == g])].mean(0), axis=1).max() < 0.05]
+    caps = [V[np.unique(F[G == g])] for g in flat]
+    r = min(np.ptp((c - c.mean(0)) @ np.linalg.svd(c - c.mean(0), full_matrices=False)[2][1]) for c in caps) / 2
+    wall = np.unique(F[~np.isin(G, flat)])
+    P = np.unique((V[wall] - r * N[wall]).round(2), axis=0)
+    ends = [c.mean(0) - r * 0.0 for c in caps]
+    order = [ends[0]]; left = np.ones(len(P), bool)
+    while left.any():
+        d = np.linalg.norm(P - order[-1], axis=1); d[~left] = np.inf
+        k = int(np.argmin(d))
+        if d[k] > BAR_REACH:
+            break
+        order.append(P[k]); left &= np.linalg.norm(P - P[k], axis=1) > BAR_STEP * 0.6
+    order.append(ends[1])
+    C = np.array(order)
+    s = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(C, axis=0), axis=1))])
+    t = np.linspace(0.0, s[-1], max(int(s[-1] / BAR_STEP), 4) + 1)
+    C = np.column_stack([np.interp(t, s, C[:, k]) for k in range(3)])
+    for _ in range(2):
+        C[1:-1] = 0.25 * C[:-2] + 0.5 * C[1:-1] + 0.25 * C[2:]
+    Vo, No, Fo = _sweep(C, r, BAR_SIDES)
+    return Vo, No, Fo, np.zeros(len(Fo), dtype=G.dtype)
+
+
+# -- boeisel into the dolboord: the CAD runs the top edge of the boeisel 1 to 3 mm outside the
+# 20 mm pipe of the dolboord it is meant to end inside, so it shows through the pipe wherever
+# that is faceted. Every vertex of the edge is drawn in onto the pipe's axis until it is inside.
+BOEISEL_IN = {"5827": "StiffenerSolids_5A3B", "5A33": "StiffenerSolids_5A65"}
+PIPE_R, PIPE_INSIDE = 10.0, 1.0      # the pipe, and how far inside it the edge is put
+PIPE_FADE = 4.0                      # over this distance outside the pipe the pull fades to nothing
+PIPE_STATION = 60.0                  # the pipe's axis is sampled this far apart along the boat
+
+
+def boeisel_into_dolboord(handle, V):
+    Vd, Fd = _load(MESH, BOEISEL_IN[handle])
+    top = V[:, 2].max()
+    xs = np.arange(Vd[:, 0].min() + 30.0, Vd[:, 0].max() - 30.0, PIPE_STATION)
+    axis = []
+    for x in xs:
+        seg = _section(Vd, Fd, x)
+        axis.append(_round_section(seg)[0] if len(seg) else (np.nan, np.nan))
+    axis = np.array(axis); ok = ~np.isnan(axis[:, 0])
+    cy = np.interp(V[:, 0], xs[ok], axis[ok, 0]); cz = np.interp(V[:, 0], xs[ok], axis[ok, 1])
+    ry, rz = V[:, 1] - cy, V[:, 2] - cz
+    d = np.hypot(ry, rz)
+    # drawn in radially, by a weight that fades out smoothly with the distance from the axis: the
+    # plates of the boeisel do not share their vertices, so a move with a step in it would open
+    # their seams into slits
+    inside = np.clip((PIPE_R + PIPE_FADE - d) / PIPE_FADE, 0.0, 1.0)
+    inside[(V[:, 0] <= xs[ok][0]) | (V[:, 0] >= xs[ok][-1]) | (d < 1e-6)] = 0.0
+    k = 1.0 - np.minimum(1.0, (PIPE_R - PIPE_INSIDE) / np.maximum(d, 1e-6))   # how far in, as a share of the way to the axis
+    V = V.copy()
+    V[:, 1] -= ry * k * inside; V[:, 2] -= rz * k * inside
+    return V
+
+
+# -- dolboord: a 20 mm pipe the length of the boat, which the CAD builds from a hundred short
+# faces whose end rings do not quite meet, so that slits open between them. Like the bent bars it
+# is swept anew along its own centre line, read off those faces: each ring's middle is a point on
+# the axis.
+PIPES = {"5A3B", "5A65"}
+PIPE_R, PIPE_SIDES, PIPE_STEP = 10.0, 20, 20.0
+
+
+def _sweep(C, r, sides):
+    """A closed tube along the polyline C: the wall, and a lid over either end."""
+    Vt, Nt, Ft = tube(C, r, sides)
+    lids = []
+    for ring, centre, out in ((Vt[:sides], C[0], C[0] - C[1]), (Vt[-sides:], C[-1], C[-1] - C[-2])):
+        Vl, Fl, want = [], [], []
+        for k in range(sides):
+            i = len(Vl); Vl += [centre, ring[k], ring[(k + 1) % sides]]; Fl.append((i, i + 1, i + 2)); want.append(out)
+        lids.append(_finish(Vl, Fl, want))
+    return _join([(Vt, Nt, Ft), *lids])
+
+
+def pipe_sweep(V, F, G):
+    centres = []
+    for g in np.unique(G):
+        P = V[np.unique(F[G == g])]
+        if len(P) < 20:
+            continue
+        c = P.mean(0); a = np.linalg.svd(P - c, full_matrices=False)[2][0]     # the segment's own axis
+        Q = P - c; t = Q @ a; d = np.linalg.norm(Q - np.outer(t, a), axis=1)
+        if abs(d.mean() - PIPE_R) < 1.5 and d.std() < 1.6:          # a length of the pipe, not a lid or a joint
+            u = np.cross(a, [0.0, 0.0, 1.0]); u = u / np.linalg.norm(u) if np.linalg.norm(u) > 1e-6 else np.array([1.0, 0.0, 0.0])
+            w = np.cross(a, u)
+            for lo, hi in zip(np.linspace(t.min(), t.max(), 4)[:-1], np.linspace(t.min(), t.max(), 4)[1:]):
+                sel = (t >= lo) & (t <= hi)                        # three points along it: a bend is followed, not cut
+                if sel.sum() >= 6:
+                    # the centre of the ring, fitted as a circle in the plane square to the axis:
+                    # the mean of the vertices sits wherever the mesh happens to be densest
+                    pts = np.c_[Q[sel] @ u, Q[sel] @ w]
+                    cc = np.linalg.lstsq(np.c_[2 * pts, np.ones(len(pts))], (pts ** 2).sum(1), rcond=None)[0][:2]
+                    centres.append(c + a * t[sel].mean() + cc[0] * u + cc[1] * w)
+    C = np.array(centres); left = np.ones(len(C), bool)
+    order = [int(np.argmin(C[:, 0]))]; left[order[0]] = False
+    while left.any():
+        d = np.linalg.norm(C - C[order[-1]], axis=1); d[~left] = np.inf
+        k = int(np.argmin(d))
+        if d[k] > 6.0 * PIPE_STEP:
+            break
+        order.append(k); left[k] = False
+    C = C[order]
+    ends = []
+    for c, t in ((C[0], C[0] - C[1]), (C[-1], C[-1] - C[-2])):     # out to the end of the pipe itself
+        t = t / np.linalg.norm(t)
+        near = V[np.linalg.norm(V - c, axis=1) < 60.0]
+        ends.append(c + t * max(float(((near - c) @ t).max()), 0.0))
+    C = np.vstack([ends[0], C, ends[1]])
+    s = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(C, axis=0), axis=1))])
+    t = np.linspace(0.0, s[-1], max(int(s[-1] / PIPE_STEP), 4) + 1)
+    C = np.column_stack([np.interp(t, s, C[:, k]) for k in range(3)])
+    for _ in range(6):                                    # what is left of the ring-to-ring scatter is smoothed out
+        C[1:-1] = 0.25 * C[:-2] + 0.5 * C[1:-1] + 0.25 * C[2:]
+    Vo, No, Fo = _sweep(C, PIPE_R, PIPE_SIDES)
+    return Vo, No, Fo, np.zeros(len(Fo), dtype=G.dtype)
+
+
 def reshape(handle, V, N, F, G, split_at):
     """Mesh edits on a CAD body. Returns V, N, F, G."""
+    if handle in PIPES:
+        return pipe_sweep(V, F, G)
+    if handle in BOEISEL_IN:
+        return boeisel_into_dolboord(handle, V), N, F, G
+    if handle in BARS:
+        return bar_tube(V, N, F, G)
     if handle in ("5640", "563D"):
         return slide_notch(V), N, F, G
+    if handle == "5843":
+        return zwaardkast(V, N, F, G)
+    if handle in KIM_ON:
+        return kim(handle, V, F), N, F, G
     if handle in ("5980", "5981"):
         return putting_foot(V, N, F, G)
     if handle == "5706":
@@ -279,6 +601,8 @@ def reshape(handle, V, N, F, G, split_at):
         return wantkettingen.reshape_want(handle, V, N, F, G, split_at)
     if handle != "56A3":
         return V, N, F, G
+    V = mast_taper(V)
+    V, N, F, G = mast_round(V, N, F, G, split_at)
     # The CAD draws the lips of the mastband as square tongues without a hole. Cut them off at
     # their root and put lips with a round end and a hole for the lummelbout in their place.
     V, N, F, G = split_at(V, N, F, G, 0, LIP_ROOT)
@@ -458,6 +782,7 @@ def build(mesh_dir):
     return [
         ("mikhouders", "Mikhouders", "beslag", "verzinkt", mikhouders(mesh_dir)),
         ("mastbout", "Mastbout", "beslag", "verzinkt", bolt(*MASTBOUT, lo, hi)),
+        ("roerkop", "Roerkop (helmhoutbeslag)", "roer", "verzinkt", _join([bolt(x, z, *ROERKOP_CHEEKS, radius=2.9) for x, z in ROERKOP_BOLTS])),
         ("grendelbout", "Grendelbout", "beslag", "verzinkt", bolt(*GRENDELBOUT, lo, hi)),
         ("borglijntje_lummelbout", "Borglijntje lummelbout", "lopend_want", "touw", lanyard()),
         ("pettenlijntje", "Pettenlijntje", "lopend_want", "touw", pettenlijntje()),

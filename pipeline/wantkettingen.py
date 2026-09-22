@@ -9,6 +9,10 @@ pipeline/anchor.py builds for the ankerketting, turned a quarter every other lin
 lies across the bow of the harpje and the sixth across the bight of the eye, which stand square
 to each other in the CAD.
 
+At the top of the chain a second harpje, the same one over again turned bow down, takes the sixth
+link in its bow and carries the thimble eye of the wire on its pin; the chain has a seventh
+link for it.
+
 The chain has to come out of the want's own length, or wire and chain would stand in the same
 place. `reshape_want()` cuts the mesh of the wire through a plane square to its axis a little
 above the splice, lifts everything below that plane - the eye - along that axis by the working
@@ -17,7 +21,7 @@ exactly what the chain adds; pipeline/hardware.py dispatches the two handles to 
 
 Everything is in CAD millimetres (x forward, y to port, z up), like pipeline/hardware.py.
 
-  build(mesh_dir)   [(id, naam, groep, materiaal, (V, N, F))] - the two chains
+  build(mesh_dir)   [(id, naam, groep, materiaal, (V, N, F))] - the two chains and the upper harpjes
   ogen(mesh_dir)    both ends of each want, for the viewer (pipeline/rig_data.py)
 """
 import json
@@ -33,11 +37,13 @@ MESH = ROOT / "build" / "mesh"
 
 WANTEN = dict(bb="51C2", sb="519A")          # the wire of each want, hommerring to harpje
 HANGS_IN = {"51C2": "5140", "519A": "5132"}  # the harpje it is shackled to at the wantputting
+PIN_OF = {"5140": "5148", "5132": "513A"}    # the pin of that harpje
 
-LINKS = 6                   # "a short chain, six links"
+LINKS = 7                   # "a short chain, six links" - and one more for the upper harpje to hang in
 LINK_GAP = 1.2              # play left at either end of the chain: what the CAD leaves between the
                             # bight of the eye and the bow of the harpje it is hung on today
 EYE_REACH = 100.0           # the splice is 37 mm deep; below this everything belongs to the foot
+EYE_LOOP = 40.0             # the thimble eye itself: this far up from its bight
 CUT_CLEAR = 5.0             # the wire is cut this far above the top of the splice, in plain wire
 
 
@@ -92,10 +98,18 @@ def foot(handle, V, F, G, mesh_dir=MESH):
     r_bow = np.ptp(cap[:, 1]) / 2                            # the bar of the bow is 2 r_bow thick
     crown = cap.mean(0)
 
+    Lp = loc(_load(mesh_dir, PIN_OF[HANGS_IN[handle]])[0])
+    pin = Lp.mean(0); r_pin = np.ptp(Lp[:, 0]) / 2            # the axle of the pin, and how thick it is
+
     s1 = crown[0] - (r_bow + CHAIN_WIRE / 2) - LINK_GAP      # lower end of the first link
-    s6 = s1 + LINKS * CHAIN_PITCH                            # upper end of the sixth
-    return dict(o=o, d=d, ex=ex, ey=ey, s1=s1,
-                shift=s6 + (CHAIN_WIRE / 2 + r_wire) + LINK_GAP - bight[0],
+    s_top = s1 + LINKS * CHAIN_PITCH                         # upper end of the last link
+    # the upper harpje, turned over: its bow down through the last link, the way the bow of the
+    # lower one is through the first, its pin up through the middle of the thimble eye
+    s_crown = s_top - (r_bow + CHAIN_WIRE / 2) - LINK_GAP    # centre line of that bow
+    s_pin = s_crown + (crown[0] - pin[0])                    # its pin, as far up as it is down in the other
+    loop = L[eye][L[eye, 0] < bight[0] + EYE_LOOP]           # the ring of the thimble, not the splice above it
+    return dict(o=o, d=d, ex=ex, ey=ey, s1=s1, s_crown=s_crown, crown=crown,
+                shift=s_pin - loop[:, 0].mean(),             # the eye's middle onto the pin
                 cut=L[eye, 0].max() + CUT_CLEAR,             # where the wire is cut through
                 across=(crown[1:] + bight[1:]) / 2,          # the chain splits the difference
                 top=V[top].mean(0), oog=V[eye].mean(0))      # middle of either eye, as drawn
@@ -108,6 +122,25 @@ def ketting(mesh_dir, handle):
     base = f["o"] + f["across"][0] * f["ex"] + f["across"][1] * f["ey"]
     return _join([_link(base + (f["s1"] + (k + 0.5) * CHAIN_PITCH) * f["d"], f["d"],
                         f["ex"] if k % 2 == 0 else f["ey"]) for k in range(LINKS)])
+
+
+def bovenharpje(mesh_dir, handle):
+    """The harpje at the wantputting over again at the top of the chain: turned half round about
+    the line forward across the wire, so its bow comes down over the sixth link, and set on the
+    chain's own line."""
+    f = foot(handle, *_load(mesh_dir, handle), mesh_dir=mesh_dir)
+    M = np.array([f["d"], f["ex"], f["ey"]])                 # rows: local (s, x, y) -> world
+    R = np.diag([-1.0, 1.0, -1.0])                           # half a turn about ex
+    crown = f["crown"] @ R
+    move = np.array([f["s_crown"] - crown[0], f["across"][0] - crown[1], f["across"][1] - crown[2]])
+    meshes = []
+    for h in (HANGS_IN[handle], PIN_OF[HANGS_IN[handle]]):
+        report = json.loads((ROOT / "build" / "tessellation_report.json").read_text())
+        d = np.load(mesh_dir / f"{next(r['name'] for r in report if r['handle'] == h)}.npz")
+        V, N, F = d["V"].astype(float), d["N"].astype(float), d["F"].astype(int)
+        L = (V - f["o"]) @ M.T @ R + move
+        meshes.append((f["o"] + L @ M, N @ M.T @ R @ M, F))
+    return _join(meshes)
 
 
 def reshape_want(handle, V, N, F, G, split_at):
@@ -139,4 +172,6 @@ def build(mesh_dir):
     """[(id, naam, groep, materiaal, (V, N, F))] for the two wantkettingen."""
     return [(f"wantketting_{side}", f"Wantketting ({'bakboord' if side == 'bb' else 'stuurboord'})",
              "staand_want", "verzinkt", ketting(mesh_dir, handle))
-            for side, handle in WANTEN.items()]
+            for side, handle in WANTEN.items()] + \
+           [("harpjes_wantketting", "Harpjes", "beslag", "verzinkt",
+             _join([bovenharpje(mesh_dir, handle) for handle in WANTEN.values()]))]

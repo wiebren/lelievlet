@@ -218,8 +218,9 @@ def ketting(mesh_dir):
 # p. 35, bodies 589B/589F): a length of 9 mm round bar bent into a flat omega and welded on by its
 # two feet. Measured off 589B: 96 mm long overall, flat feet over the outer 16 mm at either end,
 # the arch standing 25.6 mm off the plating. It goes on the centreline in the bow, in the V where
-# the two vlak plates meet at the stem, just under the voorplecht, with its eye standing aft.
-OOG_BAR_R, OOG_HALF, OOG_Z = 4.55, 48.0, 880.0
+# the two vlak plates meet at the stem, halfway down from the voorplecht to the level of the
+# voordek, with its eye standing aft.
+OOG_BAR_R, OOG_HALF, OOG_Z = 4.55, 48.0, 782.0
 OOG_FOOT = 5.5              # the feet sit in the V of the stem, not on flat plating, so a little clear
 OOG_PROFILE = np.array([    # half the omega: distance along the plating, rise of the centre line
     [0.0, 25.6], [4.0, 25.2], [8.0, 23.2], [12.0, 18.7], [16.0, 13.3],

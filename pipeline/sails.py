@@ -21,6 +21,7 @@ import numpy as np
 from scipy.spatial import Delaunay
 
 from outline import boundary_loops, single_skin_faces
+from parts import FOK_TACK, FOK_TACK_CAD
 
 GRID = 55.0          # mm, mesh spacing
 LIJK = 60.0          # mm, width of the tape along the edges (Vlettenboek p. 58)
@@ -265,6 +266,16 @@ class Sail:
         return self.uv01(self.to2d(p))[0].round(5).tolist()
 
 
+def drag_corner(V, corner, others, to):
+    """Move one corner of a flat sail to `to`, the cloth following in proportion: each point by its
+    barycentric weight of that corner in the triangle of the three corners. An affine map, so the
+    sail stays flat and the other two corners stay where they are."""
+    b, c = others
+    A = np.column_stack([corner - b, c - b])
+    w = np.linalg.lstsq(A, (V - b).T, rcond=None)[0][0]
+    return V + w[:, None] * (np.asarray(to) - corner)
+
+
 def build(mesh_dir):
     """Returns {handle: dict(V, N, F, UV, extras[, W])} replacing the CAD sail bodies."""
     def load(handle):
@@ -299,11 +310,13 @@ def build(mesh_dir):
 
     # fok: exported flat, with bend weights. The viewer bends it: fuller off the wind, flat while
     # it crosses the boat, and the other way round when it is set to windward (fok te loevert).
-    d = load("5434"); V = d["V"].astype(float); F = d["F"].astype(int)
+    # The tack comes down to where the harpje of the kettinkje hangs (parts.HALS_SHIFT).
+    tack_f = np.array(FOK_TACK)
+    clew_f, head_f = np.array([4268.7, 722.2, 1134.6]), np.array([4580.0, -0.7, 5090.8])
+    d = load("5434"); F = d["F"].astype(int)
+    V = drag_corner(d["V"].astype(float), np.array(FOK_TACK_CAD), (head_f, clew_f), tack_f)
     fok = Sail(V, F, depth=0.0, foot_attached=False)
     Vf, Nf, Ff, UVf, _ = fok.mesh()
-    tack_f = np.array([6126.2, -7.3, 1266.7])
-    clew_f, head_f = np.array([4268.7, 722.2, 1134.6]), np.array([4580.0, -0.7, 5090.8])
     Wf, reach = fok.bend_weights(fok.lo + UVf * (fok.hi - fok.lo), tack_f, head_f, clew_f)
     n = fok.n
     result["5434"] = dict(V=Vf, N=Nf, F=Ff, UV=UVf, W=Wf, extras=fok.info(

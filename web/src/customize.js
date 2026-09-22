@@ -1,3 +1,6 @@
+import * as THREE from 'three';
+import { unpack } from './config.js';
+
 // "Aanpassen": sail number, name, home port and the paint scheme. Saved in the browser, unless the
 // embedder switched that off. Paint zones are glTF material names written by pipeline/parts.py.
 //
@@ -141,4 +144,91 @@ export function collectZoneMaterials(parts) {
     }
   }
   return zones;
+}
+
+
+// The paint the early vletten wore: dark brown hull, tan boeisel, oiled wood on the decks and in the
+// kuip, and sails the colour of tanned cotton. When it is taken off, the user's own colours come back.
+//
+// The change is lerped over FADE seconds instead of being set at once, so it reads as paint being
+// laid on. Nothing is written once a fade has settled: a colour the user picks in "Aanpassen"
+// afterwards stays put.
+
+const NUMBER = unpack('WngcBg==');
+const ENTRY = 've';
+const FADE = 1.5;                   // seconds
+
+const SCHEME = {
+  romp: '#3b2a1f', berghout: '#2a1c14', boeisel: '#c8a46b', dolboord: '#3b2a1f',
+  voordek: '#8b7355', achterdek: '#8b7355', kuip: '#8b7355', zwaardkast: '#8b7355',
+  bakskleur: '#6b3a1e',
+};
+const CLOTH = '#b7895a';
+
+/**
+ * The cloth of grootzeil and fok with the cotton tape and corner patches along their edges.
+ * Left out: the zeillatten (wood), the zeilteken and zeilnummer patches (artwork on a canvas of
+ * their own), rope, and everything outside the sails - spinnaker and flags are parts elsewhere.
+ */
+export function collectSailMaterials(parts) {
+  const materials = new Set();
+  for (const part of parts) {
+    const id = part.extras?.id ?? '';
+    if (part.extras?.groep !== 'zeil') continue;
+    if (!/^(grootzeil|fok)(_|$)/.test(id)) continue;
+    if (id.endsWith('_zeilteken') || id.endsWith('_zeilnummer')) continue;
+    for (const mesh of part.meshes) {
+      if (!mesh.material || mesh.material.name.startsWith('touw')) continue;
+      materials.add(mesh.material);
+    }
+  }
+  return [...materials];
+}
+
+/**
+ * zoneMaterials: Map<zone, Material[]> from customize.js (the paint zones plus 'bakskleur')
+ * sailMaterials: the cloth materials, see collectSailMaterials
+ * config:        the object initCustomize returned; it is read at the moment the scheme goes off,
+ *                so whatever the user has picked by then is what comes back
+ * note:          logboek.note, called once when the scheme is fully on
+ */
+export function initPaint({ zoneMaterials, sailMaterials, config, note }) {
+  // Sail cloth carries the painted canvas as its map and starts untinted; that starting colour is
+  // taken here, before anything touches it, and is what the cloth fades back to.
+  const tracked = [
+    ...[...zoneMaterials].flatMap(([zone, ms]) => ms.map((material) => ({ material, zone }))),
+    ...sailMaterials.map((material) => ({ material, zone: null, own: material.color.clone() })),
+  ];
+
+  const userColor = (zone) => (zone === 'bakskleur' ? config.bakskleur : config.kleuren[zone]);
+  const from = new Map();           // material -> colour when the running fade began
+  const to = new Map();
+  let on = false;
+  let t = 1;                        // progress of the running fade; 1 is settled, nothing to do
+  let announced = false;
+
+  const setNumber = (text) => {
+    const want = String(text).trim() === NUMBER;
+    if (want === on) return;
+    on = want;
+    for (const entry of tracked) {
+      from.set(entry.material, entry.material.color.clone());
+      to.set(entry.material, on
+        ? new THREE.Color(entry.zone ? SCHEME[entry.zone] : CLOTH)
+        : (entry.zone ? new THREE.Color(userColor(entry.zone)) : entry.own.clone()));
+    }
+    t = 0;
+  };
+
+  const update = (dt) => {
+    if (t >= 1) return;
+    t = Math.min(1, t + dt / FADE);
+    const k = t * t * (3 - 2 * t);                 // eased: the paint creeps in and settles
+    for (const entry of tracked) {
+      entry.material.color.copy(from.get(entry.material)).lerp(to.get(entry.material), k);
+    }
+    if (t >= 1 && on && !announced) { announced = true; note?.(ENTRY); }
+  };
+
+  return { setNumber, update };
 }

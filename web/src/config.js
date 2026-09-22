@@ -94,3 +94,8 @@ export function quizEntries(config, standard) {
     .map((e, i) => ({ nr: e.nr ?? 1000 + i, niveau: 3, ...e, eigen: true }));
   return [...kept, ...extra];
 }
+
+// Text that is kept packed in the source and unpacked where it is used.
+const KEY = [...'lelievlet'].map((c) => c.charCodeAt(0));
+const mix = (b, i) => b ^ KEY[i % KEY.length] ^ ((i * 29 + 7) & 0xff);
+export const unpack = (s) => new TextDecoder().decode(Uint8Array.from(atob(s), (c, i) => mix(c.charCodeAt(0), i)));

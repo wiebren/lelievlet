@@ -1,6 +1,6 @@
 """Assemble the cached meshes into web/public/models/lelievlet.glb with named parts.
 
-    uv run --python 3.12 --with numpy python3 pipeline/build_glb.py
+    uv run --python 3.12 --with numpy --with scipy --with meshoptimizer python3 pipeline/build_glb.py
 
 Model space: metres, glTF convention (Y up). x runs from the transom (0) to the bow, z is
 positive to starboard, y = 0 at the DWG baseline (underside of the bottom plating amidships).
@@ -11,6 +11,12 @@ import struct
 from pathlib import Path
 
 import numpy as np
+
+try:                                                  # the glb is meshopt-packed when the encoder is there (uv run --with meshoptimizer)
+    import meshoptimizer as meshopt
+    MESHOPT = True
+except ImportError:
+    MESHOPT = False
 
 import anchor
 import rig_data
@@ -216,7 +222,7 @@ def main():
                 skin["UV"].append(uv)
 
     # fittings the CAD leaves out: mastbout, grendelbout, borglijntje of the lummelbout, dolpotten
-    for pid, naam, groep, mat, (V, N, F) in hardware.build(MESH) + sleepogen.build(MESH) + anchor.build(MESH) + bakskist.build(MESH) + landvasten.build(MESH) + fokbeslag.build(MESH) + bakskist_inhoud.build(MESH) + wantkettingen.build(MESH) + borgketting.build(MESH):
+    for pid, naam, groep, mat, (V, N, F) in hardware.build(MESH) + sleepogen.build(MESH) + anchor.build(MESH) + bakskist.build(MESH) + landvasten.build(MESH) + fokbeslag.build(MESH) + bakskist_inhoud.build(MESH) + wantkettingen.build(MESH) + borgketting.build(MESH) + fokbeslag.build_spriet(MESH):
         part = parts.setdefault(pid, dict(id=pid, naam=naam, groep=groep, materiaal=mat, handles=[], skins={}))
         skin = part["skins"].setdefault(mat, dict(V=[], N=[], F=[], UV=[], W=[], B=[], n=0))
         skin["V"].append(to_model(V)); skin["N"].append(to_model(N, False)); skin["F"].append(F + skin["n"])
@@ -226,11 +232,22 @@ def main():
     blob = bytearray(); views, accessors, meshes, nodes, materials = [], [], [], [], []
     mat_index = {}
 
-    def add_view(data, target):
+    def add_view(data, target, packed=None):
+        """A buffer view; `packed` = (array, stride, mode) has it meshopt-encoded in place, with the
+        plain layout the decoder gives back described in the view."""
         while len(blob) % 4:
             blob.append(0)
-        views.append(dict(buffer=0, byteOffset=len(blob), byteLength=len(data), target=target))
-        blob.extend(data)
+        if packed is None or not MESHOPT:
+            views.append(dict(buffer=0, byteOffset=len(blob), byteLength=len(data), target=target))
+            blob.extend(data)
+            return len(views) - 1
+        arr, stride, mode = packed
+        count = len(data) // stride
+        enc = meshopt.encode_vertex_buffer(arr, count, stride) if mode == "ATTRIBUTES" else meshopt.encode_index_buffer(arr, count, int(arr.max()) + 1)
+        views.append(dict(buffer=0, byteOffset=len(blob), byteLength=len(data), byteStride=stride if mode == "ATTRIBUTES" else None, target=target,
+                          extensions=dict(EXT_meshopt_compression=dict(buffer=0, byteOffset=len(blob), byteLength=len(enc), byteStride=stride, count=count, mode=mode))))
+        views[-1] = {k: v for k, v in views[-1].items() if v is not None}
+        blob.extend(enc)
         return len(views) - 1
 
     def material(name):
@@ -250,7 +267,9 @@ def main():
             V = np.concatenate(skin["V"]).astype(np.float32); N = np.concatenate(skin["N"]).astype(np.float32)
             F = np.concatenate(skin["F"]).astype(np.uint32)
             ln = np.linalg.norm(N, axis=1, keepdims=True); ln[ln == 0] = 1; N = (N / ln).astype(np.float32)
-            pv = add_view(V.tobytes(), 34962); nv = add_view(N.tobytes(), 34962); iv = add_view(F.tobytes(), 34963)
+            V = V.astype(np.float32)
+            pv = add_view(V.tobytes(), 34962, (V, 12, "ATTRIBUTES")); nv = add_view(N.tobytes(), 34962, (N, 12, "ATTRIBUTES"))
+            iv = add_view(F.tobytes(), 34963, (F.ravel(), 4, "TRIANGLES"))
             a0 = len(accessors)
             accessors.append(dict(bufferView=pv, componentType=5126, count=len(V), type="VEC3",
                                   min=V.min(0).tolist(), max=V.max(0).tolist()))
@@ -290,7 +309,8 @@ def main():
             nodes.append(dict(name=g, children=group_nodes[g], extras=dict(groep=g, titel=title)))
             roots.append(len(nodes) - 1)
     nodes.append(dict(name="lelievlet", children=roots, extras=dict(tuig=rig.extras())))
-    gltf = dict(asset=dict(version="2.0", generator="vlet pipeline/build_glb.py",
+    gltf = dict(**(dict(extensionsUsed=["EXT_meshopt_compression"], extensionsRequired=["EXT_meshopt_compression"]) if MESHOPT else {}),
+                asset=dict(version="2.0", generator="vlet pipeline/build_glb.py",
                            extras=dict(bron="Scouting Nederland 3D-Model-binded.dwg (2012)", eenheid="m",
                                        assen="x = spiegel naar boeg, y = omhoog, z = stuurboord")),
                 scene=0, scenes=[dict(nodes=[len(nodes) - 1])], nodes=nodes, meshes=meshes, materials=materials,

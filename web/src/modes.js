@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
-import { initFlag } from './flag.js';
+import { initFlag, initLeechFlag } from './flag.js';
 import { Procedure } from './procedure.js';
-import { RopeLine, RopeStretch, roundTheFront, carry, layChain, makeBlokje, makeBorgpen, makeCourseArrow, makeDol, makeKettinkje, makeKnevel, makeMik, makeRivet, makeBolts, makeStootwil, makeWater, makeWindArrow, makeWindVane,
-         makeZwaardbout, pivotRotate, rotatedPoint, setOpacity } from './rig.js';
-import { naamVan } from './config.js';
+import { RopeLine, RopeStretch, roundTheFront, carry, layChain, makeBorgpen, makeCourseArrow, makeDol, makeKettinkje, makeKnevel, makeMik, makeRivet, makeBolts, makeStootwil, makeWater, makeWindArrow, makeWindVane,
+         makeZwaardbout, pivotRotate, rotatedPoint, setOpacity, makeIsland, initSpinnaker, makeTugStern, makeWake } from './rig.js';
+import { naamVan, unpack } from './config.js';
 
 // Modes (Zeilen / Roeien / Wrikken) and the sail trim for a course to the wind.
 // The boat stays where it is; the wind arrow moves round it. A course is signed: positive means
@@ -28,6 +28,8 @@ const MAIN_BEND = [[45, 0.8], [90, 1.0], [180, 1.15]];
 
 const BOTTOM = -2.2;                               // m: the bottom the anker lies on, 2.5 m under the waterline
 const LANDS = 0.9;                                // from here on the way down (0..1) the anker tips over onto its flukes
+const SNAP_AT = 4;                                // m of way made over the anker before the ankerlijn parts
+const WATER_EDGE = 2.8 - 14 - 1;                  // x where what is left astern is outside the water disc (rig.js makeWater)
 const CLOSE_HAULED = 45; const RUN = 180;                             // courses
 // Voor de wind begins at DOWNWIND; on the way from there to RUN, the end of the slider, the fok goes
 // over to windward: voor de wind is always sailed with the fok te loevert.
@@ -161,7 +163,7 @@ class Bend {
   }
 }
 
-export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResize, engaged, realTarget }) {
+export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResize, engaged, realTarget, note = () => {} }) {
   const byId = new Map(parts.map((p) => [p.extras.id, p]));
   // the model as a whole, under the scene: what rolls when the boat rolls
   let boat = scene.getObjectByName('lelievlet');
@@ -283,21 +285,31 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     mesh.visible = false;
     return mesh;
   })();
-  let reef = { slack: 0, slide: 0, pull: 0, turns: 0, hoop: 0 };
+  let reef = { head: 0, slack: 0, slide: 0, pull: 0, turns: 0, hoop: 0 };
   let reefing = null;                                               // the Procedure that is taking it to another number of turns
   let shown = null;                                                 // the procedure the progress bar is about
   let measuring = false;                                            // posed for a look ahead (measureAt): nothing may stick
   const planReef = (turns) => {
-    if (Math.abs(reef.turns - turns) < 1e-6 && reef.slack + reef.slide + reef.pull < 1e-6) return;
+    if (Math.abs(reef.turns - turns) < 1e-6 && reef.head + reef.slack + reef.slide + reef.pull < 1e-6) return;
+    // Where to look from, in model space. The boat is near enough symmetric that either side will do:
+    // the viewer takes the one nearer to the camera, and for the lummelbeslag the one the fok is not on.
+    const RING_VIEW = { positie: [1.49, 1.547, 2.733], doel: [1.592, 0.964, -0.664] };
+    const LUMMEL_VIEW = { positie: [3.432, 1.5, 0.674], doel: [3.518, 1.313, 0.01], kant: 'zonder fok' };
+    const HOOP_VIEW = { positie: [1.573, 1.162, 0.638], doel: [0.948, 1.134, 0.038] };
+    // turning up and bearing away are looked at the way the vallen are: framed on what those do (like)
+    const VALLEN = ['gaffel', 'klauw', 'piekenval', 'klauwval'];
+    const upwind = state.course !== 0;                              // already head to wind: no turning up, no bearing away
     reefing = new Procedure('Reven', reef, [
-      { key: 'slack', to: 1, seconds: 0.7, label: stap('Vallen vieren'), back: stap('Vallen doorzetten'), focus: ['gaffel', 'klauw', 'piekenval', 'klauwval'] },
-      { key: 'slide', to: 1, seconds: 1.1, label: stap('Schootring naar de nok'), back: stap('Schootring terug'), focus: ['schootring', 'giek'] },
-      { key: 'pull', to: 1, seconds: 0.5, label: stap('Giek naar achteren trekken'), back: stap('Giek terug in het lummelbeslag'), focus: ['lummelbeslag', 'wervel'] },
+      ...(upwind ? [{ key: 'head', to: 1, seconds: 1.5, label: stap('Kop in de wind'), back: stap('Afvallen'), focus: VALLEN, like: 'slack' }] : []),
+      { key: 'slack', to: 1, seconds: 0.7, label: stap('Vallen vieren'), back: stap('Vallen doorzetten'), focus: VALLEN },
+      { key: 'slide', to: 1, seconds: 1.1, label: stap('Schootring naar de nok'), back: stap('Schootring terug'), focus: ['schootring', 'giek'], camera: RING_VIEW },
+      { key: 'pull', to: 1, seconds: 0.5, label: stap('Giek naar achteren trekken'), back: stap('Giek terug in het lummelbeslag'), focus: ['lummelbeslag', 'wervel'], camera: LUMMEL_VIEW },
       { key: 'turns', to: turns, seconds: 1.25 * Math.max(Math.abs(turns - reef.turns), 0.4), label: stap('Giek draaien'), back: stap('Giek terugdraaien'), focus: ['giek', 'rif'] },
-      { key: 'pull', to: 0, seconds: 0.5, label: stap('Giek terug in het lummelbeslag'), back: stap('Giek naar achteren trekken'), focus: ['lummelbeslag', 'wervel'] },
-      { key: 'hoop', to: turns > 0 ? 1 : 0, seconds: 0.9, label: stap('Grootschoot verhangen'), back: stap('Grootschoot terughangen'), focus: ['grootschoot', 'schootring'] },
-      { key: 'slide', to: 0, seconds: 1.1, label: stap('Schootring terug'), back: stap('Schootring naar de nok'), focus: ['schootring', 'giek'] },
-      { key: 'slack', to: 0, seconds: 0.7, label: stap('Vallen doorzetten'), back: stap('Vallen vieren'), focus: ['gaffel', 'klauw', 'piekenval', 'klauwval'] },
+      { key: 'pull', to: 0, seconds: 0.5, label: stap('Giek terug in het lummelbeslag'), back: stap('Giek naar achteren trekken'), focus: ['lummelbeslag', 'wervel'], camera: LUMMEL_VIEW },
+      { key: 'hoop', to: turns > 0 ? 1 : 0, seconds: 0.9, label: stap('Grootschoot verhangen'), back: stap('Grootschoot terughangen'), focus: ['grootschoot', 'schootring'], camera: HOOP_VIEW },
+      { key: 'slide', to: 0, seconds: 1.1, label: stap('Schootring terug'), back: stap('Schootring naar de nok'), focus: ['schootring', 'giek'], camera: RING_VIEW },
+      { key: 'slack', to: 0, seconds: 0.7, label: stap('Vallen doorzetten'), back: stap('Vallen vieren'), focus: VALLEN },
+      ...(upwind ? [{ key: 'head', to: 0, seconds: 1.5, label: stap('Afvallen'), back: stap('Kop in de wind'), focus: VALLEN, like: 'slack' }] : []),
     ]);
     reef = reefing.values; reefing.command(reefing.total); shown = reefing;
   };
@@ -377,25 +389,45 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const qRest = new THREE.Quaternion(); const peakAt = new THREE.Vector3(); const gaffSlide = new THREE.Vector3();
   // -- fokkenschoten: schoothoek -> block on the forward leioog -> hand of the crew. They are laid
   // anew for every position of the fok, because the sheet to windward goes round the front of
-  // the mast and the one to leeward runs straight. Each block hangs in its sheet.
+  // the mast and the one to leeward runs straight. Each block hangs by the bow of its harpje on
+  // the bar of the leioog and swivels there until it stands along the bisector of its two parts,
+  // its schijf in their plane; the sheet runs round the schijf on the side of the eye.
   const jibClew = V(tuig.fok_schoothoek);
+  const HARP_CLEAR = 0.0075;                                       // bar of the leioog to the centre line of the bow round it
+  /** The bar of the forward leioog of a side at the crown of its arch: what a block hangs from. */
+  const leioogBar = (key, near) => {
+    const p = new THREE.Vector3(); const crown = []; let high = -Infinity;
+    for (const m of meshesOf([`leiogen_${key}`])) {
+      const pos = m.geometry.attributes.position;
+      for (let i = 0; i < pos.count; i++) { p.fromBufferAttribute(pos, i); if (Math.abs(p.x - near.x) < 0.03) { crown.push(p.clone()); high = Math.max(high, p.y); } }
+    }
+    const top = crown.filter((q) => q.y > high - 0.0015);
+    const at = top.reduce((acc, q) => acc.add(q), new THREE.Vector3()).divideScalar(top.length);
+    return at.setY(at.y - 0.004);                                   // the highest metal, a bar radius down
+  };
+  /**
+   * A block hung in a leioog: its meshes, where the bow of its harpje and its sheave(s) are as it
+   * is modelled, and the frame it stands in there (along itself, along its axle, across both).
+   */
+  const hangBlock = (eye, meshes, bow, sheaves, radius) => {
+    const mid = sheaves.reduce((acc, q) => acc.add(q), new THREE.Vector3()).divideScalar(sheaves.length);
+    const rest = mid.clone().sub(bow).normalize();
+    const axle = (sheaves.length > 1 ? sheaves[1].clone().sub(sheaves[0]) : new THREE.Vector3(0, 0, Math.sign(bow.z)))
+      .addScaledVector(rest, -(sheaves.length > 1 ? sheaves[1].clone().sub(sheaves[0]) : new THREE.Vector3(0, 0, Math.sign(bow.z))).dot(rest)).normalize();
+    const home = new THREE.Matrix4().makeBasis(rest, axle, new THREE.Vector3().crossVectors(rest, axle)).transpose();
+    return { meshes, bow, sheaves, radius, span: mid.distanceTo(bow), home, eye,
+             out: new THREE.Vector3(0, 0, Math.sign(bow.z)), bis: new THREE.Vector3(0, 1, 0), normal: new THREE.Vector3(),
+             turn: new THREE.Quaternion(), bowAt: new THREE.Vector3(), at: sheaves.map(() => new THREE.Vector3()) };
+  };
   const jibSheets = ['bb', 'sb'].map((key) => {
     const info = tuig.fokkenschoot[key];
-    const foot = V(info.voet); const sheave = V(info.schijf);
-    return { foot, sheave, hand: V(info.hand), side: Math.sign(foot.z), reach: foot.distanceTo(sheave),
-             rest: sheave.clone().sub(foot).normalize(), block: meshesOf([`blok_fokkenschoot_${key}`]),
-             at: new THREE.Vector3(), lead: null, tail: null };
+    const block = hangBlock(leioogBar(key, V(info.voet)), meshesOf([`blok_fokkenschoot_${key}`]), V(info.voet), [V(info.schijf)], info.schijf_straal_m);
+    return { key, side: Math.sign(block.bow.z), hand: V(info.hand), block, single: block, sheave: 0, lead: null, tail: null };
   });
-  {
-    const part = byId.get('fokkenschoot');
-    const material = part.meshes[0].material;
-    const home = part.node.parent;
-    for (const old of part.meshes) { old.visible = false; old.geometry.dispose(); }
-    part.node.removeFromParent();                                   // the CAD rope is replaced outright
-    part.node = new THREE.Group(); part.node.name = 'fokkenschoot'; home.add(part.node);
-    part.meshes = [];
-    for (const sheet of jibSheets) {
-      sheet.lead = new RopeLine(40, tuig.fokkenschoot.straal_m, material);
+  const LEAD_POINTS = 44; const WRAP_POINTS = 8;                     // a lead: its run, and its turn round the schijf
+  const sheetRopes = (part, sheets, material) => {
+    for (const sheet of sheets) {
+      sheet.lead = new RopeLine(LEAD_POINTS + WRAP_POINTS, tuig.fokkenschoot.straal_m, material);
       sheet.tail = new RopeLine(14, tuig.fokkenschoot.straal_m, material);
       for (const rope of [sheet.lead, sheet.tail]) {
         rope.mesh.userData.part = part.node; part.node.add(rope.mesh); part.meshes.push(rope.mesh);
@@ -406,10 +438,110 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const knot = new THREE.Mesh(new THREE.SphereGeometry(tuig.fokkenschoot.straal_m * 2.4, 12, 8), material);
     knot.scale.set(1, 1.35, 1);
     knot.userData.part = part.node; part.node.add(knot); part.meshes.push(knot); sailRig.push(knot);
-    jibSheets.knot = knot;
+    sheets.knot = knot;
+  };
+  {
+    const part = byId.get('fokkenschoot');
+    const material = part.meshes[0].material;
+    const home = part.node.parent;
+    for (const old of part.meshes) { old.visible = false; old.geometry.dispose(); }
+    part.node.removeFromParent();                                   // the CAD rope is replaced outright
+    part.node = new THREE.Group(); part.node.name = 'fokkenschoot'; home.add(part.node);
+    part.meshes = [];
+    sheetRopes(part, jibSheets, material);
   }
   const mastRound = tuig.fokkenschoot.mast_straal_m + tuig.fokkenschoot.straal_m + 0.006;
+  /** `n` points along `path`, evenly by length. */
+  const spread = (path, n, out) => {
+    const run = [0];
+    for (let i = 1; i < path.length; i++) run.push(run[i - 1] + path[i].distanceTo(path[i - 1]));
+    const total = run[run.length - 1] || 1e-9; let seg = 1;
+    for (let i = 0; i < n; i++) {
+      const at = (i / (n - 1)) * total;
+      while (seg < path.length - 1 && run[seg] < at) seg++;
+      out.push(new THREE.Vector3().lerpVectors(path[seg - 1], path[seg], clamp((at - run[seg - 1]) / Math.max(run[seg] - run[seg - 1], 1e-9), 0, 1)));
+    }
+    return out;
+  };
+  const wrapU = new THREE.Vector3(); const wrapW = new THREE.Vector3(); const wrapQ = new THREE.Vector3();
+  /**
+   * The turn of a rope round a schijf: from where it comes in tangentially off `from` to where it
+   * leaves for `to`, round the side away from `bis` (the side of the eye). Points on the circle
+   * of `radius` about `centre` in the plane square to `normal`.
+   */
+  const wrapSheave = (from, to, centre, radius, normal, bis, out) => {
+    wrapU.copy(bis).addScaledVector(normal, -bis.dot(normal)).normalize();   // away from the eye, in the plane
+    wrapW.crossVectors(normal, wrapU);
+    const tangent = (p) => {                                        // the tangent point nearest the far side (angle pi)
+      wrapQ.copy(p).sub(centre);
+      const qu = wrapQ.dot(wrapU); const qw = wrapQ.dot(wrapW);
+      const d = Math.max(Math.hypot(qu, qw), radius * 1.001); const base = Math.atan2(qw, qu); const half = Math.acos(radius / d);
+      const far = (x) => Math.abs(Math.atan2(Math.sin(x - Math.PI), Math.cos(x - Math.PI)));
+      return far(base + half) < far(base - half) ? base + half : base - half;
+    };
+    let a0 = tangent(from); let a1 = tangent(to);
+    const norm = (x) => ((x % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    a0 = norm(a0); a1 = norm(a1);
+    if (a0 > Math.PI && a1 < Math.PI) a1 += 2 * Math.PI;            // go on through pi, whichever way round that is
+    else if (a0 < Math.PI && a1 > Math.PI) { /* increasing already passes pi */ }
+    else if (a1 < a0) a1 += 2 * Math.PI;
+    out.length = 0;
+    for (let i = 0; i < WRAP_POINTS; i++) {
+      const a = a0 + ((a1 - a0) * i) / (WRAP_POINTS - 1);
+      out.push(new THREE.Vector3().copy(centre).addScaledVector(wrapU, radius * Math.cos(a)).addScaledVector(wrapW, radius * Math.sin(a)));
+    }
+    return out;
+  };
+  const sheaveAt = new THREE.Vector3(); const bight = []; const lead = [];
+  /**
+   * One sheet, from `clew`: hang its block first if `hang` (a block shared by two sheets hangs by
+   * the first), then lay the rope: to windward round the front of the mast, round the schijf on
+   * the side of the eye, and slack to the hand.
+   */
+  const laySheet = (sheet, clew, hang) => {
+    const b = sheet.block;
+    const across = smoothstep(clamp(-(clew.z * sheet.side) / 0.12, 0, 1));
+    if (hang) {
+      // it swings on the bar of the eye until it stands along the bisector of its two parts, its
+      // schijf in their plane: a whole frame, not the shortest turn onto the bisector
+      for (let k = 0; k < 3; k++) {
+        sheaveAt.copy(b.eye).addScaledVector(b.bis, HARP_CLEAR + b.span);
+        const first = across > 0 ? roundTheFront(clew, sheaveAt, mastPivot, mastRound, round)[1] : clew;
+        toClew.copy(first).sub(sheaveAt).normalize(); toHand.copy(sheet.hand).sub(sheaveAt).normalize();
+        blockAxle.crossVectors(toClew, toHand);
+        if (blockAxle.lengthSq() < 1e-10) blockAxle.copy(b.out);     // both parts in line: as it hangs
+        if (blockAxle.dot(b.out) < 0) blockAxle.negate();            // never turned over: the outboard cheek stays outboard
+        b.bis.copy(toClew).add(toHand).normalize();
+        blockAxle.addScaledVector(b.bis, -blockAxle.dot(b.bis)).normalize();
+      }
+      b.normal.copy(blockAxle);
+      b.turn.setFromRotationMatrix(blockFrame.makeBasis(b.bis, blockAxle, blockCross.crossVectors(b.bis, blockAxle)).multiply(b.home));
+      b.bowAt.copy(b.eye).addScaledVector(b.bis, HARP_CLEAR);
+      carry(b.meshes, b.bow, b.bowAt, b.turn);
+      b.sheaves.forEach((q, i) => b.at[i].copy(q).sub(b.bow).applyQuaternion(b.turn).add(b.bowAt));
+    }
+    const centre = b.at[sheet.sheave];
+    const first = across > 0 ? roundTheFront(clew, centre, mastPivot, mastRound, round)[1] : clew;
+    wrapSheave(first, sheet.hand, centre, b.radius, b.normal, b.bis, bight);
+    // the run to the schijf: straight, or round the front of the mast, eased from the one to the other
+    straight.length = 0; straight.push(clew, bight[0]);
+    if (across > 0) {
+      roundTheFront(clew, bight[0], mastPivot, mastRound, round);
+      if (across < 1) { const n = round.length - 1; round.forEach((q, i) => q.lerp(tmp.lerpVectors(clew, bight[0], i / n), 1 - across)); }
+    }
+    lead.length = 0; spread(across > 0 ? round : straight, LEAD_POINTS, lead);
+    sheet.lead.set(lead.concat(bight));
+    // the tail to the hand is slack: it sags
+    const tailPath = [];
+    for (let i = 0; i <= 8; i++) {
+      const q = new THREE.Vector3().lerpVectors(bight[WRAP_POINTS - 1], sheet.hand, i / 8);
+      q.y -= 0.05 * Math.sin((Math.PI * i) / 8);
+      tailPath.push(q);
+    }
+    sheet.tail.set(tailPath);
+  };
   const clewNow = new THREE.Vector3(); const toClew = new THREE.Vector3(); const toHand = new THREE.Vector3();
+  const blockAxle = new THREE.Vector3(); const blockCross = new THREE.Vector3(); const blockFrame = new THREE.Matrix4();
   const straight = []; const round = [];
   // klauwval: only its end is shackled to a strop on the klauw and swings with the gaffel; the
   // fall to the cleat runs a few centimetres aft of it and stays put.
@@ -503,6 +635,50 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const pinHang = chainEye.clone().setY(chainEye.y - loper.ketting_m - borgpen.userData.ring);
   const HANG = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 1, 0));
   const pinRing = new THREE.Vector3();
+  // The zwaardbout is pulled out by dragging it: clear of the kast it leaves the board on the pin
+  // of its loper alone. Hanging on that one pin the board turns on it, swinging fore and aft under
+  // the boat until it comes to rest plumb below. The loper itself does not move: it stays where it
+  // hangs, handle above the kast. The bolt lies on the buikdenning beside the kast until a click
+  // puts it back.
+  const BOLT_OUT = 0.14;                                          // 118 mm of bolt, and a little over to be clear
+  const SWING_QUICK = 0.9; const SWING_SLOW = 8;                  // s: the water takes the first swing out of it fast, the rest slowly
+  const SWING_BEAT = 2.2;                                         // rad/s: the beat it swings at
+  const bolt = { pull: 0, side: 1, fall: 0, down: false, grabZ: null, was: 0, swing: 0 };
+  const boltLie = new THREE.Vector3(); const boltAt = new THREE.Vector3();
+  const boltTo = new THREE.Vector3(); const boltRay = new THREE.Vector3();
+  const qFell = new THREE.Quaternion(); const qSag = new THREE.Quaternion();
+  const swingAt = new THREE.Vector3(); const boardMid = new THREE.Vector3();
+  {
+    const p = new THREE.Vector3(); let n = 0;                     // the middle of the board: what wants to be under the pin
+    for (const m of boardMeshes) {
+      const a = m.geometry.attributes.position;
+      for (let i = 0; i < a.count; i++) { boardMid.add(p.fromBufferAttribute(a, i)); n++; }
+    }
+    if (n) boardMid.divideScalar(n);
+  }
+  {
+    const probe = new THREE.Raycaster(); probe.far = 1.5;         // where the floor is beside the kast
+    probe.set(new THREE.Vector3(boardPivot.x, 0.6, 0.35), new THREE.Vector3(0, -1, 0));
+    const floor = meshesOf(['buikdenning', 'vlak_sb', 'vlak_bb']);
+    const hit = probe.intersectObjects(floor, false)[0];
+    let top = boardPivot.y - 0.35;                                // no floor to be found: a guess, low in the boat
+    for (const m of meshesOf(['buikdenning'])) { m.geometry.computeBoundingBox(); top = Math.max(top, m.geometry.boundingBox.max.y); }
+    boltLie.set(boardPivot.x, (hit ? hit.point.y : top) + 0.012, 0.35);   // it lies on its heads
+  }
+  /** Out of the kast: the board is in no one's hands any more and goes down. */
+  const dropBolt = () => { bolt.pull = BOLT_OUT; bolt.down = true; bolt.swing = 0; };
+  /** And back: the board comes up into the kast and the bolt goes home, in the one motion. */
+  const holdBolt = () => { bolt.down = false; };
+  const pullBolt = (ray) => {
+    const b = ray.direction.z;                                    // the bolt lies along z
+    if (1 - b * b < 1e-4) return;                                 // sighted down the bolt: no telling how far
+    boltRay.copy(boardPivot).sub(ray.origin);                     // the point of the bolt's line nearest the ray
+    const along = (b * boltRay.dot(ray.direction) - boltRay.z) / (1 - b * b);
+    if (bolt.grabZ === null) { bolt.grabZ = along; return; }      // the first move is where it was taken hold of
+    const by = along - bolt.grabZ;
+    if (bolt.pull < 1e-4) bolt.side = Math.sign(by) || 1;         // it comes out the side it is pulled to
+    bolt.pull = clamp(by * bolt.side, 0, BOLT_OUT);
+  };
 
   // -- the blocks of the grootschoot hang in the sheet, so they tilt with it
   const blockTop = V(tuig.blokken.boven); const blockFoot = V(tuig.blokken.onder);
@@ -589,18 +765,47 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     return { rope, knot, hole, length: hole.distanceTo(hoopStarboard) * 1.015, path: [], from: new THREE.Vector3(), to: new THREE.Vector3() };
   })();
 
+  /**
+   * The lower block of the grootschoot over again, hung by its shackle at `bearing` with its axis
+   * along `down` and its sheaves side by side along `axle`: its meshes with the geometry moved
+   * there (so they can be carried like any CAD body), where its two sheaves are, and its radius.
+   */
+  const standDouble = (bearing, down, axle) => {
+    if (!tuig.grootschoot?.schijven_onder) return null;
+    const oog = V(tuig.grootschoot.oog); const sheaves = tuig.grootschoot.schijven_onder.map(V);
+    const mid = sheaves[0].clone().add(sheaves[1]).multiplyScalar(0.5);
+    const axis = mid.clone().sub(oog).normalize();
+    const a2 = sheaves[1].clone().sub(sheaves[0]); a2.addScaledVector(axis, -a2.dot(axis)).normalize();
+    const b1 = down.clone().normalize(); const b2 = axle.clone(); b2.addScaledVector(b1, -b2.dot(b1)).normalize();
+    const M = new THREE.Matrix4().makeTranslation(bearing.x, bearing.y, bearing.z)
+      .multiply(new THREE.Matrix4().makeBasis(b1, b2, new THREE.Vector3().crossVectors(b1, b2)))
+      .multiply(new THREE.Matrix4().makeBasis(axis, a2, new THREE.Vector3().crossVectors(axis, a2)).transpose())
+      .multiply(new THREE.Matrix4().makeTranslation(-oog.x, -oog.y, -oog.z));
+    const meshes = lowerBlock.map((of) => { const g = of.geometry.clone().applyMatrix4(M); g.computeVertexNormals(); return new THREE.Mesh(g, of.material.clone()); });
+    return { meshes, sheaves: sheaves.map((q) => q.clone().applyMatrix4(M)), radius: tuig.grootschoot.schijf_straal_m };
+  };
+  // the kraanlijn runs over the second sheave of the block of the klauwval at the hommerring, which
+  // is therefore a double: the single block the CAD has there gives way to it
+  const DIRK_CLEAR = 0.08;                                              // off the cloth of the sail: past gaffel and lacing
+  const mainCloth = meshesOf(['grootzeil']); const dirkProbe = new THREE.Vector3();
   const dirkInfo = tuig.kraanlijn;
-  const dirkBlock = addPart(makeBlokje(), 'blok_kraanlijn', 'Blok van de kraanlijn', 'lopend_want', 'grootschoot', [44, 72, 12]);
-  dirkBlock.position.copy(V(dirkInfo.oog));
-  const dirkSheave = dirkBlock.position.clone().add(dirkBlock.userData.centre);
+  const dirkDouble = (() => {
+    const single = byId.get('blok_klauwval');
+    const box = new THREE.Box3(); for (const m of single.meshes) box.expandByObject(m);
+    for (const m of single.meshes) m.visible = false;
+    return standDouble(box.getCenter(new THREE.Vector3()).setY(box.max.y), new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, 0, 1));
+  })();
+  for (const m of dirkDouble.meshes) joinPart(m, 'blok_klauwval');        // it is that block, in the list and under the pointer
+  const dirkSheave = dirkDouble.sheaves[0].clone();                      // the kraanlijn over the port sheave, the klauwval over the other
   const dirkMaterial = sheetMaterial.clone();                             // its own, so it lights up by itself when selected
   const dirk = new RopeLine(27, dirkInfo.straal_m, dirkMaterial);         // the span and the turn over the sheave
   const dirkDown = new RopeLine(3, dirkInfo.straal_m, dirkMaterial);      // the fall to the kikker
   const dirkKnot = new THREE.Mesh(new THREE.SphereGeometry(0.006, 12, 8), dirkMaterial);   // stopper knot behind the wervel
   const dirkNode = new THREE.Group(); dirkNode.add(dirk.mesh, dirkDown.mesh, dirkKnot);
   addPart(dirkNode, 'kraanlijn', 'Kraanlijn', 'lopend_want', 'grootschoot', [8, 4300, 2900]);
-  sailRig.push(dirk.mesh, dirkDown.mesh, dirkKnot, ...parts.find((p) => p.extras.id === 'blok_kraanlijn').meshes);
+  sailRig.push(dirk.mesh, dirkDown.mesh, dirkKnot);
   const dirkEnd = V(dirkInfo.wervel); const dirkFall = dirkInfo.val.map(V);
+  const withTheMast = dirkDouble.meshes;                                 // added to the mast's set once that exists (below)
   const bellyMax = Math.max(...mainBend.items.map((item) => item.weights.reduce((a, b) => Math.max(a, b), 0)));
   const dirkPath = []; const wervelNow = new THREE.Vector3(); const bellyDir = new THREE.Vector3();
 
@@ -948,6 +1153,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const STAY_FOLD = deg(22.5);                                      // the angle between voorstag and mast
   const mastSet = meshesOf(['mast', 'mastband_lummel', 'hommerring', 'masttopring', 'harpjes_mast', 'blok_piekenval',
     'blok_klauwval', 'blok_fokkenval', 'piekenval', 'klauwval', 'fokkenval', 'harpje_fokkenval']);
+  mastSet.push(...withTheMast);
   const staySet = meshesOf(['voorstag', 'voorstagspanner']); const stayRing = meshesOf(['pelikaanhaak_ring']);
   const fokGear = meshesOf(['kettinkje_fok', 'harpjes_fok']);       // what leaves the boat with the fok
   const grendel = meshesOf(['grendelbout']); const lummelbout = meshesOf(['lummelbout']); const borglijn = meshesOf(['borglijntje_lummelbout']);
@@ -986,7 +1192,39 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const anchor = byId.get('anker'); const chainPart = byId.get('ankerketting'); const linePart = byId.get('ankerlijn');
     if (!anchor || !chainPart || !linePart || !tuig.anker) return null;
     const hand = V(tuig.anker.schakel); const eye = V(tuig.anker.oog);
-    const chock = new THREE.Vector3(eye.x - 0.01, eye.y + 0.14, 0.085);    // where the lijn crosses the rail
+    // where the lijn comes aboard: over the stem head, the forward tip of the voorplecht, and it hangs
+    // straight down the outside of the stem from there
+    const chock = new THREE.Vector3(eye.x + 0.4, 0, 0.04);
+    {
+      const probe = new THREE.Raycaster(); const over = meshesOf(['voorplecht', 'boegrand', 'hanekam']);
+      const top = (x) => { probe.set(new THREE.Vector3(x, 2, chock.z), DOWN); return probe.intersectObjects(over, false)[0]?.point.y ?? null; };
+      while (chock.x > eye.x && top(chock.x) === null) chock.x -= 0.002;
+      chock.y = (top(chock.x) ?? 1.01) + 0.007; chock.x += 0.012;
+    }
+    const hangOff = chock.clone().add(new THREE.Vector3(0.015, -0.25, 0));   // below the stem head, outside
+    // The ankeroog stands aft in the stem under the voorplecht, so from the rail the lijn crosses the
+    // plecht aft to its edge, goes round that and runs forward underneath to the eye.
+    const aroundPlecht = (() => {
+      const plecht = meshesOf(['voorplecht']); const probe = new THREE.Raycaster();
+      const topAt = (x, z) => { probe.set(new THREE.Vector3(x, eye.y + 0.5, z), DOWN); return probe.intersectObjects(plecht, false)[0]?.point.y ?? null; };
+      const OFF = 0.007;                                            // the lijn's radius and a millimetre
+      const Z = 0.03;                                               // where it goes round: clear of hanekam and pelikaanhaak
+      const PLATE = 0.004;                                          // "PLECHT dik 4 mm"
+      let edgeX = eye.x - 0.4;
+      while (edgeX < eye.x && topAt(edgeX, Z) === null) edgeX += 0.002;   // the aft edge, from aft
+      if (edgeX >= eye.x) return [chock.clone().setZ(0.04).setY(chock.y + 0.004), eye.clone()];
+      const path = [];
+      for (let i = 1; i <= 8; i++) {                                // on the plecht, from the rail to the edge
+        const k = i / 8; const x = THREE.MathUtils.lerp(chock.x, edgeX + 0.012, k); const z = THREE.MathUtils.lerp(chock.z, Z, k);
+        path.push(new THREE.Vector3(x, (topAt(x, z) ?? chock.y - 0.03) + OFF, z));
+      }
+      const top = path[path.length - 1].y - OFF; const under = top - PLATE; const c = OFF * Math.SQRT1_2;
+      path.push(new THREE.Vector3(edgeX - c, top + c, Z), new THREE.Vector3(edgeX - OFF, top, Z),     // round the edge
+        new THREE.Vector3(edgeX - OFF, under, Z), new THREE.Vector3(edgeX - c, under - c, Z));
+      const below = new THREE.Vector3(edgeX + 0.012, under - OFF, Z);
+      for (let i = 0; i <= 4; i++) path.push(new THREE.Vector3().lerpVectors(below, eye, i / 4));    // forward under it to the eye
+      return path;
+    })();
     // On the bottom: pipeline/anchor.py stows it with the shank plumb and the crown athwartships.
     // Turned a quarter about the crown axis the shank lies flat on the bottom, and the flukes, which
     // lean 12 degrees off it, point down and dig in; then yawed so the shank points at the boat.
@@ -1022,11 +1260,11 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       }
       links.push({ centre, axis: axis.normalize() });
     }
-    const rope = new RopeLine(40, 0.006, linePart.meshes[0].material);
+    const rope = new RopeLine(120, 0.006, linePart.meshes[0].material);        // fine enough to go round the edge of the plecht
     rope.mesh.visible = false; rope.mesh.userData.part = linePart.node; linePart.node.parent.add(rope.mesh);
     const stowedLine = linePart.meshes.slice(); linePart.meshes.push(rope.mesh);
     // six millimetres of line is no target for a finger: an unseen sleeve round it takes the click
-    const grip = new RopeLine(40, 0.035, new THREE.MeshStandardMaterial({ transparent: true, opacity: 0, depthWrite: false, colorWrite: false }), 6);
+    const grip = new RopeLine(120, 0.035, new THREE.MeshStandardMaterial({ transparent: true, opacity: 0, depthWrite: false, colorWrite: false }), 6);
     grip.mesh.visible = false; grip.mesh.userData.part = linePart.node; linePart.node.parent.add(grip.mesh); linePart.meshes.push(grip.mesh);
     // the bottom: a plain disc of sand under the anchor and the ketting, like the disc of the water.
     // It is only there once the anchor lies on it; seen from either side, and from below the flukes
@@ -1037,27 +1275,55 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     sand.position.copy(landing).addScaledVector(toBoat, 0.2).setY(BOTTOM);   // between the crown and where the ketting rises
     sand.visible = false;
     scene.add(sand);
-    // byHand: taken over by hand while the Tuig procedure is under way (weighed to go rowing)
-    return { u: 0, want: 0, byHand: false, shown: NaN, hand, eye, route, chock, yaw, tip, shackleFlat, toBoat, sand,
+    // byHand: taken over by hand while the Tuig procedure is under way (weighed to go rowing).
+    // drift: how far the gear is astern of where it was let go, in metres; lost: the lijn has parted,
+    // seen: the gear that went with it is still on the water, whip: its tail swinging back plumb.
+    return { u: 0, want: 0, byHand: false, shown: NaN, drift: 0, lost: false, seen: 1, whip: 0, sandHome: sand.position.clone(),
+             hand, eye, route, chock, hangOff, aroundPlecht, yaw, tip, shackleFlat, toBoat, sand,
              anchor: anchor.meshes, chainMesh, rest, links, per, rope, grip, stowedLine };
   })();
+  // All that is left of the ankerlijn once it has parted: a tail from the ankeroog over the stem head
+  // and down the outside into the water. Let go it still points astern and then swings plumb, and it
+  // shortens with `u` as it is hauled in.
+  const layTail = (g) => {
+    const w = smoothstep(clamp(g.whip, 0, 1)); const len = 0.9 * clamp(g.u, 0, 1);
+    const bend = new THREE.Vector3(-0.5, -0.02, 0).lerp(new THREE.Vector3(0, -0.5, 0), w);
+    const tip = new THREE.Vector3(-0.95, -0.14, 0).lerp(new THREE.Vector3(0, -1, 0), w);
+    const a = g.hangOff; const b = a.clone().addScaledVector(bend, len); const c = a.clone().addScaledVector(tip, len);
+    const path = [];
+    for (let i = 10; i >= 0; i--) {                                 // the free end first: the lijn runs from there to the oog
+      const k = i / 10; const m = 1 - k;
+      path.push(new THREE.Vector3().addScaledVector(a, m * m).addScaledVector(b, 2 * m * k).addScaledVector(c, k * k));
+    }
+    path.push(g.chock, ...g.aroundPlecht);
+    g.rope.set(path); g.grip.set(path);
+  };
   const layAnchor = () => {
     const g = anchorGear; if (!g || Math.abs(g.u - g.shown) < 1e-4) return;
     g.shown = g.u;
     const stowedNow = g.u < 0.004;
     for (const m of g.stowedLine) m.visible = stowedNow;
     g.rope.mesh.visible = !stowedNow; g.grip.mesh.visible = !stowedNow;
+    setOpacity(g.anchor, g.seen); setOpacity([g.chainMesh], g.seen);   // what went with the lijn lies there until it is off the water
+    if (g.lost && g.seen < 0.02) { g.sand.visible = false; layTail(g); return; }
     // it turns slowly on its line as it sinks, and on the bottom tips over onto its flukes about its shackle
-    const land = stowedNow ? 0 : smoothstep(clamp((g.u - LANDS) / (1 - LANDS), 0, 1));
-    const sink = stowedNow ? 0 : smoothstep(clamp((g.u - 0.6) / (LANDS - 0.6), 0, 1));
-    const at = g.route.getPoint(stowedNow ? 0 : g.u).lerp(g.shackleFlat, land);
+    const down = g.lost ? 1 : g.u;                                  // what parted stays on the bottom while the tail comes in
+    const land = stowedNow ? 0 : smoothstep(clamp((down - LANDS) / (1 - LANDS), 0, 1));
+    const sink = stowedNow ? 0 : smoothstep(clamp((down - 0.6) / (LANDS - 0.6), 0, 1));
+    // the boat sails on over the anchor: she stands still here, so its gear goes astern instead
+    const flat = g.drift > 0 ? g.shackleFlat.clone().setX(g.shackleFlat.x - g.drift) : g.shackleFlat;
+    const at = g.route.getPoint(stowedNow ? 0 : down).lerp(flat, land);
+    g.sand.position.x = g.sandHome.x - g.drift;
     g.sand.visible = land > 0; g.sand.material.opacity = land;
     const turn = new THREE.Quaternion().slerpQuaternions(IDENTITY_Q, g.yaw, sink)
       .multiply(new THREE.Quaternion().slerpQuaternions(IDENTITY_Q, g.tip, land));
     const pivot = new THREE.Vector3();
     for (const m of g.anchor) { m.quaternion.copy(turn); m.position.copy(at).sub(pivot.copy(g.hand).applyQuaternion(turn)); }
     const a = g.chainMesh.geometry.attributes.position.array;
-    if (stowedNow) { a.set(g.rest); g.chainMesh.geometry.attributes.position.needsUpdate = true; g.chainMesh.geometry.computeBoundingSphere(); return; }
+    // both bounds, not just the sphere: a ray is tested against the box too, and the one the glTF
+    // brought is the stowed chain's, so once it is out a click on it would go through
+    const rebound = (geo) => { geo.computeBoundingSphere(); geo.computeBoundingBox(); };
+    if (stowedNow) { a.set(g.rest); g.chainMesh.geometry.attributes.position.needsUpdate = true; rebound(g.chainMesh.geometry); return; }
     // ketting: a metre of it from the shackle towards the rail, hanging in a bight while that is nearer
     const from = new THREE.Vector3(0, 0.036, 0).applyQuaternion(turn).add(at); const LENGTH = 1.0;
     const to = g.chock.clone().sub(from); const span = to.length();
@@ -1069,14 +1335,16 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     // on the bottom: half of it along the bottom towards the boat (dropping off the shackle first),
     // then an arc of the other half that starts level and turns up towards the rail
     const ON_BOTTOM = 0.5 * LENGTH; const bed = BOTTOM + 0.01;     // a link on edge: its centre half its width up
-    const foot = from.clone().addScaledVector(g.toBoat, ON_BOTTOM).setY(bed);
+    // dragged astern it still leads to the rail, which is by then ahead of it instead of aft
+    const lead = g.drift > 0 ? new THREE.Vector3(g.chock.x - from.x, 0, g.chock.z - from.z).normalize() : g.toBoat;
+    const foot = from.clone().addScaledVector(lead, ON_BOTTOM).setY(bed);
     const rise = Math.atan2(g.chock.y - bed, Math.hypot(g.chock.x - foot.x, g.chock.z - foot.z));
     const r = (LENGTH - ON_BOTTOM) / rise;
     const lieAt = (k, out) => {
       const s = k * LENGTH;
-      if (s <= ON_BOTTOM) return out.copy(from).addScaledVector(g.toBoat, s).setY(THREE.MathUtils.lerp(from.y, bed, smoothstep(clamp(s / 0.12, 0, 1))));
+      if (s <= ON_BOTTOM) return out.copy(from).addScaledVector(lead, s).setY(THREE.MathUtils.lerp(from.y, bed, smoothstep(clamp(s / 0.12, 0, 1))));
       const a = (s - ON_BOTTOM) / r;
-      return out.copy(foot).addScaledVector(g.toBoat, r * Math.sin(a)).setY(bed + r * (1 - Math.cos(a)));
+      return out.copy(foot).addScaledVector(lead, r * Math.sin(a)).setY(bed + r * (1 - Math.cos(a)));
     };
     const lying = new THREE.Vector3();
     const chainAt = (k, out) => (land > 0 ? hangAt(k, out).lerp(lieAt(k, lying), land) : hangAt(k, out));
@@ -1089,18 +1357,23 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       }
     });
     g.chainMesh.geometry.attributes.position.needsUpdate = true;
-    g.chainMesh.geometry.computeVertexNormals(); g.chainMesh.geometry.computeBoundingSphere();
+    g.chainMesh.geometry.computeVertexNormals(); rebound(g.chainMesh.geometry);
     chainAt(1, end);
+    if (g.lost) { layTail(g); return; }                            // the lijn has parted: the end of the ketting trails free
     // lijn: from the end of the ketting to the rail, slack until the anchor is over the side; then to the ankeroog
     const slack = 0.30 * (1 - smoothstep(clamp((g.u - 0.55) / 0.3, 0, 1)));
     const path = [];
-    for (let i = 0; i <= 16; i++) {
-      const k = i / 16; const s = new THREE.Vector3().lerpVectors(end, g.chock, k);
-      s.y -= slack * 4 * k * (1 - k);
-      if (s.x > 4.05 && s.x < 5.45 && Math.abs(s.z) < 0.55) s.y = Math.max(s.y, 0.705);   // it lies on the voordek, not in it
-      path.push(s);
+    if (g.drift > 0 && end.x < g.chock.x) {                        // past the bow: bar taut from the oog, under the boat as it must
+      for (let i = 0; i <= 8; i++) path.push(new THREE.Vector3().lerpVectors(end, g.eye, i / 8));
+    } else {
+      for (let i = 0; i <= 16; i++) {
+        const k = i / 16; const s = new THREE.Vector3().lerpVectors(end, g.hangOff, k);
+        s.y -= slack * 4 * k * (1 - k);
+        if (s.x > 4.05 && s.x < 5.45 && Math.abs(s.z) < 0.55) s.y = Math.max(s.y, 0.705);   // it lies on the voordek, not in it
+        path.push(s);
+      }
+      path.push(g.chock, ...g.aroundPlecht);
     }
-    path.push(g.chock.clone().setZ(0.04).setY(g.chock.y + 0.004), g.eye.clone());
     g.rope.set(path); g.grip.set(path);
   };
 
@@ -1115,23 +1388,32 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // step is one value run to its goal.
   // One timeline for the rig: sails struck is its first half, mast down the whole of it. "Zeilen op",
   // "Zeilen gestreken" and "Mast gestreken" are three moments on it.
+  // Where the steps are looked at from, in model space; mirrored to the side nearer to the camera,
+  // except the anker, which goes out over the starboard bow.
+  const ANCHOR_VIEW = { positie: [8.02, 4.977, 8.957], doel: [5.376, 0.001, 0.945], kant: 'vast' };
+  const ZWAARD_VIEW = { positie: [3.961, 3.036, 3.977], doel: [3.023, 0.144, 0] };
+  const FURL_VIEW = { positie: [-1.161, 1.819, 1.578], doel: [2.812, 1.344, -0.123] };
+  const TIES_VIEW = { positie: [4.413, 1.762, 2.22], doel: [2.192, 1.32, -0.001] };
+  const GRENDEL_VIEW = { positie: [3.311, 1.412, 1.178], doel: [3.741, 0.209, -0.218] };
+  const HOOK_VIEW = { positie: [6.089, 1.645, 0.334], doel: [5.446, 1.14, 0.014] };
+  const MAST_VIEW = { positie: [8.198, 3.069, 8.201], doel: [2.464, 0.967, -0.817] };
   const rigging = new Procedure('Tuig', { head: 0, anchor: 0, zwaard: 0, jib: 0, mik: 0, main: 0, furl: 0, ties: 0,
     fokoff: 0, low: 0, pin: 0, grendel: 0, ring: 0, hook: 0, mast: 0 }, [
     { key: 'head', to: 1, seconds: 1.5, label: stap('Kop in de wind'), back: stap('Afvallen'), focus: ['mast', 'grootzeil', 'fok'] },
-    { key: 'anchor', to: 1, seconds: 4, label: stap('Anker uit'), back: stap('Anker op'), focus: ['anker', 'ankerketting', 'ankerlijn'] },
-    { key: 'zwaard', to: 1, seconds: 1.5, label: stap('Midzwaard op'), back: stap('Midzwaard neer'), focus: ['zwaard', 'zwaardloper_boven', 'zwaardloper_onder'] },
+    { key: 'anchor', to: 1, seconds: 4, label: stap('Anker uit'), back: stap('Anker op'), focus: ['anker', 'ankerketting', 'ankerlijn'], camera: ANCHOR_VIEW },
+    { key: 'zwaard', to: 1, seconds: 1.5, label: stap('Midzwaard op'), back: stap('Midzwaard neer'), focus: ['zwaard', 'zwaardloper_boven', 'zwaardloper_onder'], camera: ZWAARD_VIEW },
     { key: 'jib', to: 1, seconds: 2, label: stap('Fok strijken'), back: stap('Fok hijsen'), focus: ['fok', 'fokkenval', 'voorstag'] },
     { key: 'mik', to: 1, seconds: 1.5, label: stap('Mik zetten'), back: stap('Mik wegnemen'), focus: ['mik', 'giek'] },
     { key: 'main', to: 1, seconds: 2.5, label: stap('Grootzeil strijken'), back: stap('Grootzeil hijsen'), focus: ['grootzeil', 'gaffel', 'giek'] },
-    { key: 'furl', to: 1, seconds: 1.5, label: stap('Zeil opdoeken'), back: stap('Zeil losmaken'), focus: ['gaffel', 'giek'] },
-    { key: 'ties', to: 1, seconds: 1.2, label: stap('Zeilbinders om'), back: stap('Zeilbinders af'), focus: ['gaffel', 'giek'] },
-    { key: 'fokoff', to: 1, seconds: 2, label: stap('Fok afnemen'), back: stap('Fok aanslaan'), focus: ['fok', 'voorstag'] },
+    { key: 'furl', to: 1, seconds: 1.5, label: stap('Zeil opdoeken'), back: stap('Zeil losmaken'), focus: ['gaffel', 'giek'], camera: FURL_VIEW },
+    { key: 'ties', to: 1, seconds: 1.2, label: stap('Zeilbinders om'), back: stap('Zeilbinders af'), focus: ['gaffel', 'giek'], camera: TIES_VIEW },
+    { key: 'fokoff', to: 1, seconds: 2, label: stap('Fok afslaan'), back: stap('Fok aanslaan'), focus: ['fok', 'voorstag'] },
     { key: 'low', to: 1, seconds: 2, label: stap('Tuig in de onderste haak van de mik'), back: stap('Tuig terug in de vork van de mik'), focus: ['mik', 'giek'] },
     { key: 'pin', to: 1, seconds: 1.8, label: stap('Lummelbout uit'), back: stap('Lummelbout in'), focus: ['lummelbout', 'lummelbeslag'] },
-    { key: 'grendel', to: 1, seconds: 1.5, label: stap('Grendelbout uit'), back: stap('Grendelbout in'), focus: ['grendelbout', 'mastkoker'] },
-    { key: 'ring', to: 1, seconds: 1.2, label: stap('Ring van de pelikaanhaak omhoog'), back: stap('Ring van de pelikaanhaak omlaag'), focus: ['pelikaanhaak_ring', 'hanekam'] },
-    { key: 'hook', to: 1, seconds: 1.8, label: stap('Pelikaanhaak uit de hanekam'), back: stap('Pelikaanhaak in de hanekam'), focus: ['pelikaanhaak_ring', 'hanekam'] },
-    { key: 'mast', to: 1, seconds: 5, label: stap('Mast strijken'), back: stap('Mast zetten'), focus: ['mast'] },
+    { key: 'grendel', to: 1, seconds: 1.5, label: stap('Grendelbout uit'), back: stap('Grendelbout in'), focus: ['grendelbout', 'mastkoker'], camera: GRENDEL_VIEW },
+    { key: 'ring', to: 1, seconds: 1.2, label: stap('Ring van de pelikaanhaak omhoog'), back: stap('Ring van de pelikaanhaak omlaag'), focus: ['pelikaanhaak_ring', 'hanekam'], camera: HOOK_VIEW },
+    { key: 'hook', to: 1, seconds: 1.8, label: stap('Pelikaanhaak uit de hanekam'), back: stap('Pelikaanhaak in de hanekam'), focus: ['pelikaanhaak_ring', 'hanekam'], camera: HOOK_VIEW },
+    { key: 'mast', to: 1, seconds: 5, label: stap('Mast strijken'), back: stap('Mast zetten'), focus: ['mast'], camera: MAST_VIEW },
   ]);
   const strike = rigging.values;
   const RIG_AT = { op: 0, gestreken: rigging.after('ties'), mast: rigging.total };
@@ -1189,8 +1471,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     P[0] = jibOut.x; P[1] = jibOut.y - 0.30 * j * Math.min(far / 0.6, 1); P[2] = jibOut.z + 0.014 * j * Math.sin(along * 30);
   };
   // the leuvers are one mesh; coming down, each slides along the stay with the piece of luff it is on
-  const hanks = meshesOf(['leuvers']).map((mesh) => {
-    const rest = Float32Array.from(mesh.geometry.attributes.position.array);
+  const hankHome = (rest) => {
     const p = new THREE.Vector3(); const along = new Float32Array(rest.length / 3);
     let first = Infinity; let last = -Infinity;
     for (let i = 0; i < along.length; i++) {
@@ -1198,8 +1479,11 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       first = Math.min(first, along[i]); last = Math.max(last, along[i]);
     }
     const pitch = (last - first) / 9;                                // ten of them, evenly spaced
-    const home = along.map((a) => first + Math.round((a - first) / pitch) * pitch);   // where its own leuver sits
-    return { mesh, rest, home, shown: NaN };
+    return along.map((a) => first + Math.round((a - first) / pitch) * pitch);   // where its own leuver sits
+  };
+  const hanks = meshesOf(['leuvers']).map((mesh) => {
+    const rest = Float32Array.from(mesh.geometry.attributes.position.array);
+    return { mesh, rest, home: hankHome(rest), shown: NaN };
   });
   const slideHanks = (j) => {
     for (const hank of hanks) {
@@ -1214,7 +1498,227 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       hank.mesh.geometry.computeBoundingSphere();
     }
   };
+  // -- boegspriet: bolted to the hanekam, it takes the voorstagspanner and the harpje of the
+  // kettinkje on its upper flange. Those, the kettinkje and the tack of the fok go up by `lift`; the
+  // voorstag is that much shorter at its foot, the fok stretched to its new tack, head and schoothoek
+  // where they were. It goes on in one run: voorstagspanner and kettinkje off the hanekam and held
+  // clear above it, the boegspriet slid in from forward, bolted, and the two made fast to it.
+  const bowsprit = (() => {
+    const part = byId.get('boegspriet'); const bolts = byId.get('boegspriet_bouten');
+    if (!part || !bolts || !tuig.boegspriet) return null;
+    for (const p of [part, bolts]) { parts.splice(parts.indexOf(p), 1); p.node.visible = false; }   // only there while it is on
+    const lift = V(tuig.boegspriet.verplaatsing);
+    const tack = stayTack.clone(); const head = V(tuig.voorstag.top);
+    const geometryOf = (ids) => [...new Set(meshesOf(ids).map((m) => m.geometry))];
+    // the tack's share of a point of the fok: its barycentric weight in tack, head and schoothoek
+    const e1 = tack.clone().sub(jibClew); const e2 = head.clone().sub(jibClew);
+    const d11 = e1.dot(e1); const d12 = e1.dot(e2); const d22 = e2.dot(e2); const det = d11 * d22 - d12 * d12;
+    const q = new THREE.Vector3();
+    const ofTack = (p) => { q.copy(p).sub(jibClew); return (d22 * q.dot(e1) - d12 * q.dot(e2)) / det; };
+    // the voorstag: its foot goes all the way, its top not at all
+    const [stay] = geometryOf(['voorstag']);
+    let lo = Infinity; let hi = -Infinity;
+    for (let i = 1; stay && i < stay.attributes.position.count * 3; i += 3) { lo = Math.min(lo, stay.attributes.position.array[i]); hi = Math.max(hi, stay.attributes.position.array[i]); }
+    const move = (geometry, array, share) => {
+      const rest = Float32Array.from(array); const p = new THREE.Vector3();
+      const weight = new Float32Array(rest.length / 3).map((_, i) => share(p.fromArray(rest, i * 3)));
+      return { geometry, array, rest, weight };
+    };
+    const moves = [
+      ...geometryOf(['voorstagspanner', 'pelikaanhaak_ring', 'harpjes_fok', 'kettinkje_fok']).map((g) => move(g, g.attributes.position.array, () => 1)),
+      ...(stay ? [move(stay, stay.attributes.position.array, (p) => clamp((hi - p.y) / (hi - lo), 0, 1))] : []),
+      ...jibBend.items.map((item) => move(item.geometry, item.rest, ofTack)),
+      ...hanks.map((hank) => move(hank.mesh.geometry, hank.rest, ofTack)),
+    ];
+    // it runs by itself, so the steps are timing and nothing else
+    const proc = new Procedure('Boegspriet', { los: 0, schuif: 0, bout: 0, vast: 0 }, [
+      { key: 'los', to: 1, seconds: 1.5, label: 'los' },
+      { key: 'schuif', to: 1, seconds: 2, label: 'inschuiven' },
+      { key: 'bout', to: 1, seconds: 1.2, label: 'vastbouten' },
+      { key: 'vast', to: 1, seconds: 1.5, label: 'vast' },
+    ]);
+    return { part, bolts, lift, tack, moves, proc, want: false, at: new THREE.Vector3(), shown: new THREE.Vector3(NaN, 0, 0) };
+  })();
+  const SPRIET_CLEAR = 0.06;                                        // held this far over the upper flange while it goes in
+  const SPRIET_SLIDE = 1.0;                                         // where it starts: this far forward of its place
+  const BOLT_SLIDE = 0.08;                                          // and the bolts: this far to port
+  const setBowsprit = (on) => {
+    const b = bowsprit;
+    if (!b || b.want === on) return;
+    b.want = on; b.proc.command(on ? b.proc.total : 0);              // it plays on its own, off the progress bar
+    if (on) note('bs');
+  };
+  // -- chill: with the sails down, the doft as a bench and a ruime wind or voor de wind, a boegspriet
+  // rigged carries a spinnaker instead of the kluiver: on a ruime wind tacked to the hook on
+  // the boegspriet, its sheet to the leeward aft leioog; voor de wind flown free from the masthead,
+  // a sheet from either corner to the aft leioog of its side. Between the two it eases over.
+  const chill = (() => {
+    if (!bowsprit || !tuig.kluiver || !tuig.mast?.top) return null;
+    const sp = initSpinnaker({ addPart, material: byId.get('fokkenschoot').meshes[0].material });
+    const part = parts.find((p) => p.node === sp.sail); const ropePart = parts.find((p) => p.node === sp.ropes);
+    for (const p of [part, ropePart]) { parts.splice(parts.indexOf(p), 1); p.node.visible = false; }
+    const eye = (id) => {                                           // the top of the aftmost leioog of a side
+      const q = new THREE.Vector3(); let low = Infinity; const pts = [];
+      for (const m of meshesOf([id])) { const pos = m.geometry.attributes.position; for (let i = 0; i < pos.count; i++) { pts.push(q.fromBufferAttribute(pos, i).clone()); low = Math.min(low, q.x); } }
+      return pts.filter((r) => r.x < low + 0.06).reduce((a, r) => (r.y > a.y ? r : a));
+    };
+    return { sp, part, ropePart, holds: false, hoist: 0, head: V(tuig.mast.top), hook: V(tuig.kluiver.hals),
+             eyes: { bb: eye('leiogen_bb'), sb: eye('leiogen_sb') }, downwind: new THREE.Vector3(), A: new THREE.Vector3(), B: new THREE.Vector3() };
+  })();
+  const CHILL_COURSE = 130;                                          // from here up it is a ruime wind
+  const layChill = (step, struck) => {
+    const c = chill; if (!c) return;
+    const course = Math.abs(state.course); const side = Math.sign(state.course) || 1;
+    const anchorDown = anchorGear && anchorGear.u > 0.01;
+    const ready = bowsprit.want && state.mode === 'zeilen' && struck && strike.mast < 0.01 && bench.at > 0.99 && course >= CHILL_COURSE;
+    if (ready && anchorDown && anchorGear.want > 0.5) weighAnchor(false);   // it comes up: no sailing on with it down
+    const holds = ready && !anchorDown;
+    c.holds = holds;
+    const up = holds && bowsprit.proc.values.vast > 0.99;
+    c.hoist = clamp(c.hoist + (up ? step : -step) / 3, 0, 1);
+    if (c.hoist === 1) note('sp');
+    const there = c.hoist > 0;
+    for (const p of [c.part, c.ropePart]) {
+      p.node.visible = there;
+      const listed = parts.includes(p);
+      if (there && !listed) parts.push(p); else if (!there && listed) parts.splice(parts.indexOf(p), 1);
+    }
+    if (!there) return;
+    const run = smoothstep(clamp((course - 150) / 20, 0, 1));       // 0 ruime wind, 1 voor de wind
+    c.downwind.set(-Math.cos(now.windAngle), 0, -Math.sin(now.windAngle));
+    c.A.copy(c.hook).lerp(tmp.set(5.2, 1.7, side * 2.4), run);      // the tack: on the hook, or flying to windward
+    c.B.set(3.3, 1.6, -side * 2.6).lerp(tmp.set(5.2, 1.7, -side * 2.4), run);   // the clew, to leeward
+    const belly = 1.3 + 0.4 * run;
+    const [a, b] = c.sp.lay(c.head, c.A, c.B, c.downwind, belly, now.t, smoothstep(c.hoist));
+    const lee = side > 0 ? 'bb' : 'sb'; const weather = side > 0 ? 'sb' : 'bb';
+    c.sp.sheet(1, b, c.eyes[lee]);
+    c.sp.sheets[0].mesh.visible = run > 0.05;
+    if (run > 0.05) c.sp.sheet(0, a, c.eyes[weather]);
+  };
+  const layBowsprit = () => {
+    const b = bowsprit; if (!b) return;
+    const { los, schuif, bout, vast } = b.proc.values;
+    const off = smoothstep(los); const on = smoothstep(vast);
+    b.at.copy(b.lift).multiplyScalar(off).setY(b.at.y + SPRIET_CLEAR * (off - on));
+    const inPlace = (p, there) => {                                 // shown and pickable while it is on the boat at all
+      p.node.visible = there;
+      const listed = parts.includes(p);
+      if (there && !listed) parts.push(p); else if (!there && listed) parts.splice(parts.indexOf(p), 1);
+    };
+    inPlace(b.part, schuif > 0); inPlace(b.bolts, bout > 0);
+    setKluiver(vast > 0.99 && !chill?.holds);                        // the kluiver is set once the boegspriet is rigged
+    b.part.node.position.x = SPRIET_SLIDE * (1 - smoothstep(schuif));
+    b.bolts.node.position.z = -BOLT_SLIDE * (1 - smoothstep(bout));
+    if (b.at.distanceToSquared(b.shown) < 1e-12) return;
+    b.shown.copy(b.at);
+    for (const { geometry, array, rest, weight } of b.moves) {
+      for (let i = 0, k = 0; k < rest.length; i++, k += 3) {
+        array[k] = rest[k] + weight[i] * b.at.x; array[k + 1] = rest[k + 1] + weight[i] * b.at.y; array[k + 2] = rest[k + 2] + weight[i] * b.at.z;
+      }
+      if (array !== geometry.attributes.position.array) geometry.attributes.position.array.set(array);
+      geometry.attributes.position.needsUpdate = true;
+      geometry.computeBoundingSphere(); geometry.computeBoundingBox();
+    }
+    stayTack.copy(b.tack).add(b.at); stayFoot.copy(stayTack);
+    stayAxis.copy(V(tuig.voorstag.top)).sub(stayTack).normalize();
+    for (const hank of hanks) { hank.home = hankHome(hank.rest); hank.shown = NaN; }
+    jibBend.depth = NaN;                                            // laid again from its new rest
+  };
   const warpPoint = (bend, p) => { const P = [p.x, p.y, p.z]; bend.warp(P); return p.set(P[0], P[1], P[2]); };
+  // -- kluiver: the fok over again, set flying from the hook on the boegspriet. Nothing is
+  // modelled for it: the fok's own meshes are shown a second time - cloth, kettinkje, harpjes and
+  // the harpje of its val - moved as one rigid piece from the hanekam onto the hook and turned
+  // onto the longer luff, so it swings, bellies and comes down with the fok. What that luff is
+  // longer by is taken up by its val, which runs to the top of the mast over the second sheave of
+  // a double block in place of the single one of the fokkenval. Its sheets run over the inboard
+  // sheave of a double block on either leioog: the lower block of the grootschoot, shown a second
+  // time in place of the single block, which then carries the fok's sheet on its outboard sheave.
+  const kluiver = (() => {
+    if (!tuig.kluiver || !tuig.grootschoot?.schijven_onder || !bowsprit) return null;
+    const hals = V(tuig.kluiver.hals); const top = V(tuig.kluiver.top);
+    const jib = byId.get('fok');
+    const twins = (ids, node) => meshesOf(ids).map((of) => {
+      const c = new THREE.Mesh(of.geometry, of.material.clone());
+      c.matrixAutoUpdate = false; c.userData.of = of; node.add(c);
+      return c;
+    });
+    const node = new THREE.Group(); const cloth = twins(['fok', ...ofSail('fok')], node);
+    addPart(node, 'kluiver', 'Kluiver', 'zeil', 'fok', jib.extras.afmetingen_mm);
+    const part = parts.find((p) => p.node === node);
+    const gearNode = new THREE.Group(); const gear = twins(['kettinkje_fok', 'harpjes_fok', 'harpje_fokkenval'], gearNode);
+    addPart(gearNode, 'kluiver_beslag', 'Kettinkje en harpjes van de kluiver', 'beslag', 'fok', [0, 0, 0]);
+    const gearPart = parts.find((p) => p.node === gearNode);
+    // the double blocks on the leiogen
+    const doubles = jibSheets.map((sheet) => {
+      const group = new THREE.Group();
+      const meshes = lowerBlock.map((of) => { const c = new THREE.Mesh(of.geometry, of.material.clone()); group.add(c); return c; });
+      const side = sheet.side > 0 ? 'stuurboord' : 'bakboord';
+      addPart(group, `blok_fokkenschoot_dubbel_${sheet.key}`, `Dubbel blok fokkenschoot (${side})`, 'lopend_want', 'fokkenschoot',
+              byId.get('blok_grootschoot_kuip').extras.afmetingen_mm);
+      const block = hangBlock(sheet.single.eye, meshes, V(tuig.grootschoot.oog), tuig.grootschoot.schijven_onder.map(V), tuig.grootschoot.schijf_straal_m);
+      return { part: parts.find((p) => p.node === group), block };
+    });
+    // the double block at the masthead, where the single block of the fokkenval hangs
+    const single = byId.get('blok_fokkenval');
+    const box = new THREE.Box3(); for (const m of single.meshes) box.expandByObject(m);
+    const bearing = box.getCenter(new THREE.Vector3()).setY(box.max.y);
+    const head = standDouble(bearing, new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, 0, 1));
+    const headNode = new THREE.Group(); headNode.add(...head.meshes);
+    addPart(headNode, 'blok_fokkenval_dubbel', 'Dubbel blok fokkenval', 'lopend_want', 'fokkenschoot', byId.get('blok_grootschoot_kuip').extras.afmetingen_mm);
+    const headPart = parts.find((p) => p.node === headNode);
+    mastSet.push(...head.meshes);
+    // its val: up from the harpje at its head over the port sheave, and down the mast to the kikker
+    const valNode = new THREE.Group();
+    const valMaterial = byId.get('fokkenval').meshes[0].material.clone();
+    const valUp = new RopeLine(2, dirkInfo.straal_m, valMaterial); const valDown = new RopeLine(2, dirkInfo.straal_m, valMaterial);
+    valNode.add(valUp.mesh, valDown.mesh);
+    addPart(valNode, 'kluiverval', 'Kluiverval', 'lopend_want', 'fokkenschoot', [0, 0, 0]);
+    const valPart = parts.find((p) => p.node === valNode);
+    // its sheets, a part of their own like the fokkenschoot
+    const ropes = new THREE.Group();
+    addPart(ropes, 'kluiverschoot', 'Kluiverschoot', 'lopend_want', 'fokkenschoot', [0, 0, 0]);
+    const ropePart = parts.find((p) => p.node === ropes);
+    const sheets = jibSheets.map((sheet, i) => ({ key: sheet.key, side: sheet.side, hand: sheet.hand.clone().add(new THREE.Vector3(-0.12, 0, 0)),
+                                                  block: doubles[i].block, sheave: 0, lead: null, tail: null }));
+    sheetRopes(ropePart, sheets, byId.get('fokkenschoot').meshes[0].material);
+    const hidden = [part, gearPart, ropePart, valPart, headPart, ...doubles.map((d) => d.part)];
+    for (const p of hidden) { parts.splice(parts.indexOf(p), 1); p.node.visible = false; }
+    sailRig.push(...cloth, ...gear, valUp.mesh, valDown.mesh);
+    return { hals, top, cloth, gear, part, gearPart, ropePart, valPart, headPart, single, head, valUp, valDown, doubles, sheets,
+             S: new THREE.Matrix4(), on: false, clewNow: new THREE.Vector3(), valTop: new THREE.Vector3() };
+  })();
+  const setKluiver = (on) => {
+    const k = kluiver;
+    if (!k || k.on === on) return;
+    k.on = on;
+    if (on) {
+      // the fok's gear as it stands now, rigidly: the bow of the lower harpje of its kettinkje - the
+      // bottom of the lot - onto the hook, its luff turned onto the kluiver's
+      const q = new THREE.Quaternion().setFromUnitVectors(V(tuig.voorstag.top).sub(stayTack).normalize(), k.top.clone().sub(k.hals).normalize());
+      const foot = new THREE.Vector3(); const p = new THREE.Vector3(); let low = Infinity; let n = 0;
+      const harps = meshesOf(['harpjes_fok']);
+      for (const m of harps) { m.updateMatrixWorld(); const pos = m.geometry.attributes.position; for (let i = 0; i < pos.count; i++) low = Math.min(low, p.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld).y); }
+      for (const m of harps) { const pos = m.geometry.attributes.position; for (let i = 0; i < pos.count; i++) { p.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld); if (p.y < low + 0.03) { foot.add(p); n++; } } }
+      foot.divideScalar(Math.max(n, 1));
+      k.S.makeTranslation(k.hals.x, k.hals.y, k.hals.z).multiply(new THREE.Matrix4().makeRotationFromQuaternion(q))
+        .multiply(new THREE.Matrix4().makeTranslation(-foot.x, -foot.y, -foot.z));
+    }
+    const inPlace = (p, there) => {
+      p.node.visible = there;
+      const listed = parts.includes(p);
+      if (there && !listed) parts.push(p); else if (!there && listed) parts.splice(parts.indexOf(p), 1);
+    };
+    inPlace(k.part, on); inPlace(k.gearPart, on); inPlace(k.ropePart, on); inPlace(k.valPart, on); inPlace(k.headPart, on);
+    const singleHead = parts.find((p) => p === k.single);
+    if (singleHead) inPlace(singleHead, !on); else for (const m of k.single.meshes) m.visible = !on;
+    k.doubles.forEach((d, i) => {
+      inPlace(d.part, on);
+      const sheet = jibSheets[i];
+      const single = parts.find((p) => p.meshes.includes(sheet.single.meshes[0])) ?? null;
+      if (single) inPlace(single, !on); else for (const m of sheet.single.meshes) m.visible = !on;
+      sheet.block = on ? d.block : sheet.single; sheet.sheave = on ? 1 : 0;   // the fok on the outboard sheave of the double
+    });
+  };
   const valHarp = (() => {
     const meshes = meshesOf(['harpje_fokkenval']);
     if (!meshes.length) return null;
@@ -1268,10 +1772,158 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const vane = makeWindVane();                                    // windvaan on the masthead
   vane.position.copy(V(tuig.mast.top)); vane.position.y += 0.06;   // clear of the masttopring
   addPart(vane, 'windvaan', 'Windvaan', 'rondhout', 'mast', [275, 95, 4]);
+  // toplicht, just under the windvaan. It hangs there by day as well, unlit, the way it does on the
+  // boat; initNight (rig.js) turns it up through setToplicht.
+  const toplicht = new THREE.Mesh(
+    new THREE.SphereGeometry(0.02, 12, 8),
+    new THREE.MeshStandardMaterial({ color: 0xf6efdc, emissive: 0xfff2c0, emissiveIntensity: 0, roughness: 0.5, metalness: 0 }),
+  );
+  const toplichtGloed = new THREE.PointLight(0xfff2c0, 0, 6);
+  toplicht.add(toplichtGloed);
+  toplicht.position.copy(V(tuig.mast.top)); toplicht.position.y += 0.02;
+  addPart(toplicht, 'toplicht', 'Toplicht', 'rondhout', 'mast', [60, 90, 60]);
+  // the halo round the lamp, added AFTER addPart so it is neither picked nor counted as geometry of
+  // the part: a sprite of its own, over everything, never dimmed by the light there is
+  const toplichtHalo = (() => {
+    const canvas = Object.assign(document.createElement('canvas'), { width: 64, height: 64 });
+    const ctx = canvas.getContext('2d');
+    const glow = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    glow.addColorStop(0, 'rgba(255, 252, 235, 1)');
+    glow.addColorStop(0.25, 'rgba(255, 242, 192, 0.55)');
+    glow.addColorStop(1, 'rgba(255, 242, 192, 0)');
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, 64, 64);
+    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: texture, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending,
+    }));
+    sprite.scale.setScalar(0.35);
+    sprite.raycast = () => {};
+    sprite.visible = false;
+    toplicht.add(sprite);
+    return sprite;
+  })();
+  // paint() in main.js clears emissive on every part whenever the highlighting is refreshed, so the
+  // lamp writes its own back every frame in update(); this only keeps how far it is turned up.
+  const lamp = { k: 0, hex: toplicht.material.emissive.getHex() };   // its own colour, as it starts
+  const setToplicht = (k) => { lamp.k = k; toplichtGloed.intensity = 1.5 * k; };
   scene.add(water, wind);
   // vlaggenstok in the top of the roerkoning, with its knop (bakskleur, like the roerkop) and the flag
+  // a flag on the achterlijk of the grootzeil, made fast along the top of the leech from the tophoek
+  // down: it hangs from the tape of the leech, wherever the sail takes that
+  const leechFlag = (() => {
+    const fly = initLeechFlag({ addPart });
+    const part = parts.find((p) => p.node === fly.mesh);
+    parts.splice(parts.indexOf(part), 1); fly.mesh.visible = false;
+    const tape = meshesOf(['grootzeil_achterlijk'])[0];
+    const pos = tape.geometry.attributes.position; const p = new THREE.Vector3();
+    let top = null; let bottom = null;
+    for (let i = 0; i < pos.count; i++) { p.fromBufferAttribute(pos, i); if (!top || p.y > top.y) top = p.clone(); if (!bottom || p.y < bottom.y) bottom = p.clone(); }
+    const down = bottom.clone().sub(top).normalize();
+    const at = [];
+    for (let j = 0; j <= fly.rows; j++) {                             // the vertex of the tape nearest each point of the hoist
+      const want = (j * fly.hoist) / fly.rows; let best = 0; let score = Infinity;
+      for (let i = 0; i < pos.count; i++) {
+        p.fromBufferAttribute(pos, i).sub(top);
+        const along = p.dot(down); const off = p.addScaledVector(down, -along).length();
+        const d = Math.abs(along - want) + 0.3 * off;
+        if (d < score) { score = d; best = i; }
+      }
+      at.push(best);
+    }
+    sailRig.push(fly.mesh);
+    return { fly, part, tape, at, points: at.map(() => new THREE.Vector3()), on: false, k: 0,      // k: how far it has faded in
+             set(on) { if (this.on === on) return; this.on = on; if (on) { parts.push(part); note('sv'); } else parts.splice(parts.indexOf(part), 1); },
+             setEmblem: fly.setEmblem };
+  })();
   const flyFlag = initFlag({ foot: V(tuig.vlaggenstok.voet), axis: V(tuig.vlaggenstok.richting), addPart, joinPart,
                              accent: byId.get('roerkop').meshes.find((m) => m.material.name === 'bakskleur').material });
+
+  // -- op sleeptouw: the voorlandvast taken out of its coil, through the sleepoog on the stem and
+  // ahead to a boat out of sight. The coiled line goes away for as long as it is out there.
+  const TOW_SECONDS = 2;                                            // paying it out, and taking it back
+  const TOW_AHEAD = 9;                                              // m ahead of the stem: where the towing boat has it
+  const TOW_SAG = 0.22;                                             // m of bight in the middle of the run
+  const tow = (() => {
+    const part = byId.get('voorlandvast'); const eyePart = byId.get('sleepoog_boeg');
+    if (!part || !eyePart) return null;
+    const box = new THREE.Box3();
+    for (const m of eyePart.meshes) box.expandByObject(m);
+    const eye = box.getCenter(new THREE.Vector3());
+    const rope = new RopeLine(40, 0.006, part.meshes[0].material);
+    rope.mesh.visible = false; rope.mesh.userData.part = part.node; part.node.parent.add(rope.mesh);
+    const stowed = part.meshes.slice(); part.meshes.push(rope.mesh);
+    // just clear of the water, so it is seen against it over its whole run
+    const far = new THREE.Vector3(eye.x + TOW_AHEAD, tuig.waterlijn_m + 0.25, 0);
+    return { part, rope, stowed, eye, far, to: far, want: false, k: 0, shown: NaN,
+             path: Array.from({ length: 24 }, () => new THREE.Vector3()) };
+  })();
+  /** The run of the line, paid out as far as k says: out of the eye, forward and down into a
+   *  shallow bight, then away to `to` - the towing boat ahead, or the meerpen on the beach. */
+  const layTow = () => {
+    const t = tow; if (!t || t.k === t.shown) return;
+    t.shown = t.k;
+    for (const m of t.stowed) m.visible = t.k === 0;
+    t.rope.mesh.visible = t.k > 0;
+    if (t.k === 0) return;
+    const sag = (TOW_SAG * t.eye.distanceTo(t.to)) / TOW_AHEAD;     // a short span hangs less deep
+    for (let i = 0; i < t.path.length; i++) {
+      const s = (t.k * i) / (t.path.length - 1);                    // along the run it will take, so far as it is out
+      t.path[i].lerpVectors(t.eye, t.to, s).y -= sag * 4 * s * (1 - s);
+    }
+    t.rope.set(t.path);
+  };
+  // The boat that has the other end: only its stern, standing at the far edge of the water disc
+  // (which reaches to x 16.8) and fading out forward, where the water would end under it. It is
+  // there while the line runs to it - not while the boat lies at the meerpen - and while it pulls
+  // there is a wake astern of it and astern of our own transom.
+  const TUG_AT = 15.8;
+  const tug = makeTugStern({ waterline: tuig.waterlijn_m, at: TUG_AT });
+  const wakes = [makeWake({ waterline: tuig.waterlijn_m, from: 0.05, length: 6, near: 0.55, far: 1.25 }),
+                 makeWake({ waterline: tuig.waterlijn_m, from: TUG_AT, length: 3.5, near: 1, far: 1.5, strength: 0.7 })];
+  scene.add(tug.group, ...wakes.map((w) => w.mesh));
+  if (tow) tow.far.copy(tug.post);                                  // the line goes to the post on its deck
+
+  // -- an island off the port bow: the boat lies there at the meerpen. The island rises out of the water off the port bow, the lid of the bakskist goes up
+  // and the meerpen is carried ashore and driven into the beach, and the voorlandvast - the same
+  // line that goes out on sleeptouw - runs from the sleepoog to its head. Going, it is undone in
+  // that order backwards: the line in, the pen back in the kist, then the island under again.
+  const ISLAND_AT = [10.5, -3.5];                                   // the centre of it, off the port bow
+  const ISLAND_SECONDS = 3;                                         // rising out of the water, and sinking back
+  const PEN_SECONDS = 2.5;                                          // the meerpen from the kist to the beach
+  const PEN_BEACH = 1.2;                                            // m up the beach from the water's edge
+  const PEN_LEAN = deg(9);                                          // driven in leaning away from the boat
+  const PEN_SUNK = 0.07;                                            // m of the point in the sand
+  const PEN_ARC = 0.8;                                              // how high it swings on the way over
+  const PEN_EYE = 0.05;                                             // from the top of the pen down to its eye
+  const moor = (() => {
+    const pen = byId.get('meerpen');
+    if (!pen || !tow || !kist) return null;
+    const box = new THREE.Box3();
+    for (const m of pen.meshes) box.expandByObject(m);
+    // it lies fore and aft in the kist with its head - the eye and the ring in it - aft, so it
+    // stands on the end that is forward now, and the rest axis point -> head is straight aft
+    const mid = box.getCenter(new THREE.Vector3());
+    const tip = new THREE.Vector3(box.max.x, mid.y, mid.z);
+    const length = box.max.x - box.min.x;
+    const isle = makeIsland({ centre: ISLAND_AT, waterline: tuig.waterlijn_m,
+                              facing: [tow.eye.x - ISLAND_AT[0], -ISLAND_AT[1]] });
+    scene.add(isle.group);
+    const away = new THREE.Vector3(ISLAND_AT[0] - tow.eye.x, 0, ISLAND_AT[1]).normalize();
+    const lean = new THREE.Vector3(away.z, 0, -away.x);             // the pen leans over this, away from the boat
+    const stand = UP.clone().applyAxisAngle(lean, PEN_LEAN);
+    const tipAt = isle.shore(PEN_BEACH).addScaledVector(stand, -PEN_SUNK);
+    const head = tipAt.clone().addScaledVector(stand, length - PEN_EYE);
+    const standQ = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(-1, 0, 0), stand);
+    return { isle, pen, tip, tipAt, head, standQ, want: false, up: 0, ashore: 0, shown: NaN, opened: false };
+  })();
+  const penQ = new THREE.Quaternion(); const penAt = new THREE.Vector3();
+  /** The meerpen w of the way from where it lies in the kist to standing in the sand. */
+  const placePen = (w) => {
+    penQ.slerpQuaternions(IDENTITY_Q, moor.standQ, w);
+    penAt.lerpVectors(moor.tip, moor.tipAt, w);
+    penAt.y += Math.sin(Math.PI * w) * PEN_ARC;                     // up out of the kist and over the boeisel
+    carry(moor.pen.meshes, moor.tip, penAt, penQ);
+  };
 
   // -- state: targets are set by the UI, the smoothed values chase them
   // rowPhase 0..1 runs inpik -> haal -> uitpik -> recover; rowLength is half the sweep of the oar (radians)
@@ -1313,51 +1965,192 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     carry(oar.meshes, oar.pivot, tmp, blended);
   }
 
-  function update(dt) {
+  // -- a stootwil in the water. It lies on its side, half under, pointing away from the boat, and
+  // rides the surface where it fell - the line is cast off with it and trails behind. Hauled back,
+  // it hangs overboard at the rail again.
+  const MOB_SECONDS = 2;                                            // throwing it in, and hauling it back
+  const MOB_LIFT = 0.3;                                             // how high the arc rises over the straight way there
+  const MOB_LINE = 0.07;                                            // its own short line, trailing on the surface
+  const MOB_WET = 0.01;                                             // the axis this far above the waterline: half under
+  const MOB_WAY = 0.5;                                              // the way she makes under sail, in metres a second
+  const seaRest = new THREE.Vector3(); const seaAxis = new THREE.Vector3();
+  const seaAcross = new THREE.Vector3(); const seaTail = new THREE.Vector3();
+  const seaMid = new THREE.Vector3(); const seaQ = new THREE.Quaternion();
+  let armed = null;                                                 // the stootwil in hand: the next click on the water throws it
+  /** Throw `w` in at `at`, a point on the water, from wherever it hangs now. */
+  const toSea = (w, at) => {
+    const point = at.clone(); point.y = tuig.waterlijn_m + MOB_WET;
+    // the water is holed where the boat is, but a throw at the very edge of it would still be on
+    // the planking: put that one alongside, on the boord the stootwil came from
+    if (point.x > -0.3 && point.x < 6.2 && Math.abs(point.z) < 1) point.z = w.side * 1.2;
+    seaAxis.set(point.x - 2.8, 0, point.z);                         // away from the boat, though not quite straight
+    if (seaAxis.lengthSq() < 1e-6) seaAxis.set(0, 0, w.side);
+    seaAxis.normalize().applyAxisAngle(UP, 0.7 * Math.sin(97 * point.x + 61 * point.z));
+    w.sea = { centre: point, axis: seaAxis.clone(), phase: 7 * point.x + 3 * point.z, k: 0, back: false, landed: false,
+              from: w.fender.position.clone(), fromQ: w.fender.quaternion.clone() };
+    w.at = 1; w.want = 1; w.shown = 1;                              // overboard, as far as everything else is concerned
+    armed = null;
+  };
+  /** Haul `w` back out of the water, to where it hangs overboard. */
+  const fromSea = (w) => {
+    w.sea.back = true; w.sea.k = 0;
+    w.sea.from.copy(w.fender.position); w.sea.fromQ.copy(w.fender.quaternion);
+  };
+  /**
+   * A stootwil on its way into the water, lying in it, or on its way back to the rail. False once
+   * it is at the rail again and the ordinary hanging takes it over.
+   */
+  const seaFender = (w, dt, step) => {
+    const sea = w.sea;
+    sea.k = Math.min(1, sea.k + dt / MOB_SECONDS);
+    const s = smoothstep(sea.k);
+    // Under sail she makes her way and the stootwil stays where it is in the water: astern it goes,
+    // and once it is past the edge of the water it is gone for good - a new one is on its eye.
+    if (sea.k === 1 && !sea.back && !measuring && state.mode === 'zeilen'
+        && rigging.t < 1e-6 && state.course !== 0 && now.flutter < 0.05) {
+      sea.centre.x -= MOB_WAY * step;
+      if (sea.centre.x < 2.8 - 14.5) { w.sea = null; w.at = 0; w.want = 0; w.shown = NaN; return false; }
+    }
+    seaAcross.set(-sea.axis.z, 0, sea.axis.x);                      // across it, on the surface
+    if (sea.back) { seaRest.copy(w.outTop); seaQ.copy(w.outQ); seaAxis.copy(sea.axis); }
+    else {
+      // the ends rise and fall and it turns a little where it lies: that is the water doing it, so
+      // it goes at dt and the speed of what is being done leaves it alone
+      seaAxis.copy(sea.axis).applyAxisAngle(UP, sea.k * deg(5) * Math.sin(0.6 * now.t + sea.phase))
+             .applyAxisAngle(seaAcross, sea.k * deg(6) * Math.sin(1.3 * now.t + sea.phase));
+      seaRest.copy(sea.centre).addScaledVector(seaAxis, -w.fender.userData.length / 2);
+      seaRest.y += sea.k * 0.012 * Math.sin(1.7 * now.t + sea.phase);
+      seaQ.setFromUnitVectors(DOWN, seaAxis);
+    }
+    if (sea.k < 1) {
+      w.fender.position.lerpVectors(sea.from, seaRest, s);
+      w.fender.position.y += MOB_LIFT * Math.sin(Math.PI * s);      // up and over, not straight across
+      w.fender.quaternion.slerpQuaternions(sea.fromQ, seaQ, s);
+    } else { w.fender.position.copy(seaRest); w.fender.quaternion.copy(seaQ); }
+    // the line leaves the top, which is the end towards the boat, and lies out behind it
+    const top = w.fender.position;
+    seaTail.copy(top).addScaledVector(seaAxis, -MOB_LINE);
+    seaTail.y = Math.max(tuig.waterlijn_m + 0.004, top.y - 0.3 * MOB_LINE);
+    seaMid.lerpVectors(top, seaTail, 0.5).addScaledVector(seaAcross, 0.25 * MOB_LINE);
+    w.line.set([seaTail, seaMid, top.clone()]);
+    if (sea.k < 1) return true;
+    if (sea.back) { w.sea = null; w.at = 1; w.want = 1; w.shown = NaN; return false; }
+    if (!sea.landed) { sea.landed = true; note('mo'); }
+    return true;
+  };
+  const mob = {
+    get on() { return stootwillen.some((w) => w.sea && !w.sea.back); },
+    set(on) {
+      if (!on) { for (const w of stootwillen) if (w.sea && !w.sea.back) fromSea(w); return; }
+      const w = stootwillen.find((x) => x.side < 0 && !x.sea);      // off the bakboord quarter
+      if (w) toSea(w, new THREE.Vector3(0.5, 0, -2.5));
+    },
+  };
+  /** Where a ray already set from the pointer crosses the water, as a hit, or null. */
+  const waterHit = (raycaster) => raycaster.intersectObject(water, false)[0] ?? null;
+
+  function update(dt, pace = 1) {
+    const step = dt * pace;                                         // what is being done goes at this speed; wind and water at dt
     const sailing = state.mode === 'zeilen';
     const side = Math.sign(state.course) || 1;                      // +1: wind over starboard, sails to port
     const course = Math.min(Math.abs(state.course), RUN);
     const loevert = smoothstep(clamp((Math.abs(state.course) - DOWNWIND) / (RUN - DOWNWIND), 0, 1));
-    rigging.tick(dt); reefing?.tick(dt);
+    rigging.tick(step); reefing?.tick(step); bowsprit?.proc.tick(step); layBowsprit();
     if (anchorGear) {
       // Taken over by hand, the procedure has it back once they agree: at its start, or where its
       // own anchor step comes to the same place (hoisting, it weighs an anchor that is up already)
       const agree = Math.abs(strike.anchor - anchorGear.u) < 1e-3 && Math.round(strike.anchor) === anchorGear.want;
       if (anchorGear.byHand && (rigging.t < 1e-6 || agree)) anchorGear.byHand = false;
-      if (rigging.t > 1e-6 && !anchorGear.byHand) { anchorGear.u = strike.anchor; anchorGear.want = Math.round(strike.anchor); }   // the procedure has it
-      else if (!measuring) {
-        const gap = anchorGear.want - anchorGear.u; const step = 0.25 * dt;   // by hand: four seconds from chest to bottom
-        anchorGear.u = Math.abs(gap) <= step ? anchorGear.want : anchorGear.u + Math.sign(gap) * step;
+      if (rigging.t > 1e-6 && !anchorGear.byHand) {                 // the procedure has it: with its own anchor, on its own ground
+        anchorGear.u = strike.anchor; anchorGear.want = Math.round(strike.anchor);
+        if (anchorGear.lost || anchorGear.drift > 0) {              // it has one of its own: the loss is behind us
+          anchorGear.lost = false; anchorGear.drift = 0; anchorGear.seen = 1; anchorGear.whip = 0; anchorGear.shown = NaN;
+        }
+      } else if (!measuring) {
+        const gap = anchorGear.want - anchorGear.u; const by = 0.25 * step;   // by hand: four seconds from chest to bottom
+        anchorGear.u = Math.abs(gap) <= by ? anchorGear.want : anchorGear.u + Math.sign(gap) * by;
+      }
+      // Sailing full over her own anchor a vlet brings herself up short on it, and the ankerlijn is
+      // jerked off the ankeroog: nothing in the bow of a vlet holds against her way under sail.
+      if (!measuring) {
+        const g = anchorGear;
+        const wasDrift = g.drift; const wasWhip = g.whip; const wasLost = g.lost; const wasSeen = g.seen;
+        // only with the wind in the sails: they are up and drawing, and the boat is on a course
+        const drawing = sailing && rigging.t < 1e-6 && state.course !== 0 && now.flutter < 0.05;
+        if (drawing && g.u > 0.999) {
+          g.drift += 1.5 * step;                                    // she makes her way; the gear stays on the bottom
+          if (!g.lost && g.drift >= SNAP_AT) { g.lost = true; g.whip = 0; note('av'); }
+        } else if (!g.lost) g.drift = Math.max(g.drift - 1.5 * step, 0);   // brought up short: it never came to that
+        if (g.lost) {
+          g.whip = Math.min(g.whip + step / 0.6, 1);
+          g.seen = g.shackleFlat.x - g.drift < WATER_EDGE ? 0 : 1;  // left behind beyond the water: nothing to be seen of it
+          if (g.u < 0.004) { g.lost = false; g.drift = 0; g.seen = 1; g.whip = 0; }   // hauled in: the next one is a new one
+        }
+        if (g.drift !== wasDrift || g.whip !== wasWhip || g.lost !== wasLost || g.seen !== wasSeen) g.shown = NaN;   // laid again this frame
       }
       if (!measuring) trimBoard();                                  // on the bottom, or back aboard: the midzwaard follows
     }
     for (const w of stootwillen) {
-      const step = dt / FENDER_SECONDS; const gap = w.want - w.at;
-      w.at = Math.abs(gap) <= step ? w.want : w.at + Math.sign(gap) * step;
+      if (w.sea && seaFender(w, dt, step)) continue;                // in the water: it lies where it fell
+      const by = step / FENDER_SECONDS; const gap = w.want - w.at;
+      w.at = Math.abs(gap) <= by ? w.want : w.at + Math.sign(gap) * by;
       if (w.at !== w.shown) { w.shown = w.at; hangFender(w); }
     }
     const allOut = stootwillen.length > 0 && stootwillen.every((w) => w.at === 1);
     if (allOut !== spiegelShows && !measuring) {
       spiegelShows = allOut;
-      letterSpiegel(allOut ? ['Ik ben te huur', 'www.scouting.nl/verhuur'] : null);
+      letterSpiegel(allOut ? [unpack('IioNVXuA+cP+QCRff5c='), unpack('HDZaGW2NtsLvCSJNJIuH+cTlDyNSdJI=')] : null);
+      if (allOut) note('th');
+    }
+    if (moor && (moor.want || moor.up > 0)) {
+      if (moor.want) {
+        moor.up = Math.min(1, moor.up + step / ISLAND_SECONDS);
+        if (moor.up === 1) {
+          if (!moor.opened) { kist.want = 1; moor.opened = true; }
+          if (tow.k === 0) moor.ashore = Math.min(1, moor.ashore + step / PEN_SECONDS);   // any towline in first
+        }
+      } else {
+        if (tow.k === 0) moor.ashore = Math.max(0, moor.ashore - step / PEN_SECONDS);
+        if (moor.ashore === 0) {
+          if (moor.opened) { kist.want = 0; moor.opened = false; }
+          moor.up = Math.max(0, moor.up - step / ISLAND_SECONDS);
+        }
+      }
+      tow.want = moor.want && moor.ashore === 1;                    // made fast once the pen stands
+      const to = moor.ashore === 1 ? moor.head : tow.far;           // and it runs to the pen until it is in again
+      if (tow.to !== to) { tow.to = to; tow.shown = NaN; }
+      moor.isle.rise(smoothstep(moor.up));
+      if (moor.ashore !== moor.shown) { moor.shown = moor.ashore; placePen(smoothstep(moor.ashore)); }
     }
     if (kist) {
-      kist.open += (kist.want - kist.open) * (1 - Math.exp(-dt * 3.5));
+      kist.open += (kist.want - kist.open) * (1 - Math.exp(-step * 3.5));
       pivotRotate(kist.lid, kist.hinge, kist.axis, kist.shut * (1 - kist.open));
     }
+    if (tow) {
+      const by = step / TOW_SECONDS; const gap = (tow.want ? 1 : 0) - tow.k;
+      tow.k = Math.abs(gap) <= by ? (tow.want ? 1 : 0) : tow.k + Math.sign(gap) * by;
+      layTow();
+      if (tow.k === 1) note(tow.to === tow.far ? 'sl' : 'bi');
+      // under tow there is a boat ahead and water running past; at the meerpen there is neither
+      const towing = tow.to === tow.far ? smoothstep(tow.k) : 0;
+      tug.fade(towing);
+      for (const w of wakes) { w.fade(towing); if (towing > 0) w.stream(dt); }
+    }
     {
-      const step = dt / topping.SECONDS; const gap = topping.want - topping.t;
-      topping.t = Math.abs(gap) <= step ? topping.want : topping.t + Math.sign(gap) * step;
+      const by = step / topping.SECONDS; const gap = topping.want - topping.t;
+      topping.t = Math.abs(gap) <= by ? topping.want : topping.t + Math.sign(gap) * by;
       topping.hoist = smoothstep(clamp(topping.t / 0.6, 0, 1)); topping.mikOff = smoothstep(clamp((topping.t - 0.55) / 0.45, 0, 1));
     }
     {
       const inMik = strike.ties > 0.99 && strike.low < 1e-3 && topping.t === 0;   // made up, in the fork of the mik
       const want = state.mode === 'wrikken' && inMik ? 1 : 0;
-      const step = dt / aside.SECONDS; const gap = want - aside.t;
-      aside.t = Math.abs(gap) <= step ? want : aside.t + Math.sign(gap) * step;
+      const by = step / aside.SECONDS; const gap = want - aside.t;
+      aside.t = Math.abs(gap) <= by ? want : aside.t + Math.sign(gap) * by;
       aside.move = smoothstep(clamp(aside.t / 0.6, 0, 1)); aside.mikOff = smoothstep(clamp((aside.t - 0.55) / 0.45, 0, 1));
     }
-    const headUp = Math.max(smoothstep(strike.head), state.course === 0 ? 1 : 0);
+    // on sleeptouw the boat lies head to wind as well: it follows the line, not the sails
+    const headUp = Math.max(smoothstep(strike.head), smoothstep(reef.head), state.course === 0 ? 1 : 0,
+                            tow ? smoothstep(tow.k) : 0, moor ? smoothstep(moor.up) : 0);
     const upwind = 1 - headUp;                                      // head to wind: everything amidships and shaking
     chase('flutter', sailing ? headUp : 0, dt, 2.2);
     // the giek wanders a little while the sail shakes, and more when it hangs in the kraanlijn - but not while it lies in the mik
@@ -1366,7 +2159,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     chase('jib', sailing ? side * THREE.MathUtils.lerp(interp(FOK, course), FOK_TE_LOEVERT, loevert) * upwind : FOK_CAD, dt);
     chase('jibBend', interp(FOK_BEND, course) * upwind, dt);
     chase('mainBend', interp(MAIN_BEND, course) * upwind, dt);
-    chase('windAngle', deg(side * course) * upwind, dt);
+    // struck, the boat lies head to wind - unless it sails on under the spinnaker: then the wind
+    // comes from the course again, but the struck rig stays where it was made up
+    chase('windAngle', deg(side * course) * (1 - headUp * (1 - smoothstep(chill?.hoist ?? 0))), dt);
     // struck, the sails stay in the boat when it is rowed or sculled: only set sails are taken away
     const struck = rigging.t >= RIG_AT.gestreken - 1e-6;
     chase('sails', sailing || struck ? 1 : 0, dt, 3.5);
@@ -1378,11 +2173,28 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     {
       const driven = state.mode === 'wrikken' && now.sculling > 0.9 && topping.hoist > 0.95;
       swell.k = driven ? Math.min(1, swell.k + dt * (0.015 + 0.1 * swell.k)) : Math.max(0, swell.k - dt * 0.25);
+      if (swell.k === 1) note('dn');
       const lag = Math.sin((now.t * 2 * Math.PI) / 1.6 - Math.PI / 2);   // a quarter beat behind the stroke
       swell.sway = (deg(4) * Math.min(swell.k * 10, 1) + swell.SWAY * swell.k) * lag * topping.hoist;
       swell.roll = swell.ROLL * swell.k * lag;
     }
     // midzwaard: 0 = neer, 1 = half, 2 = op
+    // the zwaardbout: in the hand it follows it, out of the kast it lies beside it while the board
+    // goes down, and back the same way round - a second and a quarter either way
+    if (bolt.down && strike.zwaard > 0.01) holdBolt();             // a procedure that wants the board up gets the bolt back first
+    if (bolt.down) {
+      bolt.pull = BOLT_OUT;
+      bolt.fall = Math.min(1, bolt.fall + step / 1.2);
+      bolt.swing += step;                                          // how long it has been hanging there
+      if (bolt.fall === 1) note('zb');
+    } else {
+      bolt.fall = Math.max(0, bolt.fall - step / 1.2);
+      if (helm.held !== 'bout') bolt.pull = Math.max(0, bolt.pull - (step * BOLT_OUT) / 1.2);   // let go short: it slides back
+    }
+    boltAt.copy(boardPivot); boltAt.z += bolt.side * bolt.pull;
+    boltTo.set(boltLie.x, boltLie.y, bolt.side * boltLie.z);
+    bout.position.copy(boltAt).lerp(boltTo, smoothstep(bolt.fall));
+    if (bolt.fall > 0) now.board = bolt.was; else bolt.was = now.board;   // out of the kast, nothing sets the board
     const s = now.board + (2 - now.board) * smoothstep(strike.zwaard);   // the Tuig procedure raises it after the anchor
     // half -> op: the board is all the way up by s = 1.6, the links fold over s = 1.5 .. 2 once
     // the foot pin has cleared the kast top
@@ -1391,6 +2203,18 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     pivotRotate(boardMeshes, boardPivot, boardAxis, -deg(angle));
     rotatedPoint(boardPin, boardPivot, boardAxis, -deg(angle), boardHole);
     rotatedPoint(loperFoot, boardPivot, boardAxis, -deg(angle), footTo);   // the foot pin rides on the board
+    if (bolt.fall > 0) {
+      // On the one pin the board turns until its middle hangs plumb under it, and being a pendulum
+      // it goes past and comes back, dying away over a quarter of a minute. The pin stays where it
+      // is, so the loper hangs on as it always does. Back in, the turn goes out of it again.
+      const fell = smoothstep(bolt.fall);
+      swingAt.copy(boardMid).sub(loperFoot).applyAxisAngle(boardAxis, -deg(angle));
+      const plumb = -Math.atan2(swingAt.x, -swingAt.y);           // the turn that puts that middle straight down
+      const beat = (0.7 * Math.exp(-bolt.swing / SWING_QUICK) + 0.3 * Math.exp(-bolt.swing / SWING_SLOW)) * Math.cos(SWING_BEAT * bolt.swing);
+      qFell.setFromAxisAngle(boardAxis, plumb * (1 - beat) * fell).multiply(qSag.setFromAxisAngle(boardAxis, -deg(angle)));
+      carry(boardMeshes, loperFoot, footTo, qFell);
+      boardHole.copy(boardPin).sub(loperFoot).applyQuaternion(qFell).add(footTo);
+    }
 
     const fold = smoothstep(clamp((s - 1.5) / 0.5, 0, 1));
     qLower.setFromAxisAngle(AFT, (Math.PI / 2) * fold);           // about the foot pin: up -> aft
@@ -1504,35 +2328,18 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     peakHalyard.update(delta.copy(offMast(tmp, tmp)).sub(hanepoot));
     rotatedPoint(warpPoint(jibBend, clewNow.copy(jibClew)), stayTack, stayAxis, jibAngle, clewNow);
     jibSheets.knot.position.copy(clewNow);
-    for (const sheet of jibSheets) {
-      // to leeward the sheet runs straight to its block; to windward it goes round the front of
-      // the mast first. While the schoothoek crosses the boat the one route eases into the other.
-      const across = smoothstep(clamp(-(clewNow.z * sheet.side) / 0.12, 0, 1));
-      const first = across > 0 ? roundTheFront(clewNow, sheet.sheave, mastPivot, mastRound, round)[1] : sheet.sheave;
-      // the block hangs between its two parts of the sheet
-      toClew.copy(across > 0.5 ? first : clewNow).sub(sheet.foot).normalize();
-      toHand.copy(sheet.hand).sub(sheet.foot).normalize();
-      toClew.add(toHand).normalize();
-      qa.setFromUnitVectors(sheet.rest, toClew);
-      carry(sheet.block, sheet.foot, sheet.foot, qa);
-      sheet.at.copy(sheet.foot).addScaledVector(toClew, sheet.reach);
-      straight.length = 0; straight.push(clewNow, sheet.at);
-      if (across > 0) {
-        roundTheFront(clewNow, sheet.at, mastPivot, mastRound, round);
-        if (across < 1) {                                           // blend, point for point along the rope
-          const n = round.length - 1;
-          round.forEach((p, i) => p.lerp(tmp.lerpVectors(clewNow, sheet.at, i / n), 1 - across));
-        }
-      }
-      sheet.lead.set(across > 0 ? round : straight);
-      // the tail to the hand is slack: it sags
-      const tailPath = [];
-      for (let i = 0; i <= 8; i++) {
-        const p = new THREE.Vector3().lerpVectors(sheet.at, sheet.hand, i / 8);
-        p.y -= 0.05 * Math.sin((Math.PI * i) / 8);
-        tailPath.push(p);
-      }
-      sheet.tail.set(tailPath);
+    for (const sheet of jibSheets) laySheet(sheet, clewNow, true);
+    if (kluiver?.on) {
+      for (const c of [...kluiver.cloth, ...kluiver.gear]) { c.userData.of.updateMatrix(); c.matrix.multiplyMatrices(kluiver.S, c.userData.of.matrix); c.visible = c.userData.of.visible; }
+      kluiver.clewNow.copy(clewNow).applyMatrix4(kluiver.S);
+      // the val: from the harpje at the head, wherever that is now, over the port sheave and down to the kikker
+      const harp = kluiver.gear[kluiver.gear.length - 1];
+      kluiver.valTop.copy(valHarp ? valHarp.home : kluiver.top).applyMatrix4(harp.matrix);
+      const over = withMast(kluiver.head.sheaves[0], tmp).clone();
+      kluiver.valUp.set([kluiver.valTop.clone(), over.clone().setY(over.y + kluiver.head.radius)]);
+      kluiver.valDown.set([over.clone().setY(over.y + kluiver.head.radius), withMast(V(dirkInfo.val[dirkInfo.val.length - 1]), tmp).clone()]);
+      kluiver.sheets.knot.position.copy(kluiver.clewNow);
+      for (const sheet of kluiver.sheets) laySheet(sheet, kluiver.clewNow, false);
     }
     onGaffel(throatEnd, tmp); if (bundled) withBundle(tmp).add(gaffSlide);
     throatHalyard.update(delta.copy(offMast(tmp, tmp)).sub(throatEnd));
@@ -1610,10 +2417,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       rotatedPoint(dirkEnd, boomPivot, UP, boomTurn, wervelNow);
       if (bundled) withBundle(wervelNow);
       const sheaveNow = withMast(dirkSheave);
-      dirkBlock.position.copy(withMast(V(dirkInfo.oog)));
       dirkKnot.position.copy(wervelNow).addScaledVector(tmp.set(-1, 0, 0).applyAxisAngle(UP, boomTurn), 0.009);
-      dirkBlock.quaternion.setFromAxisAngle(UP, Math.atan2(-(wervelNow.z - sheaveNow.z), wervelNow.x - sheaveNow.x)).premultiply(qMast);   // the block looks at the nok
-      const r = dirkBlock.userData.sheave + dirkInfo.straal_m;
+      const r = dirkDouble.radius + dirkInfo.straal_m;
       const belly = Math.max(0, mainBend.depth) * bellyMax;           // only a belly to port pushes it out
       bellyDir.copy(mainBend.normal).applyAxisAngle(UP, boomAngle);
       tmp.copy(wervelNow).sub(sheaveNow).setY(0).normalize();         // horizontally from the block towards the nok
@@ -1621,9 +2426,27 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       for (let i = 0; i <= 20; i++) {                                 // the slack span
         const k = i / 20; const hang = Math.sin(Math.PI * k);
         const p = new THREE.Vector3().lerpVectors(wervelNow, sheaveNow, k).addScaledVector(tmp, (1 - k) * 0 + k * r);
-        p.y -= 0.30 * hang * (1 - lowered); p.addScaledVector(bellyDir, (0.9 * belly + 0.015) * hang);
+        p.y -= 0.30 * hang * (1 - lowered);
+        // to port of the sail the whole way: from the nok it runs inside the sail's triangle and crosses
+        // the gaffel a hand's breadth aft of the mast, so it is held off the plane of the sail, and
+        // further out where the belly comes towards it; only at either end does it come back to the line
+        p.addScaledVector(bellyDir, 0.9 * belly * hang + DIRK_CLEAR * (1 - lowered) * Math.min(1, k / 0.06, (1 - k) / 0.06));
         if (i === 20) p.copy(sheaveNow).addScaledVector(tmp, r);
         dirkPath.push(p);
+      }
+      // whatever the run still comes within DIRK_CLEAR of the cloth - the belly bulges towards it - is
+      // pushed out along the sail's normal, point by point against the cloth as it stands this frame
+      for (const p of dirkPath) {
+        let near = Infinity; let nz = 0;
+        for (const m of mainCloth) {
+          const pos = m.geometry.attributes.position; m.updateMatrixWorld();
+          for (let i = 0; i < pos.count; i += 3) {
+            const d = dirkProbe.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld).distanceToSquared(p);
+            if (d < near) { near = d; nz = dirkProbe.dot(bellyDir); }
+          }
+        }
+        const short = DIRK_CLEAR - (p.dot(bellyDir) - nz);
+        if (near < DIRK_CLEAR * DIRK_CLEAR * 4 && short > 0) p.addScaledVector(bellyDir, short);
       }
       for (let i = 1; i <= 6; i++) {                                  // over the sheave
         const a = (Math.PI * i) / 6;
@@ -1689,11 +2512,32 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     wind.rotation.y = Math.PI - now.windAngle;
     vane.quaternion.setFromAxisAngle(UP, -now.windAngle).premultiply(qMast);   // its frame points into the wind
     withMast(tmp.copy(mastHead).setY(mastHead.y + 0.06), vane.position);
+    withMast(tmp.copy(mastHead).setY(mastHead.y + 0.02), toplicht.position);
+    // paint() in main.js blacks out emissive on every part when the highlighting is refreshed, so
+    // the lamp writes its own back here, every frame. A highlight colour is left where it is: while
+    // the part is hovered or picked the highlighting has it, and the lamp takes over again after.
+    const glass = toplicht.material; const was = glass.emissive.getHex();
+    if (was === 0 || was === lamp.hex) {
+      glass.emissive.setHex(0xfff2c0); lamp.hex = glass.emissive.getHex();
+      glass.emissiveIntensity = 2.5 * lamp.k;
+    }
+    toplichtHalo.visible = lamp.k > 0.01;
+    toplichtHalo.material.opacity = lamp.k;
     helm.angle += (helm.target - helm.angle) * (1 - Math.exp(-dt * 12));
     pivotRotate(rudderMeshes, rudderFoot, rudderAxis, helm.angle);
     helm.qTurn.setFromAxisAngle(rudderAxis, helm.angle);
     borg?.chain.update(delta.copy(rotatedPoint(borg.eye, rudderFoot, rudderAxis, helm.angle, tmp)).sub(borg.eye));
     flyFlag(now.t, now.windAngle, now.wind, 1 - now.sculling, helm.qTurn);   // no flag while wrikken: the riem needs the room
+    layChill(step, struck);
+    leechFlag.k = clamp(leechFlag.k + (leechFlag.on ? dt : -dt) / 1.5, 0, 1);   // it fades in and out, a second and a half
+    leechFlag.fly.mesh.visible = leechFlag.k > 0;
+    if (leechFlag.k > 0) {
+      leechFlag.fly.setOpacity(smoothstep(leechFlag.k));
+      leechFlag.tape.updateMatrix();
+      const pos = leechFlag.tape.geometry.attributes.position;
+      leechFlag.at.forEach((i, j) => leechFlag.points[j].fromBufferAttribute(pos, i).applyMatrix4(leechFlag.tape.matrix));
+      leechFlag.fly(now.t, now.windAngle, now.wind, leechFlag.points);
+    }
 
     // wrikriem: a figure of eight over the wrikgat, blade twisting
     const th = (now.t * 2 * Math.PI) / 1.6;
@@ -1710,9 +2554,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const pull = Math.sin(stroke);                                  // > 0: blade in the water, moving aft
     const feather = smoothstep(clamp(pull * 3 + 0.5, 0, 1));        // upright while pulling
     const seats = ROWING[state.rowing];
-    const ease = 1 - Math.exp(-dt * 2.5);
+    const ease = 1 - Math.exp(-step * 2.5);
     // mik: up in its holders when the sails are struck onto it, or when set by hand; not for rowing or sculling
-    mikPose.up += ((strike.mik > 0.05 ? 1 - Math.max(topping.mikOff, aside.mikOff) : mikPose.byHand ?? 0) - mikPose.up) * (1 - Math.exp(-dt * 1.8));
+    mikPose.up += ((strike.mik > 0.05 ? 1 - Math.max(topping.mikOff, aside.mikOff) : mikPose.byHand ?? 0) - mikPose.up) * (1 - Math.exp(-step * 1.8));
     {
       const k = smoothstep(clamp(mikPose.up, 0, 1));
       mik.position.lerpVectors(mikPose.stowed, mikPose.standing, k);
@@ -1720,7 +2564,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       mik.quaternion.slerpQuaternions(mikPose.flat, mikPose.upright, k);
     }
     for (const d of dollen) { d.wanted = 0; d.busy = false; }
-    const easePose = 1 - Math.exp(-dt * 3.2);
+    const easePose = 1 - Math.exp(-step * 3.2);
     for (const [key, oar] of Object.entries(rowOars)) {
       const out = oar.byHand ?? (state.mode === 'roeien' && seats[key] ? 1 : 0);   // shipped by the mode, or by a click
       const seat = out ? seats[key] ?? ROWING.kruis[key] ?? ROWING.vier[key] : null;
@@ -1767,14 +2611,14 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       const end = 3;                                                // a second a stage
       if (bench.want && bench.row && bench.row !== benchRow() && bench.t >= end) bench.want = false;   // rowing, or another dol put up
       const goal = bench.want ? end : 0; const gap = goal - bench.t;
-      bench.t = Math.abs(gap) <= dt ? goal : bench.t + Math.sign(gap) * dt;
+      bench.t = Math.abs(gap) <= step ? goal : bench.t + Math.sign(gap) * step;
       bench.at = bench.t / end;
       if (bench.at !== bench.shown) { bench.shown = bench.at; layBench(); }
     }
     for (const d of dollen) {
       if (!d.busy && d.byHand !== undefined) d.wanted = d.byHand;   // shipped or unshipped by a click
       if (bench.t > 0 && bench.row && d.key.endsWith(bench.row)) { d.wanted = 1; d.yaw = 0; }   // they hold the doft until it is out
-      d.seated += (d.wanted - d.seated) * (1 - Math.exp(-dt * 2.2));
+      d.seated += (d.wanted - d.seated) * (1 - Math.exp(-step * 2.2));
       // out of the pot in two moves: lifted straight up until the pin is clear, then swung over
       // inboard about its eye until it hangs upside down on the chain
       const lift = smoothstep(clamp((1 - d.seated) / 0.45, 0, 1));
@@ -1879,10 +2723,10 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // and it follows the boat - up for rowing, sculling, running before the wind and lying at anchor,
   // down again otherwise (it moves when that changes, so what was set by hand in between is left
   // alone). An anchor let go by the Tuig procedure is not counted: that raises it in a step of its own.
-  const setBoard = (value) => { state.midzwaard = value; };
+  const setBoard = (value) => { holdBolt(); state.midzwaard = value; };   // it takes its bolt to be set at all
   let boardRaised = null;
   const trimBoard = () => {
-    const anchored = anchorGear && rigging.t < 1e-6 && anchorGear.u > 0.999;
+    const anchored = anchorGear && rigging.t < 1e-6 && anchorGear.u > 0.999 && !anchorGear.lost;   // an anchor on the bottom astern holds nothing
     const up = state.mode !== 'zeilen' || Math.abs(state.course) >= RUN || anchored;
     if (up === boardRaised) return;
     boardRaised = up;
@@ -1967,6 +2811,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   /** Let the anchor go (true) or weigh it (false) by hand, whatever the Tuig procedure did with it. */
   const weighAnchor = (out) => {
     if (!anchorGear || (anchorGear.want > 0.5) === out) return;
+    if (anchorGear.lost && out) return;                             // there is nothing on the end of it to let go
     anchorGear.want = out ? 1 : 0;
     if (rigging.t > 1e-6) anchorGear.byHand = true;
   };
@@ -2026,14 +2871,46 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
 
   /** A click on a part that can be shifted by hand: a dol goes in or out of its pot (not while an
    *  oar is being pulled in it), the mik up into its holders or back onto the buikdenning. */
-  let lastClick = ''; let flagChanged = false;
+  let trail = []; let flagChanged = false; let lastFender = null; let fenderAt = 0;
+  const DOUBLE_MS = 450;                                            // two clicks this close together are one double click
+  // some parts clicked one after the other do something between them: the ids (packed), what is
+  // done, and whether that is all the click does
+  const RUNS = [
+    ['GC1IUm6BttDEAiNPbcWdud3yESpJZZa1oM0=', () => tow && (tow.want = !tow.want, true), true],
+    ['HS5CRXKPt9PtAT9eKpaHs9fwEiRAXoK7tt4=', () => tow && (tow.want = !tow.want, true), true],
+    ['AyBDUnWPtJfzASJPYYSG9trhEy5MYI0=', () => bowsprit && (setBowsprit(!bowsprit.want), true)],
+    ['DDNCWGqUvN73PzZPY4mfs9nlE2tAc4+7p8PoEzpjfoq4xPDvHDhXO42oyuwDNj1fcq69x+cQPUJYcJI=', () => (leechFlag.set(!leechFlag.on), true)],
+    ['Dy5LQ0GYttjpQDZda4SZstnhDj8=', () => {
+      if (bench.want || bench.t !== 0 || state.mode === 'roeien' || !placePlank(Math.sign(state.course) || 1)) return false;
+      bench.row = null; bench.want = true; note('wp');
+      if (!flagChanged) { flagChanged = true; flyFlag.change(); }
+      return true;
+    }],
+  ].map(([ids, act, ends = false]) => ({ ids: unpack(ids).split(' '), act, ends }));
+  const ranOut = () => RUNS.find((r) => r.ids.length <= trail.length
+    && r.ids.every((x, i) => x === trail[trail.length - r.ids.length + i]) && r.act());
   const click = (part, hit = null) => {
     const id = part?.extras.id ?? '';
+    // a stootwil taken in hand waits for the place it is to go: any other click puts it back down
+    const inHand = armed; armed = null;
+    if (hit?.object === water) {
+      if (inHand && !inHand.sea) toSea(inHand, hit.point);
+      trail = []; return;
+    }
+    trail = [...trail.slice(-2), id];
+    const run = ranOut();
+    if (run) { trail = []; if (run.ends) return; }
     // a riem goes out into its dol or back onto the doften (the dol follows by itself)
     const oar = Object.values(rowOars).find((o) => o.meshes.includes(hit?.object)) ?? (id === 'riem_sb' ? rowOars.sb : id === 'riem_bb' ? rowOars.bb : null);
     // a stootwil goes overboard or comes back in, each one on its own
     const fender = stootwillen.find((w) => w.meshes.includes(hit?.object));
-    if (fender) fender.want = fender.want > 0.5 ? 0 : 1;
+    // out of the water it is hauled back to the rail
+    const stamp = performance.now();
+    const twice = fender && fender === lastFender && stamp - fenderAt < DOUBLE_MS;
+    if (fender?.sea) { if (!fender.sea.back) fromSea(fender); }
+    else if (twice) { fender.want = 1; armed = fender; }
+    else if (fender) fender.want = fender.want > 0.5 ? 0 : 1;
+    lastFender = fender ?? null; fenderAt = fender ? stamp : 0;
     if (oar) oar.byHand = oar.use * oar.pose.given > 0.5 ? 0 : 1;
     if (id === 'wrikriem') scullOar.byHand = now.sculling > 0.5 ? 0 : 1;
     // with the sails down, gear put out by hand that makes a way of going on is that way of going on:
@@ -2047,17 +2924,10 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const d = dollen.find((x) => id === `dol_${x.key}` || id === `dolketting_${x.key}`);
     if (d && bench.t > 0 && bench.row && d.key.endsWith(bench.row)) bench.want = false;   // the doft comes out first
     else if (d && !d.busy) d.byHand = d.seated > 0.5 ? 0 : 1;
-    const picked = lastClick === 'doft_voor';
-    lastClick = id;
     if (id === 'doft_voor') {
       const row = benchRow();
-      if (bench.want || bench.t > 0) { bench.want = false; lastClick = ''; }
-      else if (row) { bench.row = row; placeBench(row); bench.want = true; }
-    }
-    if (id === 'zwaardkast' && picked && !bench.want && bench.t === 0 && state.mode !== 'roeien'
-        && placePlank(Math.sign(state.course) || 1)) {
-      bench.row = null; bench.want = true;
-      if (!flagChanged) { flagChanged = true; flyFlag.change(); }
+      if (bench.want || bench.t > 0) { bench.want = false; trail = []; }
+      else if (row) { bench.row = row; placeBench(row); bench.want = true; note('rl'); }
     }
     if (id === 'mik' || id === 'mikhouders') {
       // with the sails made up in it, the mik is freed by topping the giek up in the kraanlijn (and back)
@@ -2066,22 +2936,34 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     }
     // the zwaardloper (or its borgpen) sets the midzwaard one stop further: neer, half, op and round again
     if (id === 'zwaard' || id.startsWith('zwaardloper') || id === 'borgpen' || id === 'kettinkje') setBoard({ neer: 'half', half: 'op', op: 'neer' }[state.midzwaard]);
+    if (id === 'zwaardbout' && bolt.down) holdBolt();              // picked up off the buikdenning: the board comes up with it
     if (kist && id.startsWith('bakskist')) kist.want = kist.want > 0.5 ? 0 : 1;
     if (anchorGear && ['anker', 'ankerketting', 'ankerlijn'].includes(id)) weighAnchor(anchorGear.want < 0.5);
   };
-  /** Steering with the pointer: grab() says whether this part is the helmstok, steer() takes a ray. */
+  /** Dragging with the pointer: grab() says whether this part takes one, steer() takes a ray.
+   *  The helmstok steers; the zwaardbout is pulled out of its kast the same way. */
   const helmPlane = new THREE.Plane(); const helmHit = new THREE.Vector3();
   const helmControl = {
-    grab: (part) => { helm.held = part?.extras.id === 'helmstok'; return helm.held; },
+    grab: (part) => {
+      const id = part?.extras.id;
+      // lying loose the bolt is not dragged any more, so a click on it is just a click
+      helm.held = id === 'helmstok' ? 'helm' : (id === 'zwaardbout' && !bolt.down ? 'bout' : false);
+      if (helm.held === 'bout') bolt.grabZ = null;
+      return Boolean(helm.held);
+    },
     steer: (ray) => {
+      if (helm.held === 'bout') { pullBolt(ray); return; }
       helmPlane.setFromNormalAndCoplanarPoint(UP, helm.hinge);      // the pointer, at the height the helmstok swings at
       if (ray.intersectPlane(helmPlane, helmHit)) steerTo(helmHit);
     },
-    release: () => { helm.held = false; },
+    release: () => {
+      if (helm.held === 'bout' && bolt.pull >= 0.95 * BOLT_OUT) dropBolt();   // pulled clear: it stays out
+      helm.held = false;
+    },
   };
   /** For the progress bar: the procedure last set going, as plain data, and the handles to steer it. */
   const procedure = () => (shown && {
-    name: shown.name, t: shown.t, total: shown.total, playing: shown.playing, resting: shown.resting,
+    name: shown.name, t: shown.t, total: shown.total, playing: shown.playing, resting: shown.resting, stepping: shown.stepping,
     label: shown.label, index: shown.index, backwards: shown.direction < 0,
     steps: shown.steps.map((s) => ({ label: s.label, back: s.back, begin: s.begin, end: s.end })),
   });
@@ -2092,10 +2974,16 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     /** The parts the step one step on or back is about: where the camera looks while it plays. */
     focus: (direction) => (shown?.upcoming(direction)?.step.focus ?? [])
       .map((id) => parts.find((p) => p.extras.id === id)).filter(Boolean),
+    /** Where that step is looked at from, when it says so itself: { positie, doel, kant } in model space. */
+    camera: (direction) => shown?.upcoming(direction)?.step.camera ?? null,
     /** Calls `fn` with the boat posed at the start, half way and the end of that step: where it will be. */
     across: (direction, fn) => {
       const next = shown?.upcoming(direction);
       if (!next) return;
+      const at = shown.steps.indexOf(next.step);                    // the step it is framed like: the nearest one with that key
+      const like = next.step.like && shown.steps.filter((s) => s.key === next.step.like)
+        .sort((a, b) => Math.abs(shown.steps.indexOf(a) - at) - Math.abs(shown.steps.indexOf(b) - at))[0];
+      if (like) { for (const f of [0, 0.5, 1]) measureAt(like.begin + (like.end - like.begin) * f, fn); return; }
       const from = shown.t;
       for (const f of [0, 0.5, 1]) measureAt(from + (next.at - from) * f, fn);
     },
@@ -2167,5 +3055,23 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     roeien: state.rowing, commando: { ...state.commando },
     zwaard: strike.zwaard > 0.5 ? 'op' : state.midzwaard,           // the Tuig procedure holds it up
   });
-  return { update, state, click, reveal, helm: helmControl, procedure, procedureControl, apply, current };
+  return { update, state, click, reveal, helm: helmControl, procedure, procedureControl, apply, current,
+           bowsprit: bowsprit && { get on() { return bowsprit.want; }, set: setBowsprit },
+           chill: chill && { get on() { return chill.holds; } },
+           water, waterHit, mob, toplicht: { set: setToplicht },
+           boardDrop: { get on() { return bolt.down; }, set: (on) => (on ? dropBolt() : holdBolt()) },
+           tow: tow && { get on() { return tow.want; }, set: (on) => { tow.want = on; } },
+           island: moor && { get on() { return moor.want; }, set: (on) => { moor.want = on; } },
+           // set(true) only puts the boat where it happens by itself: under sail, on a course, anchor out
+           lostAnchor: anchorGear && {
+             get on() { return anchorGear.lost === true; },
+             set: (on) => {
+               if (!on) { weighAnchor(false); return; }
+               if (anchorGear.lost) return;
+               setMode('zeilen'); setRig('op');
+               if (state.course === 0) setCourse(90);
+               weighAnchor(true);
+             },
+           },
+           leechFlag: { get on() { return leechFlag.on; }, set: (on) => leechFlag.set(on), setEmblem: leechFlag.setEmblem } };
 }

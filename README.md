@@ -183,7 +183,7 @@ pagina geen `assets` op te geven.
 
     OCP='--python 3.12 --with cadquery-ocp>=7.8,<7.9 --with ezdxf --with numpy'
     uv run $OCP python3 pipeline/tessellate_all.py --force      # ACIS-bodies -> build/mesh (≈15 s)
-    uv run --python 3.12 --with numpy --with scipy python3 pipeline/build_glb.py
+    uv run --python 3.12 --with numpy --with scipy --with meshoptimizer python3 pipeline/build_glb.py
     uv run --python 3.12 --with numpy --with pillow python3 pipeline/render_preview.py build/preview/iso.png --view iso
 
 `cadquery-ocp` staat vast op 7.8: in de 8.x-wheels zijn de array-klassen `TColgp`/`TColStd` vervallen.
@@ -460,7 +460,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   een driehoek naar de hanepootloper zolang de piekenval de gaffel draagt, en pas als de gaffel op het
   opgedoekte zeil ligt een slappe bocht van dezelfde lengte over de bakboordkant van de bundel.
   Hanepootloper, het eind van de piekenval en het dodemanseind gaan met de bocht mee. De fok neemt bij
-  "Fok afnemen" zijn kettinkje en de harpjes aan de hals mee; het harpje van de fokkenval komt met de
+  "Fok afslaan" zijn kettinkje en de harpjes aan de hals mee; het harpje van de fokkenval komt met de
   top van de fok langs het voorstag omlaag, en de fokkenschoot zit met een knoop aan de schoothoek.
 - Zeilen strijken, bediening "Tuig" (Zeilen op / Zeilen gestreken), dezelfde soort sequencer als
   reven: kop in de wind (giek, fok en windpijl midscheeps, geen buik); anker uit (het opgeborgen

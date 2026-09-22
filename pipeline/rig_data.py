@@ -9,6 +9,7 @@ import numpy as np
 import anchor
 import bakskist
 import borgketting
+import fokbeslag
 import hardware
 import parts
 import rigging
@@ -48,6 +49,35 @@ def m(p):
     return [round((p[0] - X_TRANSOM) / 1000, 4), round(p[2] / 1000, 4), round(-p[1] / 1000, 4)]
 
 
+def d(v):
+    """DWG mm direction -> model axes; a direction, so it is not moved with the origin."""
+    v = np.asarray(v, float)
+    return [round(float(v[0]), 5), round(float(v[2]), 5), round(float(-v[1]), 5)]
+
+
+# Blok van de fokkenschoot, body by body: the harpje it hangs in and its schijf. Both are drawn on
+# the second leioog and carried to the forward one by parts.NUDGE.
+SCHOOTBLOK = {"bb": ("545F", "5449"), "sb": ("54A2", "548C")}
+HARP_BOW = 14.0                        # the bow of the harpje: the part of it that goes round the eye
+
+
+def schootblokken(mesh_dir):
+    """Where each blok van de fokkenschoot hangs, turns and leads, in CAD mm, from the bodies
+    themselves: the middle of the bow of its harpje, which stays on the leioog and is what the block
+    swings about; the middle of its schijf; and the axle of that schijf, pointing outboard."""
+    out = {}
+    for key, (harp, schijf) in SCHOOTBLOK.items():
+        shift = np.array(parts.NUDGE[harp])
+        V = np.load(mesh_dir / f"StagSolids_{harp}.npz")["V"].astype(float) + shift
+        S = np.load(mesh_dir / f"StagSolids_{schijf}.npz")["V"].astype(float) + shift
+        c = S.mean(0)
+        axle = np.linalg.svd(S - c, full_matrices=False)[2][2]      # the schijf is flat: its thinnest way
+        out[key] = dict(voet=V[V[:, 2] < V[:, 2].min() + HARP_BOW].mean(0), schijf=c,
+                        axle=axle if axle[1] * c[1] > 0 else -axle,
+                        straal=float(np.ptp((S - c) @ np.linalg.svd(S - c, full_matrices=False)[2][0])) / 2)   # of the schijf
+    return out
+
+
 def _seg_dist(p, a, b):
     ab = b - a
     t = np.clip((p - a) @ ab / (ab @ ab), 0, 1)
@@ -67,8 +97,8 @@ class Rig:
         c, d, _ = rigging.spar_axis(*load("GaffelSolids_5693"), 0.35, 0.9)
         V = load("GaffelSolids_5693")[0]; t = (V - c) @ d
         self.gaff = (c + t.min() * d, c + t.max() * d)
-        # fok corners (outline of the CAD sail) and the gaffeldraad span
-        self.fok_tack = np.array([6126.2, -7.3, 1266.7]); self.fok_head = np.array([4580.0, -0.7, 5090.8])
+        # fok corners (outline of the CAD sail, the tack lowered with its harpje) and the gaffeldraad span
+        self.fok_tack = np.array(parts.FOK_TACK); self.fok_head = np.array([4580.0, -0.7, 5090.8])
         self.fok_clew = np.array([4268.7, 722.2, 1134.6])
         Vd = load("StagSolids_5205")[0]
         self.gaffeldraad = (Vd[np.argmin(Vd[:, 0])], Vd[np.argmax(Vd[:, 0])])
@@ -91,6 +121,10 @@ class Rig:
         self.kist = bakskist.hinge(mesh_dir)
         self.borg = borgketting.points(mesh_dir)
         self.anker = anchor.reference_points(mesh_dir)       # eye of the ankeroog, shackle on the shank
+        self.boegspriet = fokbeslag.spriet_lift(mesh_dir)   # from the hanekam onto the upper flange
+        self.schootblokken = schootblokken(mesh_dir)         # harpje, schijf and axle of either fokkenschootblok
+        top = self.mast_c + [0.0, 0.0, 5665.2 - self.mast_c[2]]      # the flat top of the masttopring
+        self.kluiver = dict(hals=fokbeslag.spriet_eye(mesh_dir), top=top)   # hals and top of the kluiver
         self.wanten = wantkettingen.ogen(mesh_dir)           # both ends of either want
 
     def attachment(self, centre):
@@ -111,10 +145,14 @@ class Rig:
             fok_schoothoek=m(self.fok_clew),
             # Each fokkenschoot: schoothoek -> block on the forward leioog -> hand of the crew. The
             # viewer lays both anew for every position of the fok; the sheet to windward goes
-            # round the front of the mast. voet = where the block is shackled on, schijf = its sheave.
-            fokkenschoot={key: dict(voet=m([rigging.SCHOOT_VOET[0], side * rigging.SCHOOT_VOET[1], rigging.SCHOOT_VOET[2]]),
-                                    schijf=m([rigging.SCHOOT_HOEP[0], side * rigging.SCHOOT_HOEP[1], rigging.SCHOOT_HOEP[2]]),
-                                    hand=m([rigging.SCHOOT_HAND[0], side * rigging.SCHOOT_HAND[1], rigging.SCHOOT_HAND[2]]))
+            # round the front of the mast. voet = the bow of the harpje, which stays on the leioog and
+            # is what the block swings about; schijf = the middle of its sheave; as = that sheave's
+            # axle, so the viewer can stand the sheave in the plane of the two parts of the sheet.
+            fokkenschoot={key: {"voet": m(self.schootblokken[key]["voet"]),
+                                "schijf": m(self.schootblokken[key]["schijf"]),
+                                "as": d(self.schootblokken[key]["axle"]),
+                                "schijf_straal_m": round(self.schootblokken[key]["straal"] / 1000, 4),
+                                "hand": m([rigging.SCHOOT_HAND[0], side * rigging.SCHOOT_HAND[1], rigging.SCHOOT_HAND[2]])}
                           for key, side in (("bb", 1.0), ("sb", -1.0))} | dict(straal_m=rigging.SCHOOT_R / 1000.0, mast_straal_m=0.046),
             # The grootschoot is a tackle, laid by the viewer: made fast to the becket under the
             # upper block, down round one sheave of the lower block, up over the upper sheave, down
@@ -141,6 +179,13 @@ class Rig:
             # ankergerei (pipeline/anchor.py): the eye of the ankeroog in the bow and the shackle
             # on the shank, the two ends the ankerlijn and the ankerketting are made fast to
             anker=dict(oog=m(self.anker["oog"]), schakel=m(self.anker["schakel"])),
+            # the boegspriet (fokbeslag.build_spriet): how far what is made fast to the hanekam goes
+            # when it is made fast to the upper flange instead, model axes
+            # the kluiver: the luff it is set on, from the hook on the boegspriet to the top of the
+            # mast; the viewer lays the fok's own cloth over it
+            kluiver=dict(hals=m(self.kluiver["hals"]), top=m(self.kluiver["top"])),
+            boegspriet=dict(verplaatsing=[round(self.boegspriet[0] / 1000, 4), round(self.boegspriet[2] / 1000, 4),
+                                          round(-self.boegspriet[1] / 1000, 4)]),
             # either want: the eye at the hommerring and the thimble eye at its foot, where the
             # wantketting takes over (pipeline/wantkettingen.py, which shortens the wire for it)
             wanten={side: dict(top=m(p["top"]), oog=m(p["oog"])) for side, p in self.wanten.items()},
@@ -167,8 +212,9 @@ class Rig:
             klauwval=dict(klauw=m([4260.0, -1.0, 4114.0])),
             # Reven (rolrif): the sail is rolled round the giek. onderlijk_m = height of the foot of the
             # sail, straal_m = giek plus a layer of cloth, schuif_m = how far aft the schootring is slid
-            # to clear the sail, hoep_* = the hoops of the schootring (the sheet moves to the port one).
-            reven=dict(onderlijk_m=1.3316, straal_m=0.0257, schuif_m=0.88, max_slagen=5,      # a sixth turn would roll up the lowest zeillat
+            # to clear the sail (past the schoothoek, up to the nok), hoep_* = the hoops of the
+            # schootring (the sheet moves to the port one).
+            reven=dict(onderlijk_m=1.3316, straal_m=0.0257, schuif_m=0.925, max_slagen=5,      # a sixth turn would roll up the lowest zeillat
                       
                        hoep_bb=m(list(hardware.SCHOOTRING_HOOP_BB)), hoep_sb=m(list(hardware.SCHOOTRING_HOOP)),
                        wervel_onder=m(list(hardware.wervel_holes()[1]))),
@@ -177,13 +223,13 @@ class Rig:
             # the lid of the bakskist is modelled open; the viewer shuts it about this line
             bakskist=dict(scharnier=m(list(self.kist[0])), richting=[float(self.kist[1][0]), float(self.kist[1][2]), float(-self.kist[1][1])],
                           open_graden=round(float(np.degrees(self.kist[2])), 2)),
-            # Dirk of kraanlijn (not in the CAD): from the wervel on the nok of the giek up to a small
-            # block on the port eye of the masttopring - the one eye that carries nothing - and down
-            # the port side of the mast, clear of the hommerring, to the upper port kikker on the
-            # mastkoker, the only free one (piekenval, klauwval and fokkenval have the other three).
+            # Dirk of kraanlijn (not in the CAD): from the wervel on the nok of the giek up to a double
+            # block hung on the after side of the hommerring, and down the port side of the mast to the
+            # upper port kikker on the mastkoker, the only free one (piekenval, klauwval and fokkenval
+            # have the other three).
             kraanlijn=dict(wervel=m(list(hardware.wervel_holes()[0])),   # made fast in the upper hole of the wervel
-                           oog=m([4365.0, 43.5, 5636.0]),
-                           val=[m([4394.0, 40.0, 4780.0]), m([4337.0, 63.0, 693.0])], straal_m=0.003),   # as thick as the vallen in the CAD
+                           oog=m([4300.0, 28.0, 4792.0]),
+                           val=[m([4337.0, 63.0, 693.0])], straal_m=0.003),   # as thick as the vallen in the CAD
             # the vlaggenstok stands in the open top of the roerkoning (a 1" tube, raked 33.7 degrees aft)
             vlaggenstok=dict(voet=m([594.0, -7.9, 1022.1]), richting=[-0.5546, 0.8321, 0.0010]),
             wrikgat=m([738.0, -278.0, 932.0]),                               # oar resting in the U of the transom pipe (starboard)

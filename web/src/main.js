@@ -1,17 +1,20 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { dressSails } from './sails.js';
+import { dressSails, loadImage } from './sails.js';
 import { HullText } from './hulltext.js';
-import { initCustomize, initCustomizePanel, collectZoneMaterials } from './customize.js';
+import { initCustomize, initCustomizePanel, collectZoneMaterials, initPaint, collectSailMaterials } from './customize.js';
 import { initModes } from './modes.js';
 import { initRegions } from './regions.js';
 import { initQuiz } from './quiz.js';
+import { initLogboek } from './logboek.js';
+import { initNight } from './rig.js';
 import { initLocator } from './locator.js';
 import { initFullscreen } from './fullscreen.js';
 import { makeAsset } from './assets.js';
-import { naamVan, merge } from './config.js';
+import { naamVan, merge, unpack } from './config.js';
 import { addEdges } from './edges.js';
 
 // One viewer, from end to end. Nothing here runs at import time: `mount` is called once per
@@ -53,6 +56,7 @@ export function mount(ui, host, config) {
   const realTarget = (e) => e.composedPath()[0] ?? e.target;
 
   initCustomizePanel(ui, { signal, engaged });
+  const logboek = initLogboek(ui);
   // Volledig scherm works from the first frame: it needs nothing of the model
   const fullscreen = initFullscreen({ ui, host, config, signal, engaged, realTarget, onDestroy });
 
@@ -61,7 +65,8 @@ export function mount(ui, host, config) {
   const CORNER = ['sidebar', 'parts', 'quiz'];   // these share the top left corner: only one is open at a time
   for (const [button, panel, onToggle] of [['view-toggle', 'sidebar'], ['parts-toggle', 'parts', partsPanelToggled],
                                            ['quiz-toggle', 'quiz', (open) => quiz?.panelToggled(open)],
-                                           ['about-toggle', 'about'], ['toestand-toggle', 'toestand', (open) => toestandToggled(open)]]) {
+                                           ['about-toggle', 'about'], ['toestand-toggle', 'toestand', (open) => toestandToggled(open)],
+                                           ['log-toggle', 'logboek']]) {
     const toggle = $(button);
     const aside = $(panel);
     const setOpen = (open) => {
@@ -80,6 +85,7 @@ export function mount(ui, host, config) {
   $('about-close').addEventListener('click', () => closePanel.get('about')());
   $('toestand-close').addEventListener('click', () => closePanel.get('toestand')());
   $('parts-close').addEventListener('click', () => closePanel.get('parts')());
+  $('log-close').addEventListener('click', () => closePanel.get('logboek')());
 
   const canvas = $('scene');
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -98,13 +104,24 @@ export function mount(ui, host, config) {
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
   controls.zoomToCursor = true;          // the wheel zooms towards what is under the pointer
-  controls.minDistance = 0.15;
+  controls.minDistance = 0.02;           // close enough to read a shackle; see aimAt() for why it stays usable
   controls.maxDistance = 60;
 
   const sun = new THREE.DirectionalLight(0xffffff, 1.4);
   sun.position.set(4, 9, 6);
-  scene.add(sun, new THREE.HemisphereLight(0xdfefff, 0x6b7785, 0.25));
+  const hemi = new THREE.HemisphereLight(0xdfefff, 0x6b7785, 0.25);
+  scene.add(sun, hemi);
 
+  let sailNumber = ''; let fromNumber = false;
+  const MARKED = ['WngdAA==', 'WngaBA=='].map(unpack);
+  const followNumber = () => {
+    const f = modes?.leechFlag;
+    if (f) {
+      const want = MARKED.includes(sailNumber);
+      if (want && !f.on) { f.set(true); fromNumber = true; } else if (!want && fromNumber) { f.set(false); fromNumber = false; }
+    }
+    modes?.island?.set(sailNumber === MARKED[0]);
+  };
   // Model space: x = transom -> bow, y = up, z = starboard, metres.
   const parts = [];            // { node, extras, meshes[] }
   const groups = new Map();    // groep id -> { title, node, parts[] }
@@ -112,6 +129,7 @@ export function mount(ui, host, config) {
   let hullBox = new THREE.Box3();          // the hull alone, without the rig: the camera never stands inside it
   let selected = [];           // several at once: one row of the parts list can stand for four dollen
   let modes = null;
+  let paintScheme = null;      // the older paint scheme; see initPaint in customize.js
   let regions = null;
   let quiz = null;
   let hovered = null;
@@ -123,7 +141,8 @@ export function mount(ui, host, config) {
   let settle = null; let stumble = null;
   const ready = new Promise((resolve, reject) => { settle = resolve; stumble = reject; });
 
-  new GLTFLoader().load(asset('models/lelievlet.glb'), async (gltf) => {
+  const loader = new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);      // the model is meshopt-packed
+  loader.load(asset('models/lelievlet.glb'), async (gltf) => {
     if (destroyed) return;
     const root = gltf.scene;
     scene.add(root);
@@ -152,14 +171,18 @@ export function mount(ui, host, config) {
     const outerSkin = (id) => parts.find((p) => p.extras.id === id).meshes.find((m) => m.material.name === 'boeisel');
     const hullText = new HullText({ sb: outerSkin('boeisel_sb'), bb: outerSkin('boeisel_bb') }, renderer, root);
     const LETTERING = { naam: { x: 4.6, height: 0.10 }, plaats: { x: 0.78, height: 0.075 } };   // voordek / achterdek
-    initCustomize(ui, config, {
-      zoneMaterials: collectZoneMaterials(parts),
-      setSailNumber: (text) => sails.setNumber(text),
+    const zoneMaterials = collectZoneMaterials(parts);
+    const aanpassen = initCustomize(ui, config, {
+      zoneMaterials,
+      setSailNumber: (text) => { sails.setNumber(text); sailNumber = text; followNumber(); paintScheme?.setNumber(text); },
       setHullText: (key, text, color) => hullText.set(key, text, LETTERING[key].x, LETTERING[key].height, color),
     });
+    // after initCustomize: it has laid the user's colours on, which is what the paint fades back to
+    paintScheme = initPaint({ zoneMaterials, sailMaterials: collectSailMaterials(parts), config: aanpassen, note: logboek.note });
+    paintScheme.setNumber(aanpassen.zeilnummer);
 
     modes = initModes({ parts, tuig: root.getObjectByName('lelievlet').userData.tuig, scene,
-                        ui, wrap, config, signal, onResize, engaged, realTarget });
+                        ui, wrap, config, signal, onResize, engaged, realTarget, note: logboek.note });
     regions = initRegions({ parts, groups, highlight: SELECT });        // Boeg, Kleed: areas, not parts
 
     // One choke point for namen.onderdelen: the parts from the model and the ones the viewer built
@@ -365,6 +388,9 @@ export function mount(ui, host, config) {
     }
     startFlight(position, target, 600);
   }
+  // how fast what is being done goes - procedures, and what is moved by hand; wind, water and flag keep their own time
+  let speed = 1;
+  $('speed').addEventListener('input', (e) => { speed = Number(e.target.value) || 1; });
   $('views').addEventListener('click', (e) => {
     const view = e.target.dataset?.view;
     if (view) setView(view);
@@ -380,13 +406,42 @@ export function mount(ui, host, config) {
     const rect = canvas.getBoundingClientRect();
     pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
     raycaster.setFromCamera(pointer, camera);
-    // the overlay of a gebied is no target: a click on the boeg has to keep picking Boeisel, Vlak, ...
-    const visible = parts.filter((p) => !p.extras.gebied && p.node.parent.visible)
-      .flatMap((p) => p.meshes).filter((m) => m.visible);
-    const hit = raycaster.intersectObjects(visible, false)[0];
+    const hit = raycaster.intersectObjects(pickable(), false)[0];
     lastHit = hit ?? null;
     return hit ? parts.find((p) => p.node === hit.object.userData.part) : null;
   }
+  // the overlay of a gebied is no target: a click on the boeg has to keep picking Boeisel, Vlak, ...
+  const pickable = () => parts.filter((p) => !p.extras.gebied && p.node.parent.visible)
+    .flatMap((p) => p.meshes).filter((m) => m.visible);
+
+  // OrbitControls zooms and pans by the distance to its target, whatever lies under the pointer: with
+  // the target left behind a close-up surface every step shrinks towards nothing at minDistance, and
+  // a pan crawls. So when a zoom or a pan starts, the target is put on the line of sight at the depth
+  // of what is under the pointer (the camera does not turn): steps then scale with that distance.
+  const sight = new THREE.Vector3();
+  const aimProbe = new THREE.Raycaster();
+  function aimAt(x, y) {
+    aimProbe.setFromCamera(pointer.set(x, y), camera);
+    const hit = aimProbe.intersectObjects(pickable(), false)[0];
+    if (!hit) return;                                          // the sky: keep the target where it is
+    camera.getWorldDirection(sight);
+    const depth = Math.max(hit.point.sub(camera.position).dot(sight), controls.minDistance * 1.001);
+    controls.target.copy(camera.position).addScaledVector(sight, depth);
+  }
+  const ndc = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    return [((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1];
+  };
+  // captured on the wrapper, so the target is in place before OrbitControls on the canvas sees the event.
+  // A trackpad sends a stream of wheel events: aim once per gesture, a raycast is ~10 ms.
+  let lastWheel = 0;
+  wrap.addEventListener('wheel', (e) => {
+    if (e.target === canvas && e.timeStamp - lastWheel > 200) aimAt(...ndc(e));
+    lastWheel = e.timeStamp;
+  }, { capture: true, passive: true, signal });
+  wrap.addEventListener('pointerdown', (e) => {                // a pan: right button, or left with a modifier
+    if (e.target === canvas && e.pointerType === 'mouse' && (e.button === 2 || (e.button === 0 && (e.ctrlKey || e.metaKey || e.shiftKey)))) aimAt(...ndc(e));
+  }, { capture: true, signal });
 
   function paint(part, color) {
     if (part.extras.gebied) {              // a gebied is not tinted: its overlay IS the highlight
@@ -461,7 +516,8 @@ export function mount(ui, host, config) {
     note.textContent = ex.gebied ? 'Gebied, geen los onderdeel' : '';
     // The CAD body that was clicked; a part merged from several bodies lists the rest in the tooltip.
     // It is a debugging aid and nothing a scout needs, so it only shows with debug.modelnummer on.
-    const handle = config.debug.modelnummer ? handleAt(hit) : null;
+    // A part the pipeline or the viewer made itself (anker, ankerlijn, leuvers) has no CAD body: its id stands in.
+    const handle = config.debug.modelnummer ? (handleAt(hit) ?? (ex.handles?.length ? null : ex.id)) : null;
     const model = $('info-model');
     model.hidden = !handle;
     if (handle) {
@@ -494,13 +550,14 @@ export function mount(ui, host, config) {
     const part = pick(e);
     if (quiz?.click(part, lastHit)) return;        // a question is open: the click is an answer, nothing else
     select(part ? [part] : [], lastHit);           // clicking the model picks the one part, not its namesakes
-    modes?.click(part, lastHit);                   // a dol, the mik, an oar, ... is also shifted by it
+    // nothing in the way: the ray is still set from the pointer, so the water is a place to point at
+    modes?.click(part, part ? lastHit : modes.waterHit(raycaster));   // a dol, the mik, an oar, ... is also shifted by it
   });
 
   // Steering: a drag that starts on the helmstok moves the rudder instead of the camera. It listens in
   // the capture phase and keeps the event to itself, so OrbitControls never sees that press.
   const helmRay = new THREE.Raycaster();
-  let steering = false;
+  let steering = false; let steerFrom = null;      // where the press was: let go there, it was a click
   const steer = (e) => {
     const box = canvas.getBoundingClientRect();
     helmRay.setFromCamera(new THREE.Vector2(((e.clientX - box.left) / box.width) * 2 - 1, -((e.clientY - box.top) / box.height) * 2 + 1), camera);
@@ -509,7 +566,7 @@ export function mount(ui, host, config) {
   canvas.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 || !modes?.helm.grab(pick(e))) return;
     e.stopImmediatePropagation();
-    steering = true; downAt = null;
+    steering = true; downAt = null; steerFrom = [e.clientX, e.clientY];
     canvas.setPointerCapture(e.pointerId);
     canvas.style.cursor = 'grabbing';
   }, { capture: true });
@@ -521,6 +578,10 @@ export function mount(ui, host, config) {
       steering = false; modes.helm.release();
       canvas.releasePointerCapture(e.pointerId);
       canvas.style.cursor = 'grab';
+      if (type === 'pointerup' && Math.hypot(e.clientX - steerFrom[0], e.clientY - steerFrom[1]) <= 4) {
+        const part = pick(e);                      // not steered: the helmstok was clicked, like any other part
+        if (!quiz?.click(part, lastHit)) select(part ? [part] : [], lastHit);
+      }
     }, { capture: true });
   }
 
@@ -575,9 +636,10 @@ export function mount(ui, host, config) {
    * parts are now (a step of a procedure takes them somewhere); `low`: looked at from the side, the
    * way something being done is best followed, instead of from above - and square onto the plane the
    * movement is in, when the box is flat (the midzwaard swings fore and aft: seen from abeam);
-   * `ms`: how long the flight takes.
+   * `near`: stay on the side of the boat the camera is on (the boat is near enough symmetric that
+   * what is seen from one side is seen from the other); `ms`: how long the flight takes.
    */
-  function flyTo(list, { box = worldBox(list, partBox), low = false, ms = FLIGHT_MS } = {}) {
+  function flyTo(list, { box = worldBox(list, partBox), low = false, near = false, ms = FLIGHT_MS } = {}) {
     if (box.isEmpty()) return false;
     const centre = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
@@ -631,6 +693,7 @@ export function mount(ui, host, config) {
     // through whatever is in front of them for as long as they are selected.
     for (const p of list) p.xray = bestSeen < XRAY_BELOW;
     refreshHighlight();
+    if (near && best.z * (camera.position.z - centre.z) < 0) best = best.clone().setZ(-best.z);
     startFlight(centre.clone().addScaledVector(best, bestAway), centre, ms);
     return true;
   }
@@ -660,6 +723,7 @@ export function mount(ui, host, config) {
     // the search field and the rows of the parts list keep their arrow keys to themselves
     if (!engaged() || !NAV_KEYS.has(e.key)) return;
     if (realTarget(e).closest?.('input:not([type=checkbox]), textarea, select, #parts')) return;
+    if (!held.size) aimAt(0, 0);                                // moves and zooms go by what is in the middle
     held.add(e.key);
     e.preventDefault();
   }, { signal });
@@ -713,8 +777,10 @@ export function mount(ui, host, config) {
   let procWoke = 0;                      // when it was last wanted; it fades REST_MS after that
   let procDragging = false;              // the user has the thumb: playback writes no value
   let procPlaying = null;                // what the play/pause button is drawing
+  const procBand = Object.assign(document.createElement('span'), { className: 'band' });   // the step it is on
 
   procPlay.addEventListener('click', () => {
+    stepsQueued = 0;
     const p = modes?.procedure();
     if (p) modes.procedureControl[p.playing ? 'pause' : 'play']();
   });
@@ -723,24 +789,57 @@ export function mount(ui, host, config) {
   const stepBox = new THREE.Box3();
   function stepProcedure(direction) {
     const focus = modes?.procedureControl.focus(direction);
+    const view = modes?.procedureControl.camera(direction);
     let flying = false;
-    if (focus?.length) {
+    if (view) flying = flyToView(view, direction);
+    else if (focus?.length) {
       const span = new THREE.Box3();
       modes.procedureControl.across(direction, () => span.union(worldBox(focus, stepBox)));
-      flying = !span.isEmpty() && flyTo(focus, { box: span, low: true, ms: STEP_FLIGHT_MS });
+      flying = !span.isEmpty() && flyTo(focus, { box: span, low: true, near: true, ms: STEP_FLIGHT_MS });
       // what cannot be seen from anywhere (the midzwaard going up into its kast) is selected for the
       // step: lit, and drawn through the boat
       if (flying && focus.some((p) => p.xray)) { select(focus); for (const p of focus) p.xray = true; refreshHighlight(); }
     }
     modes?.procedureControl.step(direction, flying ? STEP_FLIGHT_MS / 1000 : 0);
   }
-  $('procedure-previous').addEventListener('click', () => stepProcedure(-1));
-  $('procedure-next').addEventListener('click', () => stepProcedure(1));
+  /**
+   * A step that says where it is looked at from. The boat is near enough symmetric that the view
+   * also serves mirrored: it is taken on the side nearer to the camera, or with kant 'zonder fok' on
+   * the side the fok is not on as the step ends, so it does not hang in the way; with kant 'vast'
+   * it is taken as it is.
+   */
+  function flyToView({ positie, doel, kant }, direction) {
+    const position = new THREE.Vector3(...positie); const target = new THREE.Vector3(...doel);
+    const mirrored = (v) => v.clone().setZ(-v.z);
+    let flip = null;
+    const fok = kant === 'zonder fok' ? parts.find((p) => p.extras.id === 'fok') : null;
+    if (fok) {
+      const span = new THREE.Box3();
+      modes.procedureControl.across(direction, () => span.union(worldBox([fok], stepBox)));
+      const z = span.isEmpty() ? 0 : span.getCenter(new THREE.Vector3()).z;
+      if (Math.abs(z) > 0.02) flip = Math.sign(position.z) === Math.sign(z);
+    }
+    if (kant === 'vast') flip = false;                  // only right from its own side
+    flip ??= camera.position.distanceTo(mirrored(position)) < camera.position.distanceTo(position);
+    startFlight(flip ? mirrored(position) : position, flip ? mirrored(target) : target, STEP_FLIGHT_MS);
+    return true;
+  }
+  // A click the way a step is already going is one more step, taken when this one is done (the camera
+  // goes first again); the other way it turns the step round, or calls it off if it has not moved yet.
+  let stepsQueued = 0;
+  function clickStep(direction) {
+    const p = modes?.procedure();
+    if (p?.stepping && (p.backwards ? -1 : 1) === direction) { stepsQueued += direction; return; }
+    stepsQueued = 0;
+    stepProcedure(direction);
+  }
+  $('procedure-previous').addEventListener('click', () => clickStep(-1));
+  $('procedure-next').addEventListener('click', () => clickStep(1));
 
   // Dragging the thumb scrubs, which pauses; on release it stays where it was let go and the user
   // presses play to go on. Arrow keys on the focused slider come through the same input event, so the
   // value written per frame is only ever the one the user just set.
-  procTime.addEventListener('input', () => modes?.procedureControl.scrub(Number(procTime.value)));
+  procTime.addEventListener('input', () => { stepsQueued = 0; modes?.procedureControl.scrub(Number(procTime.value)); });
   procTime.addEventListener('pointerdown', () => { procDragging = true; });
   procTime.addEventListener('change', () => { procDragging = false; });
   for (const type of ['pointerup', 'pointercancel']) {
@@ -777,19 +876,26 @@ export function mount(ui, host, config) {
   /** Per frame: fill the bar with where the procedure stands, and decide whether it is in view. */
   function stepProcedureBar() {
     const p = modes?.procedure() ?? null;
-    if (!p) { procBar.hidden = true; wrap.classList.remove('procedure-open'); return; }
+    if (!p) { procBar.hidden = true; wrap.classList.remove('procedure-open'); stepsQueued = 0; return; }
+    if (stepsQueued && !p.playing) {                      // the step is done: on to the next one clicked for
+      const direction = Math.sign(stepsQueued); stepsQueued -= direction;
+      stepProcedure(direction);
+    }
     procBar.hidden = false;
     const shape = [p.name, ...p.steps.map((s) => s.end)].join(' ');
     if (shape !== procShape) {                            // another procedure, or the same one anew
       procShape = shape;
       procTime.max = String(p.total);
-      procTicks.replaceChildren(...p.steps.map((s) => {   // one tick per step boundary
+      procTicks.replaceChildren(procBand, ...p.steps.map((s) => {   // the band, and one tick per step boundary
         const tick = document.createElement('span');
         tick.style.left = `${(s.end / p.total) * 100}%`;
         return tick;
       }));
     }
     if (!procDragging) procTime.value = String(p.t);
+    const on = p.steps[p.index];                          // the band marks that step, not how far it has come
+    if (on) { procBand.style.left = `${(on.begin / p.total) * 100}%`; procBand.style.width = `${((on.end - on.begin) / p.total) * 100}%`; }
+    procBar.classList.toggle('terug', p.backwards);
     // the step the label is about, and named the way the procedure is going (Fok strijken, Fok hijsen)
     const step = p.steps.length ? `${p.index + 1}/${p.steps.length}  ${p.label}` : p.label;
     if (procStep.textContent !== step) procStep.textContent = step;
@@ -835,10 +941,16 @@ export function mount(ui, host, config) {
     const dt = Math.min(clock.getDelta(), 0.05);
     elapsed += dt * 1000;
     keyboardNavigate(dt);
-    modes?.update(dt);
+    modes?.update(dt, speed);
+    night?.update(dt, speed);
+    paintScheme?.update(dt);
     stepProcedureBar();
     stepFlight();
     controls.update();
+    // the near plane comes in with the camera, so a close look is not cut open; further out it stays
+    // at 5 cm, where the depth buffer has the precision to keep far surfaces apart
+    const near = THREE.MathUtils.clamp(camera.position.distanceTo(controls.target) * 0.2, 0.002, 0.05);
+    if (Math.abs(near - camera.near) > 1e-4) { camera.near = near; camera.updateProjectionMatrix(); }
     renderer.render(scene, camera);
     // after the render: every matrix stands where this frame drew it, so a ring lands on the part
     locator.update(elapsed, dt * 1000);
@@ -919,6 +1031,17 @@ export function mount(ui, host, config) {
   // debug.toestand: the state as it is, written as the configuration that starts a viewer there. It
   // follows the boat and the camera while the panel is open.
   $('toestand-toggle').hidden = !config.debug.toestand;
+  let night = null;                                                    // see initNight, once the model is there
+  ready.then(() => {
+    if (modes?.leechFlag) loadImage(asset('textures/embleem.png')).then((img) => modes.leechFlag.setEmblem(img), () => {});
+    followNumber();
+    // night keeps its own time; see initNight in rig.js
+    night = initNight({ scene, sun, hemi, wrap, water: modes?.water, toplicht: modes?.toplicht,
+                        slowest: Number($('speed').min) || 0.25, note: logboek.note });
+    const stir = () => night.activity();
+    for (const type of ['pointermove', 'pointerdown', 'wheel']) wrap.addEventListener(type, stir, { signal, passive: true });
+    window.addEventListener('keydown', stir, { signal });
+  }, () => {});
   let toestandPoll = null;
   onDestroy(() => clearInterval(toestandPoll));
   function toestandText() {
@@ -955,7 +1078,7 @@ export function mount(ui, host, config) {
   const debug = { camera, controls, scene, parts, rows, held, keyboardNavigate, select, flyTo,
                   sideOf, pickTwin, config,
                   get modes() { return modes; }, get regions() { return regions; },
-                  get quiz() { return quiz; },
+                  get quiz() { return quiz; }, get night() { return night; },
                   get flight() { return flight; }, get hullBox() { return hullBox; } };
 
   return { ready, destroy, debug, fullscreen: fullscreen.toggle, get, set };

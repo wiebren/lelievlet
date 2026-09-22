@@ -44,8 +44,8 @@
    475,
    930
   ],
-  "triangles": 10462,
-  "vertices": 10172
+  "triangles": 12310,
+  "vertices": 11096
  },
  {
   "id": "berghout_sb",
@@ -60,8 +60,8 @@
    475,
    930
   ],
-  "triangles": 10472,
-  "vertices": 10178
+  "triangles": 12338,
+  "vertices": 11111
  },
  {
   "id": "boegrand",
@@ -76,8 +76,8 @@
    71,
    642
   ],
-  "triangles": 2344,
-  "vertices": 2260
+  "triangles": 2604,
+  "vertices": 2389
  },
  {
   "id": "boeisel_bb",
@@ -136,12 +136,12 @@
    "5A3B"
   ],
   "afmetingen_mm": [
-   5609,
-   279,
-   903
+   5618,
+   280,
+   912
   ],
-  "triangles": 10091,
-  "vertices": 9732
+  "triangles": 11880,
+  "vertices": 6060
  },
  {
   "id": "dolboord_sb",
@@ -152,12 +152,12 @@
    "5A65"
   ],
   "afmetingen_mm": [
-   5614,
-   279,
-   903
+   5623,
+   281,
+   912
   ],
-  "triangles": 10998,
-  "vertices": 10228
+  "triangles": 11880,
+  "vertices": 6060
  },
  {
   "id": "kim_bb",
@@ -168,9 +168,9 @@
    "5A0B"
   ],
   "afmetingen_mm": [
-   5483,
-   919,
-   917
+   5485,
+   920,
+   916
   ],
   "triangles": 4484,
   "vertices": 3630
@@ -184,9 +184,9 @@
    "5A0C"
   ],
   "afmetingen_mm": [
-   5483,
-   919,
-   917
+   5485,
+   920,
+   916
   ],
   "triangles": 4490,
   "vertices": 3633
@@ -276,8 +276,8 @@
    53,
    883
   ],
-  "triangles": 2873,
-  "vertices": 2710
+  "triangles": 4357,
+  "vertices": 3631
  },
  {
   "id": "vlak_bb",
@@ -370,12 +370,12 @@
    "5A6C"
   ],
   "afmetingen_mm": [
-   65,
+   66,
    64,
    97
   ],
-  "triangles": 645,
-  "vertices": 733
+  "triangles": 763,
+  "vertices": 851
  },
  {
   "id": "borghaak_spiegel",
@@ -388,8 +388,8 @@
    49,
    8
   ],
-  "triangles": 5628,
-  "vertices": 3030
+  "triangles": 1174,
+  "vertices": 799
  },
  {
   "id": "borgkettinkje",
@@ -398,7 +398,7 @@
   "materiaal": "verzinkt",
   "handles": [],
   "afmetingen_mm": [
-   154,
+   153,
    375,
    98
   ],
@@ -494,10 +494,10 @@
   "afmetingen_mm": [
    217,
    112,
-   32
+   44
   ],
-  "triangles": 892,
-  "vertices": 1140
+  "triangles": 1332,
+  "vertices": 2476
  },
  {
   "id": "vingerlingen",
@@ -514,8 +514,8 @@
    684,
    41
   ],
-  "triangles": 568,
-  "vertices": 586
+  "triangles": 420,
+  "vertices": 438
  },
  {
   "id": "zwaard",
@@ -543,8 +543,8 @@
    "5855"
   ],
   "afmetingen_mm": [
-   951,
-   512,
+   966,
+   509,
    100
   ],
   "triangles": 1612,
@@ -564,8 +564,8 @@
    463,
    50
   ],
-  "triangles": 4736,
-  "vertices": 2944
+  "triangles": 3656,
+  "vertices": 2389
  },
  {
   "id": "zwaardloper_onder",
@@ -597,8 +597,8 @@
    40,
    26
   ],
-  "triangles": 440,
-  "vertices": 452
+  "triangles": 384,
+  "vertices": 396
  },
  {
   "id": "bakskist",
@@ -819,8 +819,8 @@
   "materiaal": "verzinkt",
   "handles": [],
   "afmetingen_mm": [
-   64,
-   82,
+   67,
+   80,
    9
   ],
   "triangles": 1200,
@@ -842,8 +842,36 @@
    1139,
    52
   ],
-  "triangles": 16613,
-  "vertices": 11083
+  "triangles": 13451,
+  "vertices": 9704
+ },
+ {
+  "id": "boegspriet",
+  "naam": "Boegspriet",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   800,
+   120,
+   50
+  ],
+  "triangles": 2390,
+  "vertices": 2355
+ },
+ {
+  "id": "boegspriet_bouten",
+  "naam": "Bouten boegspriet",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   184,
+   26,
+   33
+  ],
+  "triangles": 448,
+  "vertices": 1344
  },
  {
   "id": "dolpotten_bb",
@@ -900,8 +928,8 @@
    75,
    68
   ],
-  "triangles": 1724,
-  "vertices": 1766
+  "triangles": 1508,
+  "vertices": 1550
  },
  {
   "id": "grootschootoog_steun",
@@ -950,8 +978,8 @@
    49,
    23
   ],
-  "triangles": 9972,
-  "vertices": 6788
+  "triangles": 8948,
+  "vertices": 6344
  },
  {
   "id": "harpje_fokkenval",
@@ -968,8 +996,8 @@
    61,
    23
   ],
-  "triangles": 10268,
-  "vertices": 6820
+  "triangles": 9102,
+  "vertices": 6403
  },
  {
   "id": "harpje_strop",
@@ -986,8 +1014,8 @@
    63,
    17
   ],
-  "triangles": 10260,
-  "vertices": 6854
+  "triangles": 8620,
+  "vertices": 6156
  },
  {
   "id": "harpjes",
@@ -1005,8 +1033,8 @@
    36,
    1792
   ],
-  "triangles": 11199,
-  "vertices": 7206
+  "triangles": 10845,
+  "vertices": 7021
  },
  {
   "id": "harpjes_fok",
@@ -1020,12 +1048,12 @@
    "53AF"
   ],
   "afmetingen_mm": [
-   91,
-   251,
+   84,
+   229,
    25
   ],
-  "triangles": 10664,
-  "vertices": 6900
+  "triangles": 11110,
+  "vertices": 7187
  },
  {
   "id": "harpjes_mast",
@@ -1049,8 +1077,22 @@
    910,
    125
   ],
-  "triangles": 27283,
-  "vertices": 17620
+  "triangles": 27097,
+  "vertices": 17537
+ },
+ {
+  "id": "harpjes_wantketting",
+  "naam": "Harpjes",
+  "groep": "beslag",
+  "materiaal": "verzinkt",
+  "handles": [],
+  "afmetingen_mm": [
+   12,
+   36,
+   1728
+  ],
+  "triangles": 10845,
+  "vertices": 7023
  },
  {
   "id": "hijsogen",
@@ -1068,8 +1110,8 @@
    156,
    1134
   ],
-  "triangles": 13326,
-  "vertices": 7123
+  "triangles": 6426,
+  "vertices": 3647
  },
  {
   "id": "kettinkje_fok",
@@ -1087,8 +1129,8 @@
    187,
    18
   ],
-  "triangles": 12864,
-  "vertices": 13216
+  "triangles": 15296,
+  "vertices": 15648
  },
  {
   "id": "kikkers_mastkoker",
@@ -1102,12 +1144,12 @@
    "5928"
   ],
   "afmetingen_mm": [
-   185,
+   184,
    290,
    188
   ],
-  "triangles": 12792,
-  "vertices": 6848
+  "triangles": 5200,
+  "vertices": 2840
  },
  {
   "id": "kikkers_voordek",
@@ -1120,11 +1162,11 @@
   ],
   "afmetingen_mm": [
    146,
-   12,
+   11,
    991
   ],
-  "triangles": 5666,
-  "vertices": 3057
+  "triangles": 2600,
+  "vertices": 1420
  },
  {
   "id": "landvastogen",
@@ -1136,12 +1178,12 @@
    "589F"
   ],
   "afmetingen_mm": [
-   32,
+   31,
    22,
    857
   ],
-  "triangles": 6590,
-  "vertices": 3525
+  "triangles": 3176,
+  "vertices": 1804
  },
  {
   "id": "leiogen_bb",
@@ -1157,10 +1199,10 @@
   "afmetingen_mm": [
    1668,
    83,
-   156
+   155
   ],
-  "triangles": 22428,
-  "vertices": 12081
+  "triangles": 2400,
+  "vertices": 1440
  },
  {
   "id": "leiogen_sb",
@@ -1176,10 +1218,10 @@
   "afmetingen_mm": [
    1668,
    83,
-   156
+   155
   ],
-  "triangles": 22262,
-  "vertices": 11998
+  "triangles": 2400,
+  "vertices": 1440
  },
  {
   "id": "leuvers",
@@ -1188,8 +1230,8 @@
   "materiaal": "rvs",
   "handles": [],
   "afmetingen_mm": [
-   1404,
-   3385,
+   1413,
+   3407,
    29
   ],
   "triangles": 2760,
@@ -1237,8 +1279,8 @@
    138,
    117
   ],
-  "triangles": 11758,
-  "vertices": 8759
+  "triangles": 16004,
+  "vertices": 12096
  },
  {
   "id": "sleepogen",
@@ -1251,8 +1293,8 @@
    28,
    857
   ],
-  "triangles": 6590,
-  "vertices": 3525
+  "triangles": 3176,
+  "vertices": 1804
  },
  {
   "id": "sleepoog_boeg",
@@ -1263,10 +1305,10 @@
   "afmetingen_mm": [
    65,
    82,
-   11
+   12
   ],
-  "triangles": 3284,
-  "vertices": 1757
+  "triangles": 1594,
+  "vertices": 905
  },
  {
   "id": "strop_gaffel",
@@ -1281,8 +1323,8 @@
    106,
    136
   ],
-  "triangles": 6066,
-  "vertices": 3492
+  "triangles": 4716,
+  "vertices": 2809
  },
  {
   "id": "wantputting_bb",
@@ -1294,8 +1336,8 @@
   ],
   "afmetingen_mm": [
    70,
-   77,
-   9
+   61,
+   8
   ],
   "triangles": 214,
   "vertices": 244
@@ -1310,8 +1352,8 @@
   ],
   "afmetingen_mm": [
    70,
-   77,
-   9
+   61,
+   8
   ],
   "triangles": 214,
   "vertices": 244
@@ -1427,8 +1469,8 @@
    5270,
    91
   ],
-  "triangles": 1934,
-  "vertices": 1350
+  "triangles": 2175,
+  "vertices": 2139
  },
  {
   "id": "mastband_lummel",
@@ -1487,124 +1529,124 @@
    "5434"
   ],
   "afmetingen_mm": [
-   1858,
-   4000,
+   1865,
+   4008,
    730
   ],
   "zeil": {
-   "breedte_m": 1.9955,
-   "hoogte_m": 4.0405,
+   "breedte_m": 2.0022,
+   "hoogte_m": 4.0481,
    "omtrek": [
     [
-     0.06512,
-     0.03568
+     0.06511,
+     0.03234
     ],
     [
      0.0,
-     0.04399
+     0.04029
     ],
     [
-     0.71591,
-     1.0
+     0.71673,
+     0.99995
     ],
     [
-     0.72505,
+     0.72587,
      1.0
     ],
     [
      1.0,
-     0.01097
+     0.01282
     ],
     [
-     0.93322,
-     0.00702
+     0.93321,
+     0.0085
     ],
     [
-     0.86625,
-     0.00394
+     0.86624,
+     0.00506
     ],
     [
-     0.79914,
-     0.00174
+     0.79913,
+     0.00249
     ],
     [
-     0.73193,
-     0.00043
+     0.73192,
+     0.0008
     ],
     [
-     0.66468,
+     0.66466,
      0.0
     ],
     [
-     0.59743,
-     0.00045
+     0.59741,
+     8e-05
     ],
     [
-     0.53023,
-     0.00179
+     0.53021,
+     0.00104
     ],
     [
-     0.46312,
-     0.004
+     0.4631,
+     0.00288
     ],
     [
-     0.39615,
-     0.0071
+     0.39613,
+     0.00561
     ],
     [
-     0.32938,
-     0.01107
+     0.32936,
+     0.00921
     ],
     [
-     0.26284,
-     0.01592
+     0.26282,
+     0.01369
     ],
     [
-     0.19659,
-     0.02164
+     0.19657,
+     0.01904
     ],
     [
-     0.13066,
-     0.02823
+     0.13065,
+     0.02526
     ]
    ],
    "naden": [
     [
-     0.9587,
-     0.15955,
-     0.03988,
-     0.09724
+     0.95882,
+     0.16112,
+     0.04382,
+     0.09896
     ],
     [
-     0.89564,
-     0.38635,
-     0.22218,
-     0.34068
+     0.89596,
+     0.3875,
+     0.22529,
+     0.34194
     ],
     [
-     0.83259,
-     0.61315,
-     0.40448,
-     0.58412
+     0.8331,
+     0.61388,
+     0.40676,
+     0.58492
     ],
     [
-     0.76954,
-     0.83996,
-     0.58678,
-     0.82756
+     0.77023,
+     0.84026,
+     0.58823,
+     0.82789
     ]
    ],
    "bolling": {
     "normaal": [
-     0.35318,
-     0.14119,
-     -0.92484
+     0.35347,
+     0.14115,
+     -0.92474
     ],
-    "reikwijdte_m": 1.9155
+    "reikwijdte_m": 1.9142
    }
   },
-  "triangles": 2811,
-  "vertices": 1502
+  "triangles": 2817,
+  "vertices": 1504
  },
  {
   "id": "fok_achterlijk",
@@ -1617,7 +1659,7 @@
    3682,
    694
   ],
-  "triangles": 1050,
+  "triangles": 1048,
   "vertices": 806
  },
  {
@@ -1628,11 +1670,11 @@
   "handles": [],
   "afmetingen_mm": [
    169,
-   211,
+   209,
    72
   ],
-  "triangles": 100,
-  "vertices": 72
+  "triangles": 94,
+  "vertices": 70
  },
  {
   "id": "fok_onderlijk",
@@ -1641,12 +1683,12 @@
   "materiaal": "zeil_lijk",
   "handles": [],
   "afmetingen_mm": [
-   1595,
-   199,
-   631
+   1602,
+   186,
+   632
   ],
-  "triangles": 560,
-  "vertices": 426
+  "triangles": 562,
+  "vertices": 424
  },
  {
   "id": "fok_schoothoek",
@@ -1655,12 +1697,12 @@
   "materiaal": "zeil_hoek",
   "handles": [],
   "afmetingen_mm": [
-   170,
-   197,
+   169,
+   199,
    72
   ],
-  "triangles": 122,
-  "vertices": 92
+  "triangles": 140,
+  "vertices": 96
  },
  {
   "id": "fok_tophoek",
@@ -1673,7 +1715,7 @@
    177,
    42
   ],
-  "triangles": 72,
+  "triangles": 74,
   "vertices": 56
  },
  {
@@ -1683,12 +1725,12 @@
   "materiaal": "zeil_lijk",
   "handles": [],
   "afmetingen_mm": [
-   1481,
-   3595,
+   1489,
+   3616,
    25
   ],
-  "triangles": 1072,
-  "vertices": 820
+  "triangles": 1068,
+  "vertices": 824
  },
  {
   "id": "grootzeil",
@@ -2073,9 +2115,9 @@
    "51C2"
   ],
   "afmetingen_mm": [
-   325,
-   3818,
-   809
+   323,
+   3795,
+   805
   ],
   "triangles": 3105,
   "vertices": 2830
@@ -2089,9 +2131,9 @@
    "519A"
   ],
   "afmetingen_mm": [
-   325,
-   3818,
-   809
+   323,
+   3795,
+   805
   ],
   "triangles": 3871,
   "vertices": 3210
@@ -2103,12 +2145,12 @@
   "materiaal": "verzinkt",
   "handles": [],
   "afmetingen_mm": [
-   26,
-   114,
+   29,
+   132,
    36
   ],
-  "triangles": 1296,
-  "vertices": 648
+  "triangles": 1512,
+  "vertices": 756
  },
  {
   "id": "wantketting_sb",
@@ -2117,12 +2159,12 @@
   "materiaal": "verzinkt",
   "handles": [],
   "afmetingen_mm": [
-   26,
-   114,
+   29,
+   132,
    36
   ],
-  "triangles": 1296,
-  "vertices": 648
+  "triangles": 1512,
+  "vertices": 756
  },
  {
   "id": "achterlandvast",
@@ -2145,8 +2187,8 @@
   "materiaal": "touw",
   "handles": [],
   "afmetingen_mm": [
-   2124,
-   763,
+   2049,
+   666,
    576
   ],
   "triangles": 5312,
@@ -2167,12 +2209,12 @@
    "5467"
   ],
   "afmetingen_mm": [
-   61,
+   60,
    77,
    16
   ],
-  "triangles": 7006,
-  "vertices": 4914
+  "triangles": 6098,
+  "vertices": 4292
  },
  {
   "id": "blok_fokkenschoot_sb",
@@ -2189,12 +2231,12 @@
    "54AA"
   ],
   "afmetingen_mm": [
-   61,
+   60,
    77,
    16
   ],
-  "triangles": 7006,
-  "vertices": 4914
+  "triangles": 6098,
+  "vertices": 4292
  },
  {
   "id": "blok_fokkenval",
@@ -2209,8 +2251,8 @@
    79,
    16
   ],
-  "triangles": 7961,
-  "vertices": 5547
+  "triangles": 7817,
+  "vertices": 5463
  },
  {
   "id": "blok_grootschoot_giek",
@@ -2237,8 +2279,8 @@
    145,
    17
   ],
-  "triangles": 18407,
-  "vertices": 12546
+  "triangles": 15805,
+  "vertices": 11203
  },
  {
   "id": "blok_grootschoot_kuip",
@@ -2263,8 +2305,8 @@
    97,
    28
   ],
-  "triangles": 8240,
-  "vertices": 5906
+  "triangles": 7104,
+  "vertices": 5102
  },
  {
   "id": "blok_klauwval",
@@ -2281,12 +2323,12 @@
    "52B1"
   ],
   "afmetingen_mm": [
-   47,
+   46,
    77,
    16
   ],
-  "triangles": 6626,
-  "vertices": 4628
+  "triangles": 6406,
+  "vertices": 4432
  },
  {
   "id": "blok_piekenval",
@@ -2307,8 +2349,8 @@
    73,
    16
   ],
-  "triangles": 7054,
-  "vertices": 4908
+  "triangles": 6322,
+  "vertices": 4400
  },
  {
   "id": "borglijntje_lummelbout",
@@ -2505,11 +2547,11 @@
   "handles": [],
   "afmetingen_mm": [
    1348,
-   365,
+   366,
    552
   ],
-  "triangles": 8584,
-  "vertices": 4310
+  "triangles": 8392,
+  "vertices": 4214
  },
  {
   "id": "riem_bb",

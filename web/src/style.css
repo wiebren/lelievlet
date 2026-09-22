@@ -168,6 +168,19 @@
 }
 #toestand-copy { width: 100%; }
 
+/* bottom left, the one corner the control bar and the progress bar leave free: the logboek */
+#log-toggle { top: auto; right: auto; left: 16px; bottom: 16px; }
+#logboek {
+  position: absolute; left: 16px; bottom: 70px; width: 230px; max-height: calc(100% - 100px); overflow: auto;
+  padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  backdrop-filter: blur(8px); z-index: 3;
+}
+#logboek header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+#logboek h2 { margin: 0; font-size: 16px; }
+#logboek ul { list-style: none; margin: 0; padding: 0; font-size: 13px; }
+#logboek li { margin-bottom: 6px; line-height: 1.35; }
+#logboek li.nog { color: var(--muted); letter-spacing: 0.18em; }
+
 #customize {
   position: absolute; top: 70px; right: 16px; width: 250px; max-height: calc(100% - 170px); overflow: auto;
   padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
@@ -219,9 +232,11 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 .popover .beide + .boorden { border-top: 1px solid var(--line); padding-top: 8px; }
 .popover .caption { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); text-align: center; }
 .popover .spoken { margin: 2px 0 8px; max-width: 330px; font-style: italic; text-align: center; }
+#sidebar .speed { display: grid; gap: 4px; font-size: 13px; }
+#sidebar .speed input { width: 100%; accent-color: var(--accent); }
 .popover .reef { display: grid; gap: 6px; min-width: 190px; font-size: 13px; }
 .popover .reef input { width: 100%; accent-color: var(--accent); }
-#controls .badge {
+#controls .badge, #log-toggle .badge {
   position: absolute; right: 1px; bottom: 1px; min-width: 16px; padding: 0 3px; border-radius: 999px;
   background: var(--accent); color: #fff; font-size: 10px; line-height: 16px; font-variant-numeric: tabular-nums;
 }
@@ -307,9 +322,22 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   font-variant-numeric: tabular-nums;
 }
 #procedure .caption { flex: none; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-#procedure-time { display: block; width: 100%; margin: 2px 0 0; accent-color: var(--accent); }
+/* It runs either way, so nothing fills up behind it: a plain line with a knob on it, and a band
+   under the step it is on. The chevron by the label says which way it is going. */
+#procedure-time { -webkit-appearance: none; appearance: none; display: block; width: 100%; margin: 2px 0 0; background: none; }
+#procedure-time::-webkit-slider-runnable-track { height: 3px; border-radius: 2px; background: var(--line); }
+#procedure-time::-moz-range-track { height: 3px; border-radius: 2px; background: var(--line); }
+#procedure-time::-moz-range-progress { height: 3px; background: none; }
+#procedure-time::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 14px; margin-top: -5.5px;
+  border: 2px solid var(--panel); border-radius: 50%; background: var(--accent);
+}
+#procedure-time::-moz-range-thumb { width: 14px; height: 14px; border: 2px solid var(--panel); border-radius: 50%; background: var(--accent); }
 #procedure .ticks { position: relative; height: 7px; margin: 0 8px; }
 #procedure .ticks span { position: absolute; top: 0; width: 1px; height: 6px; background: var(--muted); }
+#procedure .ticks .band { top: 1px; width: auto; height: 4px; border-radius: 2px; background: var(--accent); opacity: 0.4; transition: left 0.2s, width 0.2s; }
+#procedure .step::before { content: '\203A'; margin-right: 5px; color: var(--muted); }
+#procedure.terug .step::before { content: '\2039'; }
 
 #info {
   position: absolute; right: 76px; bottom: 16px; z-index: 2; min-width: 240px; max-width: 340px; padding: 12px 16px;

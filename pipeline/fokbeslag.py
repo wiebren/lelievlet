@@ -18,14 +18,17 @@ into the plane of the sail rather than lying in it; over the length of the luff 
 34 to 28 degrees out of the cloth, and a tail 38 to 46 mm long against the 38 of the real hook.
 Both follow from the CAD's gap; neither is a choice made here.
 
-  build(mesh_dir)   [(id, naam, groep, materiaal, (V, N, F))]
+  build(mesh_dir)          [(id, naam, groep, materiaal, (V, N, F))]
+  build_spriet(mesh_dir)   the same, for the spriet on the hanekam
 """
 import json
 from pathlib import Path
 
 import numpy as np
 
-from hardware import _finish, _join, bead, prism          # the mesh helpers, so this file is geometry only
+import borgketting
+from hardware import _finish, _join, bead, bolt, prism    # the mesh helpers, so this file is geometry only
+from parts import FOK_TACK as _FOK_TACK
 from rigging import tube
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -33,8 +36,9 @@ ROOT = Path(__file__).resolve().parent.parent
 VOORSTAG = "51D0"            # the wire, with a thimble eye spliced into its lower end
 HANEKAM = "589A"             # the plate on the stem head, with three holes athwartships
 
-# Corners of the fok as the CAD draws it; see fok_tack / fok_head / fok_clew in rig_data.py.
-FOK_TACK = np.array([6126.2, -7.3, 1266.7])
+# Corners of the fok as the CAD draws it, the tack lowered with the harpje of the kettinkje; see
+# fok_tack / fok_head / fok_clew in rig_data.py.
+FOK_TACK = np.array(_FOK_TACK)
 FOK_HEAD = np.array([4580.0, -0.7, 5090.8])
 FOK_CLEW = np.array([4268.7, 722.2, 1134.6])
 
@@ -323,3 +327,85 @@ def build(mesh_dir):
     return [("leuvers", "Leuvers", "beslag", "rvs", leuvers(mesh_dir)),
             ("voorstagspanner", "Voorstagspanner met pelikaanhaak", "staand_want", "rvs", pelikaanhaak(mesh_dir, with_ring=False)),
             ("pelikaanhaak_ring", "Ring van de pelikaanhaak", "staand_want", "rvs", ring(mesh_dir, hook_rod(mesh_dir)[0])[0])]
+
+
+# -- the spriet: a steel tube standing forward over the stem, bolted to the hanekam.
+#
+#   tube      800 mm long, 50 mm across, closed at both ends; its after end over the after end of
+#             the hanekam
+#   flanges   two more of the hanekam, holes and all, under and over the after end of the tube. The
+#             lower one lies against the starboard face of the hanekam and is bolted to it through
+#             the after and the forward hole; the upper one stands on the tube and takes what the
+#             hanekam takes otherwise: the voorstagspanner and the harpje of the kettinkje of the fok
+#   bouten    the two bolts, a part of their own (they go in last)
+#   hook      a leioog (body 5943) on top of the forward end
+#
+# Both flanges stand over the middle of the tube, so the upper one is the hanekam moved by
+# spriet_lift(): that is how far everything made fast to the hanekam goes along with it.
+
+SPRIET_LENGTH, SPRIET_R = 800.0, 25.0
+SPRIET_WELD = 3.0            # the upper flange is let this far into the top of the tube
+SPRIET_HOOK_IN = 40.0        # middle of the feet of the hook, from the forward end
+
+
+def _hanekam(mesh_dir):
+    V, N, F, _ = borgketting._load(mesh_dir, HANEKAM)
+    return V, N, F
+
+
+def spriet_frame(mesh_dir):
+    """After end of the tube's axis, and the shift that takes the hanekam onto the upper flange."""
+    V, _, _ = _hanekam(mesh_dir)
+    thick = V[:, 1].max() - V[:, 1].min()
+    y = V[:, 1].min() - thick / 2                        # over the middle of the lower flange
+    axis = np.array([V[:, 0].min(), y, V[:, 2].max() + SPRIET_R])
+    lift = np.array([0.0, y, axis[2] + SPRIET_R - SPRIET_WELD - V[:, 2].min()])
+    return axis, lift, thick
+
+
+def spriet_lift(mesh_dir):
+    return spriet_frame(mesh_dir)[1]
+
+
+def spriet_hook(mesh_dir, at):
+    """The leioog stood on the top of the tube, its C in the plane of the tube's axis. As in
+    borgketting.haak(), the third axis keeps the basis handed like the leioog's own."""
+    V, N, F, G, local, o = borgketting._leioog_local(mesh_dir)
+    target = np.array([[1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0]])   # along, into the tube, across
+    if np.linalg.det(target) * np.linalg.det(local) < 0:
+        target = target * np.array([1.0, 1.0, -1.0])[:, None]
+    return at + ((V - o) @ local.T) @ target, (N @ local.T) @ target, F
+
+
+def _spriet_hook_at(axis):
+    return axis + [SPRIET_LENGTH - SPRIET_HOOK_IN, 0.0, SPRIET_R]
+
+
+def spriet_eye(mesh_dir):
+    """Middle of the eye of the hook on the end of the spriet."""
+    V = spriet_hook(mesh_dir, _spriet_hook_at(spriet_frame(mesh_dir)[0]))[0]
+    return (V.min(0) + V.max(0)) / 2
+
+
+def spriet(mesh_dir):
+    V, N, F = _hanekam(mesh_dir)
+    axis, up, thick = spriet_frame(mesh_dir)
+    return _join([
+        prism(axis, axis + [SPRIET_LENGTH, 0.0, 0.0], SPRIET_R, 40, True),
+        (V + [0.0, -thick, 0.0], N, F),                  # lower flange, against the hanekam
+        (V + up, N, F),                                  # upper flange
+        spriet_hook(mesh_dir, _spriet_hook_at(axis)),
+    ])
+
+
+def spriet_bouten(mesh_dir):
+    """The two bolts through hanekam and lower flange, their heads to port."""
+    V, _, _ = _hanekam(mesh_dir)
+    thick = V[:, 1].max() - V[:, 1].min()
+    holes = hanekam_holes(mesh_dir)                      # frontmost first
+    return _join([bolt(c[0], c[2], V[:, 1].max(), V[:, 1].min() - thick, radius=r - 0.4) for c, r in (holes[0], holes[-1])])
+
+
+def build_spriet(mesh_dir):
+    return [("boegspriet", "Boegspriet", "beslag", "verzinkt", spriet(mesh_dir)),
+            ("boegspriet_bouten", "Bouten boegspriet", "beslag", "verzinkt", spriet_bouten(mesh_dir))]

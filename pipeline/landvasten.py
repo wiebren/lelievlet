@@ -325,11 +325,52 @@ def _dolboord(mesh_dir, x):
     return (at[0] + at[1]) / 2, d, up, out
 
 
+SAG = 0.07                           # of the span: how far the hanging stretch dips under its chord
+STAND_OFF = 28.0                     # how far out from the chord it leaves the rail: over the berghout, not against it
+
+
+def _sag(a, b, out, step):
+    """A line hanging between a and b: the chord dipped by SAG of its length, straight down and a
+    little out along `out`, and standing off the hull from the rail down, so it hangs over the
+    berghout and swings clear of the plating under it."""
+    a, b = np.asarray(a, float), np.asarray(b, float)
+    n = max(int(np.linalg.norm(b - a) / step), 4)
+    t = np.linspace(0.0, 1.0, n + 1)[:, None]
+    dip = SAG * np.linalg.norm(b - a) * np.sin(np.pi * t)
+    return a + t * (b - a) + dip * (np.array([0.0, 0.0, -1.0]) * 0.8 + out * 0.6) + out * STAND_OFF * (1.0 - t) * np.minimum(1.0, 6.0 * t)
+
+
+def _clear(P, skin, gap):
+    """Every point of P at least `gap` in front of the nearest face of `skin` it stands behind:
+    pushed out along that face's normal, nothing else moved. The ends stay put."""
+    T, n = skin
+    P = np.array(P, float)
+    for i in range(1, len(P) - 1):
+        for _ in range(4):
+            v = P[i] - _closest(P[i], T)
+            near = np.linalg.norm(v, axis=1) < gap
+            if not near.any():                                # nothing this close: it stands clear
+                break
+            slack = np.where(near, (v * n).sum(1) - gap, np.inf)
+            j = int(np.argmin(slack))
+            if slack[j] >= -1e-6:
+                break
+            P[i] = P[i] - slack[j] * n[j]
+    return P
+
+
+def _smooth(P, rounds=3):
+    """Corners rounded off: the interior points averaged with their neighbours, ends held."""
+    P = np.array(P, float)
+    for _ in range(rounds):
+        P[1:-1] = 0.25 * P[:-2] + 0.5 * P[1:-1] + 0.25 * P[2:]
+    return P
+
+
 def voorlandvast(mesh_dir):
-    """Coiled on the port side of the voordek, over the port dolboord by the stem and down the
-    outside of the bow to the sleepoog. The bow is drawn in fast there, so the stretch down the
-    plating is not a guess but a line pulled taut against the outer skin of vlak, kim, boeisel and
-    berghout; the climb up to the dolboord is the same thing against the inside of that skin."""
+    """Coiled on the port side of the voordek, over the port dolboord by the stem and hanging down
+    the outside of the bow to the sleepoog; the climb up to the dolboord is a line pulled taut
+    against the inside of the skin."""
     Vd, Nd, Fd = _load(mesh_dir, VOORDEK)
     deck = lambda P: _deck_z(Vd, Nd, Fd, P)
     axis, _, up, out = _dolboord(mesh_dir, CROSS_X)
@@ -341,19 +382,30 @@ def voorlandvast(mesh_dir):
     run = _run(deck, [tuple(laid[-1, :2])] + VOOR_RUN)
     lead = over[0] - CROSS_LEAD * out             # up the inside first, out over the rail after
     climb = _climb(mesh_dir, run[-1], lead)
+    # off the deck and up the plating in one curve: the corner between the two rounded off, the
+    # line kept on the deck where it still lies on it and off the inside of the plating throughout
+    inside = _resample(np.vstack([run, climb[1:]]), 9.0)
+    inside = _smooth(inside, rounds=4)
+    on_deck = inside[:, 0] < run[-1, 0] + 0.5
+    inside[on_deck, 2] = np.maximum(inside[on_deck, 2], deck(inside[on_deck, :2]) + ROPE_R + DECK_GAP)
+    inside = _clear(inside, _skin(mesh_dir, CLIMB_PLATING, False), ROPE_R + DECK_GAP)
 
     _, (off, rod, across) = _oog(mesh_dir)
     at, t = sleepogen.stem_line(mesh_dir, sleepogen.SLEEPOOG_Z)
     m = np.array([t[2], 0.0, -t[0]])                   # out of the hull: forward and down
     b = np.cross(t, m)                                 # where the eye's own axes end up: t, m, b
     knots = _turns(at + off * m + across * b, off, rod + ROPE_R, m, b, -t, clear=STEM_GAP)
-    down = _lay(_resample(np.vstack([over[-1], knots[0]]), 9.0),
-                _skin(mesh_dir, BOW_PLATING, True), ROPE_R + HULL_GAP)
+    # off the rail it simply hangs to the eye: a plain sag under the chord, held off the plating
+    skin = _skin(mesh_dir, BOW_PLATING, True)
+    down = _sag(over[-1], knots[0], m, 9.0)
+    for _ in range(3):                                # what it still touches it is eased off, without a kink
+        down = _smooth(_clear(down, skin, ROPE_R + HULL_GAP), rounds=2)
+    down = _clear(down, skin, ROPE_R + HULL_GAP)
     below = sleepogen.stem_line(mesh_dir, sleepogen.SLEEPOOG_Z - 60.0)[0]
     end = below + (KNOT_R + 2.0) * m + across * b       # the tail hangs down the stem, knot clear of it
     tail = knots[-1] + np.outer(np.linspace(0.0, 1.0, 5)[1:], end - knots[-1])
 
-    P = _resample(np.vstack([laid, run, climb[1:], over, down[1:-1], knots, tail]), 12.0)
+    P = _resample(np.vstack([laid, inside[1:], over, down[1:-1], knots, tail]), 12.0)
     return _join([tube(P, ROPE_R, SIDES), bead(P[-1], KNOT_R)])
 
 

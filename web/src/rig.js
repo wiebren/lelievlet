@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { unpack } from './config.js';
 
 // Building blocks for animating the boat. All part geometry is stored in model space with
 // identity transforms (x = transom -> bow, y = up, z = starboard), so a part is moved by giving
@@ -612,4 +613,488 @@ export function makeWater(level, hullMeshes) {
   water.position.set(0, level, 0);
   water.renderOrder = 1;
   return water;
+}
+
+
+// An island: a low sandy mound with a sign on it. Nothing of it is in the CAD, so it is
+// built here. The group stands at the island's centre on the waterline; its children are in that
+// local frame, x and z as in the model, y up out of the water.
+
+const SAND = 0xd9c59b;                                 // the same sand the anchor lies in
+const WET = 0xa89070;                                  // darker where the water washes it
+const WOOD = 0x8b6a43;
+const SEG = 48; const RINGS = 6;                       // round the mound, and out from its crown
+const LIP = 0.05;                                      // the beach stands this much proud of the water
+const SKIRT = 0.8;                                     // and shelves on this far under it
+const BUMP = { x: 1.5, z: -1.3, r: 1.2, h: 0.2 };      // a second, lower hump: not one clean dome
+const SIGN = { at: 1.2, post: 1.2, wide: 1.4, high: 0.5, drop: 2 };
+const LINES = ['PCRBVHGDvJfvDw==', 'KTNCQHCdvNa7KT9Ga4uP9uHjEj5TIYO1vsk='].map(unpack);
+
+/** The board: dark lettering on pale paint, two lines, the long one fitted to the width. */
+function lettering() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024; canvas.height = 366;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#efe4c8'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = '#c0ad84'; ctx.lineWidth = 8; ctx.strokeRect(16, 16, canvas.width - 32, canvas.height - 32);
+  ctx.fillStyle = '#33291a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const put = (text, y, size) => {
+    const font = (px) => `700 ${px}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
+    ctx.font = font(size);
+    const wide = ctx.measureText(text).width;
+    if (wide > 820) ctx.font = font(Math.floor((size * 820) / wide));
+    ctx.fillText(text, canvas.width / 2, y);
+  };
+  put(LINES[0], 126, 82);
+  put(LINES[1], 240, 106);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+/** Two posts and a board, the lettering on the +x face: the group is turned to face the boat. */
+function makeSign() {
+  const group = new THREE.Group();
+  const wood = new THREE.MeshStandardMaterial({ color: WOOD, roughness: 0.9 });
+  const post = new THREE.CylinderGeometry(0.03, 0.03, SIGN.post, 10);
+  for (const s of [-1, 1]) {
+    const leg = new THREE.Mesh(post, wood);
+    leg.position.set(0, SIGN.post / 2, s * (SIGN.wide / 2 - 0.12));
+    group.add(leg);
+  }
+  const y = SIGN.post - SIGN.high / 2 - 0.08;
+  const plank = new THREE.Mesh(new THREE.BoxGeometry(0.04, SIGN.high, SIGN.wide), wood);
+  plank.position.set(0, y, 0);
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(SIGN.wide - 0.06, SIGN.high - 0.06),
+    new THREE.MeshStandardMaterial({ map: lettering(), roughness: 0.95 }));
+  face.rotation.y = Math.PI / 2;                       // its normal from +z round to +x
+  face.position.set(0.022, y, 0);
+  group.add(plank, face);
+  return group;
+}
+
+/**
+ * The island off the bow. `centre` is [x, z] in model space, `facing` an [x, z] direction from
+ * the island towards the boat: the sign looks that way and the beach is measured along it.
+ */
+export function makeIsland({ centre, waterline, facing, radius = 3.5, height = 0.6 }) {
+  const toBoat = new THREE.Vector2(facing[0], facing[1]).normalize();
+  const wobble = (a) => 1 + 0.09 * Math.sin(3 * a + 0.7) + 0.05 * Math.sin(5 * a - 1.2);   // never a clean circle
+  const dome = (t) => (t >= 1 ? 0 : Math.cos((Math.PI / 2) * t) ** 2);   // rounded at the top, dying out level at the rim
+  const rim = (a) => radius * wobble(a);
+  const sand = (x, z) => height * dome(Math.hypot(x, z) / rim(Math.atan2(z, x)))
+    + BUMP.h * dome(Math.hypot(x - BUMP.x, z - BUMP.z) / BUMP.r);
+
+  // the beach: a fan of rings out from the crown, the rim at LIP above the water
+  const pos = [0, LIP + sand(0, 0), 0]; const index = [];
+  const outline = [];
+  for (let j = 1; j <= RINGS; j++) {
+    for (let i = 0; i < SEG; i++) {
+      const a = (i / SEG) * Math.PI * 2; const r = (rim(a) * j) / RINGS;
+      const x = Math.cos(a) * r; const z = Math.sin(a) * r;
+      pos.push(x, LIP + sand(x, z), z);
+      if (j === RINGS) outline.push(x, z);
+    }
+  }
+  const at = (j, i) => 1 + (j - 1) * SEG + (i % SEG);
+  for (let i = 0; i < SEG; i++) index.push(0, at(1, i + 1), at(1, i));
+  for (let j = 1; j < RINGS; j++) {
+    for (let i = 0; i < SEG; i++) {
+      index.push(at(j, i), at(j, i + 1), at(j + 1, i), at(j, i + 1), at(j + 1, i + 1), at(j + 1, i));
+    }
+  }
+  const top = new THREE.BufferGeometry();
+  top.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  top.setIndex(index);
+  top.computeVertexNormals();
+  const mound = new THREE.Mesh(top, new THREE.MeshStandardMaterial({ color: SAND, roughness: 1 }));
+
+  // and what is under water: the same outline shelving in to a flat bottom, so the island is solid
+  const wPos = []; const wIndex = [];
+  for (let i = 0; i < SEG; i++) wPos.push(outline[i * 2], LIP, outline[i * 2 + 1], outline[i * 2] * 0.72, -SKIRT, outline[i * 2 + 1] * 0.72);
+  wPos.push(0, -SKIRT, 0);
+  const floor = SEG * 2;
+  for (let i = 0; i < SEG; i++) {
+    const a = i * 2; const b = ((i + 1) % SEG) * 2;
+    wIndex.push(a, b, a + 1, b, b + 1, a + 1, floor, a + 1, b + 1);
+  }
+  const side = new THREE.BufferGeometry();
+  side.setAttribute('position', new THREE.Float32BufferAttribute(wPos, 3));
+  side.setIndex(wIndex);
+  side.computeVertexNormals();
+  const skirt = new THREE.Mesh(side, new THREE.MeshStandardMaterial({ color: WET, roughness: 1 }));
+
+  const sign = makeSign();
+  const sx = toBoat.x * SIGN.at; const sz = toBoat.y * SIGN.at;
+  const signY = LIP + sand(sx, sz);
+  sign.position.set(sx, signY, sz);
+  sign.rotation.y = Math.atan2(-toBoat.y, toBoat.x);   // its +x on the boat
+
+  const group = new THREE.Group();
+  group.position.set(centre[0], waterline, centre[1]);
+  group.add(mound, skirt, sign);
+  group.visible = false;
+
+  const UNDER = height + LIP + 0.15;                   // far enough down that nothing of it shows
+  return {
+    group,
+    height: height + LIP,
+    radius,
+    /** Out of the water as k says, the sign coming up out of the sand over the last of it. */
+    rise(k) {
+      group.visible = k > 0.001;
+      group.position.y = waterline - (1 - k) * UNDER;
+      sign.position.y = signY - (1 - k) * SIGN.drop;
+    },
+    /** A point on the beach `out` metres up from the water's edge, on the line towards the boat. */
+    shore(out) {
+      const a = Math.atan2(toBoat.y, toBoat.x);
+      const r = Math.max(0, rim(a) - out);
+      const x = toBoat.x * r; const z = toBoat.y * r;
+      return new THREE.Vector3(centre[0] + x, waterline + LIP + sand(x, z), centre[1] + z);
+    },
+  };
+}
+
+
+// What is out there while the boat is towed: the stern of the boat ahead that has the towline, and
+// the wake it leaves on the water. None of this is in the CAD, so it is built here. The water is a
+// disc of radius 14 m about x 2.8, and the stern stands at the far edge of it: only its after end
+// is really there, and it fades out forward before the water does.
+
+const HULL = 0x2b3740;                             // dark, like a working boat
+const DECK = 0x6d6a60;
+const STRAKE = 0xd7d1c2;                           // the pale rubbing strake along the sheer
+const POST = 0x39332c;
+
+const HALF = 1.1;                                  // half the beam: 2.2 m over the transom
+const ROUND = 0.9;                                 // the stern is round in plan: this radius either side of a short flat
+const LENGTH = 1.5;                                // how far forward of the transom anything is built
+const DRAFT = 0.35;
+const FREEBOARD = 0.8;                             // the deck over the water
+const CUTS = [0, 0.12, 0.3, 0.55, 0.85, 1.15, 1.5];   // the slices: close together aft, where the plan turns
+const STRAKE_AT = 0.16; const STRAKE_HIGH = 0.12; const STRAKE_OUT = 0.035;
+const POST_AT = 0.35; const POST_R = 0.06; const POST_H = 0.7;
+const POST_EYE = 0.55;                             // the towline takes its turns low round the post
+
+/** Half the beam `x` metres forward of the transom, `out` metres outboard of the planking. */
+const half = (x, out = 0) => (x < ROUND ? HALF - ROUND + Math.sqrt(Math.max(ROUND * ROUND - (ROUND - x) ** 2, 0)) : HALF) + out;
+
+/** The plan of the slab between x0 and x1 as a shape: its x is the model's, its y the model's -z. */
+function slab(x0, x1, out) {
+  const N = 8; const points = [];
+  for (let i = 0; i <= N; i++) { const x = THREE.MathUtils.lerp(x0, x1, i / N); points.push(new THREE.Vector2(x, half(x, out))); }
+  for (let i = N; i >= 0; i--) { const x = THREE.MathUtils.lerp(x0, x1, i / N); points.push(new THREE.Vector2(x, -half(x, out))); }
+  return new THREE.Shape(points);
+}
+
+/**
+ * The stern of the towing boat, at `at` on the centreline with its transom facing the boat and the
+ * hull running forward from there. Every slice along its length has its own materials, so the
+ * forward end can be faded out into nothing; fade(k) brings the whole of it in and out.
+ * `post` is where the towline is made fast, in model space.
+ */
+export function makeTugStern({ waterline, at = 15.8 }) {
+  const group = new THREE.Group();
+  group.name = 'sleepboot';
+  group.position.set(at, waterline, 0);
+  group.visible = false;
+  const coats = [];                                // every material of it, with how solid it is at most
+  const coat = (colour, base, extra = {}) => {
+    const material = new THREE.MeshStandardMaterial({ color: colour, roughness: 0.75, transparent: true,
+                                                      depthWrite: base > 0.999, opacity: base, ...extra });
+    coats.push({ material, base });
+    return material;
+  };
+  const upright = (geometry, bottom, materials) => {
+    const mesh = new THREE.Mesh(geometry, materials);
+    mesh.rotation.x = -Math.PI / 2;                // the extrusion, laid in plan, stands up out of the water
+    mesh.position.y = bottom;
+    return mesh;
+  };
+  for (let i = 0; i < CUTS.length - 1; i++) {
+    const [x0, x1] = [CUTS[i], CUTS[i + 1]];
+    // solid over the transom itself, and from there dying away to nothing at the forward end
+    const base = THREE.MathUtils.clamp(1 - ((x0 + x1) / 2 - CUTS[1]) / (LENGTH - CUTS[1]), 0, 1);
+    const solid = { depth: DRAFT + FREEBOARD, bevelEnabled: false };
+    // the caps of the extrusion are the deck and the bottom, its walls the planking
+    group.add(upright(new THREE.ExtrudeGeometry(slab(x0, x1, 0), solid), -DRAFT, [coat(DECK, base), coat(HULL, base)]));
+    const band = { depth: STRAKE_HIGH, bevelEnabled: false };
+    group.add(upright(new THREE.ExtrudeGeometry(slab(x0, x1, STRAKE_OUT), band), FREEBOARD - STRAKE_AT, coat(STRAKE, base)));
+  }
+  const bollard = new THREE.Mesh(new THREE.CylinderGeometry(POST_R, POST_R, POST_H, 12), coat(POST, 1));
+  bollard.position.set(POST_AT, FREEBOARD + POST_H / 2, 0);
+  group.add(bollard);
+  return {
+    group,
+    post: new THREE.Vector3(at + POST_AT, waterline + FREEBOARD + POST_H - POST_EYE, 0),
+    /** There as far as k says, and gone at 0. */
+    fade(k) {
+      group.visible = k > 0.001;
+      for (const c of coats) c.material.opacity = c.base * k;
+    },
+  };
+}
+
+const BANDS = [[0.1, 0.1, 1], [0.9, 0.1, 1], [0.5, 0.3, 0.7]];   // across the wake: two edges and a lighter middle
+const WAKE_Y = 0.005;                              // it lies this much over the water, and never writes depth
+
+/** Foam: streaks along the wake, rippled along its length so that scrolling it shows movement.
+ *  The ripple runs round a whole number of times, so the texture tiles as it streams away. */
+function foam() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128; canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  const image = ctx.createImageData(canvas.width, canvas.height);
+  for (let y = 0; y < canvas.height; y++) {
+    for (let x = 0; x < canvas.width; x++) {
+      const u = (x + 0.5) / canvas.width; const v = (y + 0.5) / canvas.height;
+      let a = 0;
+      for (const [centre, wide, strength] of BANDS) a = Math.max(a, strength * Math.exp(-(((u - centre) / wide) ** 2)));
+      a = Math.min(1, a * (0.8 + 0.3 * Math.sin(v * Math.PI * 4 + u * 7)));
+      const j = (y * canvas.width + x) * 4;
+      image.data[j] = 255; image.data[j + 1] = 255; image.data[j + 2] = 255; image.data[j + 3] = Math.round(255 * a);
+    }
+  }
+  ctx.putImageData(image, 0, 0);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.ClampToEdgeWrapping; texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(1, 3);
+  return texture;
+}
+
+/** And what dies away at the far end of it: this one does not scroll, so the end stays where it is. */
+function dying() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 4; canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+  const grade = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  grade.addColorStop(0, '#ffffff'); grade.addColorStop(0.55, '#dddddd'); grade.addColorStop(1, '#000000');
+  ctx.fillStyle = grade; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.ClampToEdgeWrapping; texture.wrapT = THREE.ClampToEdgeWrapping;
+  return texture;
+}
+
+/**
+ * The wake astern of a transom at `from` on the centreline: a flat V on the water, `length` metres
+ * long, spreading from `near` to `far` (half widths) as it goes aft. It streams away by itself.
+ */
+export function makeWake({ waterline, from, length, near, far, strength = 0.95 }) {
+  const position = []; const uv = []; const index = [];
+  const STEPS = 8;
+  for (let i = 0; i <= STEPS; i++) {
+    const v = i / STEPS; const wide = THREE.MathUtils.lerp(near, far, v);
+    position.push(from - v * length, 0, -wide, from - v * length, 0, wide);
+    uv.push(0, v, 1, v);
+    if (i > 0) { const a = (i - 1) * 2; index.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(position, 3));
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  geometry.setIndex(index);
+  const map = foam();
+  const material = new THREE.MeshBasicMaterial({ map, alphaMap: dying(), transparent: true, opacity: 0,
+                                                 depthWrite: false, side: THREE.DoubleSide });
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.name = 'kielzog';
+  mesh.position.y = waterline + WAKE_Y;
+  mesh.renderOrder = 2;
+  mesh.visible = false;
+  mesh.frustumCulled = false;
+  return {
+    mesh,
+    /** As much of it as k says; nothing at 0. */
+    fade(k) { mesh.visible = k > 0.001; material.opacity = k * strength; },
+    /** The foam runs away astern while the boat is towed along. */
+    stream(dt) { map.offset.y -= dt * 0.35; },
+  };
+}
+
+
+// A spinnaker: a big, full sail with no boltropes, flown from the top of the mast on two sheets.
+// Nothing of it is in the CAD; the cloth is a grid laid afresh every frame between its three
+// corners, with the belly blown out to leeward and a little life in it, like the vlag. Its cloth
+// is in four panels, in the colours of the Scouting logo.
+
+const NU = 28; const NV = 18;                                        // across the foot, up to the head
+const COLOURS = ['#d7282f', '#2a9d3f', '#f7d117', '#1e63b5'];        // red, green, yellow, blue
+
+function makeCloth() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512; canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  // panels running diagonally, the way the strokes of the logo do, the four colours over and over
+  for (let i = -3; i < 7; i++) {
+    ctx.fillStyle = COLOURS[((i % 4) + 4) % 4];
+    ctx.beginPath();
+    const x0 = (i / 4) * 512 - 160; const x1 = ((i + 1) / 4) * 512 - 160;
+    ctx.moveTo(x0, 512); ctx.lineTo(x1, 512); ctx.lineTo(x1 + 320, 0); ctx.lineTo(x0 + 320, 0); ctx.closePath();
+    ctx.fill();
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  return texture;
+}
+
+/** The sail with its two sheets; `material` is the rope's. */
+export function initSpinnaker({ addPart, material }) {
+  const cloth = new THREE.BufferGeometry();
+  const position = new Float32Array((NU + 1) * (NV + 1) * 3); const uv = []; const index = [];
+  for (let j = 0; j <= NV; j++) for (let i = 0; i <= NU; i++) uv.push(i / NU, j / NV);
+  for (let j = 0; j < NV; j++) {
+    for (let i = 0; i < NU; i++) {
+      const a = j * (NU + 1) + i; const b = a + 1; const c = a + NU + 1; const d = c + 1;
+      index.push(a, c, b, b, c, d);
+    }
+  }
+  cloth.setAttribute('position', new THREE.BufferAttribute(position, 3));
+  cloth.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  cloth.setIndex(index);
+  const sail = new THREE.Mesh(cloth, new THREE.MeshStandardMaterial({ map: makeCloth(), side: THREE.DoubleSide, roughness: 0.85 }));
+  sail.frustumCulled = false;
+  addPart(sail, 'spinnaker', 'Spinnaker', 'zeil', 'grootzeil', [4500, 5500, 4500]);
+  const sheets = [new RopeLine(20, 0.004, material), new RopeLine(20, 0.004, material)];
+  const ropes = new THREE.Group(); ropes.add(sheets[0].mesh, sheets[1].mesh);
+  addPart(ropes, 'spinnakerschoten', 'Spinnakerschoten', 'lopend_want', 'grootschoot', [0, 0, 0]);
+
+  const p = new THREE.Vector3(); const centre = new THREE.Vector3(); const across = new THREE.Vector3(); const out = new THREE.Vector3(); const up = new THREE.Vector3(0, 1, 0);
+  const SHOULDER = 0.22;                                              // how far the edges bow out beyond the straight head-to-corner line, as a share of the foot
+  const shoulder = (v) => v * Math.pow(1 - v, 0.6) / 0.335;          // 0 at foot and head, 1 at about five eighths up
+  /**
+   * Lay the cloth between head H and the two lower corners A and B, blown out along `downwind`
+   * (horizontal unit vector) by `belly` metres at the fullest, at time t. The sail is broadest
+   * about two thirds up - its edges bow out well beyond the straight lines from the head to the
+   * corners - and narrows to the foot. `hoist` 0..1 gathers the whole sail up at the head.
+   * Returns the two corners as they are, for the sheets.
+   */
+  const lay = (H, A, B, downwind, belly, t, hoist) => {
+    across.subVectors(B, A); const footWidth = across.length(); across.normalize();
+    for (let j = 0; j <= NV; j++) {
+      const v = j / NV;
+      centre.lerpVectors(A, B, 0.5).lerp(H, v);
+      const half = 0.5 * footWidth * (1 - v) + SHOULDER * footWidth * shoulder(v);
+      for (let i = 0; i <= NU; i++) {
+        const u = i / NU;
+        p.copy(centre).addScaledVector(across, (u - 0.5) * 2 * half);
+        // the belly: full from the foot - which bows out between the corners like the foot of
+        // the fok - up to well past half way, and closing towards the head
+        const full = Math.pow(Math.sin(Math.PI * u), 0.8) * (1 - Math.pow(Math.max(0, (v - 0.35) / 0.65), 1.5));
+        p.addScaledVector(downwind, belly * full);
+        p.addScaledVector(up, -0.12 * belly * Math.sin(Math.PI * u) * (1 - v) * (1 - v));
+        // life in the cloth: a slow wave running up, and a faster one across
+        const wave = 0.035 * belly * Math.sin(6 * v - 2.2 * t + 3 * u) + 0.02 * belly * Math.sin(11 * u + 1.6 * t);
+        p.addScaledVector(downwind, wave * Math.sin(Math.PI * u) * Math.sin(Math.PI * v));
+        p.lerp(H, 1 - hoist);
+        p.toArray(position, (j * (NU + 1) + i) * 3);
+      }
+    }
+    cloth.attributes.position.needsUpdate = true;
+    cloth.computeVertexNormals();
+    cloth.computeBoundingSphere();
+    return [A.clone().lerp(H, 1 - hoist), B.clone().lerp(H, 1 - hoist)];
+  };
+  /** A sheet from a corner to an eye on the rail, hanging in a bight. */
+  const sheet = (k, from, to) => {
+    const path = [];
+    for (let i = 0; i <= 10; i++) {
+      const s = i / 10; const q = new THREE.Vector3().lerpVectors(from, to, s);
+      q.y -= 0.12 * from.distanceTo(to) * Math.sin(Math.PI * s);
+      path.push(q);
+    }
+    sheets[k].set(path);
+  };
+  return { sail, ropes, sheets, lay, sheet, out };
+}
+
+
+// Night over the water: the sun goes down to a bluish moon, the sky and the water go dark and the
+// toplicht comes on, all over six seconds. When it comes is decided in update(); once it is night,
+// looking around does not bring the day back.
+//
+// The day values are read once, at the start: the sky from the CSS variables the sheet defines,
+// the rest from the lights and the water as they stand, so nothing here has to be kept in step
+// with style.css, main.js or rig.js.
+
+const IDLE = 60;        // seconds
+const FADE = 6;         // seconds to go over, either way
+
+const NIGHT = {
+  sun: 0.08, sunColor: 0x9fb4d8, hemi: 0.06, env: 0.05,
+  water: 0x0e1a2e, waterOpacity: 0.6, top: '#0b1530', bottom: '#1a2a4a',
+};
+
+const smoothstep = (t) => t * t * (3 - 2 * t);
+const clamp = THREE.MathUtils.clamp;
+const lerp = THREE.MathUtils.lerp;
+
+/**
+ * scene, sun, hemi: the lights to dim; wrap: the element the sky gradient hangs on
+ * water:    the water mesh, or null - its material darkens and thickens with the rest
+ * toplicht: { set(k) } on the masthead light, 0 by day and 1 at night
+ * slowest:  the lowest value of the speed slider
+ * note:     logboek.note, called once the first night has fully fallen
+ */
+export function initNight({ scene, sun, hemi, wrap, water, toplicht, slowest = 0.25, note }) {
+  const css = getComputedStyle(wrap);
+  const day = {
+    sun: sun.intensity, hemi: hemi?.intensity ?? 0, env: scene.environmentIntensity ?? 1,
+    waterOpacity: water?.material.opacity ?? 0,
+  };
+  const colours = (from, to) => ({ from: new THREE.Color(from), to: new THREE.Color(to), now: new THREE.Color() });
+  const sunColour = colours(sun.color.getHex(), NIGHT.sunColor);
+  const waterColour = colours(water ? water.material.color.getHex() : 0xffffff, NIGHT.water);
+  const sky = {
+    top: colours(css.getPropertyValue('--bg-top').trim() || '#cfe3f1', NIGHT.top),
+    bottom: colours(css.getPropertyValue('--bg-bottom').trim() || '#f4f7f9', NIGHT.bottom),
+  };
+
+  let k = 0;              // 0 day, 1 night
+  let on = false;         // where it is heading
+  let forced = null;      // the button overrules the slider until the slider is moved
+  let wasSlow = null;
+  let idle = 0;
+  let told = false;
+
+  const mix = (c, s) => c.now.copy(c.from).lerp(c.to, s);
+
+  const apply = () => {
+    const s = smoothstep(k);
+    sun.intensity = lerp(day.sun, NIGHT.sun, s);
+    sun.color.copy(mix(sunColour, s));
+    if (hemi) hemi.intensity = lerp(day.hemi, NIGHT.hemi, s);
+    scene.environmentIntensity = lerp(day.env, NIGHT.env, s);
+    // inline on the wrapper, so the gradient of the sheet follows without a rule of its own
+    wrap.style.setProperty('--bg-top', mix(sky.top, s).getStyle());
+    wrap.style.setProperty('--bg-bottom', mix(sky.bottom, s).getStyle());
+    if (water) {
+      water.material.color.copy(mix(waterColour, s));
+      water.material.opacity = lerp(day.waterOpacity, NIGHT.waterOpacity, s);
+    }
+    toplicht?.set(s);
+  };
+
+  /** Anything the user does: it puts off the night, but never sends it away once it is there. */
+  const activity = () => { if (!on) idle = 0; };
+
+  const set = (want) => { forced = !!want; on = !!want; if (!want) idle = 0; };
+
+  const update = (dt, speed) => {
+    const slow = speed <= slowest + 1e-6;
+    if (wasSlow === null) wasSlow = slow;
+    if (slow !== wasSlow) { forced = null; wasSlow = slow; }      // moving the slider takes the button's word back
+    if (forced !== null) on = forced;
+    else if (!slow) { on = false; idle = 0; }
+    else if (!on) { idle += dt; if (idle >= IDLE) on = true; }
+    const was = k;
+    k = clamp(k + (on ? dt : -dt) / FADE, 0, 1);
+    if (k !== was) apply();                                       // standing still costs nothing
+    if (k >= 1 && !told) { told = true; note?.('nz'); }
+    return k;
+  };
+
+  apply();
+  return { get on() { return on; }, get k() { return k; }, set, update, activity };
 }

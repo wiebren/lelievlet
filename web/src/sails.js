@@ -10,7 +10,7 @@ import * as THREE from 'three';
 const CLOTH = '#ece7d8';
 const PX_PER_M = 620;
 
-function loadImage(url) {
+export function loadImage(url) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     // an embed fetches it from another origin; without CORS it taints the canvas it is painted

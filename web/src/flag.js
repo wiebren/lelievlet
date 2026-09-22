@@ -165,3 +165,76 @@ export function initFlag({ foot, axis, addPart, joinPart, accent }) {
   };
   return fly;
 }
+
+
+const LEECH_HOIST = 2.0; const LEECH_FLY = 3.0;                       // 200 x 300 cm: sixteen times the vlag
+
+/** A white field with the logo on it, as it is, taking most of the hoist. */
+function makeEmblemField(logo) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 900; canvas.height = 600;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 900, 600);
+  if (logo) {
+    const h = 480; const w = h * logo.width / logo.height;
+    ctx.drawImage(logo, (900 - w) / 2, (600 - h) / 2, w, h);
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+/**
+ * A cloth made fast along a hoist that is given afresh every frame (NV + 1 points, top down),
+ * flying off it like the vlag does off its staff.
+ */
+export function initLeechFlag({ addPart }) {
+  const cloth = new THREE.BufferGeometry();
+  const position = new Float32Array((NU + 1) * (NV + 1) * 3); const uv = []; const index = [];
+  for (let j = 0; j <= NV; j++) for (let i = 0; i <= NU; i++) uv.push(i / NU, 1 - j / NV);
+  for (let j = 0; j < NV; j++) {
+    for (let i = 0; i < NU; i++) {
+      const a = j * (NU + 1) + i; const b = a + 1; const c = a + NU + 1; const d = c + 1;
+      index.push(a, c, b, b, c, d);
+    }
+  }
+  cloth.setAttribute('position', new THREE.BufferAttribute(position, 3));
+  cloth.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  cloth.setIndex(index);
+  // printed through, so it reads right from either side: the back face carries the mirror image
+  const mirrored = (texture) => { const t = texture.clone(); t.wrapS = THREE.RepeatWrapping; t.repeat.x = -1; t.needsUpdate = true; return t; };
+  const field = makeEmblemField(null);
+  const flag = new THREE.Mesh(cloth, new THREE.MeshStandardMaterial({ map: field, side: THREE.FrontSide, roughness: 0.9 }));
+  const back = new THREE.Mesh(cloth, new THREE.MeshStandardMaterial({ map: mirrored(field), side: THREE.BackSide, roughness: 0.9 }));
+  flag.frustumCulled = false; back.frustumCulled = false; flag.add(back);
+  addPart(flag, 'vlag_achterlijk', 'Vlag aan het achterlijk', 'zeil', 'grootzeil', [3000, 2000, 1]);
+
+  const out = new THREE.Vector3(); const across = new THREE.Vector3(); const at = new THREE.Vector3(); const lean = new THREE.Vector3();
+  const DOWN = new THREE.Vector3(0, -1, 0);
+  const fly = (t, windAngle, wind, hoist) => {
+    out.set(-Math.cos(windAngle), 0, -Math.sin(windAngle)).multiplyScalar(wind).addScaledVector(DOWN, 1 - 0.78 * wind).normalize();
+    const swell = 0.02 + 0.09 * wind; const speed = 1.5 + 5.5 * wind;
+    for (let j = 0; j <= NV; j++) {
+      const from = hoist[j];
+      lean.subVectors(hoist[Math.min(j + 1, NV)], hoist[Math.max(j - 1, 0)]).normalize();
+      across.crossVectors(lean, out).normalize();
+      for (let i = 0; i <= NU; i++) {
+        const u = i / NU;
+        const wave = swell * u * (Math.sin(9 * u - speed * t + 1.1 * (j / NV)) + 0.35 * Math.sin(17 * u - 1.7 * speed * t));
+        at.copy(from).addScaledVector(out, LEECH_FLY * u * (1 - 0.04 * wind * Math.abs(wave) / swell)).addScaledVector(across, wave);
+        at.y -= 0.18 * u * u * wind;
+        at.toArray(position, (j * (NU + 1) + i) * 3);
+      }
+    }
+    cloth.attributes.position.needsUpdate = true;
+    cloth.computeVertexNormals();
+    cloth.computeBoundingSphere();
+  };
+  fly.mesh = flag; fly.rows = NV; fly.hoist = LEECH_HOIST;
+  fly.setOpacity = (a) => { for (const m of [flag.material, back.material]) { m.transparent = a < 0.999; m.opacity = a; } };
+  fly.setEmblem = (image) => {
+    const next = makeEmblemField(image);
+    for (const [mesh, map] of [[flag, next], [back, mirrored(next)]]) { mesh.material.map.dispose(); mesh.material.map = map; mesh.material.needsUpdate = true; }
+  };
+  return fly;
+}

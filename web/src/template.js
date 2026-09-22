@@ -27,6 +27,11 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
         <button data-view="bow">Voor</button>
         <button data-view="stern">Achter</button>
       </div>
+    </section>
+    <section>
+      <h2>Animatie</h2>
+      <label class="speed"><span>Snelheid</span>
+        <input id="speed" type="range" min="0.25" max="2" step="0.05" value="1" aria-label="Snelheid van de animaties"></label>
       <p class="hint">Pijltjes: verplaatsen · Shift + pijltjes: draaien · + / −: zoomen · Scrollen: inzoomen op de muisaanwijzer</p>
     </section>
   </aside>
@@ -285,7 +290,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
 
   <!-- the timeline of the procedure that is running (Reven, Tuig): it floats above the control bar,
        and rides over an open popover so the two never cover each other -->
-  <div id="procedure" role="group" aria-label="Voortgang van de procedure" hidden>
+  <div id="procedure" role="group" aria-label="Stappen van de procedure" hidden>
     <button id="procedure-previous" class="icon-button" type="button" aria-label="Vorige stap" title="Vorige stap">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M7 5.5v13"/>
@@ -309,7 +314,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
         <span class="step" id="procedure-step"></span>
         <span class="caption" id="procedure-name"></span>
       </div>
-      <input id="procedure-time" type="range" min="0" max="1" step="0.01" value="0" aria-label="Voortgang">
+      <input id="procedure-time" type="range" min="0" max="1" step="0.01" value="0" aria-label="Plaats in de procedure">
       <div class="ticks" id="procedure-ticks" aria-hidden="true"></div>
     </div>
   </div>
@@ -360,6 +365,23 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     <p class="hint">Zo begint een viewer hier: geef dit mee aan <code>create()</code>.</p>
     <pre id="toestand-json"></pre>
     <button id="toestand-copy" type="button">Kopieer als JSON</button>
+  </aside>
+
+  <!-- the logboek: out of sight until there is an entry in it -->
+  <button id="log-toggle" class="icon-button" type="button" aria-label="Gevonden" aria-expanded="false" aria-controls="logboek" title="Gevonden" hidden>
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 3.6 14.6 9l5.9.9-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.9 9.4 9z"/>
+    </svg>
+    <span class="badge" id="log-count" aria-hidden="true">0</span>
+  </button>
+
+  <aside id="logboek" hidden>
+    <header>
+      <h2>Gevonden</h2>
+      <button id="log-close" type="button" class="link-button" aria-label="Sluiten">Sluiten</button>
+    </header>
+    <ul id="log-list"></ul>
+    <p class="hint" id="log-more" hidden>Nog meer te vinden…</p>
   </aside>
 
   <div id="info" hidden>
