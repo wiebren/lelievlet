@@ -206,7 +206,7 @@ export function makeBorgpen() {
 export function makeKettinkje(links = 6) {
   const steel = new THREE.MeshStandardMaterial({ color: 0x81868c, metalness: 0.7, roughness: 0.45 });
   const group = new THREE.Group();
-  const geometry = new THREE.TorusGeometry(0.0085, 0.0022, 6, 14);
+  const geometry = new THREE.TorusGeometry(0.0085, 0.0022, 5, 10);   // a small chain: five sides round, ten along
   group.userData.links = [];
   for (let i = 0; i < links; i++) {
     const link = new THREE.Mesh(geometry, steel);
@@ -462,15 +462,15 @@ export function makeStootwil() {
   const vinyl = new THREE.MeshStandardMaterial({ color: 0x1a2b52, roughness: 0.45 });
   const L = 0.300; const R = 0.041; const END = 0.040;          // END: how far the rounding runs
   const profile = [];
-  for (let k = 0; k <= 12; k++) {                               // top: from the pole out to the side
-    const a = (Math.PI / 2) * (k / 12);
+  for (let k = 0; k <= 8; k++) {                                // top: from the pole out to the side
+    const a = (Math.PI / 2) * (k / 8);
     profile.push(new THREE.Vector2(R * Math.sin(a), -END * (1 - Math.cos(a))));
   }
-  for (let k = 0; k <= 12; k++) {                               // bottom: from the side in to the pole
-    const a = (Math.PI / 2) * (k / 12);
+  for (let k = 0; k <= 8; k++) {                                // bottom: from the side in to the pole
+    const a = (Math.PI / 2) * (k / 8);
     profile.push(new THREE.Vector2(R * Math.cos(a), -(L - END) - END * Math.sin(a)));
   }
-  const body = new THREE.Mesh(new THREE.LatheGeometry(profile, 32), vinyl);
+  const body = new THREE.Mesh(new THREE.LatheGeometry(profile, 20), vinyl);
   const group = new THREE.Group();
   group.add(body);
   group.userData.length = L;

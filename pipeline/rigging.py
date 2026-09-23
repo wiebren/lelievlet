@@ -39,6 +39,26 @@ def spar_axis(V, F, lo, hi):
     return c, d, float(np.percentile(r, 90))            # facets lie just inside the true radius
 
 
+def thin(P, tolerance=0.8):
+    """The points of a line that matter: where it runs straight or nearly so, the ones in between
+    go, as long as the line stays within `tolerance` (mm) of where it was. Tight turns keep theirs."""
+    P = np.asarray(P, float)
+    keep = np.zeros(len(P), bool); keep[[0, -1]] = True
+    todo = [(0, len(P) - 1)]
+    while todo:
+        a, b = todo.pop()
+        if b - a < 2:
+            continue
+        seg = P[b] - P[a]; L = np.linalg.norm(seg)
+        q = P[a + 1:b] - P[a]
+        d = np.linalg.norm(q - np.outer(q @ seg / L**2, seg), axis=1) if L > 1e-9 else np.linalg.norm(q, axis=1)
+        i = int(np.argmax(d))
+        if d[i] > tolerance:
+            keep[a + 1 + i] = True
+            todo += [(a, a + 1 + i), (a + 1 + i, b)]
+    return P[keep]
+
+
 def tube(P, radius=ROPE_R, sides=SIDES):
     """Sweep a circle along polyline P with parallel-transported frames."""
     T = np.gradient(P, axis=0); T /= np.linalg.norm(T, axis=1, keepdims=True)

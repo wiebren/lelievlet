@@ -23,7 +23,7 @@ import numpy as np
 
 import sleepogen
 from hardware import _join, _round_section, _section, bead
-from rigging import tube
+from rigging import thin, tube
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -259,7 +259,7 @@ def achterlandvast(mesh_dir):
     rise[:, 2] -= 3.0 * np.sin(np.pi * np.linspace(0, 1, 7)[1:-1])   # it is led, not stretched
     tail = knots[-1] + np.outer(np.linspace(0.0, 1.0, 5)[1:], -46.0 * a)
     tail[:, 2] = np.minimum(tail[:, 2], deck(tail[:, :2]) + ROPE_R + 6.0)
-    P = _resample(np.vstack([laid, run, rise, knots, tail]), 13.0)
+    P = thin(_resample(np.vstack([laid, run, rise, knots, tail]), 13.0))   # evenly, then only where it bends
     return _join([tube(P, ROPE_R, SIDES), bead(P[-1], KNOT_R)])
 
 
@@ -405,7 +405,7 @@ def voorlandvast(mesh_dir):
     end = below + (KNOT_R + 2.0) * m + across * b       # the tail hangs down the stem, knot clear of it
     tail = knots[-1] + np.outer(np.linspace(0.0, 1.0, 5)[1:], end - knots[-1])
 
-    P = _resample(np.vstack([laid, inside[1:], over, down[1:-1], knots, tail]), 12.0)
+    P = thin(_resample(np.vstack([laid, inside[1:], over, down[1:-1], knots, tail]), 12.0))
     return _join([tube(P, ROPE_R, SIDES), bead(P[-1], KNOT_R)])
 
 

@@ -12,7 +12,7 @@ scaled on the 200 mm width of that doft; the steel so drawn comes to 7.6 kg at 7
 import numpy as np
 
 from hardware import _finish, _join, _load, bead, lug, pipe, prism
-from rigging import tube
+from rigging import thin, tube
 
 # -- where it is stowed. Starboard side: a bakskist goes against the same bulkhead to port, so
 # nothing of the anchor gear may reach past y = +60 there.
@@ -139,7 +139,7 @@ def _anchor(mesh_dir):
 # -- ankerketting: 1 m of 6 mm short-link chain, DIN 766 (pitch 18.5, wire 6, outside width 20).
 # It hangs from the shackle down along the anchor and lies in a loose S on the floor beside it.
 CHAIN_LEN, CHAIN_PITCH, CHAIN_WIRE, CHAIN_WIDTH = 1000.0, 18.5, 6.0, 20.0
-CHAIN_SIDES = 6             # a link is a small stadium-shaped ring; keep the whole chain cheap
+CHAIN_SIDES = 5             # a link is a small stadium-shaped ring; keep the whole chain cheap (as the borgkettinkje)
 CHAIN_KNOTS = np.array([    # after the shackle; the last stretch lies on the floor (z is set there)
     [4702.0, -332.0, 690.0], [4700.0, -372.0, 600.0], [4688.0, -410.0, 480.0],
     [4668.0, -438.0, 360.0], [4645.0, -460.0, 250.0], [4622.0, -474.0, 178.0],
@@ -178,7 +178,7 @@ def _chain_path(mesh_dir):
 def _link(centre, t, u):
     """One short link: a stadium-shaped ring round the plane spanned by t (its long axis) and u."""
     r, straight = (CHAIN_WIDTH - CHAIN_WIRE) / 2, CHAIN_PITCH - (CHAIN_WIDTH - CHAIN_WIRE)
-    arc = np.linspace(-np.pi / 2, np.pi / 2, 9)
+    arc = np.linspace(-np.pi / 2, np.pi / 2, 6)
     path = np.vstack([np.c_[straight / 2 + r * np.cos(arc), r * np.sin(arc)],       # one round end
                       np.c_[-straight / 2 - r * np.cos(arc), -r * np.sin(arc)]])    # and the other
     n = np.cross(t, u)
@@ -322,7 +322,7 @@ def ankerlijn(mesh_dir):
     floor = _floor(mesh_dir)
     bitter = end + (-78.0, -30.0, 0.0); bitter[2] = floor(bitter[0]) + LINE_R + LINE_LIFT
     tail = _spline(np.vstack([end, end + (-40.0, -18.0, -2.0), bitter]), 8)
-    return _join([tube(P, LINE_R, LINE_SIDES), tube(tail, LINE_R, LINE_SIDES),
+    return _join([tube(thin(P), LINE_R, LINE_SIDES), tube(thin(tail), LINE_R, LINE_SIDES),
                   bead(end, 9.0), bead(P[-1], 9.0)])
 
 

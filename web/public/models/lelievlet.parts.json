@@ -402,8 +402,8 @@
    375,
    98
   ],
-  "triangles": 4036,
-  "vertices": 2190
+  "triangles": 2776,
+  "vertices": 1560
  },
  {
   "id": "borgoog_roer",
@@ -805,12 +805,12 @@
   "materiaal": "verzinkt",
   "handles": [],
   "afmetingen_mm": [
-   480,
-   571,
-   230
+   478,
+   570,
+   229
   ],
-  "triangles": 11664,
-  "vertices": 5832
+  "triangles": 6480,
+  "vertices": 3240
  },
  {
   "id": "ankeroog",
@@ -2145,12 +2145,12 @@
   "materiaal": "verzinkt",
   "handles": [],
   "afmetingen_mm": [
-   29,
-   132,
-   36
+   28,
+   131,
+   35
   ],
-  "triangles": 1512,
-  "vertices": 756
+  "triangles": 840,
+  "vertices": 420
  },
  {
   "id": "wantketting_sb",
@@ -2159,12 +2159,12 @@
   "materiaal": "verzinkt",
   "handles": [],
   "afmetingen_mm": [
-   29,
-   132,
-   36
+   28,
+   131,
+   35
   ],
-  "triangles": 1512,
-  "vertices": 756
+  "triangles": 840,
+  "vertices": 420
  },
  {
   "id": "achterlandvast",
@@ -2173,12 +2173,12 @@
   "materiaal": "touw_zwart",
   "handles": [],
   "afmetingen_mm": [
-   838,
+   839,
    156,
    380
   ],
-  "triangles": 7256,
-  "vertices": 3646
+  "triangles": 4376,
+  "vertices": 2206
  },
  {
   "id": "ankerlijn",
@@ -2187,12 +2187,12 @@
   "materiaal": "touw",
   "handles": [],
   "afmetingen_mm": [
-   2049,
-   666,
-   576
+   2050,
+   665,
+   575
   ],
-  "triangles": 5312,
-  "vertices": 2692
+  "triangles": 3520,
+  "vertices": 1796
  },
  {
   "id": "blok_fokkenschoot_bb",
@@ -2548,10 +2548,10 @@
   "afmetingen_mm": [
    1348,
    366,
-   552
+   551
   ],
-  "triangles": 8392,
-  "vertices": 4214
+  "triangles": 4664,
+  "vertices": 2350
  },
  {
   "id": "riem_bb",
