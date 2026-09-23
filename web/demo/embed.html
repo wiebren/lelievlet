@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lelievlet 3D</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #f4f7f9; }
+    #vlet { width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <!-- The viewer on its own, to be put in an <iframe> on another site (README: "Insluiten als
+       iframe"). It fills the frame. The configuration comes in the part of the address after
+       the #, as JSON - the same object create() takes: embed.html#{"quiz":{"niveau":2}} -
+       and what is not understood there is left out, not guessed at. -->
+  <div id="vlet"></div>
+  <script type="module">
+    import Lelievlet from './lelievlet.js';
+
+    const readConfig = () => {
+      const raw = location.hash.slice(1);
+      if (!raw) return {};
+      try {
+        const config = JSON.parse(decodeURIComponent(raw));
+        if (config && typeof config === 'object' && !Array.isArray(config)) return config;
+      } catch { /* not JSON */ }
+      console.warn('[lelievlet] de configuratie na # is geen JSON-object; de viewer start zonder');
+      return {};
+    };
+
+    let viewer = Lelievlet.create(document.getElementById('vlet'), readConfig());
+    // a new address after the # (the host page changes the frame's src): start again with it
+    addEventListener('hashchange', () => { viewer.destroy(); viewer = Lelievlet.create(document.getElementById('vlet'), readConfig()); });
+  </script>
+</body>
+</html>

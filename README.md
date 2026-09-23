@@ -79,9 +79,39 @@ Werk je zonder modules, dan is er ook een IIFE-bundel die een global `Lelievlet`
 
 Er is bewust **geen jsDelivr-adres**: jsDelivr serveert vanuit de git-repository (`/gh/…@tag/pad`),
 en het gebouwde bestand staat niet in de repository — `web/dist-lib/` staat in `.gitignore` en wordt
-door de workflow rechtstreeks naar Pages gepubliceerd, zonder `gh-pages`-branch. Ook het model van
-18 MB hoort niet op een CDN dat op pakketbestanden is gebouwd. Wie toch een CDN wil, publiceert de
+door de workflow rechtstreeks naar Pages gepubliceerd, zonder `gh-pages`-branch. Ook het model (2,3 MB)
+hoort niet op een CDN dat op pakketbestanden is gebouwd. Wie toch een CDN wil, publiceert de
 inhoud van `dist-lib/` zelf ergens en wijst er met `assets` naar.
+
+### Insluiten als iframe
+
+Een `<script>` van een andere site draait met alle rechten van jouw pagina: de pagina zelf, de
+cookies, de formulieren. Heeft je site ingelogde gebruikers (een ledenomgeving, een webshop), zet de
+viewer dan in een iframe. Hij draait dan op wiebren.github.io en kan niets van jouw pagina zien of
+aanraken, wat er ook met zijn code zou gebeuren.
+
+```html
+<iframe src='https://wiebren.github.io/lelievlet/embed.html#{"aanpassen":{"zeilnummer":"442"},"quiz":{"niveau":2}}'
+        style="width:100%; height:600px; border:0"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        allow="fullscreen" title="3D-model van de lelievlet"></iframe>
+```
+
+- **De configuratie** staat na de `#`, als JSON: hetzelfde object dat `create()` krijgt. Zet het
+  `src`-adres tussen enkele aanhalingstekens, dan kunnen de dubbele in de JSON gewoon blijven staan.
+  Zonder `#` start de viewer zoals hij zelf is. Verander je het adres na de `#`, dan begint hij
+  opnieuw met de nieuwe configuratie.
+- **De maat** geef je het iframe; de viewer vult het. Een smal iframe krijgt vanzelf de smalle indeling.
+- **`sandbox`** houdt het iframe binnen zijn eigen herkomst. `allow-same-origin` is hier veilig: het
+  iframe is van een andere site, dus het krijgt de herkomst van wiebren.github.io en niet die van
+  jouw pagina; het is nodig voor de opgeslagen instellingen en scores. `allow-popups` en
+  `allow-popups-to-escape-sandbox` laten de bronnen onder *Over dit model* in een gewoon tabblad
+  openen.
+- **`allow="fullscreen"`** laat de knop voor volledig scherm werken; zonder werkt de rest gewoon.
+- **Wat niet kan:** wat `create()` teruggeeft (`ready`, `get()`, `set()`, `destroy()`, hieronder)
+  bestaat alleen voor het `<script>`-insluiten. Een iframe bedien je alleen via het adres.
+- **Opslag:** instellingen, scores en vinkjes worden onder de herkomst van wiebren.github.io bewaard,
+  apart van jouw site.
 
 ### Wat `create` teruggeeft
 

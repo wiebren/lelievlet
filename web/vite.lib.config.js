@@ -9,13 +9,15 @@ const here = dirname(fileURLToPath(import.meta.url));
 // page needs nothing else, and public/ (models/, textures/) is copied next to the script - which is
 // where the viewer looks for it when the page passes no `assets`.
 
-/** The demo page is what dist-lib is published as: it becomes the index of the site. */
+/** The demo page is what dist-lib is published as: it becomes the index of the site. Beside it
+ *  embed.html, the viewer on its own for an <iframe> on another site. */
 const demoPage = {
   name: 'lelievlet-demo-page',
   closeBundle() {
     const out = resolve(here, 'dist-lib');
     mkdirSync(out, { recursive: true });
     copyFileSync(resolve(here, 'demo/index.html'), resolve(out, 'index.html'));
+    copyFileSync(resolve(here, 'demo/embed.html'), resolve(out, 'embed.html'));
   },
 };
 
