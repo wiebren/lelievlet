@@ -14,7 +14,7 @@ the bodies extracted from it are not; the indexes give the URL of each, to fetch
 | `hull/` | `SOURCES.md` | Vlettenboek (all 86 pages rendered), transcribed offset tables (CSV), Boekel 1:10 vector plate developments, 1977 handboek, class rules, NTR, historical material |
 | `rig/` | `SOURCES.md` | Sail plan, spar and fitting drawings (25 Vlettenboek pages at 300 dpi), rig inventory, class-rule rig sections, key rig dimensions with tolerances |
 | `parts/` | `SOURCES.md` | Labelled part diagrams (81 / 84 / 88 / 102-part variants), blank quiz drawing, ~200-term Dutch glossary with synonyms, CWO/insigne requirements, instruction booklets (sailing, rowing, wrikken), colour/numbering conventions |
-| `book/` | `NOTES.md` | The Katwijkse Zeeverkenners CWO zeil-instructieboek: 84-part list as JSON, vector parts diagram (SVG), lesson/quiz page index |
+| `book/` | `NOTES.md`, `ROEIEN.md` | The Katwijkse Zeeverkenners CWO zeil-instructieboek: 84-part list as JSON, vector parts diagram (SVG), lesson/quiz page index. Its roei counterpart (`ROEIEN.md`): the 40-part roei list mapped onto the quiz, page index for roeitermen, commando's and manoeuvres |
 
 ## Source hierarchy — who wins on a conflict
 

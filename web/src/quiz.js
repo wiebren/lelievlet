@@ -11,14 +11,16 @@ import { quizEntries, quizNaam } from './config.js';
 //   kies       a name is given and four parts light up, each in its own colour: pick the right one
 // and Gemengd, which draws a kind per question from the ones the entry allows.
 //
-// While a round runs the viewer is in quiz mode (.lv.quiz-on): the hover tooltip, the info tile,
-// the progress bar and the parts list are all out of reach, and a click on the model goes to the
-// quiz instead of to the selection and to modes.click - nothing may name a part but the card.
+// While a round runs the viewer is in quiz mode (.lv.quiz-on): only the boat and the card are left
+// - every panel, button and bar goes, and with them the hover tooltip and the info tile - and a
+// click on the model goes to the quiz instead of to the selection and to modes.click: nothing may
+// name a part but the card.
 //
 // An entry none of whose `delen` is in the loaded model is left out silently (Wantketting is still
 // being modelled); the ones that fell away are logged once. Entries whose parts are not there in
 // the mode the boat is in (the sails while rowing) are left out of the round as well, and so are
-// the ones above the chosen niveau - as long as quizdata.js names one at all.
+// the ones outside the chosen diploma: Roeien asks the names of the roei list, Zeilen the ones up
+// to its niveau - as long as quizdata.js names one at all.
 //
 // The stats per entry and the all-time totals live in localStorage under one key; every access is
 // wrapped, so the quiz works just as well without storage.
@@ -27,7 +29,8 @@ const STORE = 'lelievlet.quiz.v1';
 const LENGTHS = { 10: 10, 20: 20, alles: Infinity };
 const CHOICES = 4;                     // names offered by benoemen, parts lit by kies
 const ENOUGH = 0.8;                    // below this share of the pool in view the panel says so
-const TOP_LEVEL = 3;                   // CWO III: everything, and where an entry without a niveau lands
+const TOP_LEVEL = 3;                   // Zeilen III: everything, and where an entry without a niveau lands
+const ROEIEN = 'roeien';               // the level that stands for CWO Roeien, which has no niveaus
 
 // kies: four parts light up at once, each in its own colour, with a chip of that colour on the
 // card. Blue is left out: it is the colour the viewer already hovers parts in.
@@ -116,11 +119,12 @@ function close(typed, key) {
   return room > 0 && Math.min(levenshtein(typed, key), levenshtein(stem(typed), stem(key))) <= room;
 }
 
-export function initQuiz({ parts, scene, select, flyTo,
+export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
                            setHighlights, partVisible, closePanel,
                            ui, wrap, config, signal, engaged, realTarget, onDestroy }) {
   const $ = (id) => ui.getElementById(id);
   const all = (selector) => [...ui.querySelectorAll(selector)];
+  const touch = window.matchMedia('(pointer: coarse)');     // a finger: tik, and room for the keyboard
 
   // ---------------------------------------------------------------- the pool
   // What this page asks about: the standard list less `quiz.weg`, plus `quiz.erbij`, under the
@@ -134,13 +138,14 @@ export function initQuiz({ parts, scene, select, flyTo,
     const naam = quizNaam(config, q.nr, q.naam);
     const delen = q.delen.map((id) => byId.get(id)).filter(Boolean);
     const ook = (q.ook ?? []).map((id) => byId.get(id)).filter(Boolean);
-    table.push({ nr: q.nr, naam, niveau: q.niveau ?? TOP_LEVEL, eigen: Boolean(q.eigen),
+    const niveau = q.zeilen === false ? null : q.niveau ?? TOP_LEVEL;   // null: not asked in Zeilen
+    table.push({ nr: q.nr, naam, niveau, roeien: Boolean(q.roeien), eigen: Boolean(q.eigen),
                  delen: q.delen.map((id) => ({ id, ok: byId.has(id) })),
                  ook: (q.ook ?? []).map((id) => ({ id, ok: byId.has(id) })),
                  gevraagd: delen.length > 0 });
     if (!delen.length) { dropped.push(`${q.nr} ${naam}`); continue; }
     pool.push({
-      nr: q.nr, naam, delen, niveau: q.niveau ?? TOP_LEVEL,
+      nr: q.nr, naam, delen, niveau, roeien: Boolean(q.roeien),
       ids: new Set([...delen, ...ook].map((p) => p.extras.id)),   // a click on any of these is right
       gebied: delen.find((p) => p.extras.gebied) ?? null,         // Boeg, Kleed: an area, not an object
       groep: delen[0].extras.groep, woorden: new Set(wordsOf(naam)), staart: tailOf(naam),
@@ -156,25 +161,26 @@ export function initQuiz({ parts, scene, select, flyTo,
   for (const entry of pool) {
     for (const key of entry.keys) owners.set(key, [...(owners.get(key) ?? []), entry]);
   }
-  const levelled = asked.some((q) => q.niveau);    // no niveau anywhere: the selector stays away
+  const levelled = asked.some((q) => q.niveau || q.roeien);    // nothing to tell apart: the selectors stay away
 
   // ---------------------------------------------------------------- the score, kept in localStorage
-  // { v: 1, totaal: { goed, fout, rondes, beste }, per: { <nr>: { goed, fout, laatst } } }
+  // { v: 1, totaal: { goed, fout, rondes, beste }, per: { <nr>: { goed, fout, laatst } },
+  //   keuze: { kind, length, level } } - the last choices of the start panel
   const EMPTY = { goed: 0, fout: 0, rondes: 0, beste: 0 };
-  let store = { totaal: { ...EMPTY }, per: {} };
+  let store = { totaal: { ...EMPTY }, per: {}, keuze: {} };
 
   function loadStore() {
     try {
       const raw = JSON.parse(localStorage.getItem(STORE) ?? 'null');
-      if (raw?.totaal) store = { totaal: { ...EMPTY, ...raw.totaal }, per: raw.per ?? {} };
+      if (raw?.totaal) store = { totaal: { ...EMPTY, ...raw.totaal }, per: raw.per ?? {}, keuze: raw.keuze ?? {} };
     } catch { /* no storage, or it holds something else: start from nothing */ }
   }
   function saveStore() {
     try { localStorage.setItem(STORE, JSON.stringify({ v: 1, ...store })); } catch { /* it works without */ }
   }
   function clearStore() {
-    store = { totaal: { ...EMPTY }, per: {} };
-    try { localStorage.removeItem(STORE); } catch { /* nothing to clear */ }
+    store = { totaal: { ...EMPTY }, per: {}, keuze: store.keuze };
+    saveStore();                                   // the choices of the panel are no score: they stay
   }
   loadStore();
 
@@ -184,7 +190,8 @@ export function initQuiz({ parts, scene, select, flyTo,
   /** What can be asked right now: in the model, up to the niveau, there in the mode the boat is in. */
   const there = (entry) => entry.delen.some(partVisible);
   const supports = (entry, kind) => (kind === 'kies' ? !entry.gebied : true);
-  const eligible = (kind) => pool.filter((e) => e.niveau <= level && supports(e, kind) && there(e));
+  const inLevel = (e) => (level === ROEIEN ? e.roeien : e.niveau !== null && e.niveau <= level);
+  const eligible = (kind) => pool.filter((e) => inLevel(e) && supports(e, kind) && there(e));
 
   /** Spaced repetition, light: what went wrong comes back sooner, what goes well comes back later. */
   function weight(entry) {
@@ -285,8 +292,9 @@ export function initQuiz({ parts, scene, select, flyTo,
   }
 
   // ---------------------------------------------------------------- the start panel
-  const quizToggle = $('quiz-toggle');
-  const partsToggle = $('parts-toggle');
+  // One list of exercises to pick from, two small segmented choices under it and one Start. What
+  // was chosen last is what the panel opens on.
+  const quizToggle = $('learn-toggle');                     // Oefenen, in the column (main.js, initLearn)
   const startButton = $('quiz-start');
   const wrongButton = $('quiz-wrong');
   const totalLine = $('quiz-total');
@@ -294,61 +302,72 @@ export function initQuiz({ parts, scene, select, flyTo,
   const kindButtons = all('#quiz-kind button');
   const lengthButtons = all('#quiz-length button');
   const levelButtons = all('#quiz-level button');
+  const disciplineButtons = all('#quiz-discipline button');
   const clearButton = $('quiz-clear');
   const clearConfirm = $('quiz-clear-confirm');
-  let kind = 'aanwijzen';
-  let length = '10';
-  let level = Number(config?.quiz?.niveau) || TOP_LEVEL;    // the level the panel opens on
+  const known = (buttons, attr, value) => buttons.some((b) => b.dataset[attr] === String(value));
+  let kind = known(kindButtons, 'kind', store.keuze.kind) ? store.keuze.kind : 'aanwijzen';
+  let length = known(lengthButtons, 'length', store.keuze.length) ? store.keuze.length : '10';
+  // the level: ROEIEN, or the niveau of Zeilen; the panel opens on what was chosen last
+  const asLevel = (value) => (value === ROEIEN ? ROEIEN : [1, 2, 3].includes(Number(value)) ? Number(value) : null);
+  let level = asLevel(store.keuze.level) ?? asLevel(config?.quiz?.niveau) ?? TOP_LEVEL;
+  let zeilLevel = level === ROEIEN ? TOP_LEVEL : level;      // what Zeilen comes back to
   let panelPoll = null;
   onDestroy?.(() => clearInterval(panelPoll));
 
-  for (const node of [$('quiz-level'), $('quiz-level-head')]) {
-    node.hidden = !levelled;
-  }
+  $('quiz-discipline-row').hidden = !levelled;
   const press = (buttons, value, attr) => {
-    for (const b of buttons) b.setAttribute('aria-pressed', String(b.dataset[attr] === String(value)));
+    for (const b of buttons) b.setAttribute('aria-checked', String(b.dataset[attr] === String(value)));
   };
-  for (const b of kindButtons) {
-    b.addEventListener('click', () => { kind = b.dataset.kind; press(kindButtons, kind, 'kind'); refreshPanel(); });
+  const pressLevel = () => {
+    press(disciplineButtons, level === ROEIEN ? ROEIEN : 'zeilen', 'discipline');
+    press(levelButtons, zeilLevel, 'level');
+    $('quiz-level-row').hidden = !levelled || level === ROEIEN;
+  };
+  const choose = () => {
+    press(kindButtons, kind, 'kind'); press(lengthButtons, length, 'length'); pressLevel();
+    store.keuze = { kind, length, level };
+    saveStore();
+    refreshPanel();
+  };
+  for (const b of kindButtons) b.addEventListener('click', () => { kind = b.dataset.kind; choose(); });
+  for (const b of lengthButtons) b.addEventListener('click', () => { length = b.dataset.length; choose(); });
+  for (const b of levelButtons) b.addEventListener('click', () => { level = zeilLevel = Number(b.dataset.level); choose(); });
+  for (const b of disciplineButtons) {
+    b.addEventListener('click', () => { level = b.dataset.discipline === ROEIEN ? ROEIEN : zeilLevel; choose(); });
   }
-  for (const b of lengthButtons) {
-    b.addEventListener('click', () => { length = b.dataset.length; press(lengthButtons, length, 'length'); refreshPanel(); });
-  }
-  for (const b of levelButtons) {
-    b.addEventListener('click', () => { level = Number(b.dataset.level); press(levelButtons, level, 'level'); refreshPanel(); });
-  }
-  press(levelButtons, level, 'level');
-  $('quiz-close').addEventListener('click', () => closePanel.get('quiz')());
+  press(kindButtons, kind, 'kind'); press(lengthButtons, length, 'length'); pressLevel();
   startButton.addEventListener('click', () => startRound(kind, length, false));
   wrongButton.addEventListener('click', () => startRound(kind, length, true));
 
   // clearing the score asks first, inline: no window.confirm
-  const askConfirm = (on) => { clearConfirm.hidden = !on; clearButton.hidden = on; };
+  const askConfirm = (on) => { clearConfirm.hidden = !on; clearButton.hidden = on || !(store.totaal.goed + store.totaal.fout); };
   clearButton.addEventListener('click', () => askConfirm(true));
   $('quiz-clear-no').addEventListener('click', () => askConfirm(false));
   $('quiz-clear-yes').addEventListener('click', () => {
     clearStore();
-    askConfirm(false);
     refreshPanel();
+    askConfirm(false);
   });
 
   /** How a round would look from here: how much is in view, how long it would be, the total score. */
   function refreshPanel() {
     const ready = eligible(kind);
-    const inView = pool.filter(there).length;
-    warning.hidden = inView >= pool.length * ENOUGH;
-    warning.textContent = `Nu zijn ${inView} van de ${pool.length} onderdelen te zien.`
-      + ' Zet de boot in de zeilstand om alles te kunnen oefenen.';
+    const wanted = pool.filter(inLevel);
+    const inView = wanted.filter(there).length;
+    warning.hidden = inView >= wanted.length * ENOUGH;
+    warning.textContent = `Nu zijn ${inView} van de ${wanted.length} onderdelen te zien.`
+      + (level === ROEIEN ? ' Zet de modus op Roeien om alles te kunnen oefenen.'
+        : ' Zet de boot in de zeilstand om alles te kunnen oefenen.');
     startButton.disabled = !ready.length;
     const rounds = Math.min(LENGTHS[length], ready.length);
-    startButton.textContent = ready.length ? `Start (${rounds} ${rounds === 1 ? 'vraag' : 'vragen'})` : 'Start';
+    startButton.textContent = ready.length ? `Start · ${rounds} ${rounds === 1 ? 'vraag' : 'vragen'}` : 'Niets te oefenen';
     const wrong = wrongPool();
     wrongButton.hidden = !wrong.length;
-    wrongButton.textContent = `Oefen fouten (${wrong.length})`;
-    const { goed, fout, rondes, beste } = store.totaal;
-    totalLine.textContent = goed + fout
-      ? `In totaal: ${goed} goed · ${fout} fout · ${pct(goed, goed + fout)}% · ${rondes} ${rondes === 1 ? 'ronde' : 'rondes'} · beste reeks ${beste}`
-      : 'Nog geen score.';
+    wrongButton.textContent = `Oefen je fouten (${wrong.length})`;
+    const { goed, fout, beste } = store.totaal;
+    totalLine.textContent = goed + fout ? `${pct(goed, goed + fout)}% goed · beste reeks ${beste}` : 'Nog geen score';
+    if (clearConfirm.hidden) clearButton.hidden = !(goed + fout);
   }
 
   // ---------------------------------------------------------------- debug.quiztabellen
@@ -358,11 +377,10 @@ export function initQuiz({ parts, scene, select, flyTo,
   // an `erbij` landed where it was meant to.
   const debugPanel = $('quiz-debug');
   const debugBody = $('quiz-debug-body');
-  const tablesRow = $('quiz-tables-row');
   const showDebug = (on) => { debugPanel.hidden = !on; if (on) buildTables(); };
 
   if (config?.debug?.quiztabellen) {
-    tablesRow.hidden = false;
+    $('quiz-tables').hidden = false;
     $('quiz-tables').addEventListener('click', () => showDebug(true));
     $('quiz-debug-close').addEventListener('click', () => showDebug(false));
     window.addEventListener('keydown', (e) => {
@@ -403,13 +421,13 @@ export function initQuiz({ parts, scene, select, flyTo,
     const rows = table.map((e) => {
       const stats = store.per[e.nr] ?? { goed: 0, fout: 0 };
       const tr = document.createElement('tr');
-      const cells = [String(e.nr), e.naam, String(e.niveau), '', '',
+      const cells = [String(e.nr), e.naam, e.niveau === null ? '–' : String(e.niveau), e.roeien ? 'ja' : '', '', '',
                      e.eigen ? 'eigen' : '', `${stats.goed}/${stats.fout}`];
       cells.forEach((text, i) => {
-        const td = el('td', i === 5 && e.eigen ? 'eigen' : null, text);
+        const td = el('td', i === 6 && e.eigen ? 'eigen' : null, text);
         if (i === 1) td.classList.add('wide');
-        if (i === 3) { td.replaceChildren(idCell(e.delen)); td.classList.add('wide'); }
-        if (i === 4) { td.replaceChildren(idCell(e.ook)); td.classList.add('wide'); }
+        if (i === 4) { td.replaceChildren(idCell(e.delen)); td.classList.add('wide'); }
+        if (i === 5) { td.replaceChildren(idCell(e.ook)); td.classList.add('wide'); }
         if (!e.gevraagd) td.classList.add('ontbreekt');
         tr.append(td);
       });
@@ -417,7 +435,7 @@ export function initQuiz({ parts, scene, select, flyTo,
     });
     const entryTable = document.createElement('table');
     const head = document.createElement('tr');
-    for (const text of ['nr', 'naam', 'niveau', 'delen', 'ook', 'eigen', 'goed/fout']) head.append(el('th', null, text));
+    for (const text of ['nr', 'naam', 'zeilen', 'roeien', 'delen', 'ook', 'eigen', 'goed/fout']) head.append(el('th', null, text));
     entryTable.append(head, ...rows);
 
     const covered = new Set(table.flatMap((e) => [...e.delen, ...e.ook]).map((d) => d.id));
@@ -446,15 +464,18 @@ export function initQuiz({ parts, scene, select, flyTo,
 
   // ---------------------------------------------------------------- the card
   const card = el('div', null);
-  card.id = 'quiz-card';
+  card.id = 'quiz-card'; card.className = 'focus-card';
   card.hidden = true;
   const count = el('span', 'count');
   const score = el('span', 'score');
-  const stop = Object.assign(el('button', 'link-button stop', 'Stoppen'), { type: 'button' });
+  const stop = Object.assign(el('button', 'stop', '\u00d7'), { type: 'button', title: 'Stoppen' });
+  stop.setAttribute('aria-label', 'Stoppen');
+  const bar = el('div', 'bar'); const barFill = el('span', null); bar.append(barFill);
   const head = el('div', 'head');
-  head.append(count, score, stop);
+  head.append(count, bar, score, stop);
   const vraag = el('div', 'vraag');
   const hint = el('div', 'hint');
+  const big = el('div', 'big');                          // the score of a finished round
   const answers = el('div', 'answers');
   const typed = Object.assign(document.createElement('input'), {
     type: 'text', className: 'typed', autocomplete: 'off', autocapitalize: 'off', spellcheck: false,
@@ -466,11 +487,20 @@ export function initQuiz({ parts, scene, select, flyTo,
   const extra = Object.assign(el('button', 'extra'), { type: 'button' });
   const secondary = Object.assign(el('button', 'link-button secondary'), { type: 'button' });
   actions.append(secondary, extra, primary);             // the main action on the right
-  card.append(head, vraag, hint, answers, typed, feedback, actions);
+  card.append(head, big, vraag, hint, answers, typed, feedback, actions);
   wrap.append(card);
   // the control bar closes its popover on a pointerdown outside it; the card keeps its own presses
   card.addEventListener('pointerdown', (e) => e.stopPropagation());
-  stop.addEventListener('click', () => (round.goed + round.fout ? showResults() : closeRound()));
+  // what the card hides of the boat from below is handed to the viewer, which lifts the picture
+  // clear of it; at the top, while typing on a phone, it is left alone
+  const coverage = () => {
+    if (card.hidden || card.classList.contains('typing')) { setCovered?.(0); return; }
+    setCovered?.(Math.max(0, Math.round(wrap.getBoundingClientRect().bottom - card.getBoundingClientRect().top)));
+  };
+  const cardWatch = new ResizeObserver(coverage);
+  cardWatch.observe(card); cardWatch.observe(wrap);
+  onDestroy?.(() => cardWatch.disconnect());
+  stop.addEventListener('click', () => (round.done || !(round.goed + round.fout) ? closeRound() : showResults()));
 
   // the text field keeps every key to itself: no arrows to the camera, no 1-4 to the answers
   typed.addEventListener('keydown', (e) => {
@@ -478,6 +508,10 @@ export function initQuiz({ parts, scene, select, flyTo,
     if (e.key === 'Enter') { e.preventDefault(); submitTyped(); }
     if (e.key === 'Escape') { e.preventDefault(); typed.value = ''; }
   });
+  // on a phone the keyboard comes up over the bottom of the viewer: while the field has the
+  // focus the card stands at the top instead
+  typed.addEventListener('focus', () => { card.classList.toggle('typing', touch.matches); coverage(); });
+  typed.addEventListener('blur', () => { card.classList.remove('typing'); coverage(); });
 
   let onPrimary = null;
   let onSecondary = null;
@@ -486,9 +520,13 @@ export function initQuiz({ parts, scene, select, flyTo,
   secondary.addEventListener('click', () => onSecondary?.());
   extra.addEventListener('click', () => onExtra?.());
 
-  /** The buttons under the card; a label of null leaves that button out. */
+  /**
+   * The buttons under the card; a label of null leaves that button out, and a main button without
+   * a function stands there greyed out - so the card does not grow the moment it becomes of use.
+   */
   function setActions(primaryText, primaryFn, secondaryText, secondaryFn, extraText = null, extraFn = null) {
     primary.hidden = !primaryText; primary.textContent = primaryText ?? ''; onPrimary = primaryFn;
+    primary.disabled = !primaryFn;
     secondary.hidden = !secondaryText; secondary.textContent = secondaryText ?? ''; onSecondary = secondaryFn;
     extra.hidden = !extraText; extra.textContent = extraText ?? ''; onExtra = extraFn;
     actions.hidden = !primaryText && !secondaryText && !extraText;
@@ -498,30 +536,35 @@ export function initQuiz({ parts, scene, select, flyTo,
     feedback.replaceChildren();
     feedback.className = `feedback${mood ? ` ${mood}` : ''}`;
     for (const m of ['goed', 'fout', 'bijna']) card.classList.toggle(m, mood === m);   // the whole card shows it
-    feedback.hidden = !text;
-    if (!text) return;
+    // while a question is open its line is kept, empty, so the answer does not make the card grow
+    feedback.hidden = !text && !question;
+    feedback.classList.toggle('leeg', !text);
+    if (!text) { feedback.textContent = '\u00a0'; return; }
     if (MARKS[mood]) feedback.append(el('span', 'mark', MARKS[mood]));
     feedback.append(el('span', 'tekst', text));
   }
 
   function refreshHead() {
-    count.textContent = `Vraag ${Math.min(round.index + 1, round.queue.length)} / ${round.queue.length}`;
-    score.textContent = `${round.goed} goed · ${round.fout} fout · reeks ${round.streak}`;
+    const done = round.index + (question?.answered ? 1 : 0);
+    count.textContent = `${Math.min(round.index + 1, round.queue.length)} / ${round.queue.length}`;
+    barFill.style.width = `${(done / round.queue.length) * 100}%`;
+    score.textContent = round.streak >= 2 ? `reeks ${round.streak}` : '';   // a streak is worth mentioning from two on
   }
 
   // ---------------------------------------------------------------- quiz mode
   let round = null;        // { kind, length, fouten, queue, index, goed, fout, streak, best, wrong, done }
   let question = null;     // { entry, type, names, lit, pending, answered }
 
-  /** Everything that would give an answer away goes out of reach for as long as the round runs. */
+  /**
+   * For as long as the round runs there is only the boat and the card: every panel is closed and
+   * .lv.quiz-on takes the buttons away, which also keeps out of reach whatever would name a part.
+   */
   function setQuizOn(on) {
     wrap.classList.toggle('quiz-on', on);
-    partsToggle.disabled = on;
-    quizToggle.disabled = on;
     card.hidden = !on;
+    coverage();
     if (!on) return;
-    closePanel.get('parts')();
-    closePanel.get('quiz')();
+    for (const [panel, close] of closePanel) if (panel !== 'toestand') close();   // the debug aid stays
   }
 
   // ---------------------------------------------------------------- kies: four parts at once
@@ -580,6 +623,8 @@ export function initQuiz({ parts, scene, select, flyTo,
   /** Clears whatever the last question left behind, in the scene and on the card. */
   function clearQuestion() {
     stopPulse();
+    big.hidden = true;
+    card.classList.remove('results');
     setHighlights([]);
     select([]);
     answers.replaceChildren();
@@ -600,17 +645,18 @@ export function initQuiz({ parts, scene, select, flyTo,
     question = { entry, type, names: null, lit: null, pending: null, answered: false };
     clearQuestion();
     refreshHead();
-    setActions(null, null, null, null);
+    // the main button is there from the start, greyed out until there is something to do with it
+    setActions({ aanwijzen: 'Bevestigen', typen: 'Nakijken' }[type] ?? 'Volgende', null, null, null);
 
     if (type === 'aanwijzen') {
       vraag.textContent = `Wijs aan: ${entry.naam}`;
-      setHint('Klik het onderdeel in de boot aan.');
+      setHint(touch.matches ? 'Tik het onderdeel in de boot aan.' : 'Klik het onderdeel in de boot aan.');
       return;
     }
     if (type === 'kies') {
       question.lit = lit.map((e, i) => ({ entry: e, colour: new THREE.Color(KIES[i].hex), letter: KIES[i].letter }));
       vraag.textContent = `Welke is de ${entry.naam}?`;
-      setHint('Vier onderdelen lichten op; kies de goede letter.');
+      setHint('Vier onderdelen lichten op: kies de goede kleur.');
       buildChips();
       showLit();
       flyTo(lit.flatMap((e) => e.delen));
@@ -712,7 +758,7 @@ export function initQuiz({ parts, scene, select, flyTo,
     if (!question?.pending) return;
     question.pending = null;
     select([]);
-    setActions(null, null, null, null);
+    setActions('Bevestigen', null, null, null);
   }
 
   function confirmPick() {
@@ -759,15 +805,19 @@ export function initQuiz({ parts, scene, select, flyTo,
     store.totaal.rondes++;
     saveStore();
     const total = round.goed + round.fout;
-    count.textContent = `${round.index} van de ${round.queue.length}`;
+    card.classList.add('results');
+    count.textContent = 'Klaar';
+    barFill.style.width = '100%';
     score.textContent = '';
-    vraag.textContent = 'Ronde klaar';
-    setHint(`${round.goed} goed · ${round.fout} fout · ${pct(round.goed, total)}% · beste reeks ${round.best}`);
+    big.hidden = false;
+    big.textContent = `${pct(round.goed, total)}%`;
+    vraag.textContent = `${round.goed} van de ${total} goed`;
+    setHint(round.best >= 2 ? `Beste reeks: ${round.best} goed op rij` : '');
     const namen = [...new Set(round.wrong.map((e) => e.naam))];
     setFeedback(namen.length ? `Nog eens oefenen: ${namen.join(', ')}` : 'Alles goed!', namen.length ? null : 'goed');
     const again = wrongPool();
-    setActions('Nog een ronde', () => startRound(round.kind, round.length, round.fouten), 'Klaar', closeRound,
-      again.length ? `Oefen fouten (${again.length})` : null,
+    setActions('Nog een ronde', () => startRound(round.kind, round.length, round.fouten), 'Andere oefening', backToPanel,
+      again.length ? `Oefen je fouten (${again.length})` : null,
       again.length ? () => startRound(round.kind, round.length, true) : null);
     primary.focus();
   }
@@ -777,6 +827,12 @@ export function initQuiz({ parts, scene, select, flyTo,
     round = null;
     question = null;
     setQuizOn(false);
+  }
+
+  /** Out of the round and back to the start panel, to pick something else. */
+  function backToPanel() {
+    closeRound();
+    openLearn?.('onderdelen');
   }
 
   // ---------------------------------------------------------------- keyboard

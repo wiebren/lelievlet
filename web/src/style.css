@@ -76,23 +76,12 @@
   will-change: transform, opacity;
 }
 
-#sidebar {
-  position: absolute; top: 178px; left: 16px; width: 230px; max-height: calc(100% - 194px); overflow: auto;
-  padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-  backdrop-filter: blur(8px);
-}
-#sidebar h1 { margin: 0; font-size: 20px; }
-#sidebar .sub { margin: 2px 0 12px; color: var(--muted); font-size: 12px; }
-#sidebar h2 { margin: 14px 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-#groups { list-style: none; margin: 0; padding: 0; }
-#groups li { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
-#groups label { flex: 1; cursor: pointer; }
-#groups .count { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 
-/* Onderdelen: the same panel as the eye menu, in the same corner (only one of the two is open).
-   Its list scrolls inside the panel, which stops well clear of the control bar at the bottom. */
+
+/* Onderdelen: opened by the search in the part card, and standing over it in the bottom right corner.
+   Its list scrolls inside the panel, which stops well clear of the top. */
 #parts {
-  position: absolute; top: 178px; left: 16px; width: 250px; max-height: calc(100% - 254px);
+  position: absolute; right: 16px; bottom: var(--info-clear, 16px); width: 280px; max-height: calc(100% - var(--info-clear, 16px) - 130px);   /* clear of the two icons over it */
   display: flex; flex-direction: column; z-index: 3;
   padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
   backdrop-filter: blur(8px);
@@ -111,6 +100,18 @@
   font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: left;
 }
 #parts-list .group-head .title { flex: 1; }
+#parts-list .group-row { display: flex; align-items: center; gap: 2px; }
+#parts .parts-all { display: flex; gap: 12px; margin: 6px 0 4px; font-size: 12px; }
+#parts .parts-all .link-button { color: var(--accent); font-size: 12px; }
+#parts-list .group-row .group-head { flex: 1; min-width: 0; }
+#parts-list .group-eye {
+  flex: none; width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 0;
+  border-radius: 50%; background: none; color: var(--muted);
+}
+#parts-list .group-eye:hover { color: var(--accent); background: rgba(11, 92, 173, 0.08); }
+#parts-list .group-eye .slash { display: none; }
+#parts-list .group-eye[aria-pressed="true"] .slash { display: inline; }
+#parts-list .verborgen ul { opacity: 0.45; }            /* a hidden group: its rows still there, faint */
 #parts-list .group-head .count { font-variant-numeric: tabular-nums; }
 #parts-list .group-head svg { flex: none; transition: transform 0.15s; }
 #parts-list .group-head[aria-expanded="false"] svg { transform: rotate(-90deg); }
@@ -131,18 +132,19 @@
   padding: 0; border-radius: 50%; background: var(--panel); backdrop-filter: blur(8px);
 }
 .icon-button[aria-expanded="true"], .icon-button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
-#view-toggle { right: auto; left: 16px; }
-#parts-toggle { top: 70px; right: auto; left: 16px; }
-#about-toggle { top: auto; bottom: 16px; }
 /* right hand corner: under Aanpassen, and out of sight while that panel stands in its place */
 #fullscreen-toggle { top: 70px; }
 #customize:not([hidden]) ~ #fullscreen-toggle { display: none; }
 
+/* Over dit model: opened from the foot of Aanpassen, it stands in the middle of the viewer */
 #about {
-  position: absolute; right: 16px; bottom: 70px; width: 290px; max-height: calc(100% - 100px); overflow: auto;
-  padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-  backdrop-filter: blur(8px); z-index: 3;
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(420px, calc(100cqw - 32px)); max-height: calc(100% - 64px); overflow: auto;
+  padding: 16px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  backdrop-filter: blur(8px); box-shadow: 0 8px 32px rgba(22, 34, 46, 0.25); z-index: 7;
 }
+#customize .about-link { margin: 12px 0 0; text-align: center; }
+#customize .about-link button { color: var(--accent); }
 #about header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
 #about h2 { margin: 0; font-size: 16px; }
 #about h3 { margin: 14px 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
@@ -151,11 +153,10 @@
 .links { list-style: none; margin: 0; padding: 0; font-size: 13px; }
 .links li { margin-bottom: 7px; color: var(--muted); line-height: 1.35; }
 
-/* debug.toestand: above the (i), and its panel beside the two of them */
-#toestand-toggle { top: auto; bottom: 70px; }
-#about:not([hidden]) ~ #toestand-toggle { display: none; }
+/* debug.toestand: above the part card, and its panel beside it */
+#toestand-toggle { top: auto; bottom: var(--info-clear, 16px); }
 #toestand {
-  position: absolute; right: 70px; bottom: 16px; width: 270px; max-height: calc(100% - 100px); overflow: auto;
+  position: absolute; right: 70px; bottom: var(--info-clear, 16px); width: 270px; max-height: calc(100% - 100px); overflow: auto;
   padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
   backdrop-filter: blur(8px); z-index: 3;
 }
@@ -218,53 +219,67 @@ button {
 }
 button:hover { border-color: var(--accent); color: var(--accent); }
 
-/* The control bar: icons along the bottom, each with its control in a popover above it.
-   The popovers are laid out against the bar, so a panel can hang over either side of its icon. */
+/* The controls of the boat: a column of icons at the top left - Boot, then (a slot for) Oefenen, then
+   Handelingen and the roeicommando's - each with its control in a popover beside it, level with it
+   (modes.js, place). */
 #controls {
-  /* the bar starts half an icon left of centre, so Modus sits dead centre and stays put while the
-     icons to its right come and go with the mode */
-  position: absolute; bottom: 16px; left: calc(50% - 22px); z-index: 5; display: flex; gap: 8px;
+  position: absolute; top: 16px; left: 16px; z-index: 5; display: flex; flex-direction: column; gap: 10px;
 }
 #controls .icon-button { position: relative; top: auto; right: auto; left: auto; }
+/* Oefenen: what to practise, then that one's start panel under it */
+#learn-panel { width: 312px; max-width: calc(100cqw - 88px); }
+#learn-panel > .caption { display: block; margin: 0 0 4px; text-align: left; }
+#learn-panel #learn-kind { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+#learn-panel .ops { width: auto; }
 /* Roeicommando: the four commando's the whole boat gets at once, then the two boorden side by side */
 .popover .boorden { display: flex; gap: 14px; align-items: start; }
 .popover .beide { margin-bottom: 10px; }
 .popover .beide + .boorden { border-top: 1px solid var(--line); padding-top: 8px; }
 .popover .caption { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); text-align: center; }
 .popover .spoken { margin: 2px 0 8px; max-width: 330px; font-style: italic; text-align: center; }
-#sidebar .speed { display: grid; gap: 4px; font-size: 13px; }
-#sidebar .speed input { width: 100%; accent-color: var(--accent); }
+#customize .speed { display: grid; gap: 4px; font-size: 13px; }
+#customize .speed input { width: 100%; accent-color: var(--accent); }
+#customize .hint { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
 .popover .reef { display: grid; gap: 6px; min-width: 190px; font-size: 13px; }
+/* Handelingen: the operations as rows, like the exercises of Oefenen, then how, then Start */
+.popover .ops { display: grid; gap: 2px; width: 280px; max-width: 100%; padding: 4px 0; }
+.popover .ops .option { margin-top: 8px; }
+.popover .ops .segmented button:disabled { opacity: 0.4; cursor: default; }
+.popover .ops #ops-start { margin-top: 10px; width: 100%; padding: 9px 12px; }
 .popover .reef input { width: 100%; accent-color: var(--accent); }
 #controls .badge, #log-toggle .badge {
   position: absolute; right: 1px; bottom: 1px; min-width: 16px; padding: 0 3px; border-radius: 999px;
   background: var(--accent); color: #fff; font-size: 10px; line-height: 16px; font-variant-numeric: tabular-nums;
 }
 .popover {
-  position: absolute; bottom: 100%; margin-bottom: 8px; padding: 8px 18px;
-  width: max-content; max-width: calc(100cqw - 16px);   /* as wide as its choices, not as narrow as the bar it hangs on */
+  position: absolute; left: 56px; top: 0; padding: 10px 18px;
+  width: max-content; max-width: calc(100cqw - 88px);   /* as wide as its choices, beside the column */
   background: var(--panel); border: 1px solid var(--line); border-radius: 12px; backdrop-filter: blur(8px);
 }
-/* A popover never grows past the room above the bar: in a short embed it scrolls instead of running
-   off the top, where it would be clipped away. main.js keeps --lv-height on the wrapper, because the
-   height of the viewer is not something CSS can name without size containment. The wind panel is
-   left out: its course markers hang above its own box on purpose. */
-.popover:not(#wind-panel) {
-  max-height: calc(var(--lv-height, 100vh) - 86px);
+/* A popover never grows past the height of the viewer: in a short embed it scrolls instead of being
+   clipped. main.js keeps --lv-height on the wrapper, because the height of the viewer is not
+   something CSS can name without size containment. */
+.popover {
+  max-height: calc(var(--lv-height, 100vh) - 16px);
   overflow-y: auto; overscroll-behavior: contain;
 }
+/* Boot: the mode, the wind and the riemen, each under a caption */
+#boat-panel .caption { display: flex; align-items: center; gap: 6px; margin: 10px 0 4px; text-align: left; }
+#boat-panel > .caption:first-child { margin-top: 0; }
+#boat-panel .caption svg { color: var(--accent); }
+.popover .choices.row { flex-direction: row; flex-wrap: wrap; }
 .popover .choices { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
 .popover .choices button { border: 0; border-radius: 999px; padding: 5px 14px; background: none; white-space: nowrap; }
 .popover .choices button[aria-pressed="true"] { background: var(--accent); color: #fff; }
 
-/* Koers: a slim bar with the names of the courses floating above it; the whole panel only exists
-   while its icon is open, so they need no hiding of their own */
-#wind-panel { width: min(720px, calc(100cqw - 16px)); }
+/* Koers: a slim bar with the names of the courses floating above it, in the room kept for them at the
+   top of its section of the Boot panel */
+#wind-panel { position: relative; width: min(680px, calc(100cqw - 124px)); padding-top: 80px; }
 #course { display: block; width: 100%; margin: 2px 0 0; accent-color: var(--accent); }
 #wind-panel .ticks { position: relative; height: 7px; margin: 0 8px; }
 #wind-panel .ticks span { position: absolute; top: 0; width: 1px; height: 6px; background: var(--muted); }
 #course-markers {
-  position: absolute; left: 26px; right: 26px; bottom: 100%; height: 64px;
+  position: absolute; left: 26px; right: 26px; top: 0; height: 80px;
 }
 #course-markers button {
   position: absolute; bottom: 8px; transform: translateX(-50%); padding: 3px 6px; font-size: 12px; white-space: nowrap;
@@ -288,7 +303,8 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 /* a narrow viewer: the names are set smaller and spread over three rows, so that neighbours in a
    row are 135 degrees of course apart */
 @container (max-width: 900px) {
-  #course-markers { height: 128px; }
+  #course-markers { height: 136px; }
+  #wind-panel { padding-top: 136px; }
   #course-markers button { font-size: 10.5px; padding: 2px 4px; }
   #course-markers button.r1 { bottom: 32px; }
   #course-markers button.r2 { bottom: 56px; }
@@ -306,7 +322,7 @@ button:hover { border-color: var(--accent); color: var(--accent); }
    --procedure-lift to how far the open popover it has to ride over reaches, and --procedure-top to
    how far it reaches up, which is where the info tile steps over it. */
 #procedure {
-  position: absolute; left: 50%; bottom: calc(68px + var(--procedure-lift, 0px)); transform: translateX(-50%);
+  position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
   z-index: 4; width: min(520px, calc(100cqw - 16px)); display: flex; align-items: center; gap: 8px;
   padding: 8px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
   backdrop-filter: blur(8px); transition: opacity 0.35s;
@@ -335,14 +351,26 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 #procedure-time::-moz-range-thumb { width: 14px; height: 14px; border: 2px solid var(--panel); border-radius: 50%; background: var(--accent); }
 #procedure .ticks { position: relative; height: 7px; margin: 0 8px; }
 #procedure .ticks span { position: absolute; top: 0; width: 1px; height: 6px; background: var(--muted); }
+/* a step that is skipped now (moored, there is no anchor to let go): blocked out on the line */
+#procedure .ticks .skipped { top: 0; width: auto; height: 6px; border-radius: 2px; opacity: 0.55;
+  background: repeating-linear-gradient(135deg, var(--muted) 0 2px, transparent 2px 4px); }
 #procedure .ticks .band { top: 1px; width: auto; height: 4px; border-radius: 2px; background: var(--accent); opacity: 0.4; transition: left 0.2s, width 0.2s; }
 #procedure .step::before { content: '\203A'; margin-right: 5px; color: var(--muted); }
 #procedure.terug .step::before { content: '\2039'; }
 
 #info {
-  position: absolute; right: 76px; bottom: 16px; z-index: 2; min-width: 240px; max-width: 340px; padding: 12px 16px;
+  position: absolute; right: 16px; bottom: 16px; z-index: 2; min-width: 240px; max-width: 340px; padding: 12px 48px 12px 16px;
   background: var(--panel); border: 1px solid var(--line); border-radius: 12px; backdrop-filter: blur(8px);
 }
+#info .info-search {
+  position: absolute; top: 6px; right: 6px; width: 34px; height: 34px; display: grid; place-items: center;
+  padding: 0; border: 0; border-radius: 50%; background: none; color: var(--muted);
+}
+#info .info-search:hover, #info .info-search[aria-expanded="true"] { color: var(--accent); background: rgba(11, 92, 173, 0.08); }
+/* nothing selected: the card is only its search button, round like the other icons */
+#info.leeg { min-width: 0; width: 44px; height: 44px; padding: 0; border-radius: 50%; bottom: 16px !important; left: auto !important; }
+#info.leeg .body { display: none; }
+#info.leeg .info-search { inset: 4px; width: 34px; height: 34px; }
 #info .group { color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
 #info .name { font-size: 20px; font-weight: 600; margin: 2px 0 4px; }
 #info .note, #info .model { color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -357,11 +385,22 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 
 [hidden] { display: none !important; }
 
+/* a command called out, in a speech bubble over the one who calls it (main.js, say) */
+.callout {
+  position: absolute; z-index: 5; transform: translate(-50%, calc(-100% - 10px)); pointer-events: none;
+  padding: 6px 12px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line);
+  box-shadow: 0 2px 8px rgba(22, 34, 46, 0.18); font-weight: 700; font-size: 16px; white-space: nowrap;
+  transition: opacity 0.35s;
+}
+.callout::after {                              /* the tail, pointing down at the speaker */
+  content: ''; position: absolute; left: 50%; bottom: -7px; width: 12px; height: 12px; margin-left: -6px;
+  background: var(--panel); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); transform: rotate(45deg);
+}
+.callout.gone { opacity: 0; }
+
 #loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 16px; }
 
-@container (max-width: 1100px) {
-  #info { right: 16px; bottom: 76px; }      /* out of the way of the control bar */
-}
+
 
 /* the progress bar holds the middle of that same strip: only a wide embed has room beside it */
 @container (max-width: 1360px) {
@@ -372,13 +411,7 @@ button:hover { border-color: var(--accent); color: var(--accent); }
    to the right of it reach further than half the width. Below about 460 px there is no room for
    that and they would fall off the edge, so from there the whole bar is centred instead. */
 @container (max-width: 460px) {
-  #controls { left: 50%; transform: translateX(-50%); gap: 6px; }
-  #controls .icon-button { width: 40px; height: 40px; }
   #info { right: 16px; left: 16px; min-width: 0; }
-}
-@container (max-width: 330px) {
-  #controls { gap: 4px; }
-  #controls .icon-button { width: 36px; height: 36px; }
 }
 
 /* too narrow an embed for the two boorden beside each other: they stack */
@@ -387,9 +420,8 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 }
 
 @container (max-width: 640px) {
-  #sidebar { width: auto; right: 16px; max-height: 38%; }
-  /* as wide as the embed allows, and short enough to leave the control bar and the info tile free */
-  #parts { width: auto; right: 16px; max-height: calc(100% - 354px); }
+  /* as wide as the embed allows, over the part card */
+  #parts { width: auto; left: 16px; }
   #procedure { padding: 8px 10px; gap: 6px; }      /* full width, with the buttons still 40 px */
 }
 
@@ -399,22 +431,44 @@ button:hover { border-color: var(--accent); color: var(--accent); }
    round hangs above the control bar, on the same foot as the progress bar and lifted over an open
    popover by the same --procedure-lift. While a round runs, .lv.quiz-on takes away everything
    that would give an answer away. */
-#quiz-toggle { top: 124px; right: auto; left: 16px; }
-#quiz {
-  position: absolute; top: 178px; left: 16px; width: 250px; max-height: calc(100% - 254px); overflow: auto;
-  z-index: 3; padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-  backdrop-filter: blur(8px);
-}
-#quiz header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+#quiz { position: static; }                                 /* a section of Oefenen (#learn-panel) */
+#quiz header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
 #quiz h2 { margin: 0; font-size: 16px; }
-#quiz h3 { margin: 14px 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-#quiz .choices { display: flex; flex-wrap: wrap; gap: 4px; }
-#quiz .choices button { border: 0; border-radius: 999px; padding: 4px 12px; background: none; }
-#quiz .choices button[aria-pressed="true"] { background: var(--accent); color: #fff; }
-#quiz #quiz-start, #quiz #quiz-wrong { margin-top: 12px; width: 100%; }
-#quiz .quiz-clear { margin-top: 10px; }
-#quiz .quiz-clear button, #quiz .quiz-tables button { color: var(--accent); }
-#quiz .quiz-tables { margin-top: 6px; }
+/* the exercises: one row each, its name and what it asks, the chosen one in the accent */
+.kinds { display: grid; gap: 4px; }
+.kinds button {
+  position: relative; display: grid; align-content: start; gap: 1px; text-align: left; padding: 7px 12px; border-radius: 10px;
+  border: 1px solid transparent; background: none;
+}
+.kinds button b { font-weight: 600; }
+.kinds button span { color: var(--muted); font-size: 12px; }
+.kinds button:hover { border-color: var(--line); color: var(--text); }
+.kinds button[aria-checked="true"] { border-color: var(--accent); background: rgba(11, 92, 173, 0.08); }
+.kinds button[aria-checked="true"] b { color: var(--accent); }
+.kinds button:disabled { opacity: 0.45; cursor: default; }
+/* practised through without a mistake (Manoeuvres): a green tick in the corner of the tile */
+.kinds .tick { position: absolute; top: 5px; right: 8px; color: var(--quiz-goed); font-weight: 700; font-size: 14px; line-height: 1; }
+.kinds button:disabled:hover { border-color: transparent; }
+/* number of questions and niveau: a label and a small segmented control on one line */
+.option { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.option > span { color: var(--muted); font-size: 13px; }
+.segmented { display: inline-flex; padding: 2px; border-radius: 999px; background: rgba(22, 34, 46, 0.06); }
+.segmented button { border: 0; border-radius: 999px; padding: 3px 12px; background: none; font-size: 13px; white-space: nowrap; }
+.segmented button:hover { color: var(--accent); }
+.segmented button[aria-checked="true"] { background: #fff; color: var(--accent); box-shadow: 0 1px 2px rgba(22, 34, 46, 0.18); }
+#quiz .warning { margin: 12px 0 0; color: var(--quiz-fout); font-size: 12px; }
+#quiz #quiz-start, #quiz #quiz-wrong { margin-top: 12px; width: 100%; padding: 9px 12px; }
+#quiz #quiz-wrong { margin-top: 6px; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+button.primary:hover { background: #094c90; color: #fff; }
+button.primary:disabled { opacity: 0.4; cursor: default; }
+button.primary:disabled:hover { background: var(--accent); }
+#quiz footer {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-top: 12px; padding-top: 10px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 12px;
+}
+#quiz footer #quiz-total { flex: 1; }
+#quiz footer .link-button { color: var(--accent); font-size: 12px; }
 
 /* debug.quiztabellen: the resolved quiz configuration, wide and scrollable both ways */
 #quiz-debug {
@@ -434,57 +488,119 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 #quiz-debug .eigen { color: var(--accent); }
 #quiz-debug p { margin: 0 0 6px; color: var(--muted); font-size: 12px; }
 
-/* the card: question, answers, feedback and what to do next, in one box */
-#quiz-card {
-  position: absolute; left: 50%; bottom: calc(68px + var(--procedure-lift, 0px)); transform: translateX(-50%);
-  z-index: 4; width: min(520px, calc(100cqw - 32px)); padding: 10px 14px 12px;
-  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; backdrop-filter: blur(8px);
+/* the card: question, answers, feedback and what to do next, in one box. The control bar is gone
+   while a round runs, so it stands at the foot of the viewer. */
+.focus-card {
+  position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
+  z-index: 4; width: min(520px, calc(100cqw - 32px)); max-height: calc(100% - 32px); overflow: auto;
+  padding: 10px 14px 14px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; backdrop-filter: blur(8px);
 }
-#quiz-card .head { display: flex; align-items: baseline; gap: 10px; font-size: 12px; color: var(--muted); }
-#quiz-card .head .count { flex: none; font-variant-numeric: tabular-nums; }
-#quiz-card .head .score { flex: 1; font-variant-numeric: tabular-nums; }
-#quiz-card .head .stop { flex: none; color: var(--accent); }
-#quiz-card .vraag { margin: 3px 0 0; font-size: 19px; font-weight: 600; }
-#quiz-card .hint { margin: 2px 0 0; }
-#quiz-card .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
-#quiz-card .answer { display: flex; align-items: baseline; gap: 8px; text-align: left; }
-#quiz-card .answer .key { flex: none; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
-#quiz-card .answer:disabled { opacity: 1; }
-#quiz-card .answer.goed { border-color: var(--quiz-goed); background: var(--quiz-goed-bg); color: var(--quiz-goed); }
-#quiz-card .answer.fout { border-color: var(--quiz-fout); background: var(--quiz-fout-bg); color: var(--quiz-fout); }
-#quiz-card .answer.goed .key, #quiz-card .answer.fout .key { color: inherit; }
+.focus-card .head { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+.focus-card .head .count { flex: none; font-variant-numeric: tabular-nums; font-weight: 600; }
+.focus-card .head .bar { flex: 1; height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.focus-card .head .bar span { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.3s; }
+.focus-card .head .score { flex: none; font-variant-numeric: tabular-nums; }
+.focus-card .head .score:empty { display: none; }
+.focus-card .head .stop {
+  flex: none; width: 32px; height: 32px; margin: -4px -8px -4px 0; padding: 0; border: 0; border-radius: 50%;
+  background: none; color: var(--muted); font-size: 22px; line-height: 1;
+}
+.focus-card .head .stop:hover { background: var(--line); color: var(--text); }
+/* at the end of a run the cross is a green Klaar: done, close the card */
+.focus-card .head .stop.klaar {
+  width: auto; height: 30px; margin: -4px -6px -4px 0; padding: 0 14px; border-radius: 15px;
+  background: var(--quiz-goed); color: #fff; font-size: 14px; font-weight: 600;
+}
+.focus-card .head .stop.klaar:hover { background: var(--quiz-goed); color: #fff; filter: brightness(1.1); }
+.focus-card .big { margin-top: 6px; font-size: 40px; font-weight: 700; line-height: 1.1; color: var(--accent); }
+.focus-card .vraag { margin: 6px 0 0; font-size: 19px; font-weight: 600; }
+.focus-card.results .vraag { margin-top: 0; font-size: 16px; }
+.focus-card .hint { margin: 2px 0 0; }
+.focus-card .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
+.focus-card .answer { display: flex; align-items: baseline; gap: 8px; min-height: 40px; padding: 8px 12px; text-align: left; }
+.focus-card .answer .key { flex: none; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.focus-card .answer:disabled { opacity: 1; }
+.focus-card .answer.goed { border-color: var(--quiz-goed); background: var(--quiz-goed-bg); color: var(--quiz-goed); }
+.focus-card .answer.fout { border-color: var(--quiz-fout); background: var(--quiz-fout-bg); color: var(--quiz-fout); }
+.focus-card .answer.goed .key, .focus-card .answer.fout .key { color: inherit; }
 /* Kies het onderdeel: a chip per lit part, in the colour that part is lit in */
-#quiz-card .answers.chips { display: flex; gap: 8px; }
-#quiz-card .chip {
-  display: grid; place-items: center; width: 44px; height: 38px; padding: 0;
+.focus-card .answers.chips { display: flex; gap: 8px; }
+.focus-card .chip {
+  display: grid; place-items: center; width: 52px; height: 44px; padding: 0;
   border: 2px solid var(--chip); border-radius: 10px; background: var(--chip); color: #fff;
 }
-#quiz-card .chip .letter { font-size: 17px; font-weight: 600; line-height: 1; }
-#quiz-card .chip:hover, #quiz-card .chip:focus-visible { color: #fff; outline: 2px solid var(--text); outline-offset: 2px; }
-#quiz-card .chip.goed { box-shadow: 0 0 0 3px var(--quiz-goed); }
-#quiz-card .chip.fout { box-shadow: 0 0 0 3px var(--quiz-fout); opacity: 0.55; }
+.focus-card .chip .letter { font-size: 17px; font-weight: 600; line-height: 1; }
+.focus-card .chip:hover, .focus-card .chip:focus-visible { color: #fff; outline: 2px solid var(--text); outline-offset: 2px; }
+.focus-card .chip.goed { box-shadow: 0 0 0 3px var(--quiz-goed); }
+.focus-card .chip.fout { box-shadow: 0 0 0 3px var(--quiz-fout); opacity: 0.55; }
 /* Typen: the field keeps every key to itself, so nothing reaches the camera */
-#quiz-card .typed {
-  width: 100%; margin-top: 10px; font: inherit; font-size: 16px; padding: 6px 10px; border-radius: 8px;
+.focus-card .typed {
+  width: 100%; margin-top: 10px; font: inherit; font-size: 16px; padding: 8px 10px; border-radius: 8px;
   border: 1px solid var(--line); background: #fff; color: var(--text);
 }
-#quiz-card .typed:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-#quiz-card .feedback { display: flex; align-items: baseline; gap: 6px; margin-top: 10px; font-size: 14px; }
-#quiz-card .feedback .mark { font-size: 16px; font-weight: 700; }
+.focus-card .typed:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.focus-card .feedback { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 14px; line-height: 20px; }
+.focus-card .feedback .mark { font-size: 16px; font-weight: 700; line-height: 20px; }   /* no taller than the empty line */
+.focus-card .feedback.leeg { visibility: hidden; }
 /* right or wrong is shown by the whole card: its border and a tint over it; 'bijna' - the name was
    not wrong, only not enough - in the accent */
-#quiz-card { transition: border-color 0.15s, box-shadow 0.15s, background 0.15s; }
-#quiz-card.goed { border-color: var(--quiz-goed); box-shadow: 0 0 0 2px var(--quiz-goed); background: linear-gradient(var(--quiz-goed-bg), var(--quiz-goed-bg)), var(--panel); }
-#quiz-card.fout { border-color: var(--quiz-fout); box-shadow: 0 0 0 2px var(--quiz-fout); background: linear-gradient(var(--quiz-fout-bg), var(--quiz-fout-bg)), var(--panel); }
-#quiz-card.bijna { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
-#quiz-card .actions { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
-#quiz-card .actions .primary { font-weight: 600; margin-left: auto; }
-#quiz-card .actions .secondary { color: var(--accent); }
+.focus-card { transition: border-color 0.15s, box-shadow 0.15s, background 0.15s; }
+.focus-card.goed { border-color: var(--quiz-goed); box-shadow: 0 0 0 2px var(--quiz-goed); background: linear-gradient(var(--quiz-goed-bg), var(--quiz-goed-bg)), var(--panel); }
+.focus-card.fout { border-color: var(--quiz-fout); box-shadow: 0 0 0 2px var(--quiz-fout); background: linear-gradient(var(--quiz-fout-bg), var(--quiz-fout-bg)), var(--panel); }
+.focus-card.bijna { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.focus-card .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-top: 12px; }
+.focus-card .actions button:not(.link-button) { min-height: 40px; padding: 8px 16px; }
+.focus-card .actions .primary { margin-left: auto; }
+.focus-card .actions .secondary { color: var(--accent); }
 
-/* while a round runs, nothing outside the card may name a part */
+/* a run of an operation: the card, and in it the step controls of the procedure while it is watched */
+.focus-card .head .name { flex: none; font-weight: 600; color: var(--text); }
+#ops-card .steps #procedure {
+  position: static; transform: none; width: auto; margin-top: 8px; padding: 0; border: 0; background: none;
+  backdrop-filter: none;
+}
+#ops-card .steps #procedure-name { display: none; }                /* the card says what it is */
+#ops-card.bekijken .head .count, #ops-card.bekijken .head .bar { visibility: hidden; }   /* the step controls count for themselves */
+/* practising: compact - no hint, smaller answers, and the verdict on the row of Volgende */
+#ops-card .hint { display: none; }
+#ops-card .vraag { margin-top: 4px; font-size: 16px; }
+#ops-card .answers { gap: 5px; margin-top: 6px; }
+#ops-card .answer { min-height: 34px; padding: 5px 10px; font-size: 13px; align-items: center; }
+#ops-card .actions { margin-top: 8px; flex-wrap: nowrap; }
+#ops-card .actions .feedback { flex: 1 1 auto; min-width: 0; margin: 0; font-size: 13px; }
+#ops-card .actions .primary { flex: none; margin-left: auto; min-height: 34px; padding: 6px 16px; }
+#ops-card.results .actions .feedback { flex-wrap: wrap; }
+#ops-card .steps #procedure .step { font-size: 16px; font-weight: 600; }
+.lv.ops-on > .icon-button:not(#fullscreen-toggle, #toestand-toggle), .lv.ops-on > aside:not(#toestand), .lv.ops-on #controls,
+.lv.ops-on #hover, .lv.ops-on #info { display: none; }
+
+/* The debug aids (Wal (test) and Toestand) stay in either focus mode: they only exist with their
+   debug flag on, and are what a run is checked with. */
+/* while a round runs there is only the boat and the card: every button, bar and panel goes (full
+   screen stays, it is no menu), and with them everything that would name a part */
+.lv.quiz-on > .icon-button:not(#fullscreen-toggle, #toestand-toggle), .lv.quiz-on > aside:not(#toestand), .lv.quiz-on #controls,
 .lv.quiz-on #hover, .lv.quiz-on #info, .lv.quiz-on #procedure { display: none; }
 
 @container (max-width: 640px) {
-  #quiz { width: auto; right: 16px; max-height: calc(100% - 354px); }
-  #quiz-card .answers { grid-template-columns: 1fr; }
+  .kinds { grid-template-columns: 1fr 1fr; }
+  .kinds button[data-kind="gemengd"] { grid-column: 1 / -1; }
+  /* the card becomes a sheet along the foot of the viewer, big enough for a thumb and no bigger:
+     the boat has to stay in sight above it. Two answers a row, and no hint under the question */
+  .focus-card {
+    left: 0; right: 0; bottom: 0; transform: none; width: auto; max-height: 60%;
+    border-radius: 16px 16px 0 0; border-width: 1px 0 0; padding: 8px 12px calc(10px + env(safe-area-inset-bottom));
+  }
+  .focus-card.typing { top: 0; bottom: auto; border-radius: 0 0 16px 16px; border-width: 0 0 1px; padding-top: calc(8px + env(safe-area-inset-top)); }
+  .focus-card .vraag { margin-top: 4px; font-size: 16px; }
+  .focus-card:not(.results) .hint { display: none; }
+  .focus-card .answers { grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .focus-card .answer { min-height: 42px; padding: 6px 8px; align-items: center; font-size: 13px; line-height: 1.25; }
+  .focus-card .answers.chips { justify-content: space-between; }
+  .focus-card .chip { flex: 1; height: 44px; }
+  .focus-card .feedback { margin-top: 6px; font-size: 13px; }
+  .focus-card .actions { margin-top: 8px; }
+  /* the main button fills the row, Annuleren beside it on the same line: nothing wraps in or out */
+  .focus-card .actions .primary { flex: 1 1 auto; margin-left: 0; min-height: 42px; }
+  .focus-card .actions .extra { flex: 1 1 100%; order: -1; }
 }

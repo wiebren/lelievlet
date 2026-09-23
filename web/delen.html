@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Delen naast elkaar</title>
+  <style>
+    :root { --bg: #f4f7f9; --panel: #fff; --ink: #1d2a33; --muted: #6b7a86; --line: #d9e1e7; --accent: #1f6fb2; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #151b20; --panel: #1f272e; --ink: #e6edf2; --muted: #93a3af; --line: #33404a; --accent: #6fb0ea; }
+    }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 14px/1.4 system-ui, sans-serif; }
+    #view { position: fixed; inset: 0; }
+    aside { position: fixed; top: 12px; left: 12px; width: 290px; max-height: calc(100% - 24px); overflow: auto;
+            background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; box-sizing: border-box; }
+    h1 { font-size: 16px; margin: 0 0 8px; }
+    form { display: flex; gap: 6px; margin-bottom: 8px; }
+    input[type=search] { flex: 1; min-width: 0; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+    button { padding: 5px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); cursor: pointer; }
+    label { display: flex; gap: 6px; align-items: center; color: var(--muted); margin-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { text-align: left; padding: 3px 4px; border-top: 1px solid var(--line); }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr { cursor: pointer; } tr:hover td { color: var(--accent); }
+    .hint { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+    .tag { font: 11px/1.2 system-ui, sans-serif; color: var(--ink); background: color-mix(in srgb, var(--panel) 85%, transparent);
+           border: 1px solid var(--line); border-radius: 4px; padding: 2px 4px; white-space: nowrap; pointer-events: none; }
+    .tag b { font-weight: 600; }
+    .row-tag { font-weight: 600; font-size: 12px; }
+    @media (max-width: 600px) { aside { width: auto; right: 12px; max-height: 40%; } }
+  </style>
+</head>
+<body>
+  <!-- A developer's page, not part of the viewer: every part whose id or name matches the search,
+       split into the pieces it is made of (a harpje: its bow and its pin), laid out side by side at
+       their true size, one row per part, each with its triangle count. Served by `pnpm dev` only. -->
+  <div id="view"></div>
+  <aside>
+    <h1>Delen naast elkaar</h1>
+    <form id="zoek"><input type="search" name="q" placeholder="id of naam, bv. harp, blok" aria-label="Zoeken"><button>Toon</button></form>
+    <label><input type="checkbox" id="draad"> Draadmodel (dichtheid)</label>
+    <table><thead><tr><th>Onderdeel</th><th class="n">Stukken</th><th class="n">Driehoeken</th></tr></thead><tbody id="lijst"></tbody></table>
+    <p class="hint" id="som"></p>
+    <p class="hint">Klik een regel om naar die rij te gaan. Elk stuk staat op ware grootte en in de stand die het in de boot heeft.</p>
+  </aside>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+    import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+
+    const view = document.getElementById('view');
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    view.append(renderer.domElement);
+    const labels = new CSS2DRenderer();
+    labels.domElement.style.cssText = 'position:absolute;inset:0;pointer-events:none';
+    view.append(labels.domElement);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(getComputedStyle(document.body).backgroundColor);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.6));
+    const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(1, 2, 1.5); scene.add(sun);
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.001, 50);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    const fit = () => {
+      const { clientWidth: w, clientHeight: h } = view;
+      renderer.setSize(w, h); labels.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
+    };
+    addEventListener('resize', fit); fit();
+    renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); labels.render(scene, camera); });
+
+    /** The connected pieces of a geometry (vertices at the same place count as joined), each as a geometry of its own. */
+    function pieces(geometry) {
+      const pos = geometry.attributes.position;
+      const index = geometry.index ? geometry.index.array : Array.from({ length: pos.count }, (_, i) => i);
+      const weld = new Map(); const id = new Int32Array(pos.count);
+      for (let i = 0; i < pos.count; i++) {
+        const k = `${Math.round(pos.getX(i) * 1e5)},${Math.round(pos.getY(i) * 1e5)},${Math.round(pos.getZ(i) * 1e5)}`;
+        if (!weld.has(k)) weld.set(k, weld.size);
+        id[i] = weld.get(k);
+      }
+      const parent = Int32Array.from({ length: weld.size }, (_, i) => i);
+      const find = (a) => { while (parent[a] !== a) { parent[a] = parent[parent[a]]; a = parent[a]; } return a; };
+      for (let t = 0; t < index.length; t += 3) {
+        const a = find(id[index[t]]);
+        parent[find(id[index[t + 1]])] = a; parent[find(id[index[t + 2]])] = a;
+      }
+      const groups = new Map();
+      for (let t = 0; t < index.length; t += 3) {
+        const r = find(id[index[t]]);
+        if (!groups.has(r)) groups.set(r, []);
+        groups.get(r).push(index[t], index[t + 1], index[t + 2]);
+      }
+      return [...groups.values()].map((faces) => {
+        const g = new THREE.BufferGeometry();
+        const p = new Float32Array(faces.length * 3);
+        faces.forEach((v, i) => { p[3 * i] = pos.getX(v); p[3 * i + 1] = pos.getY(v); p[3 * i + 2] = pos.getZ(v); });
+        g.setAttribute('position', new THREE.BufferAttribute(p, 3));
+        g.computeVertexNormals();
+        return g;
+      }).sort((a, b) => b.attributes.position.count - a.attributes.position.count);
+    }
+
+    const tag = (html, cls = 'tag') => { const d = document.createElement('div'); d.className = cls; d.innerHTML = html; return new CSS2DObject(d); };
+    const nl = (n) => n.toLocaleString('nl-NL');
+
+    let model = null; let shown = new THREE.Group(); scene.add(shown);
+    const wire = document.getElementById('draad');
+    const materials = new Set();
+    wire.addEventListener('change', () => { for (const m of materials) m.wireframe = wire.checked; });
+
+    function show(q) {
+      scene.remove(shown); shown = new THREE.Group(); scene.add(shown); materials.clear();
+      history.replaceState(null, '', `?zoek=${encodeURIComponent(q)}`);
+      const want = q.trim().toLowerCase();
+      const parts = [];
+      model.traverse((node) => {
+        const ex = node.userData;
+        if (!ex?.id || !ex?.naam) return;
+        if (!want || !(`${ex.id} ${ex.naam}`.toLowerCase().includes(want))) return;
+        node.updateWorldMatrix(true, true);
+        const list = [];
+        node.traverse((m) => {
+          if (!m.isMesh) return;
+          const g = m.geometry.clone().applyMatrix4(m.matrixWorld);     // in the boat's axes, as it sits in her
+          for (const piece of pieces(g)) list.push({ geometry: piece, material: m.material });
+        });
+        if (list.length) parts.push({ id: ex.id, naam: ex.naam, list });
+      });
+      const rows = document.getElementById('lijst'); rows.replaceChildren();
+      if (!parts.length) { document.getElementById('som').textContent = `Niets gevonden voor “${q}”.`; return; }
+      // one row per part, the pieces side by side at their true size, a gap of the biggest one's size
+      let cell = 0;
+      for (const p of parts) for (const s of p.list) { s.geometry.computeBoundingBox(); cell = Math.max(cell, s.geometry.boundingBox.getSize(new THREE.Vector3()).length()); }
+      cell = Math.min(cell * 1.25, 0.6);
+      let total = 0; let count = 0;
+      parts.forEach((p, row) => {
+        const y = -row * cell * 1.5;                                 // room for the counts below and the name above
+        const tris = p.list.reduce((a, s) => a + s.geometry.attributes.position.count / 3, 0);
+        total += tris; count += p.list.length;
+        const title = tag(`${p.id}`, 'tag row-tag'); title.position.set(0, y + 0.45 * cell, 0); shown.add(title);
+        p.list.forEach((s, i) => {
+          const g = s.geometry; const c = g.boundingBox.getCenter(new THREE.Vector3());
+          g.translate(-c.x, -c.y, -c.z);
+          const material = s.material.clone(); material.side = THREE.DoubleSide; material.wireframe = wire.checked; materials.add(material);
+          const mesh = new THREE.Mesh(g, material);
+          mesh.position.set(i * cell, y, 0);
+          shown.add(mesh);
+          const size = g.boundingBox.getSize(new THREE.Vector3());
+          const label = tag(`<b>${nl(g.attributes.position.count / 3)}</b> · ${Math.round(Math.max(size.x, size.y, size.z) * 1000)} mm`);
+          label.position.set(i * cell, y - 0.42 * cell, 0); shown.add(label);
+        });
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${p.id}</td><td class="n">${p.list.length}</td><td class="n">${nl(tris)}</td>`;
+        tr.addEventListener('click', () => frame(new THREE.Box3().setFromCenterAndSize(
+          new THREE.Vector3((p.list.length - 1) * cell / 2, y, 0), new THREE.Vector3(p.list.length * cell, cell, cell))));
+        rows.append(tr);
+      });
+      document.getElementById('som').textContent = `${parts.length} onderdelen, ${count} stukken, ${nl(total)} driehoeken.`;
+      frame(new THREE.Box3().setFromObject(shown));
+    }
+    function frame(box) {
+      const c = box.getCenter(new THREE.Vector3()); const r = box.getSize(new THREE.Vector3()).length() / 2;
+      const aside = document.querySelector('aside').getBoundingClientRect();
+      const shift = innerWidth > 600 ? (aside.right / innerWidth) * r * 1.2 : 0;   // what the panel covers, taken off the left
+      c.x -= shift; controls.target.copy(c);
+      camera.position.copy(c).add(new THREE.Vector3(0.1, 0.15, 1).normalize().multiplyScalar(r / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * 0.8));
+      camera.near = r / 200; camera.far = r * 50; camera.updateProjectionMatrix();
+    }
+
+    const form = document.getElementById('zoek');
+    const start = new URLSearchParams(location.search).get('zoek') ?? 'harp';
+    form.q.value = start;
+    form.addEventListener('submit', (e) => { e.preventDefault(); if (model) show(form.q.value); });
+    const loader = new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);
+    loader.load('/models/lelievlet.glb', (gltf) => { model = gltf.scene; model.updateMatrixWorld(true); show(start); });
+  </script>
+</body>
+</html>

@@ -11,6 +11,7 @@ paginanummers verwijzen naar die druk.
 
 | Map | Wat |
 |---|---|
+| `docs/` | Naslag voor gebruikers en instructeurs: `onderdelen.md` (alle onderdelen, andere namen, wat Oefenen vraagt) en `manoeuvres.md` (handelingen, voorwaarden, stappen); `handelingen.md` is de werklijst |
 | `reference/` | Bronmateriaal en de index daarop — begin bij `reference/README.md` |
 | `pipeline/` | DWG-bodies → meshes → `web/public/models/lelievlet.glb` |
 | `web/` | Vite + three.js viewer |
@@ -26,6 +27,16 @@ stukken zelf (de officiële DWG van Scouting Nederland, het Vlettenboek, de CWO-
 tekeningen) zitten er niet bij; de indexen zeggen waar ze te halen zijn. Zonder `reference/cad/` zijn
 de eerste twee pipeline-stappen (het extraheren en tessellateren van de CAD-bodies) niet uit te voeren;
 al het overige werkt vanuit het gebouwde model.
+
+## Naslag voor instructeurs
+
+`docs/onderdelen.md` en `docs/manoeuvres.md` zijn bedoeld om de viewer mee te gebruiken en te
+controleren: welke onderdelen er zijn, onder welke namen de lesstof ze ook kent, op welk niveau
+Oefenen ernaar vraagt, en welke handelingen de boot kan doen met hun voorwaarden en stappen. Ze
+worden gemaakt uit de bronnen van de viewer zelf; na een wijziging aan het model, de quizvragen of de
+handelingen draai je in `web/`:
+
+    pnpm docs
 
 ## De viewer draaien
 
@@ -88,7 +99,7 @@ vlet.set({ tuig: 'mast' }, { direct: true });      // … of in één keer
 
 `set(toestand, { direct })` neemt dezelfde sleutels als `toestand` in de configuratie (zie de tabel)
 en verandert alleen wat je meegeeft. Het loopt via dezelfde weg als de knoppen: de iconen en panelen
-laten zien wat de pagina zette, en een procedure (Tuig, Reven) speelt af met zijn voortgangsbalk.
+laten zien wat de pagina zette, en een procedure (Zeilen, Mast, Reven) speelt af met zijn voortgangsbalk.
 Met `direct: true` staat de boot er meteen. Een `set()` vóór `ready` wacht op het model en gaat dan
 samen met de `toestand` uit de configuratie in één keer in. `get()` geeft een object in dezelfde vorm
 terug, met `commando` altijd als `{ bb, sb }`, `selectie` als lijst ids en het standpunt als
@@ -130,19 +141,19 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 | `toestand.roeien` | `'naast'` \| `'kruis'` \| `'vier'` | `'kruis'` | Twee riemen naast elkaar, twee kruislings of vier. |
 | `toestand.commando` | string of `{ bb, sb }` | `'slag'` | Het roeicommando (sleutels als bij `namen.commandos`). Een string geldt voor de hele boot; per boord kan alleen `haal` `opriemen` `strijk` `stopaf` `lopen`, en een boord dat je weglaat blijft zoals het was. |
 | `toestand.zwaard` | `'neer'` \| `'half'` \| `'op'` | volgt de koers | Het midzwaard. Zonder deze sleutel gaat het op bij roeien, wrikken, voor de wind en voor anker, en anders neer. Met het tuig gestreken of de mast neer staat het altijd op (de stap Midzwaard op). |
-| `toestand.aanzicht` | `'3d'` \| `'zij'` \| `'boven'` \| `'voor'` \| `'achter'` | `'3d'` | Het camerastandpunt, zoals de knoppen in het oogmenu. |
+| `toestand.aanzicht` | `'3d'` \| `'zij'` \| `'boven'` \| `'voor'` \| `'achter'` | `'3d'` | Het camerastandpunt waarmee de viewer begint (er zijn geen knoppen meer voor: de camera draai je zelf). |
 | `toestand.selectie` | id of lijst ids | — | Onderdelen die geselecteerd zijn, met hun infotegel; de camera gaat erheen, tenzij er ook een `aanzicht` of `camera` is. `null` of `[]` heft de selectie op. |
 | `toestand.camera` | `{ positie, doel }` | — | Het precieze standpunt: `positie` is waar de camera staat, `doel` waar hij naar kijkt, elk `[x, y, z]` in meters in de assen van het model (x van spiegel naar boeg, y omhoog, z naar stuurboord). Gaat voor `aanzicht`. Het makkelijkst te krijgen uit het paneel van `debug.toestand`. |
 | `namen.onderdelen[id]` | string | — | Hernoemt een onderdeel overal: hovertip, infotegel, de lijst Onderdelen (ook de samenvoeging van bakboord/stuurboord, die op namen werkt) en de terugkoppeling van de quiz. Sleutel is de onderdeel-id, bijvoorbeeld `{ hommerring: 'Mastring' }`. |
-| `namen.stappen[label]` | string | — | Hernoemt een stap van een procedure (Reven, Tuig). Sleutel is het standaardlabel, bijvoorbeeld `{ 'Fok strijken': 'Fok neer' }`. Elke stap heeft ook een naam voor de andere kant op, die de balk toont als de procedure achteruit loopt (Fok hijsen, Anker op, Mast zetten, …); die hernoem je op dezelfde manier: `{ 'Fok hijsen': 'Fok op' }`. |
+| `namen.stappen[label]` | string | — | Hernoemt een stap van een procedure (Reven, Zeilen, Mast). Sleutel is het standaardlabel, bijvoorbeeld `{ 'Fok strijken': 'Fok neer' }`. Elke stap heeft ook een naam voor de andere kant op, die de balk toont als de procedure achteruit loopt (Fok hijsen, Anker op, Mast zetten, …); die hernoem je op dezelfde manier: `{ 'Fok hijsen': 'Fok op' }`. |
 | `namen.commandos[key]` | string of object | — | Hernoemt een roeicommando. Een string is het knoplabel; `{ knop, roep }` zet ook de woorden die de roerganger roept. Sleutels: `slag` `haal` `opriemen` `strijk` `stopaf` `lopen` `over` `op` `geroeid`. |
 | `namen.quiz[nr of naam]` | string | — | Hernoemt een quizvraag, op nummer of op de standaardnaam: `{ 27: 'Hommerring', Kleed: 'Baan' }`. |
 | `quiz.weg` | array | `[]` | Nummers of namen die niet gevraagd worden: `[27, 'Kleed']`. |
-| `quiz.erbij` | array | `[]` | Eigen vragen: `[{ naam, delen: ['id', …], ook: ['id', …], niveau: 1, nr: 200 }]`. `naam` en een niet-lege `delen` zijn verplicht; zonder `nr` krijgt de vraag er zelf een vanaf 1000, zonder `niveau` geldt III. |
-| `quiz.niveau` | 1 \| 2 \| 3 | `3` | Het niveau waarop het startpaneel opent. De gebruiker kan het daarna zelf wisselen. |
+| `quiz.erbij` | array | `[]` | Eigen vragen: `[{ naam, delen: ['id', …], ook: ['id', …], niveau: 1, roeien: true, nr: 200 }]`. `naam` en een niet-lege `delen` zijn verplicht; zonder `nr` krijgt de vraag er zelf een vanaf 1000, zonder `niveau` geldt Zeilen III, `roeien: true` vraagt hem ook bij Roeien en `zeilen: false` laat hem bij Zeilen weg. |
+| `quiz.niveau` | `'roeien'` \| 1 \| 2 \| 3 | `3` | Het niveau waarop het startpaneel opent: `'roeien'` voor CWO Roeien, 1–3 voor Zeilen I–III. De gebruiker kan het daarna zelf wisselen, en het paneel onthoudt zijn laatste keuze. |
 | `debug.modelnummer` | boolean | `false` | Toont de regel "Modelnummer" in de infotegel: de CAD-handle van de body waarop geklikt is. Een hulpmiddel bij het modelleren, niets voor een verkenner. |
 | `debug.quiztabellen` | boolean | `false` | Zet een link **Tabellen** in het startpaneel van Oefenen, die de opgeloste quizconfiguratie als tabel toont: nr, naam (na hernoemen), niveau, `delen` en `ook` (elke id die in het geladen model niet bestaat staat rood), of het een eigen vraag is, en de score per vraag. Daaronder een tweede tabel met alle onderdelen waar geen enkele vraag over gaat. |
-| `debug.toestand` | boolean | `false` | Zet een icoon `{ }` rechtsonder, boven de (i). Het paneel toont de toestand waarin de viewer nu staat als de configuratie om daar te beginnen (`{ "toestand": { … } }`, zie `get()`, met het camerastandpunt), bijgewerkt zolang het open staat, met een knop **Kopieer als JSON**. |
+| `debug.toestand` | boolean | `false` | Zet een icoon `{ }` rechtsonder, boven de onderdelenkaart. Het paneel toont de toestand waarin de viewer nu staat als de configuratie om daar te beginnen (`{ "toestand": { … } }`, zie `get()`, met het camerastandpunt), bijgewerkt zolang het open staat, met een knop **Kopieer als JSON**. |
 | `debug` | `true` \| `false` | — | `debug: true` zet alle hulpmiddelen tegelijk aan, `debug: false` alle uit. |
 
 De ontwikkelpagina (`web/index.html`) geeft `debug: import.meta.env.DEV` mee: onder `pnpm dev` staan
@@ -305,11 +316,13 @@ van de pagina als die er zijn. Alle tekst naar de gebruiker toe is Nederlands.
 ## Modi en animatie
 
 `web/src/modes.js` schakelt tussen Zeilen, Roeien en Wrikken en trimt in Zeilen de zeilen voor een
-koers ten opzichte van de wind. De bediening is één balk met iconen onderlangs het scherm - Modus,
-Wind, Reven, Tuig, Riemen, Roeicommando - en elk icoon opent zijn bediening in een popover erboven: één tegelijk,
-weer te sluiten met hetzelfde icoon, een ander icoon, Escape of een klik ernaast. Elk icoon tekent
-zijn eigen toestand (de modus waarin hij staat, de wolk met pijl gedraaid naar waar de wind vandaan komt, het aantal riemen); Wind verschijnt alleen in Zeilen en Riemen alleen in Roeien, en de
-balk centreert zich opnieuw zonder die. De koersschuif is gespiegeld: precies in het midden ligt de boot met de kop in de
+koers ten opzichte van de wind. De bediening is een kolom iconen linksboven - **Boot**, dan
+**Oefenen**, en in Roeien **Roeicommando** - en elk icoon opent zijn bediening in een popover ernaast: één tegelijk, weer te sluiten met hetzelfde icoon, een ander icoon,
+Escape of een klik ernaast. **Boot** bundelt de modus (Zeilen, Roeien, Wrikken), de koers ten
+opzichte van de wind en het aantal riemen; het icoon tekent de modus, en in het paneel staat bij
+*Wind* de wolk met pijl gedraaid naar waar de wind vandaan komt. Wind staat er alleen in Zeilen met
+de zeilen op en Riemen alleen in Roeien; een keuze in het paneel laat het open, zodat je daarna nog
+iets anders kunt zetten. De koersschuif is gespiegeld: precies in het midden ligt de boot met de kop in de
 wind (koers 0, zoals voor anker: giek en fok midscheeps, en de zeilen vangen niets en klapperen zacht -
 `Bend.flutter`, golven die van het voorlijk naar achteren lopen, met het bollinggewicht als omhullende
 zodat het doek stil blijft waar het vastzit), aan weerszijden daarvan begint aan de wind (elke boeg zijn eigen knop), naar rechts
@@ -344,12 +357,18 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   `NUDGE` verplaatst het zo dat de harppen onder de bovenkant van het oog door gaat.
 - Assen en ankerpunten komen uit de CAD via `pipeline/rig_data.py` (rootnode `extras.tuig`). Dat
   bestand sorteert ook het niet-benoemde beslag naar wat met giek, gaffel of fok meebeweegt.
-- De knoppen zitten op drie plaatsen. Links, in een kolom van ronde knoppen: het **oog** opent het
-  weergavemenu (groepen aan/uit, camerastandpunten), daaronder opent **Onderdelen** de doorzoekbare
-  onderdelenlijst en daaronder opent de studentenmuts **Oefenen**, de quiz. Die drie delen dezelfde
-  hoek, dus er staat er altijd hoogstens één open. Rechtsboven zit het **tandwiel** voor Aanpassen en
-  rechtsonder de **i** voor "Over dit model"; de bediening van de boot zelf zit achter de iconen van
-  de onderste balk.
+- De knoppen zitten op drie plaatsen. Linksboven staat de kolom met **Boot**, de studentenmuts
+  **Oefenen** en in Roeien **Roeicommando**. Oefenen kiest eerst wat je oefent - **Manoeuvres** (de
+  handelingen, alleen in Zeilen) of **Onderdelen** (de quiz) - en toont daaronder het startpaneel
+  daarvan; het opent op wat het laatst gekozen is.
+  Rechtsboven zit het **tandwiel** voor Aanpassen, met onderaan dat paneel de snelheid van de
+  animaties (met de sneltoetsen voor de camera) en de link **Over dit model**, dat midden in beeld
+  opengaat. Rechtsonder staat de **onderdelenkaart**: met niets geselecteerd is
+  dat alleen een ronde zoekknop, met een onderdeel geselecteerd de kaart met groep en naam en
+  rechtsboven daarin dezelfde zoekknop. Die opent de doorzoekbare **Onderdelen**-lijst boven de
+  kaart; elke groepskop daarin heeft een oog dat de hele groep in het model verbergt of weer toont,
+  en *Alles tonen* / *Alles verbergen* doen dat voor alle groepen tegelijk. Wat verder in die hoek staat (de debugknoppen) schuift mee omhoog met de hoogte van de
+  kaart (`--info-clear`). De bediening van de boot zelf zit achter de kolom iconen linksboven.
 - Onder het tandwiel zit **Volledig scherm** (de vier hoekhaken, naar binnen gekeerd zodra het aan
   staat), ook te bedienen met de toets `f`; hij verdwijnt zolang het Aanpassen-paneel open staat,
   want dat staat op zijn plek. Volledig scherm wordt aan het *hostelement* gevraagd, dus de hele
@@ -359,14 +378,14 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   de viewer zichzelf paginavullend over de pagina heen (`position: fixed`, attribuut `data-lv-vol`
   op de host) en zet de pagina eronder op slot; Escape haalt hem daar weer uit. Zie `volledigScherm`
   in de configuratietabel.
-- Een lopende procedure (Reven, Tuig) toont zijn voortgangsbalk `#procedure` boven de bedieningsbalk:
+- Een lopende procedure (Reven, Zeilen, Mast) toont zijn voortgangsbalk `#procedure` onderaan in beeld:
   vorige stap, play/pause, volgende stap en een schuif over de hele timeline met een streepje bij elke
   stapgrens, het nummer en het Nederlandse label van de stap waarin hij zit, en de naam van de
   procedure. Hij speelt vanzelf af; slepen aan de schuif scrubt en pauzeert, play brengt hem verder
   naar wat opgedragen was. Hij ligt boven een geopende popover (`--procedure-lift`) en de infotegel
   stapt eroverheen (`--procedure-top`). Zodra de procedure stilligt vervaagt hij na 2.5 s, tenzij zijn
   eigen paneel open staat, de muis erboven hangt of hij de focus heeft - zo kan een afgelopen
-  procedure vanuit "Tuig" of "Reven" teruggescrubd worden.
+  procedure vanuit "Handelingen" teruggescrubd worden.
 - Onderdelen somt elk onderdeel per groep op, doorzoekbaar, met één regel per naam
   (vier dollen zijn één regel "Dol ×4"). Een bakboord- en een stuurboordtweeling delen één regel onder
   de naam zonder de zijde ("Wantputting (bakboord)" en "(stuurboord)" -> "Wantputting", als één
@@ -439,6 +458,30 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   voor stap doorlopen en gescrubd; `initModes()` geeft de voortgangsbalk `procedure()` (kale data) en
   `procedureControl` (play, pause, volgende, vorige, scrub). Het tuig is ÉÉN timeline: "Zeilen op" is
   het begin, "Zeilen gestreken" het einde van de stap zeilbinders, "Mast gestreken" het einde ervan.
+  Getoond en bediend wordt hij als twee flows, **Zeilen** en **Mast**: elk een `Stretch` (in
+  `web/src/procedure.js`) van die timeline, met alleen zijn eigen stappen op de voortgangsbalk; vorige,
+  volgende en de schuif blijven binnen de flow.
+- Oefenen → **Manoeuvres** (`web/src/handelingen.js`) is een startpaneel met de
+  handelingen als rijen, zoals de oefeningen van Oefenen: Zeilen hijsen, Zeilen strijken, Mast
+  strijken, Mast zetten, Reven (met het aantal slagen), Overstag gaan (wenden), Gijpen en het Stormrondje. De
+  stappen en voorwaarden van elk staan in `docs/manoeuvres.md`. Een stap met een commando ("Ree!",
+  "Gijp!") laat het commando als tekstballon zien boven wie het roept, net als een gekozen
+  roeicommando. Elke handeling heeft
+  voorwaarden (`OPS` in `web/src/modes.js`) die kijken naar hoe de boot er nu bij ligt en niet naar
+  wat het laatst gevraagd is; een rij die niet kan is grijs, met de reden eronder ("Eerst de zeilen
+  strijken", "Eerst de mast zetten", "Eerst de zeilen hijsen", "Eerst het reven afmaken") of wat er
+  al zo is ("De mast staat al"). Wat niet genoemd is, doet er niet toe: de mast wil alleen gestreken
+  en opgebonden zeilen — waar het anker of het midzwaard intussen is, maakt niet uit.
+  Daaronder **Hoe**: **Bekijken** speelt de handeling af, en de stappenbalk (vorige, afspelen,
+  volgende, de schuif) staat dan in de kaart; **Oefenen** laat de boot staan en vraagt bij elke stap
+  "Wat is de volgende stap?" met vier antwoorden: de goede en drie die in de toestand van de boot
+  nú zouden kunnen, alleen niet nu. Welke dat zijn volgt uit wat elke stap vooraf nodig heeft
+  (`STEP_NEEDS` en `REEF_NEEDS` in `modes.js`: opdoeken vraagt het grootzeil omlaag, de mast de
+  lummelbout, de grendelbout, de pelikaanhaak en de fok eraf), plus het terugdraaien van een stap die
+  al gedaan is; ze komen vooral uit de handeling zelf en soms uit de andere flow. Een antwoord laat
+  die stap zien (de camera eerst, zoals altijd), een fout antwoord de goede; na de laatste stap volgt
+  de uitslag. Zolang een handeling loopt staat de viewer in focusmodus (`.lv.ops-on`), net als bij
+  Oefenen: alleen de boot, de kaart en volledig scherm, en een klik op het model doet niets.
   Een rif is een nieuwe timeline vanaf de huidige stand naar het gekozen aantal slagen.
 - Mast strijken (tweede helft van de timeline van het tuig): fok eraf; het opgedoekte zeil met giek en
   gaffel, één stijve bundel die op twee punten wordt gedragen, gaat van de vork van de mik in de
@@ -462,7 +505,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   Hanepootloper, het eind van de piekenval en het dodemanseind gaan met de bocht mee. De fok neemt bij
   "Fok afslaan" zijn kettinkje en de harpjes aan de hals mee; het harpje van de fokkenval komt met de
   top van de fok langs het voorstag omlaag, en de fokkenschoot zit met een knoop aan de schoothoek.
-- Zeilen strijken, bediening "Tuig" (Zeilen op / Zeilen gestreken), dezelfde soort sequencer als
+- Zeilen strijken, bediening "Handelingen" (Zeilen hijsen / strijken), dezelfde soort sequencer als
   reven: kop in de wind (giek, fok en windpijl midscheeps, geen buik); anker uit (het opgeborgen
   anker, de ketting en de lijn maken plaats voor een lijn die vanaf het ankeroog over de boeg in het
   water wordt gevierd); midzwaard op; fok langs zijn stag omlaag tot een bundel op het voordek (`jibBend.warp`); mik
@@ -562,7 +605,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
 
 ## Quiz (Oefenen)
 
-De studentenmuts opent **Oefenen** (`web/src/quiz.js`, de styling ervan in
+Oefenen → **Onderdelen** is de quiz (`web/src/quiz.js`, de styling ervan in
 één gemarkeerd blok onderaan `web/src/style.css`). Er wordt alleen gevraagd naar de genummerde namen
 op de onderdelentekening van de klasse — `web/src/quizdata.js`, één entry per naam met de id's van de
 onderdelen die het *zijn* (`delen`) en de onderdelen die bij een klik goed gerekend worden omdat ze
@@ -599,31 +642,45 @@ Vier soorten oefening, en Gemengd, die per vraag één soort trekt uit wat de en
   een chip of met de focus erop gaat het bijbehorende onderdeel ademen. De concurrenten zijn de
   dichtstbijzijnde onderdelen, waarbij een onderdeel uit dezelfde groep half zo ver telt.
 
-Zolang een ronde loopt staat de viewer in quizmodus (`body.quiz-on`): de hovertooltip, de infotegel
-en de voortgangsbalk zijn uit beeld, Onderdelen is gesloten en de knop ervan uitgeschakeld, en een
-klik op het model gaat naar de quiz in plaats van naar de selectie en naar `modes.click` — er valt
-geen anker midden in een vraag. De kaart hangt boven de bedieningsbalk, over een geopende popover
-heen, op dezelfde `--procedure-lift` die de voortgangsbalk gebruikt. Alles is met het toetsenbord te
-bedienen: 1–4 (en A–D) kiezen, Enter bevestigt en gaat door, Escape neemt een keuze terug.
+Het startpaneel is één lijst oefeningen, elk met een regel uitleg, met daaronder het aantal vragen
+en het niveau als kleine schakelaars, één grote Start-knop en **Oefen je fouten**. Wat het laatst
+gekozen is, onthoudt het paneel (`keuze` in de opgeslagen score).
+
+Zolang een ronde loopt staat de viewer in quizmodus (`.lv.quiz-on`): er blijven alleen de boot, de
+kaart en de knop voor volledig scherm over — alle panelen gaan dicht en alle andere knoppen, de
+bedieningsbalk, de voortgangsbalk, de hovertooltip en de infotegel verdwijnen — en een klik op het
+model gaat naar de quiz in plaats van naar de selectie en naar `modes.click`: er valt geen anker
+midden in een vraag. De kaart staat onderaan, met bovenin een voortgangsbalk, de reeks vanaf twee
+goed op rij en een kruisje om te stoppen. In een smalle viewer (telefoon) wordt het een paneel over
+de volle breedte met grote knoppen; bij Typen springt het naar boven zolang het veld de focus heeft,
+zodat het toetsenbord het niet bedekt. Wat de kaart van onderen afdekt, geeft de quiz door aan
+`setCovered`: de camera krijgt een view-offset van de helft daarvan, zodat het onderdeel boven de
+kaart in beeld staat; aanklikken en de ringen gebruiken dezelfde projectie. Alles is met het
+toetsenbord te bedienen: 1–4 (en A–D) kiezen, Enter bevestigt en gaat door, Escape neemt een keuze
+terug.
 
 Vragen worden zonder herhaling getrokken tot de pool op is, met een weging naar wat er misgaat
 (`(1 + fout × 2) / (1 + goed)`). Entries waarvan de onderdelen er in de modus waarin de boot staat
 niet zijn vallen af, via dezelfde `partVisible` als de onderdelenlijst, en het startpaneel meldt het
-als een groot deel van de pool weg is. Een keuze voor **Niveau** (CWO I / II / III) verschijnt zodra
-`quizdata.js` entries een `niveau` geeft; niveau L vraagt alles met `niveau <= L`, en een entry
-zonder niveau telt als III. De niveaukeuze werkt meteen: hij verandert de pool op het moment dat je
-hem aanklikt, dus het aantal vragen op de Start-knop loopt mee (het geldt voor de volgende ronde,
-niet halverwege een lopende). De ronde eindigt in een resultatenkaart met de score, de beste reeks en
-de namen die fout gingen, en **Oefen fouten** maakt een ronde van niets dan de entries die deze
+als een groot deel van de pool weg is. Het paneel kiest eerst het **Diploma**: **Roeien** vraagt
+de namen van de roeilijst van 40 (`roeien: true` in `quizdata.js`; welke dat zijn staat in
+`reference/book/ROEIEN.md`), die geen niveaus kent — de roeiboeken eisen ze allemaal. **Zeilen**
+heeft daaronder een **Niveau** (I / II / III): niveau L vraagt alles met `niveau <= L`, een entry
+zonder niveau telt als III, en `zeilen: false` (de Riem) laat een roei-naam bij Zeilen weg. Zeilen
+onthoudt zijn niveau als je even naar Roeien wisselt. De keuze werkt meteen: het aantal vragen op de
+Start-knop loopt mee (voor de volgende ronde, niet halverwege een lopende). De ronde eindigt in een resultatenkaart met het percentage, de beste reeks
+en de namen die fout gingen, met **Nog een ronde**, **Andere oefening** (terug naar het startpaneel)
+en **Oefen je fouten**, die een ronde van niets dan de entries die deze
 gebruiker het vaakst fout heeft.
 
 De score per entry en de totalen aller tijden staan in `localStorage` onder de enkele sleutel
 `lelievlet.quiz.v1` — `{ v: 1, totaal: { goed, fout, rondes, beste }, per: { <nr>: { goed, fout,
-laatst } } }`. Elke toegang is afgeschermd, zodat de quiz net zo goed werkt zonder storage; "Score
-wissen" in het startpaneel wist hem na een inline "Zeker weten?".
+laatst } }, keuze: { kind, length, level } }`. Elke toegang is afgeschermd, zodat de quiz net zo goed
+werkt zonder storage; "Wissen" onderaan het startpaneel wist de score (niet de keuze) na een inline
+"Score wissen?".
 
 `main.js` geeft de quiz wat hij nodig heeft via één aanroep `initQuiz({ … })` na `initModes` en
-`initRegions`: `parts`, `camera`, `controls`, `scene`, `select`, `flyTo`, `startFlight`,
+`initRegions`: `parts`, `scene`, `select`, `flyTo`, `setCovered`,
 `setHighlights`, `partVisible`, de map met paneelsluiters, en het gereedschap van de insluiting
 (`ui`, `wrap`, `config`, `signal`, `engaged`, `realTarget`, `onDestroy`). `setHighlights` is het enige dat de
 highlighting er speciaal voor heeft gekregen: een kleur per onderdeel, die `refreshHighlight` boven

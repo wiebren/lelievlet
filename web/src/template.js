@@ -5,104 +5,20 @@
 export const TEMPLATE = `\n<div class="lv" part="viewer">\n
   <canvas id="scene"></canvas>
 
-  <button id="view-toggle" class="icon-button" type="button" aria-label="Weergave" aria-expanded="false" aria-controls="sidebar" title="Weergave">
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
-  </button>
-
-  <aside id="sidebar" hidden>
-    <h1>Lelievlet</h1>
-    <section>
-      <h2>Groepen</h2>
-      <ul id="groups"></ul>
-    </section>
-    <section>
-      <h2>Aanzicht</h2>
-      <div class="buttons" id="views">
-        <button data-view="iso">3D</button>
-        <button data-view="side">Zij</button>
-        <button data-view="top">Boven</button>
-        <button data-view="bow">Voor</button>
-        <button data-view="stern">Achter</button>
-      </div>
-    </section>
-    <section>
-      <h2>Animatie</h2>
-      <label class="speed"><span>Snelheid</span>
-        <input id="speed" type="range" min="0.25" max="2" step="0.05" value="1" aria-label="Snelheid van de animaties"></label>
-      <p class="hint">Pijltjes: verplaatsen · Shift + pijltjes: draaien · + / −: zoomen · Scrollen: inzoomen op de muisaanwijzer</p>
-    </section>
-  </aside>
-
-  <button id="parts-toggle" class="icon-button" type="button" aria-label="Onderdelen" aria-expanded="false" aria-controls="parts" title="Onderdelen">
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M4.5 6.5h.01"/><path d="M9 6.5h10.5"/>
-      <path d="M4.5 12h.01"/><path d="M9 12h10.5"/>
-      <path d="M4.5 17.5h.01"/><path d="M9 17.5h10.5"/>
-    </svg>
-  </button>
-
   <aside id="parts" hidden>
     <header>
       <h2>Onderdelen</h2>
       <button id="parts-close" type="button" class="link-button" aria-label="Sluiten">Sluiten</button>
     </header>
     <input id="parts-search" type="search" autocomplete="off" placeholder="Zoek onderdeel…" aria-label="Zoek onderdeel">
+    <p class="parts-all"><button id="parts-show-all" type="button" class="link-button">Alles tonen</button>
+      <button id="parts-hide-all" type="button" class="link-button">Alles verbergen</button></p>
     <div id="parts-list"></div>
     <p class="hint" id="parts-empty" hidden>Geen onderdeel gevonden.</p>
   </aside>
 
-  <button id="quiz-toggle" class="icon-button" type="button" aria-label="Oefenen" aria-expanded="false" aria-controls="quiz" title="Oefenen" disabled>
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M12 4 2.5 8.2 12 12.4l9.5-4.2z"/>
-      <path d="M6.6 10.2v4.4c0 1.6 2.4 2.9 5.4 2.9s5.4-1.3 5.4-2.9v-4.4"/>
-      <path d="M21.5 8.2v4.6"/>
-    </svg>
-  </button>
 
   <!-- Oefenen: the start panel of the quiz; the card of a running round is built in quiz.js -->
-  <aside id="quiz" hidden>
-    <header>
-      <h2>Oefenen</h2>
-      <button id="quiz-close" type="button" class="link-button" aria-label="Sluiten">Sluiten</button>
-    </header>
-    <h3>Soort oefening</h3>
-    <div class="choices" id="quiz-kind">
-      <button type="button" data-kind="aanwijzen" aria-pressed="true">Aanwijzen</button>
-      <button type="button" data-kind="benoemen" aria-pressed="false">Benoemen</button>
-      <button type="button" data-kind="typen" aria-pressed="false">Typen</button>
-      <button type="button" data-kind="kies" aria-pressed="false">Kies het onderdeel</button>
-      <button type="button" data-kind="gemengd" aria-pressed="false">Gemengd</button>
-    </div>
-    <h3>Lengte</h3>
-    <div class="choices" id="quiz-length">
-      <button type="button" data-length="10" aria-pressed="true">10 vragen</button>
-      <button type="button" data-length="20" aria-pressed="false">20 vragen</button>
-      <button type="button" data-length="alles" aria-pressed="false">Alles</button>
-    </div>
-    <h3 id="quiz-level-head" hidden>Niveau</h3>
-    <div class="choices" id="quiz-level" hidden>
-      <button type="button" data-level="1" aria-pressed="false">CWO I</button>
-      <button type="button" data-level="2" aria-pressed="false">CWO II</button>
-      <button type="button" data-level="3" aria-pressed="true">CWO III</button>
-    </div>
-    <p class="hint" id="quiz-warning" hidden></p>
-    <p class="hint" id="quiz-total"></p>
-    <button id="quiz-start" type="button">Start</button>
-    <button id="quiz-wrong" type="button" hidden>Oefen fouten</button>
-    <p class="hint quiz-clear">
-      <button id="quiz-clear" type="button" class="link-button">Score wissen</button>
-      <span id="quiz-clear-confirm" hidden>Zeker weten?
-        <button id="quiz-clear-yes" type="button" class="link-button">Ja</button> ·
-        <button id="quiz-clear-no" type="button" class="link-button">Nee</button>
-      </span>
-    </p>
-    <p class="hint quiz-tables" id="quiz-tables-row" hidden>
-      <button id="quiz-tables" type="button" class="link-button">Tabellen</button>
-    </p>
-  </aside>
 
   <!-- debug.quiztabellen: the quiz configuration as it was resolved, and the parts no entry asks about -->
   <aside id="quiz-debug" hidden>
@@ -145,6 +61,11 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     <label class="color-row"><input id="cfg-bakskleur" type="color"><span>Bakskleur</span></label>
     <div id="zone-colors"></div>
     <button id="customize-reset" type="button">Standaardwaarden</button>
+    <h3>Animatie</h3>
+    <label class="speed"><span>Snelheid</span>
+      <input id="speed" type="range" min="0.25" max="2" step="0.05" value="1" aria-label="Snelheid van de animaties"></label>
+    <p class="hint">Pijltjes: verplaatsen · Shift + pijltjes: draaien · + / −: zoomen · Scrollen: inzoomen op de muisaanwijzer</p>
+    <p class="about-link"><button id="about-open" type="button" class="link-button">Over dit model</button></p>
   </aside>
 
   <!-- Volledig scherm, onder het tandwiel; het staat na het Aanpassen-paneel zodat de stylesheet
@@ -164,7 +85,8 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
 
   <!-- the boat controls: a row of icons along the bottom, each opening its own popover -->
   <nav id="controls" aria-label="Bediening">
-    <button id="mode-toggle" class="icon-button" type="button" aria-label="Modus" title="Modus" aria-expanded="false" aria-controls="mode-panel">
+    <!-- Boot: the mode, the course against the wind and the riemen, in one panel; its icon shows the mode -->
+    <button id="boat-toggle" class="icon-button" type="button" aria-label="Boot" title="Boot" aria-expanded="false" aria-controls="boat-panel">
       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <g data-mode="zeilen">
           <path d="M12 2.5v15.5"/>
@@ -183,74 +105,121 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
           <path d="M7.8 14.6c-2 0-3.3 1.1-3.3 2.4s1.3 2.4 3.3 2.4c3.4 0 5-4.8 8.4-4.8 2 0 3.3 1.1 3.3 2.4s-1.3 2.4-3.3 2.4c-3.4 0-5-4.8-8.4-4.8z"/>
         </g>
       </svg>
+      <span class="badge" id="reef-count" aria-hidden="true" hidden>0</span>
     </button>
-    <div id="mode-panel" class="popover" role="group" aria-label="Modus" hidden>
-      <div class="choices">
+    <div id="boat-panel" class="popover" role="group" aria-label="Boot" hidden>
+      <span class="caption">Modus</span>
+      <div id="mode-panel">
+        <div class="choices row">
         <button type="button" data-mode="zeilen" aria-pressed="true">Zeilen</button>
         <button type="button" data-mode="roeien" aria-pressed="false">Roeien</button>
         <button type="button" data-mode="wrikken" aria-pressed="false">Wrikken</button>
       </div>
-    </div>
-
-    <button id="wind-toggle" class="icon-button" type="button" aria-label="Wind" title="Wind" aria-expanded="false" aria-controls="wind-panel">
-      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" overflow="visible" aria-hidden="true">
+      </div>
+      <div id="wind-section">
+        <span class="caption">Wind <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" overflow="visible" aria-hidden="true">
         <!-- a cloud blowing: the cloud sits where the wind comes from, the arrow points where it goes -->
         <g id="wind-needle" transform="rotate(90 12 12)">
           <path d="M7 10.5h10a3.2 3.2 0 0 0 .6-6.35A4.6 4.6 0 0 0 10.2 3.1 2.2 2.2 0 0 0 6.6 4.6 3.1 3.1 0 0 0 7 10.5z"/>
           <path d="M10.6 13v4.6M13.4 13v4.6M8.2 17.6 12 22.4l3.8-4.8"/>
         </g>
-      </svg>
-    </button>
-    <div id="wind-panel" class="popover" role="group" aria-label="Koers ten opzichte van de wind" hidden>
-      <div id="course-markers"></div>
-      <input id="course" type="range" step="1" value="45" aria-label="Koers ten opzichte van de wind">
-      <div class="ticks" aria-hidden="true"></div>
-    </div>
-
-    <button id="reef-toggle" class="icon-button" type="button" aria-label="Reven" title="Reven" aria-expanded="false" aria-controls="reef-panel">
-      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M6 3v12"/>
-        <path d="M6 3 17.5 8.5 19 15"/>
-        <path d="M3 17.5h18"/>
-        <path d="M19.2 19.6a3 3 0 1 1-1-4.4"/>
-      </svg>
-      <span class="badge" id="reef-count" aria-hidden="true" hidden>0</span>
-    </button>
-    <div id="reef-panel" class="popover" role="group" aria-label="Reven" hidden>
-      <label class="reef"><span>Rif: <b id="reef-value">geen</b></span>
-        <input id="reef" type="range" min="0" max="6" step="1" value="0" aria-label="Aantal slagen om de giek"></label>
-    </div>
-
-    <button id="rig-toggle" class="icon-button" type="button" aria-label="Tuig" title="Tuig" aria-expanded="false" aria-controls="rig-panel">
-      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M8 3v17"/>
-        <path d="M8 16h12"/>
-        <path d="M10 13.5 19.5 12"/>
-        <path d="m4.5 8 3.5 3.5L11.5 8"/>
-      </svg>
-    </button>
-    <div id="rig-panel" class="popover" role="group" aria-label="Tuig" hidden>
-      <div class="choices">
-        <button type="button" data-rig="op" aria-pressed="true">Zeilen op</button>
-        <button type="button" data-rig="gestreken" aria-pressed="false">Zeilen gestreken</button>
-        <button type="button" data-rig="mast" aria-pressed="false">Mast gestreken</button>
+      </svg></span>
+        <div id="wind-panel" role="group" aria-label="Koers ten opzichte van de wind">
+          <div id="course-markers"></div>
+          <input id="course" type="range" step="1" value="45" aria-label="Koers ten opzichte van de wind">
+          <div class="ticks" aria-hidden="true"></div>
+        </div>
       </div>
-    </div>
-
-    <button id="oars-toggle" class="icon-button" type="button" aria-label="Riemen" title="Riemen" aria-expanded="false" aria-controls="oars-panel">
-      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M2.6 19 7.9 5.2"/>
-        <ellipse cx="8.7" cy="3" rx="1.7" ry="2.4" transform="rotate(21 8.7 3)"/>
-        <path d="M10.3 19 15.6 5.2"/>
-        <ellipse cx="16.4" cy="3" rx="1.7" ry="2.4" transform="rotate(21 16.4 3)"/>
-      </svg>
-      <span class="badge" id="oar-count" aria-hidden="true">2</span>
-    </button>
-    <div id="oars-panel" class="popover" role="group" aria-label="Riemen" hidden>
-      <div class="choices">
+      <div id="oars-section">
+        <span class="caption">Riemen</span>
+        <div id="oars-panel">
+          <div class="choices row">
         <button type="button" data-rowing="naast">2 naast elkaar</button>
         <button type="button" data-rowing="kruis">2 kruislings</button>
         <button type="button" data-rowing="vier">4 riemen</button>
+      </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+    <!-- Oefenen: first what to practise, then its own panel - Manoeuvres (handelingen.js) or
+         Onderdelen (quiz.js) -->
+    <button id="learn-toggle" class="icon-button" type="button" aria-label="Oefenen" title="Oefenen" aria-expanded="false" aria-controls="learn-panel" disabled>
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 4 2.5 8.2 12 12.4l9.5-4.2z"/>
+      <path d="M6.6 10.2v4.4c0 1.6 2.4 2.9 5.4 2.9s5.4-1.3 5.4-2.9v-4.4"/>
+      <path d="M21.5 8.2v4.6"/>
+    </svg>
+    </button>
+    <div id="learn-panel" class="popover" role="group" aria-label="Oefenen" hidden>
+      <span class="caption">Oefenen</span>
+      <div class="choices row" id="learn-kind">
+        <button type="button" data-learn="manoeuvres" id="learn-manoeuvres" aria-pressed="true">Manoeuvres</button>
+        <button type="button" data-learn="onderdelen" aria-pressed="false">Onderdelen</button>
+      </div>
+      <div id="ops-panel" class="learn-section">
+        <div class="ops">
+        <div class="kinds" id="ops-list" role="radiogroup" aria-label="Handeling"></div>
+        <div class="option" id="ops-turns-row" hidden>
+          <span>Slagen</span>
+          <div class="segmented" id="ops-turns" role="radiogroup" aria-label="Aantal slagen om de giek"></div>
+        </div>
+        <div class="option">
+          <div class="segmented" id="ops-mode" role="radiogroup" aria-label="Bekijken of oefenen">
+            <button type="button" role="radio" data-mode="bekijken" aria-checked="true">Bekijken</button>
+            <button type="button" role="radio" data-mode="oefenen" aria-checked="false">Oefenen</button>
+          </div>
+        </div>
+        <button id="ops-start" type="button" class="primary">Start</button>
+      </div>
+      </div>
+      <div id="quiz" class="learn-section" hidden>
+    <div class="kinds" id="quiz-kind" role="radiogroup" aria-label="Soort oefening">
+      <button type="button" role="radio" data-kind="aanwijzen" aria-checked="true"><b>Aanwijzen</b><span>Zoek het onderdeel in de boot</span></button>
+      <button type="button" role="radio" data-kind="benoemen" aria-checked="false"><b>Benoemen</b><span>Kies de goede naam uit vier</span></button>
+      <button type="button" role="radio" data-kind="kies" aria-checked="false"><b>Kies het onderdeel</b><span>Vier onderdelen lichten op</span></button>
+      <button type="button" role="radio" data-kind="typen" aria-checked="false"><b>Typen</b><span>Schrijf de naam zelf op</span></button>
+      <button type="button" role="radio" data-kind="gemengd" aria-checked="false"><b>Gemengd</b><span>Alles door elkaar</span></button>
+    </div>
+    <div class="option">
+      <span>Vragen</span>
+      <div class="segmented" id="quiz-length" role="radiogroup" aria-label="Aantal vragen">
+        <button type="button" role="radio" data-length="10" aria-checked="true">10</button>
+        <button type="button" role="radio" data-length="20" aria-checked="false">20</button>
+        <button type="button" role="radio" data-length="alles" aria-checked="false">Alles</button>
+      </div>
+    </div>
+    <div class="option" id="quiz-discipline-row" hidden>
+      <span>Diploma</span>
+      <div class="segmented" id="quiz-discipline" role="radiogroup" aria-label="Diploma">
+        <button type="button" role="radio" data-discipline="roeien" aria-checked="false">Roeien</button>
+        <button type="button" role="radio" data-discipline="zeilen" aria-checked="true">Zeilen</button>
+      </div>
+    </div>
+    <div class="option" id="quiz-level-row" hidden>
+      <span>Niveau</span>
+      <div class="segmented" id="quiz-level" role="radiogroup" aria-label="Niveau zeilen">
+        <button type="button" role="radio" data-level="1" aria-checked="false">I</button>
+        <button type="button" role="radio" data-level="2" aria-checked="false">II</button>
+        <button type="button" role="radio" data-level="3" aria-checked="true">III</button>
+      </div>
+    </div>
+    <p class="hint warning" id="quiz-warning" hidden></p>
+    <button id="quiz-start" type="button" class="primary">Start</button>
+    <button id="quiz-wrong" type="button" hidden>Oefen je fouten</button>
+    <footer>
+      <span id="quiz-total"></span>
+      <button id="quiz-clear" type="button" class="link-button">Wissen</button>
+      <span id="quiz-clear-confirm" hidden>Score wissen?
+        <button id="quiz-clear-yes" type="button" class="link-button">Ja</button>
+        <button id="quiz-clear-no" type="button" class="link-button">Nee</button>
+      </span>
+      <button id="quiz-tables" type="button" class="link-button" hidden>Tabellen</button>
+    </footer>
       </div>
     </div>
 
@@ -288,7 +257,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     </div>
   </nav>
 
-  <!-- the timeline of the procedure that is running (Reven, Tuig): it floats above the control bar,
+  <!-- the timeline of the procedure that is running (Reven, Zeilen, Mast): it floats above the control bar,
        and rides over an open popover so the two never cover each other -->
   <div id="procedure" role="group" aria-label="Stappen van de procedure" hidden>
     <button id="procedure-previous" class="icon-button" type="button" aria-label="Vorige stap" title="Vorige stap">
@@ -318,14 +287,6 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
       <div class="ticks" id="procedure-ticks" aria-hidden="true"></div>
     </div>
   </div>
-
-  <button id="about-toggle" class="icon-button" type="button" aria-label="Over dit model" aria-expanded="false" aria-controls="about" title="Over dit model">
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="9.2"/>
-      <path d="M12 11v5.5"/>
-      <path d="M12 7.6v.2"/>
-    </svg>
-  </button>
 
   <aside id="about" hidden>
     <header>
@@ -384,11 +345,20 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     <p class="hint" id="log-more" hidden>Nog meer te vinden…</p>
   </aside>
 
-  <div id="info" hidden>
-    <div class="group" id="info-group"></div>
-    <div class="name" id="info-name"></div>
-    <div class="note" id="info-note" hidden></div>
-    <div class="model" id="info-model" hidden>Modelnummer <b id="info-handle"></b><span class="more" id="info-more"></span></div>
+  <!-- the part card, in the bottom right corner: with nothing selected only its search button, which
+       opens the list of Onderdelen above it -->
+  <div id="info" class="leeg">
+    <button id="parts-toggle" class="info-search" type="button" aria-label="Zoek onderdeel" aria-expanded="false" aria-controls="parts" title="Zoek onderdeel">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/>
+      </svg>
+    </button>
+    <div class="body">
+      <div class="group" id="info-group"></div>
+      <div class="name" id="info-name"></div>
+      <div class="note" id="info-note" hidden></div>
+      <div class="model" id="info-model" hidden>Modelnummer <b id="info-handle"></b><span class="more" id="info-more"></span></div>
+    </div>
   </div>
   <div id="hover" hidden></div>
   <div id="loading">Model laden…</div>\n</div>\n`;

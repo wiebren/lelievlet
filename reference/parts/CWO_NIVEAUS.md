@@ -94,6 +94,13 @@ een roeiboot te kennen. … Toch is het **noodzakelijk om alle onderdelen te ken
 a 40-name list (`[JPR3]` p. 7) that is rowing-oriented: hull, thwarts, rowlocks, rudder, zwaard and
 the oar, and no rig at all. The `Roeiboot` column below says whether the name is in that 40-list.
 
+No source splits the 40 over Roeiboot I, II and III. The quiz follows that (owner's decision,
+2026-09-23): one **Roeien** level that asks every name marked `ja` below (`roeien: true` in
+`web/src/quizdata.js`), beside Zeilen I / II / III, which is the `niveau` column. Roei-only names
+the zeil drawing does not number are added from 85 on: 85 **Riem** (`[KATR]` nr. 38, `[JPR3]`
+p. 7 nr. 38), asked at Roeien only. The full 40-list with its quiz numbers is in
+`../book/ROEIEN.md`.
+
 ### Sailing-school sources vs. scouting sources — recorded disagreements
 
 * `[HBO]` is a generic CWO text: its mandatory lists name **kiel** (a lelievlet has none — `[MTX]`
@@ -137,7 +144,8 @@ the oar, and no rig at all. The `Roeiboot` column below says whether the name is
 ## 3. The table
 
 `Roeiboot` = the name is in the 40-name list that `[JPR3]` p. 7 / `[KATR]` §1.1 require for
-CWO Roeiboot I/II/III.
+CWO Roeiboot I/II/III, and is asked at the quiz level Roeien. Nr. 85 Riem, below the table, is the
+one roei-only entry.
 
 | nr | naam | niveau | Roeiboot | bron(nen) | vertrouwen |
 |---|---|---|---|---|---|
@@ -223,8 +231,9 @@ CWO Roeiboot I/II/III.
 | 82 | Hanepootloper | 3 | – | `[SNEEK]` p. 19 nr. 4 / p. 21 nr. 83 *Spruitloper* (geen `*`); buiten de onderdelenparagraaf nergens; staat niet in de 88-lijst van `[KB3L]` p. 10 | laag |
 | 83 | Dodemanseind | 3 | – | `[SNEEK]` p. 19 nr. 3 (geen `*`); `[KATZ]` p. 18 zegt er zelf bij: *"Het dodemanseind zit vaak niet op een lelievlet"*; staat niet in de 88-lijst van `[KB3L]` p. 10 | midden |
 | 84 | Spant | 3 | ja | `[SNEEK]` p. 20 nr. 51/74 (geen `*`); geen lestekst in de kielbootboeken; `[JPR3]` p. 7 nr. 34 | laag |
+| 85 | Riem | – | ja | roei-only: `[KATR]` §1.1 nr. 38, `[JPR3]` p. 7 nr. 38 (Handvat 39 en Blad 40 zijn delen ervan). Niet op de zeiltekening, dus niet bij Zeilen (`zeilen: false`) | hoog |
 
-**Verdeling:** niveau 1 — 30 namen; niveau 2 — 18 namen; niveau 3 — 34 namen (82 totaal).
+**Verdeling:** niveau 1 — 30 namen; niveau 2 — 18 namen; niveau 3 — 34 namen (82 totaal). Roeien — 35 namen (34 hierboven met `ja`, plus 85 Riem).
 
 ---
 

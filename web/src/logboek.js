@@ -15,7 +15,7 @@ const ENTRIES = {
   dn: 'LyREWXeAvg==',
   bs: 'KS5IUG2eq97+FA==',
   sv: 'OCJCQmqHt9DtDC1N',
-  sp: 'KClEW3KLt5f0DihPeMWYptvuEypMZJI=',
+  sp: 'ODFEWXCPstLp',
   sl: 'OC1IUm6EvJftEi1Nb4s=',
   mo: 'JiBDF3GYvMX5DyNYbg==',
   ve: 'MSREW3CbtNr+EmwbM9Ta',

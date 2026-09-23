@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
 import { initFlag, initLeechFlag } from './flag.js';
-import { Procedure } from './procedure.js';
+import { Procedure, Stretch } from './procedure.js';
+import { makeSteiger } from './haven.js';
 import { RopeLine, RopeStretch, roundTheFront, carry, layChain, makeBorgpen, makeCourseArrow, makeDol, makeKettinkje, makeKnevel, makeMik, makeRivet, makeBolts, makeStootwil, makeWater, makeWindArrow, makeWindVane,
          makeZwaardbout, pivotRotate, rotatedPoint, setOpacity, makeIsland, initSpinnaker, makeTugStern, makeWake } from './rig.js';
 import { naamVan, unpack } from './config.js';
@@ -163,7 +164,7 @@ class Bend {
   }
 }
 
-export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResize, engaged, realTarget, note = () => {} }) {
+export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResize, engaged, realTarget, note = () => {}, say = () => {} }) {
   const byId = new Map(parts.map((p) => [p.extras.id, p]));
   // the model as a whole, under the scene: what rolls when the boat rolls
   let boat = scene.getObjectByName('lelievlet');
@@ -289,7 +290,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   let reefing = null;                                               // the Procedure that is taking it to another number of turns
   let shown = null;                                                 // the procedure the progress bar is about
   let measuring = false;                                            // posed for a look ahead (measureAt): nothing may stick
-  const planReef = (turns) => {
+  const planReef = (turns, play = true) => {
     if (Math.abs(reef.turns - turns) < 1e-6 && reef.head + reef.slack + reef.slide + reef.pull < 1e-6) return;
     // Where to look from, in model space. The boat is near enough symmetric that either side will do:
     // the viewer takes the one nearer to the camera, and for the lummelbeslag the one the fok is not on.
@@ -311,8 +312,487 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       { key: 'slack', to: 0, seconds: 0.7, label: stap('Vallen doorzetten'), back: stap('Vallen vieren'), focus: VALLEN },
       ...(upwind ? [{ key: 'head', to: 0, seconds: 1.5, label: stap('Afvallen'), back: stap('Kop in de wind'), focus: VALLEN, like: 'slack' }] : []),
     ]);
-    reef = reefing.values; reefing.command(reefing.total); shown = reefing;
+    reef = reefing.values; shown = reefing;
+    if (play) reefing.command(reefing.total);
+    else { reefing.commanded = reefing.total; reefing.aim(reefing.total); }   // it waits at its start, to be practised
   };
+  // -- overstag gaan (wenden), in the order of the zeilinstructieboek (p. 70): hoog aan de wind;
+  // "Klaar om te wenden"; "Ree" - the helmstok away, and she comes up; "Fok los", the grootzeil
+  // pulled in until she lies head to wind; "Fok bak" while the voorlijk of the grootzeil kills, which
+  // turns her through; "Fok over" once the grootzeil fills on the new boeg; "Fok aan" when she is
+  // high on the wind again. Each step is a stretch of the course through the wind (TACK_COURSE), and
+  // of what the fok and the helmstok do on the way (layTack).
+  let tacking = null;
+  // the fok is held bak after the bow is through ("Fok bak houden") and helps her bear away on the
+  // new boeg (afvallen); only then it goes over and is sheeted in
+  const TACK_COURSE = { hoog: CLOSE_HAULED, ree: 38, los: 18, bak: -10, afvallen: -34, over: -40, aan: -CLOSE_HAULED };
+  const TACK_RUDDER = deg(25);                                      // how far the helmstok goes over
+  // -- gijpen, in the order of the zeilinstructieboek (p. 71): goed voor de wind; the helmsman over to
+  // lij; "Klaar voor de gijp!"; iets afvallen, and "Fok komt over!" as the stern goes through the
+  // wind; "Gijp!" - the grootschoot hauled in; tegensturen; the schoot eased out smoothly as the
+  // grootzeil passes midships; bijsturen. The course runs on past 180 (GYBE_COURSE) and the giek
+  // stays on the old side until it is hauled over (layTack, kind 'gijp').
+  // the course, relative to where the wind was: past 180 is over the new boeg. It ends at 155 on the new
+  // side, just off voor de wind, so the fok - te loevert before the gybe, which is the lee side after
+  // it - stays where it is and does not go te loevert again
+  const GYBE_COURSE = { voor: 172, afvallen: 179, fok: 181, gijp: 185, tegen: 195, bij: 205 };
+  const GYBE_RUDDER = deg(15);
+  const BOOM_HAULED = 10;                                           // the giek hauled in, just off midships
+  const planTurn = (kind, play = true) => {
+    const m0 = Math.abs(state.course);
+    // there is no going back through a tack: done again, it is another tack, from the other boeg -
+    // so every step is named the same both ways, and the procedure only goes forwards (oneWay)
+    const step = (key, seconds, label, focus, camera = null, say = null, by = 'roer') => ({ key, to: 1, seconds, label: stap(label), back: stap(label), focus, camera, say, by });
+    const REE_VIEW = { positie: [-1.742, 3.392, 2.549], doel: [0.319, 0.622, 0.008] };   // over the helmstok, from astern
+    const teLoevert = m0 >= DOWNWIND;                               // the fok is te loevert voor de wind already
+    if (kind === 'gijp') tacking = new Procedure('Gijpen', { voor: 0, verzit: 0, klaar: 0, afvallen: 0, fok: 0, gijp: 0, tegen: 0, vieren: 0, bij: 0 }, [
+      step('voor', 0.6 + Math.max(GYBE_COURSE.voor - m0, 0) / 30, 'Goed voor de wind', ['grootzeil', 'fok']),   // from ruime wind it bears away first
+      step('verzit', 1, 'Stuurman naar lij', ['helmstok'], REE_VIEW),
+      step('klaar', 1, 'Klaar voor de gijp', ['giek', 'grootschoot'], null, 'Klaar voor de gijp!'),
+      step('afvallen', 1.2, 'Iets afvallen', ['helmstok', 'roerblad'], REE_VIEW),
+      // the fok comes over to te loevert as she bears off past dead downwind; already there, no step
+      ...(teLoevert ? [] : [step('fok', 1.2, 'Fok komt over', ['fok', 'fokkenschoot'], null, 'Fok komt over!', 'fok')]),
+      // the grootschoot hand over hand, not a klapgijp: the giek comes in and goes out under control
+      step('gijp', 3.5, 'Gijp! Grootschoot inhalen', ['giek', 'grootschoot'], null, 'Gijp!'),
+      step('tegen', 0.8, 'Tegensturen', ['helmstok', 'roerblad'], REE_VIEW),
+      step('vieren', 4, 'Schoot uitvieren', ['giek', 'grootschoot']),
+      step('bij', 1, 'Bijsturen', ['helmstok', 'roerblad']),
+    ]);
+    // the stormrondje (p. 72): instead of a gybe, oploeven to high on the wind, overstag, and afvallen
+    // on the new boeg to the course she came from. The tack is the overstag's own, keys and all, only
+    // its one afvallen goes all the way down, the fok still bak, and the fok comes over after that
+    else if (kind === 'storm') tacking = new Procedure('Stormrondje', { hoog: 0, klaar: 0, ree: 0, los: 0, bak: 0, houden: 0, afvallen: 0, over: 0, aan: 0 }, [
+      step('hoog', 0.8 + Math.max(m0 - CLOSE_HAULED, 0) / 45, 'Oploeven', ['grootzeil', 'fok', 'grootschoot']),
+      step('klaar', 1, 'Klaar om te wenden', ['helmstok', 'fok'], null, 'Klaar om te wenden!'),
+      step('ree', 1, 'Ree', ['helmstok', 'roerblad'], REE_VIEW, 'Ree!'),
+      step('los', 1.5, 'Fok los', ['fok', 'fokkenschoot'], null, 'Fok los!'),
+      step('bak', 2, 'Fok bak', ['fok', 'fokkenschoot'], null, 'Fok bak!'),
+      step('houden', 1, 'Fok bak houden', ['fok', 'fokkenschoot'], null, 'Fok bak houden!'),
+      step('afvallen', 1.5 + Math.max(m0 - CLOSE_HAULED, 0) / 45, 'Afvallen', ['helmstok', 'roerblad', 'fok']),   // all the way down, the fok bak
+      step('over', 1.5, 'Fok over', ['fok', 'fokkenschoot'], null, 'Fok over!'),
+      step('aan', 1.5, 'Fok aan', ['fok', 'fokkenschoot'], null, 'Fok aan!'),
+    ]);
+    else tacking = new Procedure('Overstag', { hoog: 0, klaar: 0, ree: 0, los: 0, bak: 0, houden: 0, afvallen: 0, over: 0, aan: 0 }, [
+      step('hoog', 0.6 + Math.max(m0 - CLOSE_HAULED, 0) / 30, 'Hoog aan de wind', ['grootzeil', 'fok']),   // from halve wind it luffs up first
+      step('klaar', 1, 'Klaar om te wenden', ['helmstok', 'fok'], null, 'Klaar om te wenden!'),
+      step('ree', 1, 'Ree', ['helmstok', 'roerblad'], REE_VIEW, 'Ree!'),
+      step('los', 1.5, 'Fok los', ['fok', 'fokkenschoot'], null, 'Fok los!'),
+      step('bak', 2, 'Fok bak', ['fok', 'fokkenschoot'], null, 'Fok bak!'),
+      step('houden', 1, 'Fok bak houden', ['fok', 'fokkenschoot'], null, 'Fok bak houden!'),
+      step('afvallen', 1.5, 'Afvallen', ['helmstok', 'roerblad', 'fok']),
+      step('over', 1.5, 'Fok over', ['fok', 'fokkenschoot'], null, 'Fok over!'),
+      step('aan', 1.5, 'Fok aan', ['fok', 'fokkenschoot'], null, 'Fok aan!'),
+    ]);
+    tacking.oneWay = true; tacking.kind = kind; tacking.teLoevert = teLoevert;
+    tacking.from = m0; tacking.side = Math.sign(state.course) || 1;
+    shown = tacking;
+    if (play) tacking.command(tacking.total);
+    else { tacking.commanded = tacking.total; tacking.aim(tacking.total); }   // it waits at its start, to be practised
+  };
+  // -- afmeren aan een langswal: coming in by the sliplanding of the zeilinstructieboek (p. 79),
+  // then made fast in the order of p. 67 and of the roei-instructieboek (p. 3). She luffs up to aan
+  // de wind, heading for the wal; the stootwillen go out on that side; well before it the sails are
+  // let go until they shake, and she brakes on the wind; the grootzeil in again for a little more
+  // way; and she luffs up alongside, head to wind, and comes to a stop. The wind comes from ahead, so
+  // the voorlandvast goes first - the other way round she swings off - then the achterlandvast;
+  // then the achterspring and the voorspring, which keep her from going to and fro along the wal.
+  // The way in is laid out first and the steiger beside where it ends, on the side she does not
+  // come from: to leeward of her, the wind along it.
+  let berthing = null;
+  const LINE_SECONDS = 2;                                           // a line carried ashore and made fast
+  const BERTH_WAL = 18; const BERTH_BOLDER = 2;                   // m: the steiger afmeren lays, and its bolder for the voorlandvast
+  const STAND_OFF = 0.7;                                            // m she stops short of the stootwillen: the landvasten haul her in
+  const HULL_SPAN = 5.4;                                            // m between where the voor- and achterlandvast pull
+  // the sliplanding: metres of each stretch, and the speed at either end of it (m/s)
+  const SLIP = { turn: 4, fenders: 3.4, brake: 2.6, draw: 1.6, luff: 2.5, glide: 1.0 };
+  const SLIP_SPEED = { hoog: [1.4, 1.4], willen: [1.4, 1.4], los: [1.4, 0.6], aan: [0.6, 1.0], langszij: [1.0, 0] };
+  const starboardOf = (d, out = new THREE.Vector3()) => out.set(-d.z, 0, d.x);
+  /** d turned by `a` radians, to starboard for a > 0. */
+  const turned = (d, a) => d.clone().multiplyScalar(Math.cos(a)).addScaledVector(starboardOf(d), Math.sin(a));
+  /** The sliplanding laid out from where she is: the points of her way, and where each step begins and ends. */
+  const slipWay = () => {
+    const s = Math.sign(state.course) || 1;                         // +1: the wind over starboard, the wal to port
+    const up = windFrom(); const aanDeWind = turned(up, -s * deg(CLOSE_HAULED));
+    const pts = [PIVOT.clone()]; const marks = {};
+    let d = fwdOf(dock.heading); let p = PIVOT.clone(); let run = 0;
+    const go = (len, bend = 0) => {                                 // on, turning `bend` radians over the stretch
+      const n = Math.max(Math.ceil(len / 0.05), 1);
+      for (let i = 0; i < n; i++) { d = turned(d, bend / n); p = p.clone().addScaledVector(d, len / n); pts.push(p); }
+      run += len;
+    };
+    const turn = Math.atan2(starboardOf(d).dot(aanDeWind), d.dot(aanDeWind));   // to aan de wind: up, mostly
+    marks.hoog = [run]; if (Math.abs(turn) > deg(2)) go(SLIP.turn * Math.abs(turn), turn); marks.hoog.push(run);
+    marks.willen = [run]; go(SLIP.fenders); marks.willen.push(run);
+    marks.los = [run]; go(SLIP.brake); marks.los.push(run);
+    marks.aan = [run]; go(SLIP.draw); marks.aan.push(run);
+    marks.langszij = [run]; go(SLIP.luff * deg(CLOSE_HAULED), s * deg(CLOSE_HAULED)); go(SLIP.glide); marks.langszij.push(run);
+    // how long each stretch takes: the speed goes evenly from what it was to what it is at the end
+    const seconds = Object.fromEntries(Object.entries(marks).map(([k, [a0, a1]]) => [k, (2 * (a1 - a0)) / (SLIP_SPEED[k][0] + SLIP_SPEED[k][1])]));
+    return { pts, marks, seconds, length: run, side: s > 0 ? 'bb' : 'sb', up, s, turn };
+  };
+  /** Where she is along the way (m) at `u` (0..1) of the step `key`. */
+  const slipAt = (way, key, u) => {
+    const [a0] = way.marks[key]; const T = way.seconds[key]; const [va, vb] = SLIP_SPEED[key];
+    const t = u * T; return a0 + va * t + ((vb - va) * t * t) / (2 * Math.max(T, 1e-6));
+  };
+  const planBerthing = (play = true) => {
+    // a new world, the boat where she is; the way in, and the steiger beside its end
+    if (leaving) { if (shown === leaving) shown = null; leaving = null; }   // the last afvaren is done with
+    if (turning) { if (shown === turning) shown = null; turning = null; }
+    layWal(null);
+    dock.windAtLaying = now.windAngle; dock.p.copy(PIVOT); frameWorld(); clearTrack();
+    const slip = slipWay();
+    const end = slip.pts[slip.pts.length - 1];
+    const out = starboardOf(slip.up).multiplyScalar(slip.s);         // from the steiger towards her
+    // her berth: a bolder LINE_REACH ahead of the bow
+    const bowAt = dock.eyes.sb.voor.x - PIVOT.x;
+    // the steiger long enough for her to be turned round her bow on it (kop in de wind leggen): the
+    // bolder her voorlandvast goes to a little past its middle, so there is her length beyond her bow
+    const o = end.clone().addScaledVector(out, -(HALF_BEAM + FENDER_GAP + STAND_OFF)).addScaledVector(slip.up, bowAt + LINE_REACH - BERTH_BOLDER);
+    placeWal('langswal', slip.up.clone(), out, o, makeSteiger({ length: BERTH_WAL }));
+    const length = slip.length;
+    const path = (u, target) => {                                   // the point `u` (0..1) of the way along it
+      const at = clamp(u, 0, 1) * (slip.pts.length - 1); const i = Math.min(Math.floor(at), slip.pts.length - 2);
+      return target.lerpVectors(slip.pts[i], slip.pts[i + 1], at - i);
+    };
+    const way = { path, k: 0, last: PIVOT.clone(), side: slip.side, wind: dock.windAtLaying - Math.atan2(slip.up.z, slip.up.x), slip, out };
+    dock.side = way.side; dock.mooredWind = way.wind;
+    const step = (key, seconds, label, focus, camera = null, say = null, by = 'roer') => ({ key, to: 1, seconds, label: stap(label), back: stap(label), focus, camera, say, by });
+    const seconds = (key) => Math.max(slip.seconds[key], 0.4);
+    berthing = new Procedure('Afmeren', { hoog: 0, willen: 0, los: 0, aan: 0, langszij: 0, voor: 0, achter: 0, aspring: 0, vspring: 0 }, [
+      ...(slip.marks.hoog[1] > slip.marks.hoog[0] ? [step('hoog', seconds('hoog'), 'Oploeven tot aan de wind', ['grootzeil', 'fok'])] : []),
+      step('willen', seconds('willen'), 'Stootwillen uit', ['stootwillen'], null, 'Stootwillen uit!'),
+      step('los', seconds('los'), 'Zeilen los', ['grootzeil', 'fok', 'grootschoot'], null, 'Zeilen los!'),
+      step('aan', seconds('aan'), 'Grootzeil aan', ['grootzeil', 'grootschoot'], null, 'Grootzeil aan!'),
+      step('langszij', seconds('langszij'), 'Oploeven, langszij', ['helmstok', 'stootwillen']),
+      step('voor', LINE_SECONDS, 'Voorlandvast vastmaken', ['voorlandvast', 'sleepoog_boeg'], null, 'Voorlandvast vast!'),
+      step('achter', LINE_SECONDS, 'Achterlandvast vastmaken', ['achterlandvast', 'landvastogen'], null, 'Achterlandvast vast!'),
+      step('aspring', LINE_SECONDS, 'Achterspring vastmaken', ['landvastogen'], null, 'Achterspring vast!'),
+      step('vspring', LINE_SECONDS, 'Voorspring vastmaken', ['sleepoog_boeg'], null, 'Voorspring vast!'),
+    ]);
+    berthing.oneWay = true; berthing.way = way; berthing.length = length;
+    // for Oefenen: the grootzeil in again only after the sails were let go; the springs after the
+    // landvasten, the voorspring after the achterspring as the book has it. Anything else too early
+    // is a mistake: alongside before the stootwillen are out, a landvast before she lies there, the
+    // achterlandvast first with the wind from ahead
+    berthing.needs = { aan: ['los'], aspring: ['voor', 'achter'], vspring: ['aspring'] };
+    shown = berthing;
+    if (play) berthing.command(berthing.total);
+    else { berthing.commanded = berthing.total; berthing.aim(berthing.total); }
+  };
+  /** How far along her way in she is, 0..1, as the steps have it. */
+  const berthK = () => {
+    const v = berthing.values; const way = berthing.way.slip; let at = 0;
+    if (v.langszij >= 1) return 1;                                  // there: not a rounding short of it
+    for (const key of ['hoog', 'willen', 'los', 'aan', 'langszij']) if (v[key] > 0) at = slipAt(way, key, v[key]);
+    return clamp(at / berthing.length, 0, 1);
+  };
+  let berthTrims = false;                                           // afmeren has the sails: let go, and drawn again
+  /** The stootwillen on the wal side, as far out as afmeren has them, and the sails as it has them. */
+  const layBerth = () => {
+    if (berthTrims) { tackTrim.jib = null; tackTrim.luff = 0; tackTrim.belly = null; tackTrim.bend = null; tackTrim.flap = null; tackTrim.boom = null; berthTrims = false; }
+    if (!berthing) return;
+    const v = berthing.values;
+    const out = v.willen; const side = dock.side === 'sb' ? 1 : -1;
+    for (const w of stootwillen) if (w.side === side && !w.sea) { w.want = out; w.at = out; }
+    // let go, both sails shake and the giek goes out with the wind; the grootzeil drawn again; luffing
+    // up alongside it is let go once more, and head to wind everything shakes by itself
+    const jibLoose = smoothstep(v.los) * (1 - smoothstep(v.voor));
+    const mainLoose = Math.max(smoothstep(v.los) * (1 - smoothstep(v.aan)), smoothstep(v.langszij)) * (1 - smoothstep(v.voor));
+    if (jibLoose < 1e-4 && mainLoose < 1e-4) return;
+    const s = Math.sign(state.course) || berthing.way.slip.s; const c = Math.abs(state.course);
+    tackTrim.luff = mainLoose; tackTrim.flap = jibLoose;
+    tackTrim.boom = s * THREE.MathUtils.lerp(interp(BOOM, Math.max(c, CLOSE_HAULED)), c, mainLoose);
+    tackTrim.jib = s * THREE.MathUtils.lerp(Math.abs(jibFor(s, Math.max(c, CLOSE_HAULED))), c * 0.4, jibLoose);
+    tackTrim.belly = s * (1 - 0.8 * jibLoose);
+    berthTrims = true;
+  };
+  /** Afmeren is shown from when it is set up until TURN_TAIL seconds after it is made fast. */
+  const berthShown = () => procShown(berthing);
+  /** A procedure is shown from when it is set up until TURN_TAIL seconds after its last step. */
+  const procShown = (proc) => {
+    if (!proc) return false;
+    if (proc.t < proc.total - 1e-6 || proc.playing) { proc.endedAt = null; return true; }
+    proc.endedAt ??= now.t;
+    return now.t - proc.endedAt < TURN_TAIL;
+  };
+
+  // -- afvaren van langswal, in the order of the zeilinstructieboek (p. 77): she lies head to wind
+  // with the sails up. The lines come in the other way round from how they went out (roei-
+  // instructieboek p. 3): the springs, the achterlandvast, and the voorlandvast last - with the wind
+  // from ahead, that is the one that holds her. Look whether the way is clear; the one on the wal
+  // lets the voorlandvast go, pulls her forward for a little way and pushes the bow off, calmly. The
+  // fok held bak turns her bow away from the wal - not all at once, or the spiegel swings into it;
+  // with room enough the fok comes over and the grootzeil is pulled in, and she sails away aan de
+  // wind. Clear of the wal the stootwillen come in.
+  let leaving = null;
+  const LEAVE_SPEED = { voor: [0, 0.7], bak: [0.7, 0.8], fok: [0.8, 1.0], aan: [1.0, 1.4], willen: [1.4, 1.4] };
+  const LEAVE_COURSE = 60;                                          // aan de wind, a little free: she sails off on it
+  /** The way off the wal from where she lies: its points, the heading at each, and where each step runs. */
+  const leaveWay = () => {
+    const { n: out } = edge();                                      // from the steiger towards her
+    const bow = fwdOf(dock.heading); const start = dock.p.clone();
+    const turn = Math.sign(starboardOf(bow).dot(out)) || 1;          // away from the wal: +1 to starboard
+    const heading0 = dock.heading;
+    const pts = [start.clone()]; const headings = [heading0]; const marks = {}; let run = 0;
+    // pulled forward and pushed off: mostly sideways, the bow turned a little
+    const PUSH = { ahead: 1.0, off: 0.9, turn: deg(12) };
+    marks.voor = [0];
+    for (let i = 1; i <= 30; i++) {
+      const u = i / 30; const k = smoothstep(u);
+      const p = start.clone().addScaledVector(bow, PUSH.ahead * u).addScaledVector(out, PUSH.off * k);
+      run += p.distanceTo(pts[pts.length - 1]); pts.push(p); headings.push(heading0 + turn * PUSH.turn * k);
+    }
+    marks.voor.push(run);
+    let d = turned(bow, turn * PUSH.turn); let p = pts[pts.length - 1];
+    const go = (key, len, bend = 0) => {
+      marks[key] = [run];
+      const steps = Math.max(Math.ceil(len / 0.05), 1);
+      for (let i = 0; i < steps; i++) {
+        d = turned(d, bend / steps); p = p.clone().addScaledVector(d, len / steps);
+        pts.push(p); headings.push(Math.atan2(d.z, d.x));
+      }
+      run += len; marks[key].push(run);
+    };
+    go('bak', 2.5, turn * (deg(CLOSE_HAULED) - PUSH.turn));        // the fok bak turns her on to aan de wind
+    go('fok', 1.2);
+    go('aan', 4, turn * deg(LEAVE_COURSE - CLOSE_HAULED));         // the grootzeil in; a little further off the wind
+    go('willen', 3.8);
+    const seconds = Object.fromEntries(Object.entries(marks).map(([k, [a0, a1]]) => [k, (2 * (a1 - a0)) / (LEAVE_SPEED[k][0] + LEAVE_SPEED[k][1])]));
+    // unwrap the headings, so the way between two of them is the short one
+    for (let i = 1; i < headings.length; i++) headings[i] = headings[i - 1] + wrapPi(headings[i] - headings[i - 1]);
+    return { pts, headings, marks, seconds, length: run, start, f: -turn };   // f: the side the wind will be over
+  };
+  const planLeaving = (play = true) => {
+    if (berthing) { if (shown === berthing) shown = null; berthing = null; }   // made fast: afmeren is done with
+    if (turning) { if (shown === turning) shown = null; turning = null; }
+    const way = leaveWay();
+    const at = (list, u) => {                                       // the point `u` (0..1) of the way, and its heading
+      const x = clamp(u, 0, 1) * (way.pts.length - 1); const i = Math.min(Math.floor(x), way.pts.length - 2);
+      return [list, i, x - i];
+    };
+    const path = (u, target) => { const [, i, f] = at(way.pts, u); return target.lerpVectors(way.pts[i], way.pts[i + 1], f); };
+    const heading = (u) => { const [, i, f] = at(way.headings, u); return THREE.MathUtils.lerp(way.headings[i], way.headings[i + 1], f); };
+    const step = (key, seconds, label, focus, camera = null, say = null, by = 'roer') => ({ key, to: 1, seconds, label: stap(label), back: stap(label), focus, camera, say, by });
+    const seconds = (key) => Math.max(way.seconds[key], 0.4);
+    leaving = new Procedure('Afvaren', { vspring: 0, aspring: 0, achter: 0, kijken: 0, voor: 0, bak: 0, fok: 0, aan: 0, willen: 0 }, [
+      step('vspring', LINE_SECONDS, 'Voorspring losmaken', ['sleepoog_boeg'], null, 'Voorspring los!'),
+      step('aspring', LINE_SECONDS, 'Achterspring losmaken', ['landvastogen'], null, 'Achterspring los!'),
+      step('achter', LINE_SECONDS, 'Achterlandvast losmaken', ['achterlandvast', 'landvastogen'], null, 'Achterlandvast los!'),
+      step('kijken', 1.5, 'Kijken of de vaarweg vrij is', ['grootzeil', 'fok'], null, 'Vaarweg vrij?'),
+      step('voor', seconds('voor'), 'Voorlandvast los, afduwen', ['voorlandvast', 'sleepoog_boeg', 'stootwillen'], null, 'Voorlandvast los, afduwen!'),
+      step('bak', seconds('bak'), 'Fok bak houden', ['fok', 'fokkenschoot'], null, 'Fok bak houden!'),
+      step('fok', seconds('fok'), 'Fok over', ['fok', 'fokkenschoot'], null, 'Fok over!'),
+      step('aan', seconds('aan'), 'Grootzeil aan', ['grootzeil', 'grootschoot'], null, 'Grootzeil aan!'),
+      step('willen', seconds('willen'), 'Stootwillen binnen', ['stootwillen']),
+    ]);
+    leaving.oneWay = true; leaving.way = { path, heading, k: 0, last: way.start.clone(), slip: way };
+    // for Oefenen: the voorlandvast let go before the rest is a mistake - she swings off with her
+    // stern to the wal, hanging on the achterlandvast. The achterspring follows the voorspring (the
+    // other way round from making fast), the fok comes over once it has turned her and then the
+    // grootzeil is pulled in; the stootwillen come in once she is off
+    leaving.needs = { aspring: ['vspring'], fok: ['bak'], aan: ['fok'], willen: ['voor'] };
+    shown = leaving;
+    if (play) leaving.command(leaving.total);
+    else { leaving.commanded = leaving.total; leaving.aim(leaving.total); }
+  };
+  /** How far along her way off she is, 0..1, as the steps have it. */
+  const leaveK = () => {
+    const v = leaving.values; const way = leaving.way.slip; let at = 0;
+    if (v.willen >= 1) return 1;
+    for (const key of ['voor', 'bak', 'fok', 'aan', 'willen']) {
+      if (!(v[key] > 0)) continue;
+      const [a0] = way.marks[key]; const T = way.seconds[key]; const [va, vb] = LEAVE_SPEED[key];
+      const t = v[key] * T; at = a0 + va * t + ((vb - va) * t * t) / (2 * Math.max(T, 1e-6));
+    }
+    return clamp(at / way.length, 0, 1);
+  };
+  /** The stootwillen in once she is clear, and the sails as afvaren has them. */
+  const layLeave = () => {
+    if (!leaving || leaving.t >= leaving.total - 1e-6) return;
+    const v = leaving.values; const f = leaving.way.slip.f;
+    const side = dock.side === 'sb' ? 1 : -1;
+    for (const w of stootwillen) if (w.side === side && !w.sea) { w.want = 1 - v.willen; w.at = 1 - v.willen; }
+    // the grootzeil shakes until it is pulled in; the fok shakes, is held bak, and goes over
+    const c = Math.abs(state.course);
+    const [bak, over] = [smoothstep(v.bak), smoothstep(v.fok)];
+    const mainLoose = 1 - smoothstep(v.aan);
+    const backed = jibFor(-f, CLOSE_HAULED); const trimmed = jibFor(f, Math.max(c, CLOSE_HAULED)); const loose = f * c * 0.4;
+    let jib = THREE.MathUtils.lerp(loose, backed, bak);
+    if (v.fok > 0) jib = THREE.MathUtils.lerp(backed, trimmed, over);
+    tackTrim.luff = mainLoose;
+    tackTrim.boom = f * THREE.MathUtils.lerp(interp(BOOM, Math.max(c, CLOSE_HAULED)), c, mainLoose);
+    tackTrim.jib = jib;
+    tackTrim.flap = (1 - bak) * (1 - over) + Math.sin(Math.PI * over) * 0.6;
+    tackTrim.belly = v.fok > 0 ? THREE.MathUtils.lerp(f, clamp(trimmed / 10, -1, 1), over) : THREE.MathUtils.lerp(clamp(jib / 10, -1, 1), f, bak);
+    tackTrim.bend = bak > 0 && over < 1 ? interp(FOK_BEND, CLOSE_HAULED) : null;
+    berthTrims = true;
+  };
+
+  // -- kop in de wind leggen, made fast with the wind from behind (the zeilinstructieboek asks her
+  // head to wind before afvaren van langswal, p. 77; this is how she is turned there without sails):
+  // a stootwil to the bow, where she will lean on the wal; every line off but the voorspring, which
+  // holds her against the wind; the stootwillen of the other side out, the spiegel pushed off, and
+  // the wind swings her round her bow until she lies alongside again, head to wind, with her other
+  // side to the wal. Then the lines are made fast again, the voorspring led to its own bolder.
+  let turning = null;
+  const SWING = { push: deg(12), seconds: 10 };
+  const windFromBehind = () => Math.abs(state.course) >= 135;
+  const planTurning = (play = true) => {
+    if (berthing) { if (shown === berthing) shown = null; berthing = null; }   // made fast: afmeren is done with
+    if (leaving) { if (shown === leaving) shown = null; leaving = null; }
+    const { n: out } = edge();
+    const h0 = dock.heading; const bow = fwdOf(h0);
+    const bowAt = dock.eyes.sb.voor.x - PIVOT.x;
+    const oldSide = dock.side === 'sb' ? 1 : -1;
+    // the spiegel goes out from the wal: the bow turns in towards it, and she goes round on it
+    const sign = -Math.sign(starboardOf(bow).dot(out)) || 1;
+    // the bolder the voorspring is on: it stays there all the way round
+    const eye = dock.eyes[dock.side].voor;
+    const mid = (dock.eyes[dock.side].voor.x + dock.eyes[dock.side].achter.x) / 2;
+    const inBoat = dock.bolders.map((b) => toBoat(b, new THREE.Vector3()));
+    const spring = inBoat.reduce((a, b) => (Math.abs(b.x - mid) < Math.abs(a.x - mid) ? b : a));
+    const geo = { h0, sign, bowAt, B: dock.p.clone().addScaledVector(bow, bowAt), oldSide, newSide: -oldSide,
+                  springAt: toWorld(spring, new THREE.Vector3()), eye };
+    const byX = (side) => stootwillen.filter((w) => w.side === side).sort((a, b) => b.tie.x - a.tie.x);
+    geo.bowFender = byX(oldSide)[0]; geo.sternFender = byX(oldSide).at(-1);
+    const step = (key, seconds, label, focus, camera = null, say = null, by = 'roer') => ({ key, to: 1, seconds, label: stap(label), back: stap(label), focus, camera, say, by });
+    turning = new Procedure('Kop in de wind', { boeg: 0, vlos: 0, aslos: 0, alos: 0, afduwen: 0, draaien: 0,
+      achter: 0, aspring: 0, vspring: 0, boegin: 0 }, [
+      step('boeg', 3, 'Stootwil naar de boeg', ['stootwillen', 'sleepoog_boeg'], null, 'Stootwil naar de boeg!'),
+      step('vlos', LINE_SECONDS, 'Voorlandvast losmaken', ['voorlandvast', 'sleepoog_boeg'], null, 'Voorlandvast los!'),
+      step('aslos', LINE_SECONDS, 'Achterspring losmaken', ['landvastogen'], null, 'Achterspring los!'),
+      step('alos', LINE_SECONDS, 'Achterlandvast losmaken', ['achterlandvast', 'landvastogen'], null, 'Achterlandvast los!'),
+      step('afduwen', 2.5, 'Spiegel afduwen', ['spiegel', 'stootwillen'], null, 'Spiegel afduwen!'),
+      // while she goes round, the stootwillen go over to the side that will lie against the wal
+      step('draaien', SWING.seconds, 'Over de boeg draaien', ['sleepoog_boeg', 'stootwillen'], null, 'Stootwillen naar de andere kant!'),
+      step('achter', LINE_SECONDS, 'Achterlandvast vastmaken', ['achterlandvast', 'landvastogen'], null, 'Achterlandvast vast!'),
+      step('aspring', LINE_SECONDS, 'Achterspring vastmaken', ['landvastogen'], null, 'Achterspring vast!'),
+      step('vspring', LINE_SECONDS, 'Voorspring vastmaken', ['sleepoog_boeg'], null, 'Voorspring vast!'),
+      step('boegin', 3, 'Stootwil van de boeg binnen', ['stootwillen']),
+    ]);
+    turning.oneWay = true; turning.geo = geo;
+    // for Oefenen: the spiegel pushed off before the lines are off, a line fast before she lies
+    // alongside again - mistakes. The orders the book leaves open are chained, so they are not
+    turning.needs = { vlos: ['boeg'], aslos: ['vlos'], alos: ['aslos'], aspring: ['achter'], vspring: ['aspring'], boegin: ['vspring'] };
+    shown = turning;
+    if (play) turning.command(turning.total);
+    else { turning.commanded = turning.total; turning.aim(turning.total); }
+  };
+  /** Whether a procedure has her heading in hand while she is made fast: from its start to its end. */
+  const driving = (proc) => Boolean(proc) && (proc.playing || proc.t < proc.total - 1e-6);
+  /** The stootwillen as kop in de wind leggen has them. */
+  const layTurn = () => {
+    if (!turning) return;
+    const v = turning.values; const g = turning.geo;
+    for (const w of stootwillen) {
+      if (w.sea) continue;
+      let at = w.at;
+      if (w === g.bowFender) {                                      // to the bow; at the end back, and in
+        w.bow = v.boegin > 0 ? 1 - clamp(2 * v.boegin, 0, 1) : v.boeg;
+        at = 1 - clamp(2 * v.boegin - 1, 0, 1);
+      } else if (w === g.sternFender) at = 1 - clamp(v.draaien / 0.3, 0, 1);   // in first, as she swings off
+      else if (w.side === g.newSide) at = clamp((v.draaien - 0.2) / 0.4, 0, 1);   // and out on the other side before she comes back to the wal
+      w.at = at; w.want = at;
+    }
+  };
+  /** Per frame: the lines and, while it has her, where she lies and which way she points. */
+  const stepTurning = () => {
+    const v = turning.values; const g = turning.geo;
+    const round = v.draaien >= 0.5;                                 // past half way she has her other side to the wal
+    dock.side = (round ? g.newSide : g.oldSide) > 0 ? 'sb' : 'bb';
+    // the voorspring stays on its bolder all the way round; once round, that bolder is ahead of her
+    // bow and the line is her voorlandvast. A new voorspring goes out to the bolder by her middle
+    dock.lineAt.voor = round ? 1 : 1 - v.vlos; dock.pin.voor = round ? g.springAt : null;
+    dock.lineAt.aspring = round ? v.aspring : 1 - v.aslos;
+    dock.lineAt.achter = round ? v.achter : 1 - v.alos;
+    dock.lineAt.vspring = round ? v.vspring : 1; dock.pin.vspring = round ? null : g.springAt;
+    if (!driving(turning) && turning.posedAt === turning.t) return;   // at rest, the wind may turn round her
+    turning.posedAt = turning.t;
+    const turn = SWING.push * smoothstep(v.afduwen) + (Math.PI - SWING.push) * smoothstep(v.draaien);
+    const heading = g.h0 + g.sign * turn;
+    dock.p.copy(g.B).addScaledVector(fwdOf(heading, tmp1), -g.bowAt);   // round her bow, which stays where it is
+    now.windAngle = dock.windAtLaying - heading; dock.mooredWind = now.windAngle;
+    const course = Math.round(THREE.MathUtils.radToDeg(wrapPi(now.windAngle))) || 0;
+    if (course !== state.course) { tackSteers = true; setCourse(course); tackSteers = false; }
+  };
+  const TURN_TAIL = 5;                                              // s the track goes on after the last step
+  /** Whether a turn is being shown: from when it is set up - playing, or waiting at its start to be
+   *  practised - until TURN_TAIL seconds after its last step. Its track is drawn meanwhile. */
+  const turnShown = () => {
+    if (!tacking) return false;
+    if (tacking.t < tacking.total - 1e-6 || tacking.playing) { tacking.endedAt = null; return true; }
+    tacking.endedAt ??= now.t;
+    return now.t - tacking.endedAt < TURN_TAIL;
+  };
+  /** Whether the turn (a tack or a gybe) has the boat: while it plays, or stands somewhere between its ends. */
+  const tackOn = () => tacking && (tacking.playing || (tacking.t > 1e-6 && tacking.t < tacking.total - 1e-6));
+  const tackTrim = { jib: null, luff: 0, belly: null, bend: null, flap: null, boom: null };
+  let tackSteers = false;                                           // the course is being set by the tack itself
+  /** The course, the fok and the helmstok as the tack has them now; the fok's in tackTrim. */
+  const layTack = () => {
+    tackTrim.jib = null; tackTrim.luff = 0; tackTrim.belly = null; tackTrim.bend = null; tackTrim.flap = null; tackTrim.boom = null;
+    if (!tackOn()) return;
+    const v = tacking.values; const s = tacking.side;
+    if (tacking.kind === 'gijp') { layGybe(v, s); return; }
+    let a = tacking.from;
+    const storm = tacking.kind === 'storm';
+    const to = (key) => (storm && ['afvallen', 'over', 'aan'].includes(key) ? -tacking.from : TACK_COURSE[key]);   // stormrondje: down to her old course
+    for (const key of ['hoog', 'ree', 'los', 'bak', 'afvallen', 'over', 'aan']) a += (to(key) - a) * smoothstep(v[key]);
+    const course = Math.round(s * a) || 0;
+    if (course !== state.course) { tackSteers = true; setCourse(course); tackSteers = false; }
+    // the fok: let go and flapping, then held on the old side (bak) as the bow goes through and she
+    // bears away; over, it hangs loose on the new side where it blew to; fok aan brings it to its
+    // sheet line. In a stormrondje it goes over at her old course, so it is trimmed for that
+    const end = tacking.from;
+    const eased = THREE.MathUtils.lerp(jibFor(-s, Math.min(end, RUN)), -s * FOK_TE_LOEVERT, smoothstep(clamp((end - DOWNWIND) / (RUN - DOWNWIND), 0, 1)));
+    const old = jibFor(s, CLOSE_HAULED); const fresh = storm ? eased : jibFor(-s, CLOSE_HAULED);
+    const loose = storm ? eased : -s * FOK[0][1] * 1.3;
+    let jib = old;
+    if (v.bak < 1e-6) jib = THREE.MathUtils.lerp(old, 0, smoothstep(v.los));
+    if (v.over > 0) jib = THREE.MathUtils.lerp(old, loose, smoothstep(v.over));
+    if (v.aan > 0) jib = THREE.MathUtils.lerp(loose, fresh, smoothstep(v.aan));
+    tackTrim.jib = v.los > 0 ? jib : null;
+    // its belly, as the side it bulges to (-1..1, which way and how full), and how much it flaps:
+    // let go, it goes flat and flaps; backed, the wind fills it from the other side, so it bellies
+    // towards the new lee side while it still hangs on the old one - full, still; let go again to
+    // come over, it flaps across; sheeted in on the new side, it fills the right way
+    const [los, bak, over, aan] = [smoothstep(v.los), smoothstep(v.bak), smoothstep(v.over), smoothstep(v.aan)];
+    let belly = clamp(jib / 10, -1, 1) * (1 - los);
+    if (v.bak > 0) belly = THREE.MathUtils.lerp(0, -s, bak);
+    if (v.over > 0) belly = THREE.MathUtils.lerp(-s, 0, over);
+    if (v.aan > 0) belly = THREE.MathUtils.lerp(0, clamp(fresh / 10, -1, 1), aan);
+    tackTrim.belly = belly;
+    tackTrim.bend = bak > 0 && over < 1 ? interp(FOK_BEND, CLOSE_HAULED) : null;
+    tackTrim.flap = los * (1 - bak) + over * (1 - aan);
+    tackTrim.luff = smoothstep(v.los) * (1 - smoothstep(v.afvallen));   // the voorlijk kills from fok los till she has fallen off anew
+    if (!helm.held) helm.target = s * TACK_RUDDER * smoothstep(v.ree) * (1 - smoothstep(v.afvallen));   // back to the middle as she bears away
+  };
+  const wrap180 = (c) => { const w = ((c + 180) % 360 + 360) % 360 - 180; return w === -180 ? 180 : w; };
+  /** The gybe: the course on past 180, the fok coming over, the giek held, hauled and eased out. */
+  const layGybe = (v, s) => {
+    let a = tacking.from;
+    for (const key of ['voor', 'afvallen', 'fok', 'gijp', 'tegen', 'bij']) a += (GYBE_COURSE[key] - a) * smoothstep(v[key]);
+    const course = wrap180(Math.round(s * a)) || 0;
+    if (course !== state.course) { tackSteers = true; setCourse(course); tackSteers = false; }
+    const before = Math.min(a, RUN); const after = 360 - Math.max(a, RUN);   // the course on the old side, and on the new
+    // the fok: on the lee side, it comes over to te loevert as she bears off (or was there already);
+    // te loevert on the old boeg is the lee side on the new one, so there it stays, and eases into its
+    // new trim as she settles
+    const loevert = s * FOK_TE_LOEVERT;
+    let jib = tacking.teLoevert ? loevert : THREE.MathUtils.lerp(jibFor(s, before), loevert, smoothstep(v.fok));
+    jib = THREE.MathUtils.lerp(jib, jibFor(-s, after), smoothstep(v.bij));
+    tackTrim.jib = jib;
+    // the giek stays on the old side until the grootschoot hauls it in; eased out, it goes over
+    let boom = s * interp(BOOM, before);
+    if (v.gijp > 0) boom = THREE.MathUtils.lerp(boom, s * BOOM_HAULED, smoothstep(v.gijp));
+    if (v.vieren > 0) boom = THREE.MathUtils.lerp(s * BOOM_HAULED, -s * interp(BOOM, after), smoothstep(v.vieren));
+    tackTrim.boom = boom;
+    // the helmstok: away to bear off, the other way to meet her, and straight again
+    const [afv, tegen, bij] = [smoothstep(v.afvallen), smoothstep(v.tegen), smoothstep(v.bij)];
+    if (!helm.held) helm.target = -s * GYBE_RUDDER * afv * (1 - tegen) + s * GYBE_RUDDER * tegen * (1 - bij);
+  };
+
   const rolling = meshesOf(['giek', 'marllijn_giek']);              // turn with the giek
   const pulled = meshesOf(['wervel']);                              // go aft with it, but the wervel hangs free on its pin
   const boomStill = meshesOf(['lummelbeslag', 'borglijntje_lummelbout']);
@@ -393,6 +873,34 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // the bar of the leioog and swivels there until it stands along the bisector of its two parts,
   // its schijf in their plane; the sheet runs round the schijf on the side of the eye.
   const jibClew = V(tuig.fok_schoothoek);
+  // Close-hauled the fok is sheeted in until its schoothoek lies, seen from above, on the straight
+  // line from the foot of the voorstag to the fokkenschoot block of that side: foot and sheet in one
+  // line. The angle that does that is found per side - the CAD sets the fok flying a few cm to port
+  // of the stay it swings about, so the two are not each other's mirror image. JIB_CLOSE[+1] is the
+  // port side (the angle is positive to port), JIB_CLOSE[-1] starboard; the other courses ease out
+  // from there by the FOK table.
+  const JIB_CLOSE = (() => {
+    const centre = (id) => {
+      const c = new THREE.Vector3(); let n = 0; const p = new THREE.Vector3();
+      for (const m of meshesOf([id])) { const pos = m.geometry.attributes.position; for (let i = 0; i < pos.count; i++) { c.add(p.fromBufferAttribute(pos, i)); n++; } }
+      return c.divideScalar(Math.max(n, 1));
+    };
+    const onLine = (block, j) => {                                  // > 0: the clew is still outside the line
+      const c = rotatedPoint(jibClew, stayTack, stayAxis, -deg(j - FOK_CAD));
+      return (c.x - stayTack.x) * (block.z - stayTack.z) - (c.z - stayTack.z) * (block.x - stayTack.x);
+    };
+    const solve = (block, lo, hi) => {
+      const flo = onLine(block, lo);
+      for (let i = 0; i < 40; i++) {
+        const mid = (lo + hi) / 2;
+        if (Math.sign(onLine(block, mid)) === Math.sign(flo)) lo = mid; else hi = mid;
+      }
+      return (lo + hi) / 2;
+    };
+    return { 1: solve(centre('blok_fokkenschoot_bb'), 0, 60), [-1]: solve(centre('blok_fokkenschoot_sb'), -60, 0) };
+  })();
+  /** The fok's angle for a course on a side (+1 port, -1 starboard): close-hauled on its line, easing out by FOK. */
+  const jibFor = (side, course) => JIB_CLOSE[side] + side * (interp(FOK, course) - FOK[0][1]);
   const HARP_CLEAR = 0.0075;                                       // bar of the leioog to the centre line of the bow round it
   /** The bar of the forward leioog of a side at the crown of its arch: what a block hangs from. */
   const leioogBar = (key, near) => {
@@ -889,6 +1397,24 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const fenders = new THREE.Group();
     const lineMaterial = new THREE.MeshStandardMaterial({ color: 0xe9e4d6, roughness: 0.9 });
     let size = null;
+    // a stootwil can be carried to the bow, on its own side: where the boeg meets the wal when she
+    // is turned round her bow. Tied to the rail there, it hangs plumb against the outside
+    const stemX = Math.max(...meshesOf(['sleepoog_boeg']).map((m) => { m.geometry.computeBoundingBox(); return m.geometry.boundingBox.max.x; }));
+    const bowPlace = (side, length, radius) => {
+      const x = stemX - 0.55;
+      let crest = null;
+      for (let z = 0; z < 1.2; z += 0.005) {
+        const hit = cast(new THREE.Vector3(x, 2, side * z), DOWN, outside);
+        if (hit && (!crest || hit.point.y > crest.y - 1e-4)) crest = hit.point;   // the outermost top of the rail
+      }
+      if (!crest) return null;
+      const top = new THREE.Vector3(x, crest.y - DROP, 0);
+      let reach = 0;
+      for (let y = crest.y - 0.01; y >= top.y - length; y -= 0.01) reach = Math.max(reach, outAt(x, y, side));
+      top.z = side * (reach + radius + 0.004);
+      return { top, tie: crest.clone().setY(crest.y - 0.01).setZ(side * (Math.abs(crest.z) - 0.03)), over: crest.clone().setY(crest.y + LINE_R),
+               skirt: new THREE.Vector3(x, crest.y - 0.02, side * (reach + LINE_R)) };
+    };
     for (const id of ['leiogen_bb', 'leiogen_sb']) {
       const eyes = eyesOf(id);
       for (const eye of [eyes[0], eyes.at(-1)]) {                   // the aftmost and the foremost
@@ -920,7 +1446,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
         fenders.add(fender, line.mesh);
         stootwillen.push({ fender, line, tie, over, skirt, inTop, inQ, outTop, outQ: new THREE.Quaternion(),
                            high: crest.y + length + 0.04, clear: side * (Math.abs(tie.z) - radius - 0.01), side,
-                           meshes: [...fender.children, line.mesh], at: 0, want: 0, shown: NaN });
+                           meshes: [...fender.children, line.mesh], at: 0, want: 0, shown: NaN,
+                           bowAt: bowPlace(side, length, radius), bow: 0, shownBow: 0 });
       }
     }
     addPart(fenders, 'stootwillen', 'Stootwillen', 'interieur', 'leiogen_bb', size);
@@ -932,6 +1459,18 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
    */
   const hangFender = (w) => {
     const top = w.fender.position;
+    if (w.bow > 0 && w.bowAt) {                                     // overboard, carried along the rail to the bow
+      const k = smoothstep(w.bow); const b = w.bowAt;
+      top.lerpVectors(w.outTop, b.top, k); top.y += Math.sin(Math.PI * k) * (w.high - w.outTop.y);   // lifted clear on the way
+      w.fender.quaternion.copy(w.outQ);
+      const tie = new THREE.Vector3().lerpVectors(w.tie, b.tie, k); const over = new THREE.Vector3().lerpVectors(w.over, b.over, k);
+      const path = [tie, over];
+      const skirt = new THREE.Vector3().lerpVectors(w.skirt, b.skirt, k);
+      if (top.y < skirt.y && k > 0.95) path.push(skirt);
+      path.push(top.clone());
+      w.line.set(path);
+      return;
+    }
     const LEGS = 4;
     const leg = Math.min(Math.floor(w.at * LEGS), LEGS - 1); const k = smoothstep(w.at * LEGS - leg);
     const lerp = THREE.MathUtils.lerp;
@@ -1127,6 +1666,21 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     return { eye, chain: new RopeStretch(byId.get('borgkettinkje').meshes, (p) => clamp(1 - p.distanceTo(eye) / span, 0, 1)) };
   })() : null;
   const HELM_MAX = deg(38);
+  // Left alone - no hand on the helmstok, no manoeuvre steering with it - the rudder follows her
+  // turn, however she is turned (a course change, warped in alongside, swung round her bow): it
+  // stands the way it would to make that turn, more the faster she turns. Going astern the other way.
+  const FOLLOW = { gain: 0.9, rate: 6, max: deg(30) };
+  const follow = { yaw: 0, last: null };
+  const followRudder = (dt) => {
+    if (dt <= 0) return;
+    const h = dock.heading;
+    const d = follow.last === null ? 0 : wrapPi(h - follow.last); follow.last = h;
+    const raw = Math.abs(d) > 0.5 ? 0 : d / dt;                     // a jump (a new world laid) is not a turn
+    follow.yaw += (raw - follow.yaw) * (1 - Math.exp(-dt * FOLLOW.rate));
+    if (helm.held || tackOn()) return;                              // someone has it: the hand, or the tack or gybe
+    const astern = dock.speed < -0.05 ? -1 : 1;
+    helm.target = clamp(astern * FOLLOW.gain * follow.yaw, -FOLLOW.max, FOLLOW.max);
+  };
   const bearing = [];                                               // [angle about the roerkoning, bearing of the grip seen from above]
   for (let a = -0.9; a <= 0.9001; a += 0.02) {
     const g = rotatedPoint(helm.grip, rudderFoot, rudderAxis, a).sub(helm.hinge);
@@ -1387,7 +1941,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // them, three zeilbinders round the lot. Hoisting is the same list backwards. Like reven, every
   // step is one value run to its goal.
   // One timeline for the rig: sails struck is its first half, mast down the whole of it. "Zeilen op",
-  // "Zeilen gestreken" and "Mast gestreken" are three moments on it.
+  // "Zeilen gestreken" and "Mast gestreken" are three moments on it. It is shown and steered as two
+  // flows, Zeilen and Mast, each a stretch of it: the mast only comes down once the sails are.
   // Where the steps are looked at from, in model space; mirrored to the side nearer to the camera,
   // except the anker, which goes out over the starboard bow.
   const ANCHOR_VIEW = { positie: [8.02, 4.977, 8.957], doel: [5.376, 0.001, 0.945], kant: 'vast' };
@@ -1417,6 +1972,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   ]);
   const strike = rigging.values;
   const RIG_AT = { op: 0, gestreken: rigging.after('ties'), mast: rigging.total };
+  const sailFlow = new Stretch(rigging, 'Zeilen', RIG_AT.op, RIG_AT.gestreken);
+  const mastFlow = new Stretch(rigging, 'Mast', RIG_AT.gestreken, RIG_AT.mast);
   // Topping up: with the sails made up, the kraanlijn can take the giek out of the mik - the bundle goes
   // up 45 degrees on the lummel and the mik is put away, after which it hangs free and may sway.
   // t runs 0..1: the first part hoists, the last part stows the mik; back down it is the other way round.
@@ -1426,7 +1983,17 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // way of the wrikriem; then the mik is laid on the vlonders. Any other mode puts it back.
   // t runs 0..1 like topping's: first the bundle moves, then the mik goes down.
   const aside = { t: 0, move: 0, mikOff: 0, SECONDS: 4, WERVEL: new THREE.Vector3(0.85, 0.74, -0.52) };
-  const planStrike = (rig) => { topping.want = 0; rigging.command(RIG_AT[rig]); shown = rigging; };
+  // made fast alongside she lies head to wind already, and the landvasten hold her: no heading up,
+  // no anchor, and so no midzwaard up either - it goes up because she lies at anchor. Those steps
+  // are skipped, not left out: the timeline keeps its shape
+  const MOORED_SKIPS = ['head', 'anchor', 'zwaard'];
+  const planStrike = (rig) => {
+    topping.want = 0;
+    rigging.skipped = new Set(dock.moored ? MOORED_SKIPS : []);
+    // the flow the move lies in: past the struck sails, or on the way there from beyond, it is the mast
+    const mast = RIG_AT[rig] > RIG_AT.gestreken + 1e-6 || rigging.t > RIG_AT.gestreken + 1e-6;
+    rigging.command(RIG_AT[rig]); shown = mast ? mastFlow : sailFlow;
+  };
   const throat = new THREE.Vector3(3.4568, 3.9816, 0);             // klauwhoek of the sail, where the gaffel meets the mast
   const GAFFEL_RISE = Math.atan2(0.7512, 0.66);                     // how steeply the gaffel stands when the sail is set
   const STOWED_Y = boomPivot.y + 0.19;                              // the gaffel's throat when it lies on the rolled sail
@@ -1461,8 +2028,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     P[2] *= 1 - 0.5 * f;
   };
   const stayFoot = stayTack.clone(); const jibOut = new THREE.Vector3();
+  let jibDown = 0;                                                  // strike.jib, or more while the spinnaker takes its place
   jibBend.warp = (P) => {                                           // the fok sliding down its stay into a bundle on the voordek
-    const j = smoothstep(strike.jib);
+    const j = smoothstep(jibDown);
     jibOut.set(P[0], P[1], P[2]).sub(stayFoot);
     const along = jibOut.dot(stayAxis);
     jibOut.addScaledVector(stayAxis, -along);                       // what is left: how far off the stay
@@ -1548,10 +2116,11 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     b.want = on; b.proc.command(on ? b.proc.total : 0);              // it plays on its own, off the progress bar
     if (on) note('bs');
   };
-  // -- chill: with the sails down, the doft as a bench and a ruime wind or voor de wind, a boegspriet
-  // rigged carries a spinnaker instead of the kluiver: on a ruime wind tacked to the hook on
-  // the boegspriet, its sheet to the leeward aft leioog; voor de wind flown free from the masthead,
-  // a sheet from either corner to the aft leioog of its side. Between the two it eases over.
+  // -- chill: under sail with the boegspriet rigged, on a ruime wind or voor de wind, a spinnaker
+  // goes up in place of fok and kluiver, which come down their stays; the grootzeil stays as it
+  // is. On a ruime wind it is tacked to the hook on the boegspriet, its sheet to the leeward aft
+  // leioog; voor de wind flown free from the masthead, a sheet from either corner to the aft leioog
+  // of its side. Between the two it eases over.
   const chill = (() => {
     if (!bowsprit || !tuig.kluiver || !tuig.mast?.top) return null;
     const sp = initSpinnaker({ addPart, material: byId.get('fokkenschoot').meshes[0].material });
@@ -1562,20 +2131,17 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       for (const m of meshesOf([id])) { const pos = m.geometry.attributes.position; for (let i = 0; i < pos.count; i++) { pts.push(q.fromBufferAttribute(pos, i).clone()); low = Math.min(low, q.x); } }
       return pts.filter((r) => r.x < low + 0.06).reduce((a, r) => (r.y > a.y ? r : a));
     };
-    return { sp, part, ropePart, holds: false, hoist: 0, head: V(tuig.mast.top), hook: V(tuig.kluiver.hals),
+    return { sp, part, ropePart, want: false, holds: false, hoist: 0, head: V(tuig.mast.top), hook: V(tuig.kluiver.hals),
              eyes: { bb: eye('leiogen_bb'), sb: eye('leiogen_sb') }, downwind: new THREE.Vector3(), A: new THREE.Vector3(), B: new THREE.Vector3() };
   })();
   const CHILL_COURSE = 130;                                          // from here up it is a ruime wind
-  const layChill = (step, struck) => {
+  const layChill = (step) => {
     const c = chill; if (!c) return;
     const course = Math.abs(state.course); const side = Math.sign(state.course) || 1;
-    const anchorDown = anchorGear && anchorGear.u > 0.01;
-    const ready = bowsprit.want && state.mode === 'zeilen' && struck && strike.mast < 0.01 && bench.at > 0.99 && course >= CHILL_COURSE;
-    if (ready && anchorDown && anchorGear.want > 0.5) weighAnchor(false);   // it comes up: no sailing on with it down
-    const holds = ready && !anchorDown;
-    c.holds = holds;
-    const up = holds && bowsprit.proc.values.vast > 0.99;
-    c.hoist = clamp(c.hoist + (up ? step : -step) / 3, 0, 1);
+    const ready = bowsprit.proc.values.vast > 0.99 && state.mode === 'zeilen' && rigging.t <= 1e-6 && course >= CHILL_COURSE;
+    if (!ready) c.want = false;                                     // off the wind, struck or unrigged: down it comes
+    c.holds = c.want;
+    c.hoist = clamp(c.hoist + (c.holds ? step : -step) / 3, 0, 1);
     if (c.hoist === 1) note('sp');
     const there = c.hoist > 0;
     for (const p of [c.part, c.ropePart]) {
@@ -1606,7 +2172,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       if (there && !listed) parts.push(p); else if (!there && listed) parts.splice(parts.indexOf(p), 1);
     };
     inPlace(b.part, schuif > 0); inPlace(b.bolts, bout > 0);
-    setKluiver(vast > 0.99 && !chill?.holds);                        // the kluiver is set once the boegspriet is rigged
+    setKluiver(vast > 0.99);                                          // the kluiver is set once the boegspriet is rigged
     b.part.node.position.x = SPRIET_SLIDE * (1 - smoothstep(schuif));
     b.bolts.node.position.z = -BOLT_SLIDE * (1 - smoothstep(bout));
     if (b.at.distanceToSquared(b.shown) < 1e-12) return;
@@ -1925,6 +2491,305 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     carry(moor.pen.meshes, moor.tip, penAt, penQ);
   };
 
+  // -- de wal: the shared ground for aanleggen and afvaren (docs/handelingen.md, R1-R5).
+  // R1 wereld en vaart: the boat has a place `p` and a heading in a world in which the wind and the
+  // wal lie still. The boat stays where it is in the picture and the world moves under it: `world`
+  // holds what lies in it, placed by the matrix world -> boat, T(PIVOT) Ry(heading) T(-p). The
+  // world's frame is the boat's own at the moment a wal is laid, so heading = windAtLaying -
+  // now.windAngle: a change of course turns the wal with the wind. Vaart follows from mode, course,
+  // sails and roeicommando, with inertia; at anchor or made fast it is nothing.
+  // R3 wal: a steiger laid as hogerwal (the wind blows off it), lagerwal (onto it) or langswal
+  // (along it, on either side). R4 afgemeerd: alongside, the voor- and achterlandvast from the
+  // landvastogen on that side to the bolders, the stootwillen of that side out.
+  const PIVOT = new THREE.Vector3(2.8, 0, 0);                       // what the boat turns about: the middle of the water disc
+  const WAL_AT = 7;                                                 // m from the pivot to the steiger when it is laid
+  const WAL_CLEAR = 3.5;                                            // m every part of it keeps clear of the boat's track
+  const HALF_BEAM = 0.92;                                           // m from the centre line to the outside of the berghout
+  const FENDER_GAP = 0.14;                                          // the stootwillen between the berghout and the gording
+  const WAL_LENGTH = 12;                                            // m: room for a bolder beyond either end of the boat
+  const VAART_RATE = 0.6;                                           // how quickly the speed follows what drives it (1/s)
+  const LINE_REACH = 1.6;                                           // a landvast leads this far beyond the bow or the stern
+  const world = new THREE.Group(); world.matrixAutoUpdate = false; scene.add(world);
+  const dock = (() => {
+    // where the lines are made fast aboard: the achterlandvast to the landvastoog on the spiegel on
+    // that side, the voorlandvast led through the sleepoog on the stem
+    const centreOf = (ids, keep = () => true) => {
+      const c = new THREE.Vector3(); const v = new THREE.Vector3(); let n = 0;
+      for (const mesh of meshesOf(ids)) {
+        const pos = mesh.geometry.attributes.position;
+        for (let i = 0; i < pos.count; i += 3) { v.fromBufferAttribute(pos, i); if (keep(v)) { c.add(v); n++; } }
+      }
+      return c.divideScalar(Math.max(n, 1));
+    };
+    const bow = centreOf(['sleepoog_boeg']);
+    const eyes = {
+      bb: { voor: bow, achter: centreOf(['landvastogen'], (v) => v.z < 0) },
+      sb: { voor: bow, achter: centreOf(['landvastogen'], (v) => v.z >= 0) },
+    };
+    const lineMaterial = (byId.get('voorlandvast') ?? byId.get('fokkenschoot')).meshes[0].material;   // the landvasten's own black rope
+    const lines = Object.fromEntries(['voor', 'achter', 'vspring', 'aspring'].map((k) => [k, new RopeLine(24, 0.007, lineMaterial)]));
+    for (const l of Object.values(lines)) { l.mesh.visible = false; scene.add(l.mesh); }
+    return {
+      steiger: null, kind: null, speed: 0, p: PIVOT.clone(), windAtLaying: 0,
+      heading: 0, moored: false, mooring: null, side: null, mooredWind: 0, lines, eyes, bolders: null,
+      lineAt: { voor: 0, achter: 0, vspring: 0, aspring: 0 },     // how far each line is out: 0 aboard, 1 made fast ashore
+      pin: { voor: null, vspring: null },                                       // a line held to a bolder of its own (in the world), whatever lies nearest
+      restHeading: null,                                            // made fast and left alone: the heading the lines hold her at
+      matrix: new THREE.Matrix4(), inverse: new THREE.Matrix4(), turn: null,
+    };
+  })();
+  const wrapPi = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+  const fwdOf = (heading, out = new THREE.Vector3()) => out.set(Math.cos(heading), 0, Math.sin(heading));   // the bow, in the world
+  const toBoat = (v, out = new THREE.Vector3()) => out.copy(v).applyMatrix4(dock.matrix);
+  const toWorld = (v, out = new THREE.Vector3()) => out.copy(v).applyMatrix4(dock.inverse);
+  /** The world -> boat matrix for where the boat is now. */
+  const frameWorld = () => {
+    dock.heading = dock.windAtLaying - now.windAngle;
+    dock.matrix.makeTranslation(PIVOT.x, PIVOT.y, PIVOT.z)
+      .multiply(new THREE.Matrix4().makeRotationY(dock.heading))
+      .multiply(new THREE.Matrix4().makeTranslation(-dock.p.x, -dock.p.y, -dock.p.z));
+    dock.inverse.copy(dock.matrix).invert();
+    world.matrix.copy(dock.matrix); world.matrixWorldNeedsUpdate = true;
+  };
+  /** The wind comes from here, in the boat's frame: where the wind arrow and the windvaan point. */
+  const windFrom = (out = new THREE.Vector3()) => out.set(Math.cos(now.windAngle), 0, Math.sin(now.windAngle));
+
+  /** R3: lay a steiger, or take it away (kind null). side: 'bb' or 'sb', for langswal. */
+  const layWal = (kind, side = 'bb') => {
+    if (dock.moored || dock.mooring) casting(true);
+    if (dock.steiger) { world.remove(dock.steiger.group); dock.steiger = null; }
+    dock.kind = kind; dock.bolders = null;
+    if (!kind) return;
+    // a new world, in the boat's frame as it lies now; a track drawn in the old one goes
+    dock.windAtLaying = now.windAngle; dock.p.copy(PIVOT); frameWorld(); clearTrack();
+    const s = makeSteiger({ length: WAL_LENGTH });
+    const up = windFrom();                                          // towards where the wind comes from
+    const across = new THREE.Vector3(-up.z, 0, up.x);               // square to the wind
+    let at; let along;
+    if (kind === 'hogerwal') { at = up.clone().multiplyScalar(WAL_AT); along = across; }
+    else if (kind === 'lagerwal') { at = up.clone().multiplyScalar(-WAL_AT); along = across; }
+    else {                                                          // langswal: abeam, on the side asked for, along the wind
+      at = new THREE.Vector3(0, 0, side === 'sb' ? WAL_AT : -WAL_AT); along = up;
+    }
+    const x = along.clone().normalize();
+    // +z of the steiger faces the boat: square to its length, on the boat's side of it
+    const centre = PIVOT.clone().add(at);
+    const out = new THREE.Vector3(-x.z, 0, x.x);
+    if (out.dot(tmp0.copy(PIVOT).sub(centre)) < 0) out.negate();
+    if (x.clone().cross(out).y > 0) x.negate();                    // x, up, out right-handed
+    // moved off sideways until all of it stands WAL_CLEAR clear of the line the boat sails on:
+    // laid, it is not in the way. Straight ahead or astern (a hogerwal with the wind from ahead) it
+    // is left where it is - that one is sailed up to.
+    const away = Math.sign(centre.z);
+    const nearest = () => Math.min(...[-1, 1].map((e) => (centre.z + e * x.z * (WAL_LENGTH / 2)) * away));
+    if (Math.abs(centre.z) > 0.5) while (nearest() < WAL_CLEAR) centre.z += away * 0.25;
+    placeWal(kind, x, out, centre, s);
+  };
+  /** Puts a steiger in the world: its length along x, its water side at `at`, facing `out`. */
+  const placeWal = (kind, x, out, at, s = makeSteiger({ length: WAL_LENGTH })) => {
+    if (x.clone().cross(out).y > 0) x = x.clone().negate();        // x, up, out right-handed
+    s.group.matrix.makeBasis(x, UP, out).setPosition(at.x, tuig.waterlijn_m, at.z);
+    s.group.matrixAutoUpdate = false;
+    world.add(s.group);
+    dock.steiger = s; dock.kind = kind;
+    dock.bolders = s.bolders.map((b) => b.clone().applyMatrix4(s.group.matrix));   // in the world
+  };
+
+  /** The steiger's water-side edge as a line in the world: a point on it, its direction and its outward normal. */
+  const edge = () => {
+    const e = dock.steiger.group.matrix.elements;
+    return { o: new THREE.Vector3(e[12], 0, e[14]), x: new THREE.Vector3(e[0], 0, e[2]).normalize(),
+             n: new THREE.Vector3(e[8], 0, e[10]).normalize(), half: dock.steiger.length / 2 };
+  };
+  /** How far the boat's pivot is from the water side of the steiger, in metres; Infinity without one. */
+  const walDistance = () => {
+    if (!dock.steiger) return Infinity;
+    const { o, n } = edge();
+    return tmp0.copy(dock.p).setY(0).sub(o).dot(n);
+  };
+
+  /** Cast off: the lines in, the stootwillen in, the boat free again. */
+  const casting = (quiet = false) => {
+    if (berthing) { if (shown === berthing) shown = null; berthing = null; }
+    if (leaving) { if (shown === leaving) shown = null; leaving = null; }
+    if (turning) { if (shown === turning) shown = null; turning = null; }
+    for (const w of stootwillen) { w.bow = 0; }
+    dock.pin.voor = null; dock.pin.vspring = null; dock.restHeading = null;
+    dock.moored = false; dock.mooring = null;
+    for (const k of Object.keys(dock.lineAt)) dock.lineAt[k] = 0;
+    for (const l of Object.values(dock.lines)) l.mesh.visible = false;
+    for (const w of stootwillen) if (dock.side && w.side === (dock.side === 'sb' ? 1 : -1)) w.want = 0;
+    for (const id of ['voorlandvast', 'achterlandvast']) for (const m of byId.get(id)?.meshes ?? []) m.visible = true;
+    if (!quiet) dock.side = null;
+  };
+
+  /** What drives the boat through the water now, in m/s: forwards positive, astern negative. */
+  const drive = () => {
+    if (dock.moored || dock.mooring) return 0;
+    if (anchorGear && anchorGear.u > 0.5 && !anchorGear.lost) return 0;
+    if (state.mode === 'zeilen') {
+      if (rigging.t > 1e-6 || state.course === 0) return 0;
+      const c = Math.abs(state.course);
+      const polar = c < 40 ? 0 : c < 60 ? 1.4 : c < 110 ? 2.0 : c < 150 ? 2.1 : 1.6;   // m/s: aan de wind .. voor de wind
+      return polar * (1 - 0.06 * reef.turns);
+    }
+    if (state.mode === 'roeien') {
+      const way = (c) => ({ slag: 1, haal: 1, strijk: -0.6 }[c] ?? 0);
+      return 0.65 * (way(state.commando.bb) + way(state.commando.sb));
+    }
+    return 0.7;                                                     // wrikken
+  };
+
+  /** Per frame: the speed, the place in the world, the way in alongside and the lines. */
+  const stepDock = (dt) => {
+    dock.speed += (drive() - dock.speed) * (1 - Math.exp(-dt * VAART_RATE));
+    if (berthing) {                                                  // afmeren has her: where she is follows from its steps
+      const v = berthing.values; const m = berthing.way;
+      m.k = berthK();
+      dock.mooring = m.k < 1 ? m : null; dock.moored = m.k >= 1;
+      for (const k of Object.keys(dock.lineAt)) dock.lineAt[k] = v[k];
+      if (m.k >= 1) {
+        // stopped short, she is hauled in: the bow by the voorlandvast, the stern by the achterlandvast
+        const bowOff = STAND_OFF * (1 - smoothstep(v.voor)); const sternOff = STAND_OFF * (1 - smoothstep(v.achter));
+        dock.p.copy(m.path(1, tmp1)).addScaledVector(m.out, (bowOff + sternOff) / 2 - STAND_OFF);   // the way ends stood off
+        dock.mooredWind = m.wind + m.slip.s * Math.atan2(sternOff - bowOff, HULL_SPAN);   // the bow in first: turned a little to the wal
+      }
+    }
+    if (leaving) {                                                  // afvaren has her, until she sails off on her own
+      const v = leaving.values; const m = leaving.way;
+      dock.lineAt.vspring = 1 - v.vspring; dock.lineAt.aspring = 1 - v.aspring; dock.lineAt.achter = 1 - v.achter; dock.lineAt.voor = 1 - v.voor;
+      if (leaving.t >= leaving.total - 1e-6) { dock.mooring = null; dock.moored = false; }
+      else {
+        m.k = leaveK();
+        dock.moored = m.k <= 0; dock.mooring = dock.moored ? null : m;
+      }
+    }
+    if (turning) stepTurning();
+    for (const k of ['voor', 'vspring']) if (dock.pin[k] && dock.lineAt[k] <= 0 && !turning) dock.pin[k] = null;
+    if (dock.mooring) {
+      // along the way in (or off), the bow along its tangent - or where the way says it points
+      const m = dock.mooring;
+      m.path(m.k < 1 ? m.k : 1, dock.p);
+      const ahead = m.path(Math.min(m.k + 0.01, 1), tmp1).sub(dock.p);
+      if (m.heading) now.windAngle = dock.windAtLaying - m.heading(m.k);
+      else if (m.k < 1 && ahead.lengthSq() > 1e-8) {
+        const wind = dock.windAtLaying - Math.atan2(ahead.z, ahead.x);
+        now.windAngle += wrapPi(wind - now.windAngle);
+      } else now.windAngle = dock.mooredWind;
+      dock.speed = dt > 0 ? m.last.distanceTo(dock.p) / dt : dock.speed; m.last.copy(dock.p);
+      const course = Math.round(THREE.MathUtils.radToDeg(wrapPi(now.windAngle))) || 0;
+      if (course !== state.course) setCourse(course);
+    } else if (dock.moored && (driving(berthing) || driving(turning))) {   // a manoeuvre has her heading
+      dock.restHeading = null; dock.speed = 0;
+      if (!driving(turning)) {
+        now.windAngle = dock.mooredWind;
+        const course = Math.round(THREE.MathUtils.radToDeg(wrapPi(now.windAngle))) || 0;
+        if (course !== state.course) setCourse(course);
+      }
+    } else if (dock.moored) {
+      // left alone alongside, the lines hold her where she is and the wind may turn round her: the
+      // course set is the wind on her now, and the world's wind turns with it
+      dock.speed = 0;
+      if (dock.restHeading === null) {                              // come to rest: the heading the manoeuvre left her at
+        dock.restHeading = dock.windAtLaying - dock.mooredWind; now.windAngle = dock.mooredWind;
+        const course = Math.round(THREE.MathUtils.radToDeg(wrapPi(now.windAngle))) || 0;
+        if (course !== state.course) { tackSteers = true; setCourse(course); tackSteers = false; }
+      }
+      dock.windAtLaying = dock.restHeading + now.windAngle; dock.mooredWind = now.windAngle;
+    }
+    else dock.p.addScaledVector(fwdOf(dock.heading, tmp1), dock.speed * dt);
+    if (!dock.moored) dock.restHeading = null;
+    if (dock.moored !== windWasMoored) { windWasMoored = dock.moored; relevant('wind', windShown()); }
+    frameWorld();
+    // the landvasten: from the eye, sagging a little, to the bolder a little beyond the end of the
+    // boat; the springs from the same eyes back along her to the bolder abreast of her middle. One
+    // being run out goes from the eye towards its bolder, carried ashore
+    for (const id of ['voorlandvast', 'achterlandvast']) {
+      const out = dock.lineAt[id === 'voorlandvast' ? 'voor' : 'achter'] > 0;
+      for (const mesh of byId.get(id)?.meshes ?? []) mesh.visible = !out;   // its coil is ashore now
+    }
+    const inBoat = dock.bolders && dock.side ? dock.bolders.map((b) => toBoat(b, new THREE.Vector3())) : null;
+    for (const [end, k] of Object.entries(dock.lineAt)) {
+      const line = dock.lines[end]; line.mesh.visible = Boolean(inBoat) && k > 1e-4;
+      if (!line.mesh.visible) continue;
+      const spring = end.endsWith('spring');
+      const eye = dock.eyes[dock.side][end === 'voor' || end === 'vspring' ? 'voor' : 'achter'];
+      let to;
+      if (dock.pin[end]) to = toBoat(dock.pin[end], new THREE.Vector3());
+      else if (spring) {                                            // abreast of her middle
+        const mid = (dock.eyes[dock.side].voor.x + dock.eyes[dock.side].achter.x) / 2;
+        to = inBoat.reduce((a, b) => (Math.abs(b.x - mid) < Math.abs(a.x - mid) ? b : a));
+      } else {
+        // the voorlandvast leads forward to a bolder ahead of the bow, the achterlandvast aft to one
+        // astern of the stern: the nearest to LINE_REACH beyond, or the furthest there is that way
+        const fore = end === 'voor' ? 1 : -1; const want = eye.x + fore * LINE_REACH;
+        const beyond = inBoat.filter((b) => (b.x - eye.x) * fore > 0.2);
+        to = (beyond.length ? beyond : inBoat).reduce((a, b) => (beyond.length
+          ? (Math.abs(b.x - want) < Math.abs(a.x - want) ? b : a)
+          : (b.x * fore > a.x * fore ? b : a)));
+      }
+      const reach = smoothstep(k);
+      const tip = new THREE.Vector3().lerpVectors(eye, to, reach);
+      if (reach < 1) tip.y = Math.max(eye.y, to.y) + 0.35 * Math.sin(Math.PI * reach);   // held up, on its way ashore
+      const path = [];
+      const span = eye.distanceTo(tip);
+      for (let i = 0; i <= 12; i++) {
+        const u = i / 12;
+        path.push(new THREE.Vector3().lerpVectors(eye, tip, u).setY(THREE.MathUtils.lerp(eye.y, tip.y, u) - 0.06 * span * Math.sin(Math.PI * u)));
+      }
+      line.set(path);
+    }
+  };
+  // -- the track: while a manoeuvre runs (a tack, a gybe, warping in) the way the boat's middle goes
+  // over the water is drawn as a faint red ribbon, fixed in the world, so what she did stays behind
+  // her. It is cleared when the next manoeuvre starts, and when a wal is laid (a new world).
+  const TRACK_MAX = 1500; const TRACK_STEP = 0.1; const TRACK_HALF = 0.15;   // points, m between them, m either side
+  const track = (() => {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(TRACK_MAX * 2 * 3), 3));
+    const index = [];
+    for (let i = 0; i < TRACK_MAX - 1; i++) { const a = 2 * i; index.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+    geometry.setIndex(index); geometry.setDrawRange(0, 0);
+    const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+      color: 0xd0202a, transparent: true, opacity: 0.2, depthWrite: false, side: THREE.DoubleSide,
+    }));
+    mesh.frustumCulled = false; mesh.renderOrder = 2;               // over the water, which is drawn first
+    world.add(mesh);
+    return { mesh, points: [], owner: null };
+  })();
+  const clearTrack = () => { track.points = []; track.owner = null; track.mesh.geometry.setDrawRange(0, 0); };
+  /** Per frame: a point more where the boat has gone on far enough, while a manoeuvre has her. */
+  const stepTrack = () => {
+    const owner = turnShown() ? tacking : berthShown() ? berthing : procShown(leaving) ? leaving : procShown(turning) ? turning : dock.mooring;
+    if (!owner) return;
+    if (owner !== track.owner) { clearTrack(); track.owner = owner; }
+    const last = track.points[track.points.length - 1];
+    if (last && last.distanceTo(dock.p) < TRACK_STEP) return;
+    if (track.points.length >= TRACK_MAX) track.points.shift();
+    track.points.push(dock.p.clone().setY(tuig.waterlijn_m + 0.005));
+    const pts = track.points; const pos = track.mesh.geometry.attributes.position;
+    for (let i = 0; i < pts.length; i++) {
+      const a = pts[Math.max(i - 1, 0)]; const b = pts[Math.min(i + 1, pts.length - 1)];
+      const dx = b.x - a.x; const dz = b.z - a.z; const len = Math.hypot(dx, dz) || 1;
+      const nx = -dz / len * TRACK_HALF; const nz = dx / len * TRACK_HALF;
+      pos.setXYZ(2 * i, pts[i].x + nx, pts[i].y, pts[i].z + nz);
+      pos.setXYZ(2 * i + 1, pts[i].x - nx, pts[i].y, pts[i].z - nz);
+    }
+    pos.needsUpdate = true;
+    track.mesh.geometry.setDrawRange(0, Math.max(pts.length - 1, 0) * 6);
+  };
+
+  /** R5: the preconditions the aanleg- and afvaarmanoeuvres ask about. */
+  const walConditions = {
+    aanDeWal: () => walDistance() < 12,
+    afgemeerd: () => dock.moored,
+    los: () => !dock.moored && !dock.mooring,
+    geenVaart: () => Math.abs(dock.speed) < 0.1,
+    hogerwal: () => dock.kind === 'hogerwal',
+    langswal: () => dock.kind === 'langswal',
+    lagerwal: () => dock.kind === 'lagerwal',
+  };
+
   // -- state: targets are set by the UI, the smoothed values chase them
   // rowPhase 0..1 runs inpik -> haal -> uitpik -> recover; rowLength is half the sweep of the oar (radians)
   const state = { commando: { bb: 'slag', sb: 'slag' }, mode: 'zeilen', course: 90, midzwaard: 'neer', rowing: 'kruis', rowPhase: 0, rowLength: 0.42 };
@@ -2049,8 +2914,22 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   /** Where a ray already set from the pointer crosses the water, as a hit, or null. */
   const waterHit = (raycaster) => raycaster.intersectObject(water, false)[0] ?? null;
 
+  // -- commands called out: as a step that has words begins, going forwards, they are said - once
+  // for that step of that run; stepped or scrubbed back over, nothing is said
+  let said = { proc: null, begin: -1 };
+  const callOut = () => {
+    if (!shown || !shown.playing || shown.direction < 0) return;
+    const proc = shown.procedure ?? shown; const s = shown.current;
+    if (!s?.say || shown.t < s.begin + 1e-3) return;
+    if (said.proc === proc && said.begin === s.begin) return;
+    said = { proc, begin: s.begin };
+    say(s.say, s.by);
+  };
+
   function update(dt, pace = 1) {
     const step = dt * pace;                                         // what is being done goes at this speed; wind and water at dt
+    if (tacking) { tacking.tick(step); layTack(); }                 // it steers: the course it sets is the one read below
+    berthing?.tick(step); leaving?.tick(step); turning?.tick(step); layBerth(); layLeave(); layTurn();
     const sailing = state.mode === 'zeilen';
     const side = Math.sign(state.course) || 1;                      // +1: wind over starboard, sails to port
     const course = Math.min(Math.abs(state.course), RUN);
@@ -2094,7 +2973,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       if (w.sea && seaFender(w, dt, step)) continue;                // in the water: it lies where it fell
       const by = step / FENDER_SECONDS; const gap = w.want - w.at;
       w.at = Math.abs(gap) <= by ? w.want : w.at + Math.sign(gap) * by;
-      if (w.at !== w.shown) { w.shown = w.at; hangFender(w); }
+      if (w.at !== w.shown || w.bow !== w.shownBow) { w.shown = w.at; w.shownBow = w.bow; hangFender(w); }
     }
     const allOut = stootwillen.length > 0 && stootwillen.every((w) => w.at === 1);
     if (allOut !== spiegelShows && !measuring) {
@@ -2152,16 +3031,23 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const headUp = Math.max(smoothstep(strike.head), smoothstep(reef.head), state.course === 0 ? 1 : 0,
                             tow ? smoothstep(tow.k) : 0, moor ? smoothstep(moor.up) : 0);
     const upwind = 1 - headUp;                                      // head to wind: everything amidships and shaking
-    chase('flutter', sailing ? headUp : 0, dt, 2.2);
+    chase('flutter', sailing ? Math.max(headUp, tackTrim.luff) : 0, dt, 2.2);
     // the giek wanders a little while the sail shakes, and more when it hangs in the kraanlijn - but not while it lies in the mik
     const loose = Math.max(1 - smoothstep(strike.main), topping.hoist * topping.hoist);
-    chase('boom', sailing ? side * interp(BOOM, course) * upwind + (1.6 + 2.4 * topping.hoist) * loose * now.flutter * Math.sin(1.9 * now.t) : 0, dt);
-    chase('jib', sailing ? side * THREE.MathUtils.lerp(interp(FOK, course), FOK_TE_LOEVERT, loevert) * upwind : FOK_CAD, dt);
-    chase('jibBend', interp(FOK_BEND, course) * upwind, dt);
+    // with the mik set the giek lies in it, amidships, whatever the wind: heading up (skipped alongside) is not what puts it there
+    const inMik = 1 - smoothstep(strike.mik);
+    chase('boom', sailing ? (tackTrim.boom ?? side * interp(BOOM, course) * upwind * inMik) + (1.6 + 2.4 * topping.hoist) * loose * now.flutter * Math.sin(1.9 * now.t) : 0, dt);
+    // struck, the fok lies bundled on its stay, amidships: the wind has nothing to take hold of
+    const jibUp = 1 - smoothstep(jibDown);
+    chase('jib', (sailing ? tackTrim.jib ?? THREE.MathUtils.lerp(jibFor(side, course), side * FOK_TE_LOEVERT, loevert) * upwind : FOK_CAD) * jibUp, dt);
+    chase('jibBend', (tackTrim.bend ?? interp(FOK_BEND, course) * upwind) * jibUp, dt);
     chase('mainBend', interp(MAIN_BEND, course) * upwind, dt);
-    // struck, the boat lies head to wind - unless it sails on under the spinnaker: then the wind
-    // comes from the course again, but the struck rig stays where it was made up
-    chase('windAngle', deg(side * course) * (1 - headUp * (1 - smoothstep(chill?.hoist ?? 0))), dt);
+    // the relative wind, the short way round (a gijp goes on past 180), and held where the boat lies made fast
+    const windAim = dock.mooring || driving(turning) ? now.windAngle
+      : dock.moored ? (driving(berthing) ? dock.mooredWind : deg(state.course)) : deg(side * course) * upwind;
+    now.windAngle += wrapPi(windAim - now.windAngle) * (1 - Math.exp(-dt * 4.5));
+    stepDock(dt);
+    if (!measuring) { stepTrack(); callOut(); followRudder(dt); }
     // struck, the sails stay in the boat when it is rowed or sculled: only set sails are taken away
     const struck = rigging.t >= RIG_AT.gestreken - 1e-6;
     chase('sails', sailing || struck ? 1 : 0, dt, 3.5);
@@ -2455,11 +3341,12 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       dirk.set(dirkPath);
       dirkDown.set([dirkPath[dirkPath.length - 1], ...dirkFall.map((p) => withMast(p))]);
     }
-    mainBend.warpKey = strike.main * 7 + strike.furl; jibBend.warpKey = strike.jib;
+    jibDown = Math.max(strike.jib, chill?.hoist ?? 0);
+    mainBend.warpKey = strike.main * 7 + strike.furl; jibBend.warpKey = jibDown;
     layAnchor();
-    slideHanks(smoothstep(strike.jib));
-    jibBend.flutter = 0.05 * now.flutter * (1 - smoothstep(strike.jib)); jibBend.time = now.t + 1.3;
-    jibBend.set(now.jibBend * jibInfo.reikwijdte_m * clamp(now.jib / 10, -1, 1));
+    slideHanks(smoothstep(jibDown));
+    jibBend.flutter = 0.05 * (tackTrim.flap ?? now.flutter) * (1 - smoothstep(jibDown)); jibBend.time = now.t + 1.3;
+    jibBend.set(now.jibBend * jibInfo.reikwijdte_m * (tackTrim.belly ?? clamp(now.jib / 10, -1, 1)));
     setOpacity(sailRig, now.sails);
     // made up: the cloth gives way to the roll on the giek, and the binders go on
     // fok taken off: lifted clear of the stay, then gone, with all that belongs to it
@@ -2528,7 +3415,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     helm.qTurn.setFromAxisAngle(rudderAxis, helm.angle);
     borg?.chain.update(delta.copy(rotatedPoint(borg.eye, rudderFoot, rudderAxis, helm.angle, tmp)).sub(borg.eye));
     flyFlag(now.t, now.windAngle, now.wind, 1 - now.sculling, helm.qTurn);   // no flag while wrikken: the riem needs the room
-    layChill(step, struck);
+    layChill(step);
     leechFlag.k = clamp(leechFlag.k + (leechFlag.on ? dt : -dt) / 1.5, 0, 1);   // it fades in and out, a second and a half
     leechFlag.fly.mesh.visible = leechFlag.k > 0;
     if (leechFlag.k > 0) {
@@ -2650,20 +3537,20 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     }
   }
 
-  // -- UI: one bar of icon buttons along the bottom; each one opens its control in a popover
+  // -- UI: a column of icon buttons down the left, Oefenen among them: Boot (the mode, the wind, the
+  // riemen), Handelingen and the roeicommando's. Each opens its control in a popover beside it.
   const bar = $('controls');
-  const popovers = ['mode', 'wind', 'reef', 'rig', 'oars', 'cmd'].map((key) => ({
+  const popovers = ['boat', 'learn', 'cmd'].map((key) => ({
     key, button: $(`${key}-toggle`), panel: $(`${key}-panel`),
   }));
   let opened = null;
-  /** Centre a panel over its own icon, but keep it inside the viewer - not inside the window. */
+  /** A panel beside its own icon, level with it, but kept inside the viewer - not inside the window. */
   const place = ({ button, panel }) => {
     const EDGE = 8;
+    const frame = wrap.getBoundingClientRect(); const column = bar.getBoundingClientRect();
     const box = button.getBoundingClientRect();
-    const frame = wrap.getBoundingClientRect();
-    const room = Math.max(frame.left + EDGE, frame.right - panel.offsetWidth - EDGE);
-    const x = Math.min(Math.max(box.left + box.width / 2 - panel.offsetWidth / 2, frame.left + EDGE), room);
-    panel.style.left = `${x - bar.getBoundingClientRect().left}px`;
+    const room = frame.bottom - EDGE - panel.offsetHeight;          // how far down it may start and still fit
+    panel.style.top = `${Math.max(Math.min(box.top, room), frame.top + EDGE) - column.top}px`;
   };
   const openPopover = (control) => {                                // null closes; only ever one open
     if (opened === control) return;
@@ -2686,8 +3573,12 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     if (e.key === 'Escape' && opened && engaged()) { opened.button.focus(); openPopover(null); }
   }, { signal });
   onResize(() => { if (opened) place(opened); });
-  /** An icon that does not apply to the mode goes away and takes its popover with it. */
+  /** What does not apply to the mode goes away: an icon with its popover, or a part of the Boot panel. */
+  const SECTIONS = { wind: $('wind-section'), oars: $('oars-section'), ops: $('learn-manoeuvres') };
+  let windWasMoored = false;
+  const windShown = () => state.mode === 'zeilen' && ((state.rig ?? 'op') === 'op' || dock.moored);
   const relevant = (key, applies) => {
+    if (SECTIONS[key]) { SECTIONS[key].hidden = !applies; if (opened) place(opened); return; }
     const control = popovers.find((c) => c.key === key);
     control.button.hidden = !applies;
     if (!applies && opened === control) openPopover(null);
@@ -2708,6 +3599,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     return `${m.label}${m.sub ? `, ${m.sub.toLowerCase()}` : ''}, wind over ${course < 0 ? 'bakboord' : 'stuurboord'}`;
   };
   const setCourse = (course) => {
+    // a course set by hand ends a tack that stands still half way: the helmsman has taken over
+    if (!tackSteers && tackOn() && !tacking.playing) { if (shown === tacking) shown = null; tacking = null; helm.target = 0; }
     state.course = course;
     slider.value = String(toSlider(course));
     slider.setAttribute('aria-valuetext', nameOf(course));
@@ -2733,23 +3626,14 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     if (up) setBoard('op'); else if (state.midzwaard === 'op') setBoard('neer');
   };
 
-  // reven: the number of turns of the giek
-  const reefSlider = $('reef');
-  const reefValue = $('reef-value'); const reefCount = $('reef-count');
-  reefSlider.max = String(reefInfo.max_slagen);
-  let reefWanted = 0;                                               // what the slider was last let go on
-  const setReef = (turns) => {
+  // reven: the number of turns of the giek, chosen in Handelingen (handelingen.js)
+  const reefCount = $('reef-count');
+  let reefWanted = 0;                                               // what was last asked for
+  const setReef = (turns, play = true) => {
     reefWanted = turns;
-    reefSlider.value = String(turns);
-    reefValue.textContent = turns === 0 ? 'geen' : `${turns} ${turns === 1 ? 'slag' : 'slagen'} om de giek`;
     reefCount.textContent = String(turns); reefCount.hidden = turns === 0;
-    planReef(turns);
+    planReef(turns, play);
   };
-  reefSlider.addEventListener('change', () => { setReef(Number(reefSlider.value)); openPopover(null); });
-  reefSlider.addEventListener('input', () => {
-    const turns = Number(reefSlider.value);
-    reefValue.textContent = turns === 0 ? 'geen' : `${turns} ${turns === 1 ? 'slag' : 'slagen'} om de giek`;
-  });
 
   // Roeicommando. "Op… slag", "riemen… over", "riemen… op" and "riemen… geroeid" are given to the
   // whole boat and never to one boord, so they have a group of their own above the two boorden;
@@ -2781,33 +3665,156 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   for (const b of cmdButtons) {
     b.addEventListener('click', () => {
       setCommando(b.parentElement.dataset.boord, b.dataset.commando);
+      say(spoken.textContent.replace(/[“”]/g, ''), 'roer');         // the roerganger calls it out
       openPopover(null);                                            // like the other choices that set the boat going
     });
   }
   setCommando('beide', state.commando.bb);
 
-  // tuig: sails set or struck
-  const rigButtons = all('#rig-panel button');
+  // Handelingen: the sails up or down, the mast down or up, and reven. Every operation has its
+  // preconditions: what has to be true of the boat as it is now (not of what was last asked for)
+  // before it can be started, each with the reason shown when it is not. What is not listed does
+  // not matter: the mast only needs the sails struck and bound - where the anchor or the midzwaard
+  // went on the way there is neither here nor there. `done` says the boat is already that way.
+  const sailsUp = () => rigging.t <= 1e-6 && !rigging.playing;
+  const sailsStruck = () => strike.ties > 0.999 && !(rigging.playing && rigging.goal < RIG_AT.gestreken - 1e-6);
+  const mastUp = () => rigging.t <= RIG_AT.gestreken + 1e-6;
+  const notReefing = [() => !reefing?.playing, 'Eerst het reven afmaken'];
+  const anchorUp = () => !anchorGear || anchorGear.lost || anchorGear.u < 0.5;
+  const closeHauled = () => state.course !== 0 && Math.abs(state.course) < 112;  // aan de wind or halve wind, not ruime wind
+  const offTheWind = () => Math.abs(state.course) >= 112;                         // ruime wind or voor de wind
+  // made fast, the sails go up only if they blow clear of the wal: head to wind, or aan de wind or
+  // halve wind with the wind coming over the steiger, so they stand out over the water
+  const hoistAlongside = () => {
+    const c = Math.abs(state.course);
+    if (c < CLOSE_HAULED) return true;
+    return c < 112 && Math.sign(state.course) === (dock.side === 'sb' ? 1 : -1);
+  };
+  const OPS = {
+    hijsen: { rig: 'op', done: sailsUp, needs: [[mastUp, 'Eerst de mast zetten'], notReefing,
+      [() => !dock.moored || hoistAlongside(), 'Afgemeerd alleen kop in de wind, of met de wind over de steiger']] },
+    strijken: { rig: 'gestreken', done: () => sailsStruck() && mastUp(), needs: [[mastUp, 'De mast ligt al'], notReefing] },
+    mastStrijken: { rig: 'mast', done: () => rigging.t >= RIG_AT.mast - 1e-6, needs: [[sailsStruck, 'Eerst de zeilen strijken']] },
+    mastZetten: { rig: 'gestreken', done: () => mastUp() && !(rigging.playing && rigging.goal > RIG_AT.gestreken + 1e-6), needs: [] },
+    reven: { done: () => false, needs: [[sailsUp, 'Eerst de zeilen hijsen']] },
+    overstag: { done: () => false, needs: [[sailsUp, 'Eerst de zeilen hijsen'], [anchorUp, 'Eerst het anker op'],
+      [() => !dock.moored && !dock.mooring, 'Eerst losgooien'], [closeHauled, 'Eerst aan de wind of halve wind gaan varen'], notReefing,
+      [() => !tackOn(), 'Eerst de wending of gijp afmaken']] },
+    stormrondje: { done: () => false, needs: [[sailsUp, 'Eerst de zeilen hijsen'], [anchorUp, 'Eerst het anker op'],
+      [() => !dock.moored && !dock.mooring, 'Eerst losgooien'], [offTheWind, 'Eerst ruime of voor de wind gaan varen'], notReefing,
+      [() => !tackOn(), 'Eerst de wending of gijp afmaken']] },
+    gijpen: { done: () => false, needs: [[sailsUp, 'Eerst de zeilen hijsen'], [anchorUp, 'Eerst het anker op'],
+      [() => !dock.moored && !dock.mooring, 'Eerst losgooien'], [offTheWind, 'Eerst ruime of voor de wind gaan varen'], notReefing,
+      [() => !tackOn(), 'Eerst de wending of gijp afmaken']] },
+    kopInDeWind: { done: () => false, needs: [[() => dock.moored && !leaving, 'Eerst afmeren'], [() => !driving(turning), 'Eerst het draaien afmaken'],
+      [sailsStruck, 'Eerst de zeilen strijken'], [windFromBehind, 'Alleen met de wind van achteren']] },
+    afvaren: { done: () => false, needs: [[() => dock.moored && !leaving, 'Eerst afmeren'], [walConditions.langswal, 'Alleen van een langswal'],
+      [() => Math.abs(state.course) < CLOSE_HAULED, 'Eerst kop in de wind leggen'], [sailsUp, 'Eerst de zeilen hijsen'], notReefing] },
+    afmeren: { done: () => dock.moored, needs: [[sailsUp, 'Eerst de zeilen hijsen'], [anchorUp, 'Eerst het anker op'],
+      [() => state.course !== 0, 'Eerst een koers varen, niet kop in de wind'], notReefing,
+      [() => !tackOn(), 'Eerst de wending of gijp afmaken']] },
+  };
+  /** The first precondition of the operation that is not met, as its reason; null when it can go. */
+  const blocked = (op) => OPS[op].needs.find(([ok]) => !ok())?.[1] ?? null;
   const setRig = (rig) => {
     state.rig = rig;
-    for (const b of rigButtons) b.setAttribute('aria-pressed', String(b.dataset.rig === rig));
     planStrike(rig);
-    relevant('wind', state.mode === 'zeilen' && rig === 'op');       // nothing to trim or reef with the sails down
-    relevant('reef', state.mode === 'zeilen' && rig === 'op');
+    relevant('wind', windShown());                                  // nothing to trim with the sails down, unless she lies made fast
   };
-  for (const b of rigButtons) b.addEventListener('click', () => { setRig(b.dataset.rig); openPopover(null); });
+
+  // -- a run of an operation, for handelingen.js: watched (it plays by itself, stepped and scrubbed
+  // as ever) or practised: then it stands still and every next step is a question - the right one
+  // among steps that could be done in the state the boat is in now, only not now. Which those are
+  // follows from what each step needs done before it; `undo` of a step done already is a wrong
+  // answer of the same kind (the fok up again, before the mik is set).
+  const STEP_NEEDS = {                                              // the rig: what has to have happened first
+    main: ['mik'], furl: ['main'], ties: ['furl'], fokoff: ['jib'], low: ['ties'], pin: ['low'],
+    grendel: ['ties'], hook: ['ring'], mast: ['pin', 'grendel', 'hook', 'fokoff'],
+  };
+  const TACK_NEEDS = { ree: ['klaar'], houden: ['bak'], over: ['bak'] };   // the rest can be done at any moment: only not now
+  const GYBE_NEEDS = { afvallen: ['klaar'], tegen: ['gijp'], vieren: ['gijp'], bij: ['tegen'] };
+  const REEF_NEEDS = {                                              // reven, where some keys come and go
+    'pull>1': ['slide>1'], turns: ['pull>1', 'slack>1'], 'pull>0': ['turns'], 'hoop>1': ['pull>0'],
+    'slide>0': ['hoop>1'], 'slack>0': ['pull>0'], 'head>0': ['slack>0'],
+  };
+  const stepId = (s) => (s.key === 'turns' ? 'turns' : `${s.key}>${s.to > s.from ? 1 : 0}`);
+  const needsOf = (proc, s) => (proc === reefing ? REEF_NEEDS[stepId(s)] ?? [] : proc === tacking ? (tacking.kind === 'gijp' ? GYBE_NEEDS : TACK_NEEDS)[s.key] ?? []
+    : proc === berthing ? berthing.needs[s.key] ?? [] : proc === leaving ? leaving.needs[s.key] ?? []
+    : proc === turning ? turning.needs[s.key] ?? [] : STEP_NEEDS[s.key] ?? []);
+  const holds = (proc, id, doneSet) => doneSet.some((d) => (proc === reefing ? stepId(d) : d.key) === id);
+  const shuffled = (list) => { const l = [...list]; for (let i = l.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [l[i], l[j]] = [l[j], l[i]]; } return l; };
+  /** Every step that could be done now in the state the boat is in: the plausible answers. */
+  const possible = (proc) => {
+    const t = proc.t; const all = proc.steps.filter((s) => !proc.isSkipped(s));   // a skipped step is no answer
+    const inEffect = all.filter((s) => s.end <= t + 1e-6);          // done, as the timeline stands
+    const notYet = all.filter((s) => s.end > t + 1e-6);
+    const out = [];
+    for (const s of notYet) if (needsOf(proc, s).every((id) => holds(proc, id, inEffect))) out.push(s.label);
+    // nothing of a one-way procedure is ever undone, but any step of it can be done again - luffing
+    // up once more, the fok backed again: possible, and wrong
+    if (proc.oneWay) { for (const s of inEffect) out.push(s.label); return out; }
+    for (const s of inEffect) {                                     // undone again: nothing still done may need it
+      const id = proc === reefing ? stepId(s) : s.key;
+      if (!inEffect.some((d) => d !== s && needsOf(proc, d).includes(id))) out.push(s.back);
+    }
+    return out;
+  };
+  const run = {
+    ops: () => Object.keys(OPS).map((op) => ({ op, blocked: blocked(op), done: OPS[op].done() })),
+    maxTurns: reefInfo.max_slagen,
+    get turns() { return reefWanted; },
+    /** Starts an operation; `play` false leaves it standing at its start, for practising. */
+    begin(op, { play = true, turns = reefWanted } = {}) {
+      if (blocked(op)) return false;
+      if (op === 'reven') { setReef(turns, play); return true; }
+      if (op === 'overstag') { planTurn('overstag', play); return true; }
+      if (op === 'gijpen') { planTurn('gijp', play); return true; }
+      if (op === 'stormrondje') { planTurn('storm', play); return true; }
+      if (op === 'afmeren') { planBerthing(play); return true; }
+      if (op === 'afvaren') { planLeaving(play); return true; }
+      if (op === 'kopInDeWind') { planTurning(play); return true; }
+      const rig = OPS[op].rig;
+      if (play) { setRig(rig); return true; }
+      setRig(rig);
+      rigging.pause(); rigging.goal = rigging.t; rigging.commanded = RIG_AT[rig]; rigging.aim(RIG_AT[rig]);
+      return true;
+    },
+    /** The way the operation goes through its timeline: +1 forwards, -1 back (hijsen, mast zetten). */
+    get direction() { return shown ? (shown.direction < 0 ? -1 : 1) : 1; },
+    /** The next step and three others that could be done now, shuffled; null at the end. */
+    question() {
+      if (!shown) return null;
+      const d = this.direction;
+      const next = shown.upcoming(d);
+      if (!next) return null;
+      const answer = d > 0 ? next.step.label : next.step.back;
+      const proc = shown.procedure ?? shown;                        // a flow asks its whole timeline
+      // the steps of this operation first; now and then one of the other flow, which is possible too
+      // an undo that only says "weer" or "niet meer" of another option is the same move twice: left out
+      const plain = (l) => l.replace(/ (weer|niet meer)\b/g, '');
+      const pool = [...new Set(possible(proc))].filter((l) => l !== answer && plain(l) !== plain(answer));
+      const own = new Set(shown.steps.filter((s) => !shown.isSkipped(s)).flatMap((s) => [s.label, s.back]));
+      const mine = shuffled(pool.filter((l) => own.has(l))); const rest = shuffled(pool.filter((l) => !own.has(l)));
+      const take = rest.length && Math.random() < 0.25 ? [...mine.slice(0, 2), rest[0]] : [...mine, ...rest];
+      const others = [];
+      for (const l of take) if (others.length < 3 && !others.some((o) => plain(o) === plain(l))) others.push(l);
+      return { answer, options: shuffled([answer, ...others]) };
+    },
+    /** Whether it has come to its end, the way it goes. */
+    get finished() { if (!shown) return true; return this.direction > 0 ? shown.t >= shown.total - 1e-6 : shown.t <= 1e-6; },
+  };
 
   const rowButtons = all('#oars-panel button');
-  const oarCount = $('oar-count');
+  const oarCount = $('oar-count');                                  // gone with the old bar; kept for an embed that has one
   const setRowing = (rowing) => {
     state.rowing = rowing;
-    oarCount.textContent = rowing === 'vier' ? '4' : '2';
+    if (oarCount) oarCount.textContent = rowing === 'vier' ? '4' : '2';
     for (const b of rowButtons) b.setAttribute('aria-pressed', String(b.dataset.rowing === rowing));
   };
-  for (const b of rowButtons) b.addEventListener('click', () => { setRowing(b.dataset.rowing); openPopover(null); });
+  for (const b of rowButtons) b.addEventListener('click', () => setRowing(b.dataset.rowing));   // the panel stays: the wind may be next
 
   const modeButtons = all('#mode-panel button');
-  const modeGlyphs = all('#mode-toggle [data-mode]');
+  const modeGlyphs = all('#boat-toggle [data-mode]');
   /** Let the anchor go (true) or weigh it (false) by hand, whatever the Tuig procedure did with it. */
   const weighAnchor = (out) => {
     if (!anchorGear || (anchorGear.want > 0.5) === out) return;
@@ -2825,12 +3832,11 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     trimBoard();
     for (const b of modeButtons) b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
     for (const g of modeGlyphs) g.toggleAttribute('hidden', g.dataset.mode !== mode);   // the icon shows the mode
-    relevant('wind', mode === 'zeilen' && (state.rig ?? 'op') === 'op');   // the wind only trims sails
+    relevant('wind', windShown());                                  // the wind only trims sails, or turns round her made fast
     relevant('oars', mode === 'roeien');
     relevant('cmd', mode === 'roeien');
-    relevant('reef', mode === 'zeilen' && (state.rig ?? 'op') === 'op');   // no sail, nothing to reef
-    relevant('rig', mode === 'zeilen');
-    if (opened) place(opened);                                      // the bar re-centres as icons come and go
+    relevant('ops', mode === 'zeilen');
+    if (opened) place(opened);                                      // the column closes up as icons come and go
   };
 
   slider.min = String(-SLIDER_MAX); slider.max = String(SLIDER_MAX);
@@ -2866,7 +3872,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     markers.append(caption);
   }
   slider.addEventListener('input', () => setCourse(fromSlider(Number(slider.value))));
-  for (const b of modeButtons) b.addEventListener('click', () => { setMode(b.dataset.mode); openPopover(null); });
+  for (const b of modeButtons) b.addEventListener('click', () => setMode(b.dataset.mode));   // the panel stays open
   setCourse(state.course); setRowing(state.rowing); setMode(state.mode);
 
   /** A click on a part that can be shifted by hand: a dol goes in or out of its pot (not while an
@@ -2880,6 +3886,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     ['HS5CRXKPt9PtAT9eKpaHs9fwEiRAXoK7tt4=', () => tow && (tow.want = !tow.want, true), true],
     ['AyBDUnWPtJfzASJPYYSG9trhEy5MYI0=', () => bowsprit && (setBowsprit(!bowsprit.want), true)],
     ['DDNCWGqUvN73PzZPY4mfs9nlE2tAc4+7p8PoEzpjfoq4xPDvHDhXO42oyuwDNj1fcq69x+cQPUJYcJI=', () => (leechFlag.set(!leechFlag.on), true)],
+    ['DS5GF3WCrN7tBT4=', () => chill && (chill.want = !chill.want, true)],
     ['Dy5LQ0GYttjpQDZda4SZstnhDj8=', () => {
       if (bench.want || bench.t !== 0 || state.mode === 'roeien' || !placePlank(Math.sign(state.course) || 1)) return false;
       bench.row = null; bench.want = true; note('wp');
@@ -2964,13 +3971,15 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   /** For the progress bar: the procedure last set going, as plain data, and the handles to steer it. */
   const procedure = () => (shown && {
     name: shown.name, t: shown.t, total: shown.total, playing: shown.playing, resting: shown.resting, stepping: shown.stepping,
-    label: shown.label, index: shown.index, backwards: shown.direction < 0,
-    steps: shown.steps.map((s) => ({ label: s.label, back: s.back, begin: s.begin, end: s.end })),
+    label: shown.label, index: shown.index, backwards: shown.direction < 0, oneWay: Boolean(shown.oneWay),
+    steps: shown.steps.map((s) => ({ label: s.label, back: s.back, begin: s.begin, end: s.end, skipped: Boolean(shown.isSkipped?.(s)) })),
   });
   const procedureControl = {
+    // a procedure that only goes forwards (overstag) is not stepped back; dragged back it may be, to
+    // look at a step again
     play: () => shown?.play(), pause: () => shown?.pause(), scrub: (t) => shown?.scrub(t),
     /** One step on (+1) or back (-1), after `delay` seconds. */
-    step: (direction, delay) => shown?.step(direction, delay),
+    step: (direction, delay) => (shown?.oneWay && direction < 0 ? undefined : shown?.step(direction, delay)),
     /** The parts the step one step on or back is about: where the camera looks while it plays. */
     focus: (direction) => (shown?.upcoming(direction)?.step.focus ?? [])
       .map((id) => parts.find((p) => p.extras.id === id)).filter(Boolean),
@@ -3055,7 +4064,10 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     roeien: state.rowing, commando: { ...state.commando },
     zwaard: strike.zwaard > 0.5 ? 'op' : state.midzwaard,           // the Tuig procedure holds it up
   });
-  return { update, state, click, reveal, helm: helmControl, procedure, procedureControl, apply, current,
+  return { update, state, click, reveal, helm: helmControl, procedure, procedureControl, apply, current, run,
+           closePopover: () => openPopover(null), placePopover: () => { if (opened) place(opened); },
+           dock: { layWal, cast: () => casting(), conditions: walConditions, get speed() { return dock.speed; },
+                   get moored() { return dock.moored; }, get kind() { return dock.kind; } },
            bowsprit: bowsprit && { get on() { return bowsprit.want; }, set: setBowsprit },
            chill: chill && { get on() { return chill.holds; } },
            water, waterHit, mob, toplicht: { set: setToplicht },

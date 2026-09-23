@@ -9,6 +9,7 @@ import { initCustomize, initCustomizePanel, collectZoneMaterials, initPaint, col
 import { initModes } from './modes.js';
 import { initRegions } from './regions.js';
 import { initQuiz } from './quiz.js';
+import { initHandelingen } from './handelingen.js';
 import { initLogboek } from './logboek.js';
 import { initNight } from './rig.js';
 import { initLocator } from './locator.js';
@@ -60,22 +61,24 @@ export function mount(ui, host, config) {
   // Volledig scherm works from the first frame: it needs nothing of the model
   const fullscreen = initFullscreen({ ui, host, config, signal, engaged, realTarget, onDestroy });
 
-  // panels behind an icon button: the view menu (eye), the parts list and the model information (i)
+  // panels behind a button: the parts list (the search in the part card), and Over dit model, which
+  // has no button of its own but a link at the foot of Aanpassen. Oefenen is a popover of the column.
   const closePanel = new Map();                  // panel id -> close it
-  const CORNER = ['sidebar', 'parts', 'quiz'];   // these share the top left corner: only one is open at a time
-  for (const [button, panel, onToggle] of [['view-toggle', 'sidebar'], ['parts-toggle', 'parts', partsPanelToggled],
-                                           ['quiz-toggle', 'quiz', (open) => quiz?.panelToggled(open)],
-                                           ['about-toggle', 'about'], ['toestand-toggle', 'toestand', (open) => toestandToggled(open)],
+  const openPanel = new Map();                   // panel id -> open it
+  const CORNER = [];                            // panels that share a corner, and so are open one at a time
+  for (const [button, panel, onToggle] of [['parts-toggle', 'parts', partsPanelToggled],
+                                           [null, 'about'], ['toestand-toggle', 'toestand', (open) => toestandToggled(open)],
                                            ['log-toggle', 'logboek']]) {
-    const toggle = $(button);
+    const toggle = button && $(button);
     const aside = $(panel);
     const setOpen = (open) => {
       aside.hidden = !open;
-      toggle.setAttribute('aria-expanded', String(open));
+      toggle?.setAttribute('aria-expanded', String(open));
       onToggle?.(open);
     };
     closePanel.set(panel, () => setOpen(false));
-    toggle.addEventListener('click', () => {
+    openPanel.set(panel, () => setOpen(true));
+    toggle?.addEventListener('click', () => {
       const open = aside.hidden;
       if (open && CORNER.includes(panel)) for (const other of CORNER) if (other !== panel) closePanel.get(other)();
       setOpen(open);
@@ -83,6 +86,8 @@ export function mount(ui, host, config) {
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && engaged()) setOpen(false); }, { signal });
   }
   $('about-close').addEventListener('click', () => closePanel.get('about')());
+  // Over dit model: from the foot of Aanpassen, which makes way for it; it stands in the middle
+  $('about-open').addEventListener('click', () => { $('customize-close').click(); openPanel.get('about')(); });
   $('toestand-close').addEventListener('click', () => closePanel.get('toestand')());
   $('parts-close').addEventListener('click', () => closePanel.get('parts')());
   $('log-close').addEventListener('click', () => closePanel.get('logboek')());
@@ -132,6 +137,7 @@ export function mount(ui, host, config) {
   let paintScheme = null;      // the older paint scheme; see initPaint in customize.js
   let regions = null;
   let quiz = null;
+  let handelingen = null;     // a run of an operation, in its own focus mode
   let hovered = null;
   const override = new Map();  // part -> colour: the quiz lights four parts at once, each its own
 
@@ -182,7 +188,7 @@ export function mount(ui, host, config) {
     paintScheme.setNumber(aanpassen.zeilnummer);
 
     modes = initModes({ parts, tuig: root.getObjectByName('lelievlet').userData.tuig, scene,
-                        ui, wrap, config, signal, onResize, engaged, realTarget, note: logboek.note });
+                        ui, wrap, config, signal, onResize, engaged, realTarget, note: logboek.note, say });
     regions = initRegions({ parts, groups, highlight: SELECT });        // Boeg, Kleed: areas, not parts
 
     // One choke point for namen.onderdelen: the parts from the model and the ones the viewer built
@@ -191,12 +197,14 @@ export function mount(ui, host, config) {
     for (const p of parts) p.extras.naam = naamVan(config, 'onderdelen', p.extras.id, p.extras.naam);
 
     for (const p of parts) groups.get(p.extras.groep)?.parts.push(p);   // after initModes: it adds the windvaan
-    buildGroupList();
     buildPartList();
     addEdges(parts);                                         // every part there is by now, the viewer's own too
-    quiz = initQuiz({ parts, scene, select, flyTo,
+    quiz = initQuiz({ parts, scene, select, flyTo, setCovered, openLearn: (kind) => openLearn(kind),
                       setHighlights, partVisible, closePanel,
                       ui, wrap, config, signal, engaged, realTarget, onDestroy });   // Oefenen
+    handelingen = initHandelingen({ ui, wrap, modes, stepProcedure, dismissProcedure, setCovered, signal, engaged, realTarget, onDestroy });
+    closePanel.set('learn', () => modes.closePopover());    // a round or a run takes the whole screen
+    initLearn();
     loaded = true;
     setView('iso', false);
     applyState(merge(config.toestand, early), true);      // what the page asked for, before anyone sees the boat
@@ -207,19 +215,6 @@ export function mount(ui, host, config) {
     renderer.render(scene, camera);
     settle();
   }, undefined, (error) => { if (!destroyed) stumble(error); });
-
-  function buildGroupList() {
-    const list = $('groups');
-    for (const [id, g] of groups) {
-      const li = document.createElement('li');
-      const box = Object.assign(document.createElement('input'), { type: 'checkbox', checked: true, id: `g-${id}` });
-      const label = Object.assign(document.createElement('label'), { htmlFor: box.id, textContent: g.title });
-      const count = Object.assign(document.createElement('span'), { className: 'count', textContent: g.parts.length });
-      box.addEventListener('change', () => { g.node.visible = box.checked; });
-      li.append(box, label, count);
-      list.append(li);
-    }
-  }
 
   // ---------------------------------------------------------------- the parts list ("Onderdelen")
   // One row per distinct name within a group: the boat has four dollen and two zwaardlopers, and
@@ -253,9 +248,22 @@ export function mount(ui, host, config) {
       head.append(Object.assign(document.createElement('span'), { className: 'title', textContent: g.title }), count);
       head.setAttribute('aria-controls', `parts-${id}`);
       const ul = Object.assign(document.createElement('ul'), { id: `parts-${id}` });
-      const entry = { head, ul, count, section, rows: [], total: g.parts.length, open: true };
+      const entry = { head, ul, count, section, rows: [], total: g.parts.length, open: true, show: null };
       setFolded(entry, true);
       head.addEventListener('click', () => { entry.open = !entry.open; setFolded(entry, entry.open); });
+      // beside it, an eye that shows or hides the whole group in the model
+      const eye = Object.assign(document.createElement('button'), { type: 'button', className: 'group-eye' });
+      eye.innerHTML = EYE;
+      const showGroup = (on) => {
+        g.node.visible = on;
+        eye.setAttribute('aria-pressed', String(!on));
+        eye.title = on ? `${g.title} verbergen` : `${g.title} tonen`; eye.setAttribute('aria-label', eye.title);
+        section.classList.toggle('verborgen', !on);
+      };
+      eye.addEventListener('click', () => showGroup(!g.node.visible));
+      entry.show = showGroup;
+      const headRow = Object.assign(document.createElement('div'), { className: 'group-row' });
+      headRow.append(head, eye);
 
       // a name that says a side but has no twin here keeps its own name and stands on its own
       const buckets = [...byName.values()].map((b) => (b.sides.size > 1 ? b : { ...b, label: b.parts[0].extras.naam, sides: new Map() }));
@@ -278,11 +286,15 @@ export function mount(ui, host, config) {
         button.addEventListener('click', () => { const pick = twins ? pickTwin(row) : row.parts; select(pick); flyTo(pick); });
         entry.rows.push(row); rows.push(row);
       }
-      section.append(head, ul);
+      section.append(headRow, ul);
       list.append(section);
       sections.push(entry);
+      showGroup(g.node.visible);
     }
     $('parts-search').addEventListener('input', filterPartList);
+    // every group at once, shown or hidden, through the same eyes
+    $('parts-show-all').addEventListener('click', () => { for (const e of sections) e.show(true); });
+    $('parts-hide-all').addEventListener('click', () => { for (const e of sections) e.show(false); });
     refreshPartList();
   }
 
@@ -391,10 +403,6 @@ export function mount(ui, host, config) {
   // how fast what is being done goes - procedures, and what is moved by hand; wind, water and flag keep their own time
   let speed = 1;
   $('speed').addEventListener('input', (e) => { speed = Number(e.target.value) || 1; });
-  $('views').addEventListener('click', (e) => {
-    const view = e.target.dataset?.view;
-    if (view) setView(view);
-  });
 
   // ---------------------------------------------------------------- picking
   const raycaster = new THREE.Raycaster();
@@ -506,7 +514,7 @@ export function mount(ui, host, config) {
     refreshHighlight();
     markRow(list[0] ?? null);
     const info = $('info');
-    info.hidden = !list.length;
+    info.classList.toggle('leeg', !list.length);              // with nothing selected it is only its search button
     if (!list.length) return;
     const ex = list[0].extras;
     $('info-group').textContent = groups.get(ex.groep)?.title ?? '';
@@ -547,12 +555,19 @@ export function mount(ui, host, config) {
   canvas.addEventListener('pointerdown', (e) => { downAt = [e.clientX, e.clientY]; });
   canvas.addEventListener('pointerup', (e) => {
     if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 4) return;   // was a drag
+    if (handelingen?.active()) return;             // a run of an operation: the boat is looked at, not handled
     const part = pick(e);
     if (quiz?.click(part, lastHit)) return;        // a question is open: the click is an answer, nothing else
     select(part ? [part] : [], lastHit);           // clicking the model picks the one part, not its namesakes
     // nothing in the way: the ray is still set from the pointer, so the water is a place to point at
     modes?.click(part, part ? lastHit : modes.waterHit(raycaster));   // a dol, the mik, an oar, ... is also shifted by it
   });
+  // Escape lets go of the selection, as a click on nothing does; a quiz round keeps its own Escape
+  window.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || !engaged() || !selected.length || quiz?.active()) return;
+    if (realTarget(e).closest?.('input:not([type=checkbox]), textarea, select')) return;
+    select([]);
+  }, { signal });
 
   // Steering: a drag that starts on the helmstok moves the rudder instead of the camera. It listens in
   // the capture phase and keeps the event to itself, so OrbitControls never sees that press.
@@ -777,6 +792,16 @@ export function mount(ui, host, config) {
   let procWoke = 0;                      // when it was last wanted; it fades REST_MS after that
   let procDragging = false;              // the user has the thumb: playback writes no value
   let procPlaying = null;                // what the play/pause button is drawing
+  let procDismissed = null;              // the shape of the procedure whose card was closed: it stays away
+  let procWasPlaying = false;            // ... until it, or another one, is started afresh
+  const shapeOf = (p) => [p.name, ...p.steps.map((s) => `${s.end}${s.skipped ? 'x' : ''}`)].join(' ');
+  /** The card of a run closed (handelingen.js): its bar goes at once, not after lingering. */
+  function dismissProcedure() {
+    const p = modes?.procedure();
+    if (!p) return;
+    procDismissed = shapeOf(p); procWasPlaying = p.playing;
+    procBar.hidden = true; wrap.classList.remove('procedure-open');
+  }
   const procBand = Object.assign(document.createElement('span'), { className: 'band' });   // the step it is on
 
   procPlay.addEventListener('click', () => {
@@ -858,7 +883,7 @@ export function mount(ui, host, config) {
 
   /** The bar rides above the open popover; the info tile in turn steps over the bar. */
   function placeProcedureBar() {
-    const panel = ui.querySelector('#controls .popover:not([hidden])');
+    const panel = null;                                  // the popovers stand in the left column now, not over this strip
     // the popovers stand on the same foot as the bar, so their reach is all the lift it needs
     const lift = panel ? panel.getBoundingClientRect().bottom - popoverTop(panel) + PROC_GAP : 0;
     wrap.style.setProperty('--procedure-lift', `${lift}px`);
@@ -877,12 +902,19 @@ export function mount(ui, host, config) {
   function stepProcedureBar() {
     const p = modes?.procedure() ?? null;
     if (!p) { procBar.hidden = true; wrap.classList.remove('procedure-open'); stepsQueued = 0; return; }
+    // after the card of a run closed, its bar stays away until another procedure is shown, or this
+    // one is started afresh
+    const inCard = wrap.classList.contains('ops-on');
+    const shape = shapeOf(p);
+    const fresh = p.playing && !procWasPlaying;
+    procWasPlaying = p.playing;
+    if (inCard || shape !== procDismissed || fresh) procDismissed = null;
+    if (procDismissed === shape) { procBar.hidden = true; wrap.classList.remove('procedure-open'); stepsQueued = 0; return; }
     if (stepsQueued && !p.playing) {                      // the step is done: on to the next one clicked for
       const direction = Math.sign(stepsQueued); stepsQueued -= direction;
       stepProcedure(direction);
     }
     procBar.hidden = false;
-    const shape = [p.name, ...p.steps.map((s) => s.end)].join(' ');
     if (shape !== procShape) {                            // another procedure, or the same one anew
       procShape = shape;
       procTime.max = String(p.total);
@@ -890,6 +922,10 @@ export function mount(ui, host, config) {
         const tick = document.createElement('span');
         tick.style.left = `${(s.end / p.total) * 100}%`;
         return tick;
+      }), ...p.steps.filter((s) => s.skipped).map((s) => {           // a step skipped now: blocked out
+        const block = document.createElement('span'); block.className = 'skipped';
+        block.style.left = `${(s.begin / p.total) * 100}%`; block.style.width = `${((s.end - s.begin) / p.total) * 100}%`;
+        return block;
       }));
     }
     if (!procDragging) procTime.value = String(p.t);
@@ -897,9 +933,12 @@ export function mount(ui, host, config) {
     if (on) { procBand.style.left = `${(on.begin / p.total) * 100}%`; procBand.style.width = `${((on.end - on.begin) / p.total) * 100}%`; }
     procBar.classList.toggle('terug', p.backwards);
     // the step the label is about, and named the way the procedure is going (Fok strijken, Fok hijsen)
-    const step = p.steps.length ? `${p.index + 1}/${p.steps.length}  ${p.label}` : p.label;
+    // counted without the skipped steps: those are not done here at all
+    const live = p.steps.filter((s) => !s.skipped); const at = live.indexOf(p.steps[p.index]);
+    const step = live.length ? `${Math.max(at, 0) + 1}/${live.length}  ${p.label}` : p.label;
     if (procStep.textContent !== step) procStep.textContent = step;
     if (procName.textContent !== p.name) procName.textContent = p.name;
+    $('procedure-previous').disabled = p.oneWay;                // overstag: no way back but another tack
     if (procPlaying !== p.playing) {
       procPlaying = p.playing;
       // the icons are SVG groups, which have no hidden property: the attribute has to be set
@@ -910,12 +949,89 @@ export function mount(ui, host, config) {
 
     // it stays while it runs or stands still half way, while its own popover is open - so a finished
     // procedure can be scrubbed back through - and while it is hovered or has the focus
-    const panel = $(p.name === 'Reven' ? 'reef-panel' : 'rig-panel');
+    const panel = $('ops-panel');
     const now = performance.now();
     if (!p.resting || !panel.hidden || procBar.matches(':hover, :focus-within')) procWoke = now;
-    const show = now - procWoke < REST_MS;
+    const show = wrap.classList.contains('ops-on') || now - procWoke < REST_MS;   // in the card of a run it stays
     procBar.classList.toggle('faded', !show);
     wrap.classList.toggle('procedure-open', show);
+  }
+
+  // Part of the view covered from below (the card of a running quiz): the picture is lifted by half
+  // of it, so what the camera looks at stands in the middle of what is still to be seen. Picking and
+  // the locator rings go through the same projection, so they follow.
+  let covered = 0;
+  function frame() {
+    const { width: w, height: h } = wrap.getBoundingClientRect();
+    if (covered > 0 && w > 0 && h > 0) camera.setViewOffset(w, h, 0, covered / 2, w, h);
+    else camera.clearViewOffset();
+  }
+  const setCovered = (px) => { if (px === covered) return; covered = px; frame(); };
+
+  // ---------------------------------------------------------------- Oefenen
+  // A popover of the column: first what to practise - Manoeuvres (handelingen.js) or Onderdelen
+  // (quiz.js) - then that one's own start panel. It opens on the one chosen last; Manoeuvres is only
+  // there while sailing (modes.js hides its button), and without it the panel shows Onderdelen.
+  let learnKind = 'manoeuvres';
+  let openLearn = () => {};
+  function initLearn() {
+    const buttons = [...ui.querySelectorAll('#learn-kind button')];
+    const show = (kind = learnKind) => {
+      const can = !$('learn-manoeuvres').hidden;
+      const shown = kind === 'manoeuvres' && !can ? 'onderdelen' : kind;
+      for (const b of buttons) b.setAttribute('aria-pressed', String(b.dataset.learn === shown));
+      $('ops-panel').hidden = shown !== 'manoeuvres';
+      $('quiz').hidden = shown !== 'onderdelen';
+      const open = !$('learn-panel').hidden;
+      quiz?.panelToggled(open && shown === 'onderdelen');
+      if (open && shown === 'manoeuvres') handelingen?.refresh();
+      modes?.placePopover();                                  // its height changed: it has to fit again
+    };
+    for (const b of buttons) b.addEventListener('click', () => { learnKind = b.dataset.learn; show(); });
+    $('learn-toggle').addEventListener('click', () => show()); // after modes.js has opened or shut it
+    openLearn = (kind) => { if (kind) learnKind = kind; if ($('learn-panel').hidden) $('learn-toggle').click(); else show(); };
+  }
+
+  // ---------------------------------------------------------------- the bottom right corner
+  // The part card stands in the corner; what else lives there - the debug buttons, the list of
+  // Onderdelen that its search opens - goes above it, as high as the card reaches (--info-clear).
+  const infoCard = $('info');
+  let infoClear = -1;
+  function placeCorner() {
+    const shown = infoCard.offsetParent !== null;                    // not taken away by a focus mode
+    const clear = shown ? Math.round(wrap.getBoundingClientRect().bottom - infoCard.getBoundingClientRect().top) + 8 : 16;
+    if (clear === infoClear) return;
+    infoClear = clear;
+    wrap.style.setProperty('--info-clear', `${clear}px`);
+  }
+
+  // ---------------------------------------------------------------- what is called out
+  // A command - "Klaar om te wenden!", "Gijp!", a roeicommando - floats in a speech bubble over the
+  // one who calls it: the helmsman in the stern, or the fokkenist by the mast. It follows the boat on
+  // the screen, and fades once it has had time to be read.
+  const callout = Object.assign(document.createElement('div'), { className: 'callout' });
+  callout.hidden = true;
+  wrap.append(callout);
+  const SPEAKERS = { roer: new THREE.Vector3(1.0, 1.45, 0), fok: new THREE.Vector3(3.8, 1.5, 0) };   // model space: where their heads are
+  let calloutUntil = 0; let calloutAt = SPEAKERS.roer;
+  function say(text, who = 'roer') {
+    if (!text) return;
+    callout.textContent = text;
+    calloutAt = SPEAKERS[who] ?? SPEAKERS.roer;
+    calloutUntil = performance.now() + 1800 + 50 * text.length;
+    callout.hidden = false; callout.classList.remove('gone');
+  }
+  const calloutPoint = new THREE.Vector3();
+  function stepCallout() {
+    if (callout.hidden) return;
+    const now = performance.now();
+    if (now > calloutUntil) { callout.classList.add('gone'); if (now > calloutUntil + 400) { callout.hidden = true; return; } }
+    calloutPoint.copy(calloutAt).project(camera);
+    const box = wrap.getBoundingClientRect();
+    const behind = calloutPoint.z > 1;
+    callout.style.visibility = behind ? 'hidden' : '';
+    callout.style.left = `${((calloutPoint.x + 1) / 2) * box.width}px`;
+    callout.style.top = `${((1 - calloutPoint.y) / 2) * box.height}px`;
   }
 
   // ---------------------------------------------------------------- loop
@@ -927,6 +1043,7 @@ export function mount(ui, host, config) {
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    frame();
     wrap.style.setProperty('--lv-height', `${h}px`);   // the popovers cap themselves against it
     for (const fn of onResizeFns) fn();
   }
@@ -945,6 +1062,8 @@ export function mount(ui, host, config) {
     night?.update(dt, speed);
     paintScheme?.update(dt);
     stepProcedureBar();
+    stepCallout();
+    placeCorner();
     stepFlight();
     controls.update();
     // the near plane comes in with the camera, so a close look is not cut open; further out it stays
@@ -1085,6 +1204,8 @@ export function mount(ui, host, config) {
 }
 
 // ---------------------------------------------------------------- shared, and never written to
+// an eye, struck through while its group is hidden (the slash shows through aria-pressed, in the sheet)
+const EYE = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg>';
 const CHEVRON = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 const CENTRE_PLANE = 0.03;   // m: nearer the centre plane of the boat than this and the camera picks no side
 const AZIMUTHS = 8;
