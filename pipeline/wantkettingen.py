@@ -29,6 +29,8 @@ from pathlib import Path
 
 import numpy as np
 
+import harpjes
+
 from anchor import CHAIN_PITCH, CHAIN_WIRE, _link          # the same 6 mm link as the ankerketting
 from hardware import _join
 
@@ -135,9 +137,12 @@ def bovenharpje(mesh_dir, handle):
     move = np.array([f["s_crown"] - crown[0], f["across"][0] - crown[1], f["across"][1] - crown[2]])
     meshes = []
     for h in (HANGS_IN[handle], PIN_OF[HANGS_IN[handle]]):
-        report = json.loads((ROOT / "build" / "tessellation_report.json").read_text())
-        d = np.load(mesh_dir / f"{next(r['name'] for r in report if r['handle'] == h)}.npz")
-        V, N, F = d["V"].astype(float), d["N"].astype(float), d["F"].astype(int)
+        if h in harpjes.PIN_OF:                                   # the bow: the one harpje used for them all
+            V, N, F = harpjes.bow(mesh_dir, h)
+        else:
+            report = json.loads((ROOT / "build" / "tessellation_report.json").read_text())
+            d = np.load(mesh_dir / f"{next(r['name'] for r in report if r['handle'] == h)}.npz")
+            V, N, F = d["V"].astype(float), d["N"].astype(float), d["F"].astype(int)
         L = (V - f["o"]) @ M.T @ R + move
         meshes.append((f["o"] + L @ M, N @ M.T @ R @ M, F))
     return _join(meshes)

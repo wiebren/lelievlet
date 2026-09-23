@@ -515,7 +515,7 @@
    41
   ],
   "triangles": 420,
-  "vertices": 438
+  "vertices": 432
  },
  {
   "id": "zwaard",
@@ -564,8 +564,8 @@
    463,
    50
   ],
-  "triangles": 3656,
-  "vertices": 2389
+  "triangles": 1964,
+  "vertices": 1354
  },
  {
   "id": "zwaardloper_onder",
@@ -597,8 +597,8 @@
    40,
    26
   ],
-  "triangles": 384,
-  "vertices": 396
+  "triangles": 212,
+  "vertices": 220
  },
  {
   "id": "bakskist",
@@ -740,7 +740,7 @@
    1793
   ],
   "triangles": 144,
-  "vertices": 288
+  "vertices": 264
  },
  {
   "id": "ehbo_koffer",
@@ -842,8 +842,8 @@
    1139,
    52
   ],
-  "triangles": 13451,
-  "vertices": 9704
+  "triangles": 2274,
+  "vertices": 1352
  },
  {
   "id": "boegspriet",
@@ -928,8 +928,8 @@
    75,
    68
   ],
-  "triangles": 1508,
-  "vertices": 1550
+  "triangles": 658,
+  "vertices": 367
  },
  {
   "id": "grootschootoog_steun",
@@ -944,8 +944,8 @@
    60,
    3
   ],
-  "triangles": 20,
-  "vertices": 36
+  "triangles": 12,
+  "vertices": 24
  },
  {
   "id": "hanekam",
@@ -960,8 +960,8 @@
    33,
    5
   ],
-  "triangles": 528,
-  "vertices": 538
+  "triangles": 262,
+  "vertices": 258
  },
  {
   "id": "hanepootloper",
@@ -975,11 +975,11 @@
   ],
   "afmetingen_mm": [
    46,
-   49,
+   48,
    23
   ],
-  "triangles": 8948,
-  "vertices": 6344
+  "triangles": 1158,
+  "vertices": 685
  },
  {
   "id": "harpje_fokkenval",
@@ -996,8 +996,8 @@
    61,
    23
   ],
-  "triangles": 9102,
-  "vertices": 6403
+  "triangles": 1270,
+  "vertices": 749
  },
  {
   "id": "harpje_strop",
@@ -1014,8 +1014,8 @@
    63,
    17
   ],
-  "triangles": 8620,
-  "vertices": 6156
+  "triangles": 1270,
+  "vertices": 749
  },
  {
   "id": "harpjes",
@@ -1033,8 +1033,8 @@
    36,
    1792
   ],
-  "triangles": 10845,
-  "vertices": 7021
+  "triangles": 1514,
+  "vertices": 942
  },
  {
   "id": "harpjes_fok",
@@ -1052,8 +1052,8 @@
    229,
    25
   ],
-  "triangles": 11110,
-  "vertices": 7187
+  "triangles": 1508,
+  "vertices": 936
  },
  {
   "id": "harpjes_mast",
@@ -1077,8 +1077,8 @@
    910,
    125
   ],
-  "triangles": 27097,
-  "vertices": 17537
+  "triangles": 3770,
+  "vertices": 2340
  },
  {
   "id": "harpjes_wantketting",
@@ -1091,8 +1091,8 @@
    36,
    1728
   ],
-  "triangles": 10845,
-  "vertices": 7023
+  "triangles": 1712,
+  "vertices": 1144
  },
  {
   "id": "hijsogen",
@@ -1110,8 +1110,8 @@
    156,
    1134
   ],
-  "triangles": 6426,
-  "vertices": 3647
+  "triangles": 3664,
+  "vertices": 1980
  },
  {
   "id": "kettinkje_fok",
@@ -1129,8 +1129,8 @@
    187,
    18
   ],
-  "triangles": 15296,
-  "vertices": 15648
+  "triangles": 3608,
+  "vertices": 1804
  },
  {
   "id": "kikkers_mastkoker",
@@ -1148,8 +1148,8 @@
    290,
    188
   ],
-  "triangles": 5200,
-  "vertices": 2840
+  "triangles": 2032,
+  "vertices": 1104
  },
  {
   "id": "kikkers_voordek",
@@ -1165,8 +1165,8 @@
    11,
    991
   ],
-  "triangles": 2600,
-  "vertices": 1420
+  "triangles": 1016,
+  "vertices": 552
  },
  {
   "id": "landvastogen",
@@ -1182,8 +1182,8 @@
    22,
    857
   ],
-  "triangles": 3176,
-  "vertices": 1804
+  "triangles": 1612,
+  "vertices": 868
  },
  {
   "id": "leiogen_bb",
@@ -1201,8 +1201,8 @@
    83,
    155
   ],
-  "triangles": 2400,
-  "vertices": 1440
+  "triangles": 1104,
+  "vertices": 640
  },
  {
   "id": "leiogen_sb",
@@ -1220,8 +1220,8 @@
    83,
    155
   ],
-  "triangles": 2400,
-  "vertices": 1440
+  "triangles": 1104,
+  "vertices": 640
  },
  {
   "id": "leuvers",
@@ -1279,8 +1279,8 @@
    138,
    117
   ],
-  "triangles": 16004,
-  "vertices": 12096
+  "triangles": 3506,
+  "vertices": 1955
  },
  {
   "id": "sleepogen",
@@ -1323,8 +1323,8 @@
    106,
    136
   ],
-  "triangles": 4716,
-  "vertices": 2809
+  "triangles": 1509,
+  "vertices": 850
  },
  {
   "id": "wantputting_bb",
@@ -1339,8 +1339,8 @@
    61,
    8
   ],
-  "triangles": 214,
-  "vertices": 244
+  "triangles": 118,
+  "vertices": 130
  },
  {
   "id": "wantputting_sb",
@@ -1355,8 +1355,8 @@
    61,
    8
   ],
-  "triangles": 214,
-  "vertices": 244
+  "triangles": 118,
+  "vertices": 130
  },
  {
   "id": "gaffel",
@@ -1453,8 +1453,8 @@
    60,
    8
   ],
-  "triangles": 140,
-  "vertices": 146
+  "triangles": 56,
+  "vertices": 60
  },
  {
   "id": "mast",
@@ -2213,8 +2213,8 @@
    77,
    16
   ],
-  "triangles": 6098,
-  "vertices": 4292
+  "triangles": 1138,
+  "vertices": 928
  },
  {
   "id": "blok_fokkenschoot_sb",
@@ -2231,12 +2231,12 @@
    "54AA"
   ],
   "afmetingen_mm": [
-   60,
+   61,
    77,
    16
   ],
-  "triangles": 6098,
-  "vertices": 4292
+  "triangles": 1142,
+  "vertices": 932
  },
  {
   "id": "blok_fokkenval",
@@ -2251,8 +2251,8 @@
    79,
    16
   ],
-  "triangles": 7817,
-  "vertices": 5463
+  "triangles": 1492,
+  "vertices": 1167
  },
  {
   "id": "blok_grootschoot_giek",
@@ -2279,8 +2279,8 @@
    145,
    17
   ],
-  "triangles": 15805,
-  "vertices": 11203
+  "triangles": 2526,
+  "vertices": 1863
  },
  {
   "id": "blok_grootschoot_kuip",
@@ -2305,8 +2305,8 @@
    97,
    28
   ],
-  "triangles": 7104,
-  "vertices": 5102
+  "triangles": 1802,
+  "vertices": 1494
  },
  {
   "id": "blok_klauwval",
@@ -2327,8 +2327,8 @@
    77,
    16
   ],
-  "triangles": 6406,
-  "vertices": 4432
+  "triangles": 1132,
+  "vertices": 922
  },
  {
   "id": "blok_piekenval",
@@ -2349,8 +2349,8 @@
    73,
    16
   ],
-  "triangles": 6322,
-  "vertices": 4400
+  "triangles": 1132,
+  "vertices": 922
  },
  {
   "id": "borglijntje_lummelbout",
@@ -2566,8 +2566,8 @@
    54,
    100
   ],
-  "triangles": 5230,
-  "vertices": 3182
+  "triangles": 2752,
+  "vertices": 1620
  },
  {
   "id": "riem_sb",
@@ -2582,8 +2582,8 @@
    54,
    100
   ],
-  "triangles": 5556,
-  "vertices": 3345
+  "triangles": 2634,
+  "vertices": 1498
  },
  {
   "id": "wrikriem",

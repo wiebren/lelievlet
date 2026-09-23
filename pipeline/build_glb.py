@@ -24,7 +24,9 @@ import bakskist
 import borgketting
 import bakskist_inhoud
 import fokbeslag
+import gelijk
 import hardware
+import harpjes
 import landvasten
 import sleepogen
 import rigging
@@ -136,6 +138,9 @@ def main():
     sail_meshes = sails.build(MESH)          # curved cloth replaces the flat CAD sails
     rig_meshes = rigging.build(MESH)         # marllijnen laid with proper marlsteken
     rig = rig_data.Rig(MESH)                 # axes and anchors for the viewer's animations
+    # the harpjes: one light bow put where each of the CAD's is (gelijk does the rest of the small ones)
+    shared = harpjes.build(MESH)
+    light = gelijk.Lighter()                 # small fittings lighter, and what the CAD has twice made from one
     for row in report:
         p = MESH / f"{row['name']}.npz"
         if not p.exists():
@@ -145,9 +150,11 @@ def main():
         h = row["handle"]
         if h in DROP:
             continue
+        if h in shared:                                     # before the nudge: it moves the one put in its place
+            V, N, F = shared[h]
         if h in NUDGE:
             V = V + np.array(NUDGE[h])
-        if row["type"] == "3DSOLID" and row["closed_shells"] != row["shells"]:
+        if row["type"] == "3DSOLID" and row["closed_shells"] != row["shells"] and h not in shared:
             # open shell: OpenCascade could not orient it, so use the sign of the enclosed volume
             fn = np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]])
             if (V[F[:, 0]] * fn).sum() < 0:
@@ -167,8 +174,12 @@ def main():
             if fixed_to:
                 entry = HARDWARE[fixed_to]
         band = np.zeros(len(F), bool)
-        G = d["G"].astype(np.int64)                         # B-rep face of every triangle
+        G = d["G"].astype(np.int64) if h not in shared else np.zeros(len(F), np.int64)   # B-rep face of every triangle
         V, N, F, G = hardware.reshape(h, V, N, F, G, split_at)
+        if h not in shared and h not in sail_meshes and h not in rig_meshes and h not in SINGLE_SKIN:
+            made = light(h, V, N, F)
+            if made is not None:
+                V, N, F = made; G = np.zeros(len(F), np.int64)
         band = np.zeros(len(F), bool)
         if h in BANDS:                                      # painted bands: cut the mesh where they start and end
             V, N, F, G, band = cut_bands(V, N, F, G, BANDS[h])
