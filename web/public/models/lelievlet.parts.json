@@ -10,7 +10,7 @@
   "afmetingen_mm": [
    1185,
    205,
-   1476
+   1477
   ],
   "triangles": 1336,
   "vertices": 1046
@@ -137,7 +137,7 @@
   ],
   "afmetingen_mm": [
    5618,
-   280,
+   281,
    912
   ],
   "triangles": 11880,
@@ -153,7 +153,7 @@
   ],
   "afmetingen_mm": [
    5623,
-   281,
+   280,
    912
   ],
   "triangles": 11880,
@@ -370,7 +370,7 @@
    "5A6C"
   ],
   "afmetingen_mm": [
-   66,
+   65,
    64,
    97
   ],
@@ -637,7 +637,7 @@
   "afmetingen_mm": [
    610,
    443,
-   126
+   125
   ],
   "triangles": 200,
   "vertices": 600
@@ -957,7 +957,7 @@
   ],
   "afmetingen_mm": [
    200,
-   33,
+   32,
    5
   ],
   "triangles": 262,

@@ -126,6 +126,39 @@ def cut_bands(V, N, F, G, bands):
     return V, N, F, G, inside
 
 
+# Stored smaller, the way gltfpack does it (meshopt filters, decoded by the viewer's MeshoptDecoder):
+# positions on a grid of 2^POS_EXP m through the exponential filter - they come back as ordinary
+# floats - and normals as two 8-bit numbers through the octahedral filter (KHR_mesh_quantization).
+POS_EXP = -14                # 2^-14 m: a grid of 0.06 mm, a point at most 0.03 mm off
+
+
+def exp_filter(V):
+    """V (n, 3) as int32 for the EXPONENTIAL filter: a 24-bit mantissa under an 8-bit exponent."""
+    m = np.round(V.astype(np.float64) * 2.0 ** -POS_EXP).astype(np.int64)
+    assert np.abs(m).max() < 2 ** 23, "a position out of the filter's reach"
+    return (((POS_EXP & 0xFF) << 24) | (m & 0xFFFFFF)).astype(np.uint32).view(np.int32)
+
+
+def exp_decoded(E):
+    """What the viewer gets back from exp_filter: float32."""
+    e = E >> 24; m = (E << 8) >> 8
+    return (m.astype(np.float64) * 2.0 ** e.astype(np.float64)).astype(np.float32)
+
+
+def oct_filter(N):
+    """Unit normals (n, 3) as int8 (n, 4) for the OCTAHEDRAL filter: the octahedral map at 8 bits,
+    then the scale the decoder divides by, and a padding byte."""
+    N = N.astype(np.float64)
+    n = N / np.maximum(np.abs(N).sum(1, keepdims=True), 1e-12)
+    x, y, z = n[:, 0], n[:, 1], n[:, 2]
+    sx = np.where(x >= 0, 1.0, -1.0); sy = np.where(y >= 0, 1.0, -1.0)
+    u = np.where(z >= 0, x, (1 - np.abs(y)) * sx)
+    v = np.where(z >= 0, y, (1 - np.abs(x)) * sy)
+    out = np.zeros((len(N), 4), np.int8)
+    out[:, 0] = np.round(u * 127); out[:, 1] = np.round(v * 127); out[:, 2] = 127
+    return out
+
+
 def compact(V, N, F):
     used = np.unique(F)
     remap = np.full(len(V), -1, dtype=np.int64); remap[used] = np.arange(len(used))
@@ -252,11 +285,14 @@ def main():
             views.append(dict(buffer=0, byteOffset=len(blob), byteLength=len(data), target=target))
             blob.extend(data)
             return len(views) - 1
-        arr, stride, mode = packed
+        arr, stride, mode, *filt = packed
         count = len(data) // stride
         enc = meshopt.encode_vertex_buffer(arr, count, stride) if mode == "ATTRIBUTES" else meshopt.encode_index_buffer(arr, count, int(arr.max()) + 1)
+        ext = dict(buffer=0, byteOffset=len(blob), byteLength=len(enc), byteStride=stride, count=count, mode=mode)
+        if filt:
+            ext["filter"] = filt[0]
         views.append(dict(buffer=0, byteOffset=len(blob), byteLength=len(data), byteStride=stride if mode == "ATTRIBUTES" else None, target=target,
-                          extensions=dict(EXT_meshopt_compression=dict(buffer=0, byteOffset=len(blob), byteLength=len(enc), byteStride=stride, count=count, mode=mode))))
+                          extensions=dict(EXT_meshopt_compression=ext)))
         views[-1] = {k: v for k, v in views[-1].items() if v is not None}
         blob.extend(enc)
         return len(views) - 1
@@ -279,27 +315,34 @@ def main():
             F = np.concatenate(skin["F"]).astype(np.uint32)
             ln = np.linalg.norm(N, axis=1, keepdims=True); ln[ln == 0] = 1; N = (N / ln).astype(np.float32)
             V = V.astype(np.float32)
-            pv = add_view(V.tobytes(), 34962, (V, 12, "ATTRIBUTES")); nv = add_view(N.tobytes(), 34962, (N, 12, "ATTRIBUTES"))
+            if MESHOPT:                                     # on the grid, and the normals in 8 bits
+                E = exp_filter(V); V = exp_decoded(E); On = oct_filter(N)
+                pv = add_view(V.tobytes(), 34962, (E, 12, "ATTRIBUTES", "EXPONENTIAL"))
+                nv = add_view(On.tobytes(), 34962, (On, 4, "ATTRIBUTES", "OCTAHEDRAL"))
+                normal = dict(componentType=5120, normalized=True)
+            else:
+                pv = add_view(V.tobytes(), 34962); nv = add_view(N.tobytes(), 34962)
+                normal = dict(componentType=5126)
             iv = add_view(F.tobytes(), 34963, (F.ravel(), 4, "TRIANGLES"))
             a0 = len(accessors)
             accessors.append(dict(bufferView=pv, componentType=5126, count=len(V), type="VEC3",
                                   min=V.min(0).tolist(), max=V.max(0).tolist()))
-            accessors.append(dict(bufferView=nv, componentType=5126, count=len(N), type="VEC3"))
+            accessors.append(dict(bufferView=nv, **normal, count=len(N), type="VEC3"))
             accessors.append(dict(bufferView=iv, componentType=5125, count=int(F.size), type="SCALAR"))
             attributes = dict(POSITION=a0, NORMAL=a0 + 1)
             if skin["UV"]:
                 uv = np.concatenate(skin["UV"]).astype(np.float32)
-                tv = add_view(uv.tobytes(), 34962)
+                tv = add_view(uv.tobytes(), 34962, (uv, 8, "ATTRIBUTES"))
                 accessors.append(dict(bufferView=tv, componentType=5126, count=len(uv), type="VEC2"))
                 attributes["TEXCOORD_0"] = len(accessors) - 1
             if skin["B"]:                                   # which CAD body each vertex came from
                 b = np.concatenate(skin["B"]).astype(np.float32)
-                bv = add_view(b.tobytes(), 34962)
+                bv = add_view(b.tobytes(), 34962, (b, 4, "ATTRIBUTES"))   # long runs of one value: next to nothing packed
                 accessors.append(dict(bufferView=bv, componentType=5126, count=len(b), type="SCALAR"))
                 attributes["_BODY"] = len(accessors) - 1
             if skin["W"]:                                   # custom attribute: bend weight of the fok
                 w = np.concatenate(skin["W"]).astype(np.float32)
-                wv = add_view(w.tobytes(), 34962)
+                wv = add_view(w.tobytes(), 34962, (w, 4, "ATTRIBUTES"))
                 accessors.append(dict(bufferView=wv, componentType=5126, count=len(w), type="SCALAR"))
                 attributes["_BOLLING"] = len(accessors) - 1
             prims.append(dict(attributes=attributes, indices=a0 + 2, material=material(m)))
@@ -320,7 +363,8 @@ def main():
             nodes.append(dict(name=g, children=group_nodes[g], extras=dict(groep=g, titel=title)))
             roots.append(len(nodes) - 1)
     nodes.append(dict(name="lelievlet", children=roots, extras=dict(tuig=rig.extras())))
-    gltf = dict(**(dict(extensionsUsed=["EXT_meshopt_compression"], extensionsRequired=["EXT_meshopt_compression"]) if MESHOPT else {}),
+    packing = ["EXT_meshopt_compression", "KHR_mesh_quantization"]
+    gltf = dict(**(dict(extensionsUsed=packing, extensionsRequired=packing) if MESHOPT else {}),
                 asset=dict(version="2.0", generator="vlet pipeline/build_glb.py",
                            extras=dict(bron="Scouting Nederland 3D-Model-binded.dwg (2012)", eenheid="m",
                                        assen="x = spiegel naar boeg, y = omhoog, z = stuurboord")),

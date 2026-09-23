@@ -151,6 +151,15 @@ export function mount(ui, host, config) {
   loader.load(asset('models/lelievlet.glb'), async (gltf) => {
     if (destroyed) return;
     const root = gltf.scene;
+    // the normals come packed in 8 bits (pipeline/build_glb.py); back to floats once, here: the
+    // sails, the chains and the blocks work them out again, and a sum does not fit in 8 bits
+    root.traverse((m) => {
+      const n = m.geometry?.attributes.normal;
+      if (!n?.normalized) return;
+      const out = new THREE.Float32BufferAttribute(n.count * 3, 3);
+      for (let i = 0; i < n.count; i++) out.setXYZ(i, n.getX(i), n.getY(i), n.getZ(i));
+      m.geometry.setAttribute('normal', out);
+    });
     scene.add(root);
     root.traverse((node) => {
       const ex = node.userData;
