@@ -2975,6 +2975,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     geometry.setIndex(index); geometry.setDrawRange(0, 0);
     const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
       color: 0xd0202a, transparent: true, opacity: 0.2, depthWrite: false, side: THREE.DoubleSide,
+      // pulled towards the camera in the depth test: 5 mm over the water is lost in the depth buffer
+      // from far off, where the whole of a stormrondje is seen, and the water would cover it
+      polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4,
     }));
     mesh.frustumCulled = false; mesh.renderOrder = 2;               // over the water, which is drawn first
     world.add(mesh);
@@ -4349,6 +4352,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   return { update, state, click, reveal, helm: helmControl, procedure, procedureControl, apply, current, run,
            closePopover: () => openPopover(null), placePopover: () => { if (opened) place(opened); },
            dock: { layWal, cast: () => casting(), conditions: walConditions, get speed() { return dock.speed; },
+                   /** Her heading in the world, and whether a manoeuvre (or the wind, swinging her on her bow line) turns her now. */
+                   get heading() { return dock.heading; },
+                   get turnsHer() { return Boolean(shown) && [tacking, berthing, leaving, turning].includes(shown) || Boolean(dock.moored && bowOnNow()); },
                    get moored() { return dock.moored; }, get kind() { return dock.kind; } },
            bowsprit: bowsprit && { get on() { return bowsprit.want; }, set: setBowsprit },
            chill: chill && { get on() { return chill.holds; } },

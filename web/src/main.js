@@ -17,6 +17,7 @@ import { initFullscreen } from './fullscreen.js';
 import { makeAsset } from './assets.js';
 import { naamVan, merge, unpack } from './config.js';
 import { addEdges } from './edges.js';
+import { packConfig } from './pack.js';
 
 // One viewer, from end to end. Nothing here runs at import time: `mount` is called once per
 // embedded viewer with the shadow root it owns, so two of them on one page share no state at all.
@@ -197,13 +198,27 @@ export function mount(ui, host, config) {
     // it, where the page shows how to install it. Not offered inside the installed app itself.
     const installItem = $('app-install');
     installItem.hidden = !config.installeren || runsAsApp();
-    installItem.addEventListener('click', () => {
+    const installApp = async () => {
       const own = Object.fromEntries(['zeilnummer', 'naam', 'naamKleur', 'plaats', 'plaatsKleur', 'bakskleur', 'kleuren'].map((k) => [k, aanpassen[k]]));
-      const url = `${asset('app.html')}?installeer#${encodeURIComponent(JSON.stringify({ aanpassen: own }))}`;
-      // in its own tab, not in this page's place, unless this page is the viewer's own and not framed
-      if (window.top === window.self && new URL(url).origin === location.origin) location.href = url;
+      const page = asset('app.html');
+      // in its own tab, not in this page's place, unless this page is the viewer's own and not framed.
+      // The tab is opened on the tap itself - later a browser counts it as a popup - and the address
+      // follows once the boat is packed (the app page lets go of its opener)
+      const here = window.top === window.self && new URL(page, location.href).origin === location.origin;
+      const tab = here ? null : window.open('about:blank', '_blank');
+      const url = `${page}?installeer#${await packConfig({ aanpassen: own })}`;
+      if (here) location.href = url;
+      else if (tab) tab.location.href = url;
       else window.open(url, '_blank', 'noopener');
-    }, { signal });
+    };
+    installItem.addEventListener('click', installApp, { signal });
+    // on a phone or tablet it is also an icon in the bottom right-hand corner: that is where an app
+    // is wanted, and the settings panel is a long way round
+    const installIcon = $('app-install-toggle');
+    const touch = matchMedia('(pointer: coarse)');
+    const showIcon = () => { installIcon.hidden = !config.installeren || runsAsApp() || !touch.matches; };
+    showIcon(); touch.addEventListener('change', showIcon, { signal });
+    installIcon.addEventListener('click', installApp, { signal });
     // after initCustomize: it has laid the user's colours on, which is what the paint fades back to
     paintScheme = initPaint({ zoneMaterials, sailMaterials: collectSailMaterials(parts), config: aanpassen, note: logboek.note });
     paintScheme.setNumber(aanpassen.zeilnummer);
@@ -1080,6 +1095,22 @@ export function mount(ui, host, config) {
   onDestroy(() => sizeWatch.disconnect());
   resize();
 
+  // The picture is drawn from the boat: she stays put and the world turns under her. In a manoeuvre it
+  // is her that turns, as you would see it from the water: the camera goes round her by as much as
+  // her heading changes, so the steiger, the wind and her track stand still and she swings.
+  let headingWas = null;
+  const turnAxis = new THREE.Vector3(0, 1, 0); const turnAbout = new THREE.Vector3(2.8, 0, 0);   // her pivot, in model space
+  const turnPoint = (v, a) => v.sub(turnAbout).applyAxisAngle(turnAxis, a).add(turnAbout);
+  function turnWithHer() {
+    const dock = modes?.dock; if (!dock) return;
+    const h = dock.heading; const was = headingWas; headingWas = h;
+    if (was === null || !dock.turnsHer) return;
+    const d = Math.atan2(Math.sin(h - was), Math.cos(h - was));
+    if (!d || Math.abs(d) > 0.5) return;                        // a new world laid is no turn
+    turnPoint(camera.position, d); turnPoint(controls.target, d);
+    if (flight) { turnPoint(flight.from, d); turnPoint(flight.fromTarget, d); }
+  }
+
   const clock = new THREE.Clock();
   let elapsed = 0;                 // ms since the first frame; the pulse and the rings beat on it
   renderer.setAnimationLoop(() => {
@@ -1087,6 +1118,7 @@ export function mount(ui, host, config) {
     elapsed += dt * 1000;
     keyboardNavigate(dt);
     modes?.update(dt, speed);
+    turnWithHer();
     night?.update(dt, speed);
     paintScheme?.update(dt);
     stepProcedureBar();

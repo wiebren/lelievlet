@@ -536,6 +536,11 @@ dan begint de eerste stap. Dat stuk is geen stap: het hoort bij de eerste.
 Wacht de manoeuvre op je (stap voor stap, bij Oefenen op je antwoord, of gepauzeerd), dan blijft de boot
 liggen waar ze is: ze vaart pas verder als de volgende stap begint.
 
+Tijdens een manoeuvre draait de boot in beeld, niet de wereld: de camera gaat om de boot heen mee
+met haar koers, zodat de steiger, de windpijl en het spoor stil blijven liggen en je haar ziet draaien.
+Hetzelfde als ze met de boeg aan de steiger om haar boeg zwaait. Daarbuiten, bij het verzetten van de
+koers of de wind, blijft de boot in beeld staan en draait de wereld eromheen, zoals altijd.
+
 De manoeuvres aan de wal (afmeren, kop in de wind leggen, afvaren) worden van hoog bekeken, met de
 boot en de steiger allebei in beeld: de camera gaat daarheen als de handeling begint, en bij elke stap
 die op zich getoond wordt. De andere handelingen gaan per stap naar de onderdelen waar het om gaat.

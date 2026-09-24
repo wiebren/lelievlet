@@ -99,8 +99,10 @@ aanraken, wat er ook met zijn code zou gebeuren.
 
 - **De configuratie** staat na de `#`, als JSON: hetzelfde object dat `create()` krijgt. Zet het
   `src`-adres tussen enkele aanhalingstekens, dan kunnen de dubbele in de JSON gewoon blijven staan.
-  Zonder `#` start de viewer zoals hij zelf is. Verander je het adres na de `#`, dan begint hij
-  opnieuw met de nieuwe configuratie.
+  Het mag ook ingepakt: `#v1.` gevolgd door de JSON, gecomprimeerd (deflate) en in base64url, zo'n
+  half zo lang. Dat maakt `packConfig(config)` uit de module (zie hieronder). Zonder `#` start de
+  viewer zoals hij zelf is. Verander je het adres na de `#`, dan begint hij opnieuw met de nieuwe
+  configuratie.
 - **De maat** geef je het iframe; de viewer vult het. Een smal iframe krijgt vanzelf de smalle indeling.
 - **`sandbox`** houdt het iframe binnen zijn eigen herkomst. `allow-same-origin` is hier veilig: het
   iframe is van een andere site, dus het krijgt de herkomst van wiebren.github.io en niet die van
@@ -120,13 +122,18 @@ Hij opent dan in een eigen venster met een eigen icoon, en werkt ook zonder inte
 op de steiger.
 
 - **Vanuit elke viewer:** *Installeer als app* onderaan het tandwielpaneel gaat naar de app-pagina en
-  neemt het zeilnummer, de naam, de plaats en de kleuren mee. Daar staat hoe je installeert: in Chrome
-  en Edge met één knop, in Safari op iPhone en iPad via *Deel › Zet op beginscherm*, in Safari op de
-  Mac via *Archief › Voeg toe aan Dock*, op Android via het menu. Firefox op de computer installeert
-  geen apps. In een ingesloten viewer opent de app-pagina in een nieuw tabblad; `installeren: false`
-  haalt de regel weg. In de geïnstalleerde app zelf staat hij er niet.
-- **De configuratie** komt na de `#` mee, als JSON (net als bij `embed.html`), en de app onthoudt de
-  laatste. Zo start de geïnstalleerde app later, zonder `#`, met dezelfde boot.
+  neemt het zeilnummer, de naam, de plaats en de kleuren mee. Op een telefoon of tablet (een
+  aanraakscherm) staat daarvoor ook een icoon rechtsonder, een telefoon met een pijl omlaag. De
+  app-pagina laat zien hoe je installeert: in Chrome en Edge met één knop, in Safari op iPhone en iPad
+  via *Deel › Zet op beginscherm*, in Safari op de Mac via *Archief › Voeg toe aan Dock*, op Android via
+  het menu. Firefox op de computer installeert geen apps. In een ingesloten viewer opent de app-pagina in een nieuw tabblad; `installeren: false`
+  haalt de regel en het icoon weg. In de geïnstalleerde app zelf staan ze er niet.
+- **De configuratie** komt na de `#` mee, ingepakt (`#v1.…`, zie *Insluiten als iframe*; gewone JSON
+  mag ook), en blijft daar in het adres staan: de geïnstalleerde app start met dat adres. Op een iPhone of iPad heeft de app eigen
+  opslag, los van Safari, en vindt ze daar de eerste keer niets; zo start ze toch met de eigen boot. De
+  pagina geeft daarvoor een eigen manifest met dat adres als `start_url`, en het manifestbestand zelf
+  heeft er geen (dan is het de pagina zelf). Wat je daarna in de app aanpast, onthoudt ze; komt er een
+  andere boot na de `#`, dan begint ze daar opnieuw mee.
 - **Zonder internet:** een service worker (`sw.js`) bewaart alles wat de app nodig heeft: de pagina,
   het script, het model en de texturen, samen zo'n 2,5 MB.
 - **Bijwerken:** elke build schrijft in `sw.js` een versie, een hash over al die bestanden. Verandert
@@ -171,6 +178,11 @@ na één sleep met de muis klopt dat niet meer — `camera` wel. Een waarde die 
 `create(element, config)` werpt een `TypeError` als het eerste argument geen element is. Na
 `destroy()` mag je opnieuw `create()` op hetzelfde element aanroepen.
 
+`packConfig(config)` en `unpackConfig(tekst)` (ook los te importeren) zetten een configuratie om in de
+tekst na de `#` van `embed.html` en `app.html`, en terug: beide geven een promise. Ingepakt is het de
+JSON, gecomprimeerd en in base64url, met `v1.` ervoor; een browser zonder `CompressionStream` schrijft
+gewone JSON. `unpackConfig` leest beide vormen en geeft `null` bij iets wat geen configuratie is.
+
 `fullscreen(aan?)` geeft de promise van het verzoek terug. Browsers staan volledig scherm alleen toe
 vanuit een echte gebruikersactie (een klik of toetsaanslag), dus een aanroep uit een `setTimeout` of
 bij het laden van de pagina wordt geweigerd — de viewer valt dan terug op de paginavullende modus,
@@ -187,7 +199,7 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 |---|---|---|---|
 | `assets` | string | naast het script | Map waarin `models/` en `textures/` staan, bijvoorbeeld `'https://cdn.example/vlet/'`. Zonder sluitende `/` wordt die toegevoegd; een relatief pad wordt tegen de pagina opgelost. |
 | `volledigScherm` | boolean | `true` | Knop voor volledig scherm, rechtsboven onder het tandwiel, en de sneltoets `f`. `false` haalt de knop weg, laat de `f` met rust en maakt `handle.fullscreen()` een lege huls. |
-| `installeren` | boolean | `true` | *Installeer als app* onderaan het tandwielpaneel: opent de app-pagina op wiebren.github.io met de eigen Aanpassen-waarden, en legt daar uit hoe je installeert. `false` haalt de regel weg. In de geïnstalleerde app zelf staat hij er nooit. |
+| `installeren` | boolean | `true` | *Installeer als app* onderaan het tandwielpaneel: opent de app-pagina op wiebren.github.io met de eigen Aanpassen-waarden, en legt daar uit hoe je installeert. Op een aanraakscherm ook als icoon rechtsonder. `false` haalt beide weg. In de geïnstalleerde app zelf staan ze er nooit. |
 | `aanpassen.zeilnummer` | string | `'000'` | Zeilnummer op het grootzeil (max. 4 tekens). |
 | `aanpassen.naam` | string | `'Lelievlet'` | Naam op het boeisel, ter hoogte van het voordek. |
 | `aanpassen.plaats` | string | `'Zwolle'` | Plaats op het boeisel, ter hoogte van het achterdek. |

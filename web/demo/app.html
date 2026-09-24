@@ -57,7 +57,7 @@
   </div>
 
   <script type="module">
-    import Lelievlet from './lelievlet.js';
+    import Lelievlet, { packConfig, unpackConfig } from './lelievlet.js';
     import { logoSvg } from './logo.js';
 
     const KEPT = 'lelievlet.app.v1';                  // the configuration the app last came with
@@ -70,22 +70,36 @@
     const standalone = ['standalone', 'minimal-ui', 'window-controls-overlay'].some((m) => matchMedia(`(display-mode: ${m})`).matches)
       || navigator.standalone === true;
 
-    // the configuration: brought along after the #, or the one kept from last time
+    // the configuration: brought along after the #, or the one kept from last time. The installed app
+    // starts with it after the # as well (below): on an iPhone or iPad it has storage of its own, apart
+    // from Safari's, and finds nothing kept there the first time
+    if (window.opener) window.opener = null;          // opened by the install button: nothing of that page here
     let config = null;
     const raw = location.hash.slice(1);
     if (raw) {
-      try {
-        const given = JSON.parse(decodeURIComponent(raw));
-        if (given && typeof given === 'object' && !Array.isArray(given)) config = given;
-      } catch { /* not JSON */ }
-      if (config) {
+      config = await unpackConfig(raw);                 // packed (v1.…) or plain JSON
+      if (config && JSON.stringify(config) !== JSON.stringify(store.get(KEPT))) {
         store.set(KEPT, config);
-        store.drop(AANPASSEN);                         // what came along is the boat now, not an older edit on top of it
-      } else console.warn('[lelievlet] de configuratie na # is geen JSON-object');
+        store.drop(AANPASSEN);                         // a new boat came along: not an older edit on top of it
+      } else if (!config) console.warn('[lelievlet] de configuratie na # is geen JSON-object en niet ingepakt');
     }
     config ??= store.get(KEPT) ?? {};
     const askInstall = new URLSearchParams(location.search).has('installeer') && !standalone;
-    history.replaceState(null, '', location.pathname);   // a clean address: the one the app is installed with
+    // the address the app is installed with: this page, and the boat after the # - what an iPhone puts
+    // on its home screen, and the start_url of the manifest the page hands out (below)
+    const hash = Object.keys(config).length ? `#${await packConfig(config)}` : '';
+    history.replaceState(null, '', location.pathname + hash);
+    (async () => {
+      try {
+        const manifest = await fetch('app.webmanifest').then((r) => r.json());
+        const at = (path) => new URL(path, location.href).href;   // a manifest from a blob: everything absolute
+        // the file itself has no start_url, so a browser that reads it starts where this page is: here too
+        Object.assign(manifest, { id: at(manifest.id), start_url: location.href, scope: at(manifest.scope) });
+        for (const icon of manifest.icons) icon.src = at(icon.src);
+        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+        document.querySelector('link[rel="manifest"]').href = URL.createObjectURL(blob);
+      } catch (e) { console.warn('[lelievlet] geen eigen manifest:', e); }
+    })();
 
     Lelievlet.create(document.getElementById('vlet'), config);
 

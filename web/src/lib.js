@@ -2,6 +2,9 @@ import css from './style.css?inline';
 import { TEMPLATE } from './template.js';
 import { resolveConfig, debugOn } from './config.js';
 import { mount } from './main.js';
+import { packConfig, unpackConfig } from './pack.js';
+
+export { packConfig, unpackConfig };   // a configuration after the # of an address (pack.js)
 
 // The public face of the library. A page loads this module and calls create() on an element it has
 // given a size; everything the viewer is lives in a shadow root on that element, so the page's own
@@ -49,4 +52,4 @@ export function create(element, config = {}) {
   return handle;
 }
 
-export default { create };
+export default { create, packConfig, unpackConfig };

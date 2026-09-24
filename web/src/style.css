@@ -155,6 +155,9 @@
 
 /* debug.toestand: above the part card, and its panel beside it */
 #toestand-toggle { top: auto; bottom: var(--info-clear, 16px); }
+#app-install-toggle { top: auto; bottom: var(--info-clear, 16px); }
+#toestand-toggle:not([hidden]) ~ #app-install-toggle { bottom: calc(var(--info-clear, 16px) + 54px); }
+.lv:has(#parts:not([hidden])) #app-install-toggle { display: none; }   /* the parts list opens in its corner */
 #toestand {
   position: absolute; right: 70px; bottom: var(--info-clear, 16px); width: 270px; max-height: calc(100% - 100px); overflow: auto;
   padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;

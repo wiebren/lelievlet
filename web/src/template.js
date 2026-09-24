@@ -317,6 +317,14 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     </svg>
   </button>
 
+  <!-- on a phone or tablet, not installed: the app one tap away -->
+  <button id="app-install-toggle" class="icon-button" type="button" aria-label="Installeer als app" title="Installeer als app" hidden>
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="6.5" y="2.5" width="11" height="19" rx="2"/>
+      <path d="M12 7.5v7M9 11.5l3 3 3-3M10.5 18.5h3"/>
+    </svg>
+  </button>
+
   <aside id="toestand" hidden>
     <header>
       <h2>Toestand</h2>
