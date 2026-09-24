@@ -61,9 +61,8 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, dismissProcedu
   const panel = $('ops-panel');
   const list = $('ops-list');
   const turnsRow = $('ops-turns-row'); const turnsBox = $('ops-turns');
-  const modeButtons = [...panel.querySelectorAll('#ops-mode button')];
-  const startButton = $('ops-start');
-  let chosen = null; let mode = 'bekijken'; let turns = run.turns || 1;
+  const goButtons = { bekijken: $('ops-bekijken'), oefenen: $('ops-oefenen') };   // each starts the chosen one, its own way
+  let chosen = null; let turns = run.turns || 1;
 
   const rows = Object.keys(NAMES).map((op) => {
     const b = Object.assign(el('button', null), { type: 'button' });
@@ -80,8 +79,7 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, dismissProcedu
     b.addEventListener('click', () => { turns = n; refreshPanel(); });
     turnsBox.append(b);
   }
-  for (const b of modeButtons) b.addEventListener('click', () => { mode = b.dataset.mode; refreshPanel(); });
-  startButton.addEventListener('click', () => start(chosen, mode, turns));
+  for (const [how, b] of Object.entries(goButtons)) b.addEventListener('click', () => start(chosen, how, turns));
 
   /** What can be done now: the rows greyed with their reason, the choice moved off one that cannot. */
   function refreshPanel() {
@@ -102,9 +100,7 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, dismissProcedu
       b.disabled = Number(b.dataset.turns) === run.turns;         // the rif it has now is nothing to do
     }
     if (chosen === 'reven' && turns === run.turns) turns = run.turns === 0 ? 1 : 0;
-    for (const b of modeButtons) b.setAttribute('aria-checked', String(b.dataset.mode === mode));
-    startButton.disabled = !chosen;
-    startButton.textContent = chosen ? `${mode === 'oefenen' ? 'Oefenen' : 'Start'}: ${NAMES[chosen].toLowerCase()}` : 'Niets te doen';
+    for (const b of Object.values(goButtons)) b.disabled = !chosen;
   }
   // while it is in sight - its section of Oefenen shown, and that popover open - it follows the boat
   const panelWatch = setInterval(() => { if (panel.offsetParent !== null) refreshPanel(); }, 300);

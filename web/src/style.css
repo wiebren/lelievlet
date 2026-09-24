@@ -241,11 +241,13 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 #customize .speed input { width: 100%; accent-color: var(--accent); }
 #customize .hint { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
 .popover .reef { display: grid; gap: 6px; min-width: 190px; font-size: 13px; }
-/* Handelingen: the operations as rows, like the exercises of Oefenen, then how, then Start */
+/* Handelingen: the operations as rows, like the exercises of Oefenen, then Bekijken and Oefenen side by side */
 .popover .ops { display: grid; gap: 2px; width: 280px; max-width: 100%; padding: 4px 0; }
 .popover .ops .option { margin-top: 8px; }
 .popover .ops .segmented button:disabled { opacity: 0.4; cursor: default; }
-.popover .ops #ops-start { margin-top: 10px; width: 100%; padding: 9px 12px; }
+.popover .ops .go { display: flex; gap: 8px; margin-top: 10px; }
+.popover .ops .go button { flex: 1; padding: 9px 12px; }
+.popover .ops .go button:disabled { opacity: 0.4; cursor: default; }
 .popover .reef input { width: 100%; accent-color: var(--accent); }
 #controls .badge, #log-toggle .badge {
   position: absolute; right: 1px; bottom: 1px; min-width: 16px; padding: 0 3px; border-radius: 999px;

@@ -168,13 +168,10 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
           <span>Slagen</span>
           <div class="segmented" id="ops-turns" role="radiogroup" aria-label="Aantal slagen om de giek"></div>
         </div>
-        <div class="option">
-          <div class="segmented" id="ops-mode" role="radiogroup" aria-label="Bekijken of oefenen">
-            <button type="button" role="radio" data-mode="bekijken" aria-checked="true">Bekijken</button>
-            <button type="button" role="radio" data-mode="oefenen" aria-checked="false">Oefenen</button>
-          </div>
+        <div class="go">
+          <button id="ops-bekijken" type="button">Bekijken</button>
+          <button id="ops-oefenen" type="button" class="primary">Oefenen</button>
         </div>
-        <button id="ops-start" type="button" class="primary">Start</button>
       </div>
       </div>
       <div id="quiz" class="learn-section" hidden>
