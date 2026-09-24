@@ -5,16 +5,14 @@ against the surfaces of everything around them, sampled every STEP mm, so a bolt
 middle of a big plate is still found. Gaps are good to about STEP.
     uv run --python 3.12 --with numpy --with scipy python3 pipeline/check_attached.py [gap_mm]
 """
-import json
 import sys
-from pathlib import Path
 
 import numpy as np
 from scipy.spatial import cKDTree
+
+import cad
 from parts import DROP, NUDGE, PARTS
 
-ROOT = Path(__file__).resolve().parent.parent
-MESH = ROOT / "build" / "mesh"
 REACH, STEP, BIG = 25.0, 1.5, 1500.0   # look this far round a body; sample spacing; bodies longer than this are skipped, mm
 
 
@@ -51,11 +49,9 @@ def surface_points(V, F, lo, hi):
 
 def main():
     limit = float(sys.argv[1]) if len(sys.argv) > 1 else 3.0
-    report = json.loads((ROOT / "build" / "tessellation_report.json").read_text())
     bodies = []
-    for row in report:
-        d = np.load(MESH / f"{row['name']}.npz")
-        V = d["V"].astype(float); F = d["F"].astype(int)
+    for row in cad.report():
+        V, _, F, _ = cad.load(row["handle"])
         if not len(F) or row["handle"] in DROP:
             continue
         V = V + np.array(NUDGE.get(row["handle"], (0, 0, 0)))

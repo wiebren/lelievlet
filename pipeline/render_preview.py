@@ -6,15 +6,12 @@ Options: --view side|top|bow|stern|iso|iso2   --width 1800   --color layer|body|
          --zoom-to-filter   (frame only the filtered bodies but draw the rest faintly)
 """
 import colorsys
-import json
 import sys
-from pathlib import Path
 
 import numpy as np
 from PIL import Image
 
-ROOT = Path(__file__).resolve().parent.parent
-MESH = ROOT / "build" / "mesh"
+import cad
 
 LAYER_COLORS = {
     "PartSolids-Long Shell": (0.30, 0.45, 0.70), "PartSolids-Frame": (0.80, 0.45, 0.25),
@@ -43,13 +40,9 @@ def basis(view):
 
 
 def load(filters):
-    report = json.loads((ROOT / "build" / "tessellation_report.json").read_text())
-    for row in report:
-        p = MESH / f"{row['name']}.npz"
-        if p.exists():
-            d = np.load(p)
-            yield row, d["V"].astype(np.float64), d["N"].astype(np.float64), d["F"].astype(np.int64), \
-                (not filters or any(f in row["name"] for f in filters))
+    for row in cad.report():
+        V, N, F, _ = cad.load(row["handle"])
+        yield row, V, N, F, (not filters or any(f in row["name"] for f in filters))
 
 
 def render(out, view="iso", width=1800, color="layer", filters=(), zoom=False, margin=0.04):

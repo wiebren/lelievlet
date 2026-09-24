@@ -20,8 +20,9 @@ All coordinates here are DWG millimetres (X bow, Y port, Z up).
 import numpy as np
 from scipy.spatial import Delaunay
 
+import cad
 from outline import boundary_loops, single_skin_faces
-from parts import FOK_TACK, FOK_TACK_CAD
+from parts import FOK_CLEW, FOK_HEAD, FOK_TACK, FOK_TACK_CAD, GROOT_TACK, GROOT_THROAT
 
 GRID = 55.0          # mm, mesh spacing
 LIJK = 60.0          # mm, width of the tape along the edges (Vlettenboek p. 58)
@@ -278,12 +279,9 @@ def drag_corner(V, corner, others, to):
 
 def build(mesh_dir):
     """Returns {handle: dict(V, N, F, UV, extras[, W])} replacing the CAD sail bodies."""
-    def load(handle):
-        return np.load(mesh_dir / f"ZeilSolids_{handle}.npz")
-
     result = {}
 
-    d = load("5603"); V = d["V"].astype(float); F = d["F"].astype(int)
+    V, _, F, _ = cad.load("5603", mesh_dir)
     main = Sail(V, F, depth=0.085, foot_attached=True)
     clew, peak = np.array([1594.4, 0, 1331.6]), np.array([2476.2, 0, 5932.9])
     Vm, Nm, Fm, UVm, Wm = main.mesh()
@@ -300,7 +298,7 @@ def build(mesh_dir):
 
     # battens: CAD regions lie flat on either face of the sail; they bend along with the cloth
     for h in ("5607", "5608", "5609", "560A", "560B", "560C"):
-        b = load(h); Vb = b["V"].astype(float); Fb = b["F"].astype(int)
+        Vb, _, Fb, _ = cad.load(h, mesh_dir)
         loop = boundary_loops(Vb, Fb)[0]
         side = 1.0 if Vb[:, 1].mean() > 0 else -1.0
         Vb2, Nb2, Fb2, _, Wb = main.mesh(main.to2d(loop), lift=2.5 * side, grid=40.0)
@@ -312,9 +310,9 @@ def build(mesh_dir):
     # it crosses the boat, and the other way round when it is set to windward (fok te loevert).
     # The tack comes down to where the harpje of the kettinkje hangs (parts.HALS_SHIFT).
     tack_f = np.array(FOK_TACK)
-    clew_f, head_f = np.array([4268.7, 722.2, 1134.6]), np.array([4580.0, -0.7, 5090.8])
-    d = load("5434"); F = d["F"].astype(int)
-    V = drag_corner(d["V"].astype(float), np.array(FOK_TACK_CAD), (head_f, clew_f), tack_f)
+    clew_f, head_f = np.array(FOK_CLEW), np.array(FOK_HEAD)
+    V, _, F, _ = cad.load("5434", mesh_dir)
+    V = drag_corner(V, np.array(FOK_TACK_CAD), (head_f, clew_f), tack_f)
     fok = Sail(V, F, depth=0.0, foot_attached=False)
     Vf, Nf, Ff, UVf, _ = fok.mesh()
     Wf, reach = fok.bend_weights(fok.lo + UVf * (fok.hi - fok.lo), tack_f, head_f, clew_f)
@@ -335,7 +333,7 @@ def build(mesh_dir):
             parts.append((pid, naam, "zeil_hoek", sail.overlay(sail.corner_patch(before, after), 2.0, weights)))
         return parts
 
-    tack = np.array([4194.4, 0.0, 1331.6]); throat = np.array([4194.4, 0.0, 3981.6])
+    tack = np.array(GROOT_TACK); throat = np.array(GROOT_THROAT)
     extra = named(main, dict(hals=tack, klauw=throat, top=peak, schoot=clew), {
         frozenset(("hals", "klauw")): ("grootzeil_voorlijk", "Voorlijk grootzeil"),
         frozenset(("klauw", "top")): ("grootzeil_bovenlijk", "Bovenlijk grootzeil"),

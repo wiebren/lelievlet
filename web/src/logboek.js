@@ -26,14 +26,14 @@ const ENTRIES = {
 };
 const KEYS = Object.keys(ENTRIES);
 
-export function initLogboek(ui) {
+export function initLogboek(ui, { opslaan = true } = {}) {
   const $ = (id) => ui.getElementById(id);
   const toggle = $('log-toggle'); const count = $('log-count');
   const list = $('log-list'); const more = $('log-more');
 
   let kept = [];
   try {
-    const raw = JSON.parse(localStorage.getItem(STORE) ?? 'null');
+    const raw = opslaan ? JSON.parse(localStorage.getItem(STORE) ?? 'null') : null;
     if (Array.isArray(raw?.entries)) kept = raw.entries;
   } catch { /* no storage, or it holds something else: start from nothing */ }
   const have = new Set(kept.filter((key) => key in ENTRIES));
@@ -58,7 +58,7 @@ export function initLogboek(ui) {
   const note = (key) => {
     if (!(key in ENTRIES) || have.has(key)) return;
     have.add(key);
-    try { localStorage.setItem(STORE, JSON.stringify({ v: 1, entries: [...have] })); } catch { /* it works without */ }
+    if (opslaan) try { localStorage.setItem(STORE, JSON.stringify({ v: 1, entries: [...have] })); } catch { /* it works without */ }
     show();
   };
   return { note };

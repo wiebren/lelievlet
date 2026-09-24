@@ -50,7 +50,8 @@ P = {}
 
 
 ONDERBLOK_SHIFT = (39.5, -2.8, -2.0)
-# the two blocks of the fokkenschoot, body by body
+# the two blocks of the grootschoot and the two of the fokkenschoot, body by body
+BOVENBLOK_GROOTSCHOOT = "5551 5557 555D 5563 5569 556D 5575 557B 5581 5585 558D 5593 5597"
 ONDERBLOK_GROOTSCHOOT = "55C2 55C8 55CC 55D0 55D8 55DE 55E4 55E8 55EB 55EF 55F3"
 FOKKENSCHOOTBLOK = {"bb": "5449 544F 5453 5457 545B 545F 5467", "sb": "548C 5492 5496 549A 549E 54A2 54AA"}
 
@@ -155,7 +156,7 @@ _add("535D", "rijglijn", "Rijglijn", "lopend_want", "touw")
 _add("55F7", "grootschoot", "Grootschoot met blokken", "lopend_want", "touw")
 _add("547B 5484", "fokkenschoot", "Fokkenschoot", "lopend_want", "touw")
 # the two blocks of the grootschoot: they hang in the sheet and tilt with it
-_add("5551 5557 555D 5563 5569 556D 5575 557B 5581 5585 558D 5593 5597",
+_add(BOVENBLOK_GROOTSCHOOT,
      "blok_grootschoot_giek", "Bovenblok grootschoot", "lopend_want", "verzinkt")
 _add(ONDERBLOK_GROOTSCHOOT,
      "blok_grootschoot_kuip", "Onderblok grootschoot", "lopend_want", "verzinkt")
@@ -173,9 +174,6 @@ DEFAULT_BY_LAYER = {
     "StiffenerSolids": ("profiel", "Profiel", "romp", "verzinkt"),
     "PartSolids-Frame": ("plaatdeel", "Plaatdeel", "romp", "kuip"),
 }
-
-# Thin solids exported as a single double-sided skin (avoids coincident front/back faces)
-SINGLE_SKIN = {"5603", "5434"}
 
 # Plates painted differently inside and out: part id -> (outside material, inside material).
 # The exporter splits their triangles by whether the normal points away from the boat's interior.
@@ -271,3 +269,12 @@ HALS_SHIFT = (7.1, 0.0, -22.0)
 NUDGE |= {h: HALS_SHIFT for h in ("53A7", "53AF")}
 FOK_TACK_CAD = (6126.2, -7.3, 1266.7)
 FOK_TACK = tuple(c + s for c, s in zip(FOK_TACK_CAD, HALS_SHIFT))
+# The other corners of the fok as the CAD draws them, and the two corners of the grootzeil at the
+# mast: the halshoek on the giek and the klauwhoek on the gaffel.
+FOK_HEAD = (4580.0, -0.7, 5090.8)
+FOK_CLEW = (4268.7, 722.2, 1134.6)
+GROOT_TACK = (4194.4, 0.0, 1331.6)
+GROOT_THROAT = (4194.4, 0.0, 3981.6)
+
+# DWG x of the aft end of the hull plating: the origin of the model along the boat (build_glb.to_model)
+X_TRANSOM = 737.6

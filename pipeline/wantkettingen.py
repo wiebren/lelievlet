@@ -24,22 +24,16 @@ Everything is in CAD millimetres (x forward, y to port, z up), like pipeline/har
   build(mesh_dir)   [(id, naam, groep, materiaal, (V, N, F))] - the two chains and the upper harpjes
   ogen(mesh_dir)    both ends of each want, for the viewer (pipeline/rig_data.py)
 """
-import json
-from pathlib import Path
-
 import numpy as np
 
+import cad
 import harpjes
 
 from anchor import CHAIN_PITCH, CHAIN_WIRE, _link          # the same 6 mm link as the ankerketting
 from hardware import _join
 
-ROOT = Path(__file__).resolve().parent.parent
-MESH = ROOT / "build" / "mesh"
-
 WANTEN = dict(bb="51C2", sb="519A")          # the wire of each want, hommerring to harpje
-HANGS_IN = {"51C2": "5140", "519A": "5132"}  # the harpje it is shackled to at the wantputting
-PIN_OF = {"5140": "5148", "5132": "513A"}    # the pin of that harpje
+HANGS_IN = {"51C2": "5140", "519A": "5132"}  # the harpje it is shackled to at the wantputting (its pin: harpjes.PIN_OF)
 
 LINKS = 7                   # "a short chain, six links" - and one more for the upper harpje to hang in
 LINK_GAP = 1.2              # play left at either end of the chain: what the CAD leaves between the
@@ -49,12 +43,6 @@ EYE_LOOP = 40.0             # the thimble eye itself: this far up from its bight
 CUT_CLEAR = 5.0             # the wire is cut this far above the top of the splice, in plain wire
 
 
-def _load(mesh_dir, handle):
-    """V, F and the B-rep face of every triangle of a CAD body."""
-    report = json.loads((ROOT / "build" / "tessellation_report.json").read_text())
-    name = next(r["name"] for r in report if r["handle"] == handle)
-    d = np.load(mesh_dir / f"{name}.npz")
-    return d["V"].astype(float), d["F"].astype(int), d["G"].astype(int)
 
 
 def _axis(V, F, G):
@@ -73,7 +61,7 @@ def _axis(V, F, G):
     return C[0], (C[-1] - C[0]) / np.linalg.norm(C[-1] - C[0]), g
 
 
-def foot(handle, V, F, G, mesh_dir=MESH):
+def foot(handle, V, F, G, mesh_dir=cad.MESH):
     """Everything the chain and the mesh edit need about the foot of one want, in a frame on the
     wire's axis: s runs up the wire from `o`, ex forward across it and ey to the side.
 
@@ -95,12 +83,12 @@ def foot(handle, V, F, G, mesh_dir=MESH):
     r_wire = (L[eye, 2].max() - L[eye, 2].min()) / 2         # the eye is a flat loop: its thickness
     bight = L[eye][L[eye, 0] < L[eye, 0].min() + 0.05].mean(0) + (r_wire, 0.0, 0.0)
 
-    Lh = loc(_load(mesh_dir, HANGS_IN[handle])[0])
+    Lh = loc(cad.load(HANGS_IN[handle], mesh_dir)[0])
     cap = Lh[Lh[:, 0] > Lh[:, 0].max() - CHAIN_WIRE]         # the crown of the bow
     r_bow = np.ptp(cap[:, 1]) / 2                            # the bar of the bow is 2 r_bow thick
     crown = cap.mean(0)
 
-    Lp = loc(_load(mesh_dir, PIN_OF[HANGS_IN[handle]])[0])
+    Lp = loc(cad.load(harpjes.PIN_OF[HANGS_IN[handle]], mesh_dir)[0])
     pin = Lp.mean(0); r_pin = np.ptp(Lp[:, 0]) / 2            # the axle of the pin, and how thick it is
 
     s1 = crown[0] - (r_bow + CHAIN_WIRE / 2) - LINK_GAP      # lower end of the first link
@@ -117,10 +105,16 @@ def foot(handle, V, F, G, mesh_dir=MESH):
                 top=V[top].mean(0), oog=V[eye].mean(0))      # middle of either eye, as drawn
 
 
+def _foot(mesh_dir, handle):
+    """foot() of a want as the CAD draws it."""
+    V, _, F, G = cad.load(handle, mesh_dir)
+    return foot(handle, V, F, G, mesh_dir)
+
+
 def ketting(mesh_dir, handle):
     """The six links, on the line of the wire, every other one turned a quarter round: the first
     lies across the bow of the harpje, the sixth across the bight of the eye."""
-    f = foot(handle, *_load(mesh_dir, handle), mesh_dir=mesh_dir)
+    f = _foot(mesh_dir, handle)
     base = f["o"] + f["across"][0] * f["ex"] + f["across"][1] * f["ey"]
     return _join([_link(base + (f["s1"] + (k + 0.5) * CHAIN_PITCH) * f["d"], f["d"],
                         f["ex"] if k % 2 == 0 else f["ey"]) for k in range(LINKS)])
@@ -130,19 +124,17 @@ def bovenharpje(mesh_dir, handle):
     """The harpje at the wantputting over again at the top of the chain: turned half round about
     the line forward across the wire, so its bow comes down over the sixth link, and set on the
     chain's own line."""
-    f = foot(handle, *_load(mesh_dir, handle), mesh_dir=mesh_dir)
+    f = _foot(mesh_dir, handle)
     M = np.array([f["d"], f["ex"], f["ey"]])                 # rows: local (s, x, y) -> world
     R = np.diag([-1.0, 1.0, -1.0])                           # half a turn about ex
     crown = f["crown"] @ R
     move = np.array([f["s_crown"] - crown[0], f["across"][0] - crown[1], f["across"][1] - crown[2]])
     meshes = []
-    for h in (HANGS_IN[handle], PIN_OF[HANGS_IN[handle]]):
+    for h in (HANGS_IN[handle], harpjes.PIN_OF[HANGS_IN[handle]]):
         if h in harpjes.PIN_OF:                                   # the bow: the one harpje used for them all
             V, N, F = harpjes.bow(mesh_dir, h)
         else:
-            report = json.loads((ROOT / "build" / "tessellation_report.json").read_text())
-            d = np.load(mesh_dir / f"{next(r['name'] for r in report if r['handle'] == h)}.npz")
-            V, N, F = d["V"].astype(float), d["N"].astype(float), d["F"].astype(int)
+            V, N, F, _ = cad.load(h, mesh_dir)
         L = (V - f["o"]) @ M.T @ R + move
         meshes.append((f["o"] + L @ M, N @ M.T @ R @ M, F))
     return _join(meshes)
@@ -168,7 +160,7 @@ def ogen(mesh_dir):
     the thimble eye at the foot as it stands once the wire has been shortened."""
     out = {}
     for side, handle in WANTEN.items():
-        f = foot(handle, *_load(mesh_dir, handle), mesh_dir=mesh_dir)
+        f = _foot(mesh_dir, handle)
         out[side] = dict(top=f["top"], oog=f["oog"] + f["shift"] * f["d"])
     return out
 

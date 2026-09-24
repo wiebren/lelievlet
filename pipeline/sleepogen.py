@@ -5,26 +5,18 @@ sleepogen are the same eyes welded on at the same place on the other side of the
 are made by mirroring the landvastogen in the middle plane of the spiegel. The sleepoog on the bow
 (number 64 in the parts drawing) is one more of the same eye, stood along the stem on the outside.
 """
-import json
-from pathlib import Path
-
 import numpy as np
 
-ROOT = Path(__file__).resolve().parent.parent
+import cad
 LANDVASTOGEN = ("589B", "589F")
 SPIEGEL = "582A"
 
 
-def _load(mesh_dir, handle):
-    report = json.loads((ROOT / "build" / "tessellation_report.json").read_text())
-    name = next(r["name"] for r in report if r["handle"] == handle)
-    d = np.load(mesh_dir / f"{name}.npz")
-    return d["V"].astype(float), d["N"].astype(float), d["F"].astype(int)
 
 
 def spiegel_plane(mesh_dir):
     """Unit normal (pointing forward, into the boat) and the offsets of the two faces of the plate."""
-    V, N, F = _load(mesh_dir, SPIEGEL)
+    V, N, F, _ = cad.load(SPIEGEL, mesh_dir)
     tri = V[F]
     fn = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
     area = np.linalg.norm(fn, axis=1)
@@ -42,7 +34,7 @@ SLEEPOOG_Z = 850.0                 # middle of the eye, a little under the bergh
 def stem_line(mesh_dir, z, reach=70.0):
     """Point on the stem at height z and the unit tangent of the stem there (up and forward), from
     where the port vlak plate cuts the plane 1 mm off the centre line."""
-    V, N, F = _load(mesh_dir, STEM_BODY)
+    V, N, F, _ = cad.load(STEM_BODY, mesh_dir)
     t = V[:, 1] - 1.0
     pts = []
     for a, b in ((0, 1), (1, 2), (2, 0)):
@@ -63,7 +55,7 @@ def stem_line(mesh_dir, z, reach=70.0):
 def bow_eye(mesh_dir):
     """The sleepoog on the stem: one landvastoog, stood along the stem line on the outside."""
     n, outside, inside = spiegel_plane(mesh_dir)
-    V, N, F = _load(mesh_dir, LANDVASTOGEN[0])
+    V, N, F, _ = cad.load(LANDVASTOGEN[0], mesh_dir)
     a = np.array([0.0, 1.0, 0.0]); a -= (a @ n) * n; a /= np.linalg.norm(a)      # along the eye, in the plate
     w = np.cross(a, n)
     o = (V.min(0) + V.max(0)) / 2; o = o - (o @ n - inside) * n                  # under its middle, on the plate
@@ -79,7 +71,7 @@ def build(mesh_dir):
     middle = (outside + inside) / 2
     Vs, Ns, Fs, count = [], [], [], 0
     for handle in LANDVASTOGEN:
-        V, N, F = _load(mesh_dir, handle)
+        V, N, F, _ = cad.load(handle, mesh_dir)
         V = V - 2 * np.outer(V @ n - middle, n)          # mirrored in the middle plane of the plate
         N = N - 2 * np.outer(N @ n, n)
         Vs.append(V); Ns.append(N); Fs.append(F[:, ::-1] + count); count += len(V)   # a mirror turns the winding

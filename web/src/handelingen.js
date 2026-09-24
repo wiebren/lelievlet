@@ -1,4 +1,4 @@
-// Handelingen: the start panel in the popover of the control bar, and the card of a run.
+// Handelingen: the Manoeuvres section of the Oefenen popover, and the card of a run.
 //
 // The panel lists the operations - Zeilen hijsen and strijken, Mast strijken and zetten, Reven -
 // each greyed out with its reason while its preconditions are not met (modes.js, OPS), and asks
@@ -36,18 +36,24 @@ const STORE = 'lelievlet.manoeuvres.v1';      // { v: 1, foutloos: { <op>: true 
 const el = (tag, className, text) => Object.assign(document.createElement(tag), { className: className ?? '', textContent: text ?? '' });
 const pct = (goed, total) => (total ? Math.round((goed / total) * 100) : 0);
 
-export function initHandelingen({ ui, wrap, modes, stepProcedure, dismissProcedure, setCovered, signal, engaged, realTarget, onDestroy }) {
+export function initHandelingen({ ui, wrap, modes, stepProcedure, dismissProcedure, setCovered, opslaan = true, signal, engaged, realTarget, onDestroy }) {
   const $ = (id) => ui.getElementById(id);
   const run = modes.run;
   const touch = window.matchMedia('(pointer: coarse)');
 
   // ---------------------------------------------------------------- what has been practised without a mistake
   // An operation practised to its end with every next step right is ticked off in the list. It lives
-  // in localStorage under one key; like everywhere else the access is wrapped, so it works without.
-  let flawless = {};
-  try { flawless = JSON.parse(localStorage.getItem(STORE) ?? 'null')?.foutloos ?? {}; } catch { /* start from nothing */ }
+  // in localStorage under one key; like everywhere else the access is wrapped, so it works without,
+  // and with aanpassen.opslaan false it is not touched. A tick is added to what is stored at that
+  // moment, so one set by another viewer on the page is kept.
+  const readFlawless = () => {
+    if (!opslaan) return null;
+    try { return JSON.parse(localStorage.getItem(STORE) ?? 'null')?.foutloos ?? {}; } catch { return null; }   // start from nothing
+  };
+  let flawless = readFlawless() ?? {};
   const markFlawless = (op) => {
-    flawless[op] = true;
+    flawless = { ...flawless, ...readFlawless(), [op]: true };
+    if (!opslaan) return;
     try { localStorage.setItem(STORE, JSON.stringify({ v: 1, foutloos: flawless })); } catch { /* it works without */ }
   };
 

@@ -11,24 +11,18 @@ then every 200 mm along boven- and onderlijk. DWG millimetres throughout.
 """
 import numpy as np
 
+import cad
+from lighter import spread
+from parts import FOK_CLEW, GROOT_TACK, GROOT_THROAT
+
 ROPE_R = 2.0            # mm. Vlettenboek: marllijn nylon 3 mm; drawn 4 mm so it stays visible
 SIDES = 7
-
-
-def surface_points(V, F, n=40000, seed=3):
-    """Area-weighted random points on a mesh (a long cylinder has vertices at its ends only)."""
-    rng = np.random.default_rng(seed)
-    a, b, c = V[F[:, 0]], V[F[:, 1]], V[F[:, 2]]
-    area = np.linalg.norm(np.cross(b - a, c - a), axis=1)
-    idx = rng.choice(len(F), n, p=area / area.sum())
-    w = rng.random((n, 2)); flip = w.sum(1) > 1; w[flip] = 1 - w[flip]
-    return a[idx] + (b[idx] - a[idx]) * w[:, :1] + (c[idx] - a[idx]) * w[:, 1:]
 
 
 def spar_axis(V, F, lo, hi):
     """Axis (point, unit dir) and radius of the round shaft, fitted on the stretch of the spar
     between fractions lo and hi of its length (so klauw, beslag and tapers are left out)."""
-    S = surface_points(V, F)
+    S = spread(V, F, 40000, seed=3)                     # a long cylinder has vertices at its ends only
     c = S.mean(0)
     d = np.linalg.eigh(np.cov((S - c).T))[1][:, -1]
     t = (S - c) @ d
@@ -185,22 +179,22 @@ def fokkenschoot(clew, hoop, hand, sag=0.055):
 def build(mesh_dir):
     """Returns {handle: (V, N, F)} for bodies that are replaced by generated geometry."""
     out = {}
-    def load(name):
-        d = np.load(mesh_dir / f"{name}.npz")
-        return d["V"].astype(float), d["F"].astype(int)
+    def load(handle):
+        V, _, F, _ = cad.load(handle, mesh_dir)
+        return V, F
 
     # giek: sail above the boom; lacing runs from the tack (at the mast) aft to the clew
-    c, d, r = spar_axis(*load("GiekSolids_5706"), 0.25, 0.85)
+    c, d, r = spar_axis(*load("5706"), 0.25, 0.85)
     d = -d if d[0] > 0 else d                           # point aft
-    tack = np.array([4194.4, 0.0, 1331.6])
+    tack = np.array(GROOT_TACK)
     origin = c + ((tack - c) @ d) * d
     P = marllijn(origin, d, np.array([0.0, 0.0, 1.0]), r, 2600.0)
     out["5324"] = tube(P)
 
     # gaffel: sail hangs below the gaff; lacing runs from the throat (klauw) up to the peak
-    c, d, r = spar_axis(*load("GaffelSolids_5693"), 0.35, 0.9)
+    c, d, r = spar_axis(*load("5693"), 0.35, 0.9)
     d = -d if d[2] < 0 else d                           # point up to the peak
-    throat = np.array([4194.4, 0.0, 3981.6])
+    throat = np.array(GROOT_THROAT)
     origin = c + ((throat - c) @ d) * d
     down_aft = np.array([-d[2], 0.0, d[0]])             # perpendicular to the gaff in the XZ plane
     if down_aft[2] > 0:
@@ -209,7 +203,7 @@ def build(mesh_dir):
     out["52E9"] = tube(P)
 
     # fokkenschoot: re-routed to the hoop on the wantputting and then to the crew
-    clew = np.array([4268.7, 722.2, 1134.6])
+    clew = np.array(FOK_CLEW)
     for handle, side in (("5484", 1.0), ("547B", -1.0)):
         hoop = np.array([SCHOOT_HOEP[0], SCHOOT_HOEP[1] * side, SCHOOT_HOEP[2]])
         hand = np.array([SCHOOT_HAND[0], SCHOOT_HAND[1] * side, SCHOOT_HAND[2]])
@@ -217,8 +211,7 @@ def build(mesh_dir):
 
     # roerkop: the CAD draws two loose side plates. It is one plate folded over a radius, with the
     # helmstok slotting up into it from below, so add the fold along their top edge.
-    V, F = load("PartSolids-Frame_58C8")
-    N = np.load(mesh_dir / "PartSolids-Frame_58C8.npz")["N"].astype(float)
+    V, N, F, _ = cad.load("58C8", mesh_dir)
     y_lo, y_hi = V[:, 1].min(), V[:, 1].max()            # outer faces of the two plates
     plate = V[V[:, 1] < y_lo + 0.5]                      # the outline of one plate
     top = plate[plate[:, 2] > plate[:, 2].max() - 60.0]  # its sloping top edge

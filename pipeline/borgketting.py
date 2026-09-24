@@ -25,17 +25,13 @@ that swing is taken, and the chain is made a quarter longer again.
     build(mesh_dir)   [(id, naam, groep, materiaal, (V, N, F))]
     points(mesh_dir)  eye, hook, length and number of links, for the viewer to re-lay the chain
 """
-import json
-from pathlib import Path
-
 import numpy as np
 
 import anchor                                            # its links, with this chain's numbers
+import cad
 import sleepogen                                         # the plane of the spiegel
 from hardware import _join, prism
 from rigging import tube
-
-ROOT = Path(__file__).resolve().parent.parent
 
 ROERBLAD, ROERBLAD_TOP = "58B7", 1       # face 1 of the blade is its top edge: one flat rectangle
 ROERKONING, KONING_WALL = "58B8", 0      # face 0 of the stock is the wall of the tube
@@ -43,12 +39,6 @@ VINGERLING = "5A27"                      # the top one of the three, the hook go
 LEIOOG, LEIOOG_WALL, LEIOOG_FEET = "5943", (0, 1, 2), (3, 4)   # bent bar; its two cut ends
 
 
-def _load(mesh_dir, handle):
-    """Vertices, exact surface normals, triangles and face numbers of one CAD body."""
-    report = json.loads((ROOT / "build" / "tessellation_report.json").read_text())
-    name = next(r["name"] for r in report if r["handle"] == handle)
-    d = np.load(mesh_dir / f"{name}.npz")
-    return d["V"].astype(float), d["N"].astype(float), d["F"].astype(int), d["G"]
 
 
 def _unit(v):
@@ -72,7 +62,7 @@ def _cylinder(P):
 def koning_axis(mesh_dir):
     """Point on the axis, unit direction up it, and radius of the roerkoning (1" pipe, raked 33.7
     degrees aft). The stock and the whole rudder turn about this line."""
-    V, N, F, G = _load(mesh_dir, ROERKONING)
+    V, N, F, G = cad.load(ROERKONING, mesh_dir)
     return _cylinder(V[np.unique(F[G == KONING_WALL])])
 
 
@@ -83,7 +73,7 @@ def blade_corner(mesh_dir):
     face with four corners; the two of them against the tube are the corner sought."""
     c, d, r = koning_axis(mesh_dir)
     p = _unit([d[2], 0.0, -d[0]])                        # out of the tube, square to its axis
-    V, N, F, G = _load(mesh_dir, ROERBLAD)
+    V, N, F, G = cad.load(ROERBLAD, mesh_dir)
     P = V[np.unique(F[G == ROERBLAD_TOP])]
     at_tube = (P @ p) > (P @ p).mean()
     C = P[at_tube].mean(0)
@@ -154,7 +144,7 @@ def _leioog_local(mesh_dir):
     """Body 5943 in a frame of its own: the mesh, and the orthonormal basis (up the base line,
     into the plate, across the plane of the C) with the middle of its two feet on the plate as
     the origin."""
-    V, N, F, G = _load(mesh_dir, LEIOOG)
+    V, N, F, G = cad.load(LEIOOG, mesh_dir)
     seat = _unit(LEIOOG_SEAT)
     feet = [V[np.unique(F[G == g])] for g in LEIOOG_FEET]
     plate = max(float((P @ seat).min()) for P in feet)   # the plate lies on the shallower foot
@@ -171,7 +161,7 @@ def haak_frame(mesh_dir):
     vingerling, and the unit vectors the leioog's own axes are turned onto - up the plate, into
     the plate (forward), and athwartships."""
     n, outside, inside = sleepogen.spiegel_plane(mesh_dir)
-    V, N, F, G = _load(mesh_dir, VINGERLING)
+    V, N, F, G = cad.load(VINGERLING, mesh_dir)
     c, d, r = _cylinder(V[np.unique(F[G == 0])])
     t = (V[np.unique(F[G == 0])] - c) @ d
     top = c + t.max() * d                                # middle of the tube's upper end face
@@ -197,7 +187,7 @@ def _haak_bar(mesh_dir):
     """Centre line of the hook's bar where it stands clear of the plate, in place on the spiegel.
     The mesh carries exact surface normals, so a point of the wall less one bar radius along its
     normal lies on the centre line."""
-    V, N, F, G = _load(mesh_dir, LEIOOG)
+    V, N, F, G = cad.load(LEIOOG, mesh_dir)
     W, M, _ = haak(mesh_dir)
     wall = np.unique(F[np.isin(G, LEIOOG_WALL)])
     P = np.unique((W[wall] - LEIOOG_BAR * M[wall]).round(3), axis=0)
@@ -216,24 +206,12 @@ def haak_bearing(mesh_dir):
 
 # -- borgkettinkje: 5 mm short-link chain, links 16 mm inside (pitch 21, outside width 17), with a
 # harpje at either end. anchor.ketting threads the ankerketting out of the same stadium-shaped
-# links, so its link builder is used here with this chain's numbers put into the four constants it
-# reads. Five sides to the wire keep the whole part inside its triangle budget.
-CHAIN = dict(CHAIN_PITCH=21.0, CHAIN_WIRE=5.0, CHAIN_WIDTH=17.0, CHAIN_SIDES=5)
+# links, so its link builder is used here with this chain's numbers. Five sides to the wire keep
+# the whole part inside its triangle budget.
+CHAIN = dict(pitch=21.0, wire=5.0, width=17.0, sides=5)
 SWING = 40.0                 # degrees the rudder may turn either way with the chain still slack
 SLACK = 1.25                 # how much longer than the furthest the two eyes ever are apart
 HARP_BAR, HARP_BOW, HARP_LEG, HARP_PIN = 2.5, 7.0, 8.0, 3.0      # the harpjes: 5 mm bar, 6 mm pin
-
-
-def _link(centre, t, u):
-    """One link: anchor._link with the dimensions of this chain."""
-    was = {k: getattr(anchor, k) for k in CHAIN}
-    for k, v in CHAIN.items():
-        setattr(anchor, k, v)
-    try:
-        return anchor._link(centre, t, u)
-    finally:
-        for k, v in was.items():
-            setattr(anchor, k, v)
 
 
 def _harpje(bear, out, axis, hang):
@@ -305,7 +283,7 @@ def _hang(mesh_dir):
     harp_o, pin_o = _harpje(bear_o, out_o, _unit(np.cross(t_o, out_o)), OOG_BAR)
     harp_h, pin_h = _harpje(bear_h, out_h, _unit(np.cross(t_h, out_h)), LEIOOG_BAR)
     spare = SLACK * reach.max() - np.linalg.norm(pin_o - bear_o) - np.linalg.norm(pin_h - bear_h)
-    links = int(round(spare / CHAIN["CHAIN_PITCH"]))
+    links = int(round(spare / CHAIN["pitch"]))
     return [harp_o, harp_h], pin_o, pin_h, links
 
 
@@ -313,7 +291,7 @@ def ketting(mesh_dir):
     """The two harpjes and the links, every other one turned a quarter round, threaded along the
     catenary between the two pins."""
     meshes, pin_o, pin_h, links = _hang(mesh_dir)
-    pitch = CHAIN["CHAIN_PITCH"]
+    pitch = CHAIN["pitch"]
     low, high = (pin_o, pin_h) if pin_o[2] < pin_h[2] else (pin_h, pin_o)
     P = _catenary(low, high, links * pitch, 16 * links + 1)
     s = np.r_[0.0, np.cumsum(np.linalg.norm(np.diff(P, axis=0), axis=1))]
@@ -323,7 +301,7 @@ def ketting(mesh_dir):
         t = _unit(t)
         u = np.array([0.0, 0.0, 1.0]) - t[2] * t         # links on edge stand up, the rest lie flat
         u = _unit(u) if np.linalg.norm(u) > 1e-6 else np.array([1.0, 0.0, 0.0])
-        meshes.append(_link(c, t, u if k % 2 == 0 else np.cross(t, u)))
+        meshes.append(anchor._link(c, t, u if k % 2 == 0 else np.cross(t, u), **CHAIN))
     return _join(meshes)
 
 
@@ -333,7 +311,7 @@ def points(mesh_dir):
     viewer can lay the chain again when the rudder turns."""
     _, pin_o, pin_h, links = _hang(mesh_dir)
     bear_o, bear_h, _ = _span(mesh_dir)
-    length = (links * CHAIN["CHAIN_PITCH"]
+    length = (links * CHAIN["pitch"]
               + np.linalg.norm(pin_o - bear_o) + np.linalg.norm(pin_h - bear_h))
     return dict(oog=opening(mesh_dir)[0], haak=bear_h, lengte=float(length), schakels=links)
 

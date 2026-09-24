@@ -6,6 +6,7 @@ a border the simplifier has to keep; where they do not (the corner of a block's 
 apart, so the edge stays sharp. The vertices that are kept keep the CAD's own normals, and the
 outside stays the CAD's.
 """
+import meshoptimizer as meshopt
 import numpy as np
 
 CREASE = np.cos(np.radians(30))   # normals further apart than this meet at an edge, which stays sharp
@@ -14,7 +15,6 @@ CREASE = np.cos(np.radians(30))   # normals further apart than this meet at an e
 def lighter(V, N, F, triangles=None, error=None):
     """(V, N, F) made lighter, in the same coordinates: brought down to about `triangles`, or - with
     `error`, in the units of V - as far as it goes without the surface moving more than that."""
-    import meshoptimizer as meshopt
     # weld where the position is the same and the normals are within CREASE of each other
     _, at, same = np.unique(np.round(V, 4), axis=0, return_index=True, return_inverse=True)
     same = same.reshape(-1)
@@ -53,13 +53,26 @@ def lighter(V, N, F, triangles=None, error=None):
 
 
 def spread(V, F, n, seed=0):
-    """n points spread evenly over the surface (V, F)."""
+    """n points spread evenly over the surface (V, F): each triangle gets its share by area."""
     rng = np.random.default_rng(seed)
     t = rng.random((n, 2)); t[t.sum(1) > 1] = 1 - t[t.sum(1) > 1]
     area = np.linalg.norm(np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]]), axis=1)
     k = rng.choice(len(F), n, p=area / area.sum())
     a, b, c = V[F[k, 0]], V[F[k, 1]], V[F[k, 2]]
     return a + (b - a) * t[:, :1] + (c - a) * t[:, 1:]
+
+
+def surface_axes(V, F):
+    """Area-weighted middle of the surface (V, F), the axes of its spread (columns, smallest
+    first), how far it spreads along each, and its area. Weighted by area, so the tessellation
+    does not pull them about."""
+    a, b, c = V[F[:, 0]], V[F[:, 1]], V[F[:, 2]]
+    area = np.linalg.norm(np.cross(b - a, c - a), axis=1) / 2
+    mid = (a + b + c) / 3
+    o = (mid * area[:, None]).sum(0) / area.sum()
+    X = mid - o
+    w, E = np.linalg.eigh((X * area[:, None]).T @ X / area.sum())
+    return o, E, np.sqrt(np.maximum(w, 0)), area.sum()
 
 
 def off_by(V, F, Vb, Fb):

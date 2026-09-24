@@ -16,16 +16,12 @@ CAD millimetres throughout (x forward, y to port, z up).
 
   build()  returns the two parts; neither has a CAD body
 """
-import json
-from pathlib import Path
-
 import numpy as np
 
+import cad
 import sleepogen
 from hardware import _join, _round_section, _section, bead
 from rigging import thin, tube
-
-ROOT = Path(__file__).resolve().parent.parent
 
 ROPE_R, SIDES = 6.0, 8               # 12 mm line, drawn round and coarse: there is a lot of it
 DECK_GAP = 1.0                       # the line lies on the deck, not in it
@@ -42,11 +38,6 @@ BOW_X = 5700.0                       # only the bow end of those bodies is ever 
 INBOARD = np.array([5900.0, 0.0, 790.0])           # a point inside the boat there: which way is out
 
 
-def _load(mesh_dir, handle):
-    report = json.loads((ROOT / "build" / "tessellation_report.json").read_text())
-    name = next(r["name"] for r in report if r["handle"] == handle)
-    d = np.load(mesh_dir / f"{name}.npz")
-    return d["V"].astype(float), d["N"].astype(float), d["F"].astype(int)
 
 
 # ---- surfaces the line lies on
@@ -70,7 +61,7 @@ def _skin(mesh_dir, handles, outward):
     normals. Only the bow end is kept: that is the only place a landvast touches the plating."""
     T, n = [], []
     for handle in handles:
-        V, N, F = _load(mesh_dir, handle)
+        V, N, F, _ = cad.load(handle, mesh_dir)
         fn = N[F].mean(axis=1)
         fn /= np.linalg.norm(fn, axis=1, keepdims=True)
         c = V[F].mean(axis=1)
@@ -194,7 +185,7 @@ def _oog(mesh_dir):
     axis stands off the plate, the radius of the rod and where the axis sits across the eye. The
     sleepoog on the stem is this same body, so both eyes are made fast to with the same numbers."""
     n, _, inside = sleepogen.spiegel_plane(mesh_dir)
-    V = _load(mesh_dir, LANDVASTOOG_BB)[0]
+    V = cad.load(LANDVASTOOG_BB, mesh_dir)[0]
     a = np.array([0.0, 1.0, 0.0]); a -= (a @ n) * n; a /= np.linalg.norm(a)
     w = np.cross(a, n)
     o = (V.min(0) + V.max(0)) / 2
@@ -248,7 +239,7 @@ ACHTER_RUN = [(1302.0, 440.0), (1275.0, 462.0), (1230.0, 465.0), (1150.0, 450.0)
 
 def achterlandvast(mesh_dir):
     """Coiled down on the port side of the achterdek and made fast to the landvastoog above it."""
-    Vd, Nd, Fd = _load(mesh_dir, ACHTERDEK)
+    Vd, Nd, Fd, _ = cad.load(ACHTERDEK, mesh_dir)
     deck = lambda P: _deck_z(Vd, Nd, Fd, P)
     (origin, a, n, w), (off, rod, across) = _oog(mesh_dir)
     knots = _turns(origin + off * n + across * w, off, rod + ROPE_R, n, w, -a)
@@ -294,8 +285,8 @@ def _climb(mesh_dir, foot, head, n=20):
     each step, measured from a section there the way hardware.gusset() follows the same plating.
     The offset is taken along the normal of that face, not athwartships: forward of the mast the
     plating leans away from the y axis in both directions at once."""
-    Vk, _, Fk = _load(mesh_dir, CLIMB_PLATING[0])
-    Vb, _, Fb = _load(mesh_dir, CLIMB_PLATING[1])
+    Vk, _, Fk, _ = cad.load(CLIMB_PLATING[0], mesh_dir)
+    Vb, _, Fb, _ = cad.load(CLIMB_PLATING[1], mesh_dir)
     V, F = np.vstack([Vk, Vb]), np.vstack([Fk, Fb + len(Vk)])
     at = lambda x, z: _inside_y(_section(V, F, x), z)
     P = foot + np.outer(np.linspace(0.0, 1.0, n), head - foot)
@@ -314,7 +305,7 @@ def _climb(mesh_dir, foot, head, n=20):
 def _dolboord(mesh_dir, x):
     """Axis and forward tangent of the port dolboord at station x, and the two directions square
     to it: up and outboard. Fitted from two sections, because the bar sweeps in fast by the stem."""
-    V, _, F = _load(mesh_dir, DOLBOORD_BB)
+    V, _, F, _ = cad.load(DOLBOORD_BB, mesh_dir)
     at = []
     for xx in (x - 20.0, x + 20.0):
         (y, z), _ = _round_section(_section(V, F, xx))
@@ -371,7 +362,7 @@ def voorlandvast(mesh_dir):
     """Coiled on the port side of the voordek, over the port dolboord by the stem and hanging down
     the outside of the bow to the sleepoog; the climb up to the dolboord is a line pulled taut
     against the inside of the skin."""
-    Vd, Nd, Fd = _load(mesh_dir, VOORDEK)
+    Vd, Nd, Fd, _ = cad.load(VOORDEK, mesh_dir)
     deck = lambda P: _deck_z(Vd, Nd, Fd, P)
     axis, _, up, out = _dolboord(mesh_dir, CROSS_X)
     lay_on = DOLBOORD_R + ROPE_R + 0.3           # laid on the bar: touching it, not sunk into it

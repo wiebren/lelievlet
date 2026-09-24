@@ -9,13 +9,13 @@ import numpy as np
 import anchor
 import bakskist
 import borgketting
+import cad
 import fokbeslag
 import hardware
 import parts
 import rigging
 import wantkettingen
-
-X_TRANSOM = 737.6
+from parts import X_TRANSOM
 
 
 # Midzwaard linkage, CAD millimetres as (x, z): pin holes measured from the solids
@@ -68,8 +68,8 @@ def schootblokken(mesh_dir):
     out = {}
     for key, (harp, schijf) in SCHOOTBLOK.items():
         shift = np.array(parts.NUDGE[harp])
-        V = np.load(mesh_dir / f"StagSolids_{harp}.npz")["V"].astype(float) + shift
-        S = np.load(mesh_dir / f"StagSolids_{schijf}.npz")["V"].astype(float) + shift
+        V = cad.load(harp, mesh_dir)[0] + shift
+        S = cad.load(schijf, mesh_dir)[0] + shift
         c = S.mean(0)
         axle = np.linalg.svd(S - c, full_matrices=False)[2][2]      # the schijf is flat: its thinnest way
         out[key] = dict(voet=V[V[:, 2] < V[:, 2].min() + HARP_BOW].mean(0), schijf=c,
@@ -86,36 +86,32 @@ def _seg_dist(p, a, b):
 
 class Rig:
     def __init__(self, mesh_dir):
-        def load(name):
-            d = np.load(mesh_dir / f"{name}.npz")
-            return d["V"].astype(float), d["F"].astype(int)
+        def load(handle):
+            V, _, F, _ = cad.load(handle, mesh_dir)
+            return V, F
 
-        self.mast_c, mast_d, _ = rigging.spar_axis(*load("MastSolids_56A3"), 0.3, 0.8)
-        c, d, _ = rigging.spar_axis(*load("GiekSolids_5706"), 0.25, 0.85)
-        V = load("GiekSolids_5706")[0]; t = (V - c) @ d
+        self.mast_c, mast_d, _ = rigging.spar_axis(*load("56A3"), 0.3, 0.8)
+        c, d, _ = rigging.spar_axis(*load("5706"), 0.25, 0.85)
+        V = load("5706")[0]; t = (V - c) @ d
         self.boom = (c + t.min() * d, c + t.max() * d)
-        c, d, _ = rigging.spar_axis(*load("GaffelSolids_5693"), 0.35, 0.9)
-        V = load("GaffelSolids_5693")[0]; t = (V - c) @ d
+        c, d, _ = rigging.spar_axis(*load("5693"), 0.35, 0.9)
+        V = load("5693")[0]; t = (V - c) @ d
         self.gaff = (c + t.min() * d, c + t.max() * d)
         # fok corners (outline of the CAD sail, the tack lowered with its harpje) and the gaffeldraad span
-        self.fok_tack = np.array(parts.FOK_TACK); self.fok_head = np.array([4580.0, -0.7, 5090.8])
-        self.fok_clew = np.array([4268.7, 722.2, 1134.6])
-        Vd = load("StagSolids_5205")[0]
+        self.fok_tack = np.array(parts.FOK_TACK); self.fok_head = np.array(parts.FOK_HEAD)
+        self.fok_clew = np.array(parts.FOK_CLEW)
+        Vd = load("5205")[0]
         self.gaffeldraad = (Vd[np.argmin(Vd[:, 0])], Vd[np.argmax(Vd[:, 0])])
-        Vp = load("StagSolids_5257")[0]
+        Vp = load("5257")[0]
         self.hanepoot = Vp[Vp[:, 0] < Vp[:, 0].min() + 30].mean(0)
-        Vs = load("StagSolids_55F7")[0]
+        Vs = load("55F7")[0]
         self.sheet_top = Vs[Vs[:, 2] > Vs[:, 2].max() - 40].mean(0)
         self.sheet_eye = np.array([2528.0, 0.0, 244.0])             # where the shackle of the lower block bears on the grootschootoog
         self.oars = {}
-        for pid, name in (("riem_sb", "RiemSolids_5760"), ("riem_bb", "RiemSolids_576B"), ("wrikriem", "RiemSolids_5755")):
-            Vo = load(name)[0]
+        for pid, handle in (("riem_sb", "5760"), ("riem_bb", "576B"), ("wrikriem", "5755")):
+            Vo = load(handle)[0]
             self.oars[pid] = (Vo[np.argmax(Vo[:, 0])], Vo[np.argmin(Vo[:, 0])])      # handle (fwd), blade (aft)
-        self.blocks = {}
-        for key, handles in (("boven", "5551 5557 555D 5563 5569 556D 5575 557B 5581 5585 558D 5593 5597"),
-                             ("onder", "55C2 55C8 55CC 55D0 55D8 55DE 55E4 55E8 55EB 55EF 55F3")):
-            P = np.vstack([load(f"StagSolids_{h}")[0] for h in handles.split()])
-            self.blocks[key] = P
+        self.bovenblok = np.vstack([load(h)[0] for h in parts.BOVENBLOK_GROOTSCHOOT.split()])   # of the grootschoot
         self.dolpotten = hardware.dolpot_axes(mesh_dir)      # top centre of every rowlock socket
         self.mikhouders = hardware.mikhouder_axes(mesh_dir)  # the two pipes the mik is stowed in
         self.kist = bakskist.hinge(mesh_dir)
@@ -206,7 +202,7 @@ class Rig:
                         hoek_graden=[round(a, 2) for a in board_stops()],
                         penhole=m([BOARD_HOLE[0], 0.0, BOARD_HOLE[1]])),
             # the blocks of the grootschoot hang from the schootring and stand on the grootschootoog
-            blokken=dict(boven=m(self.blocks["boven"][np.argmax(self.blocks["boven"][:, 2])]),
+            blokken=dict(boven=m(self.bovenblok[np.argmax(self.bovenblok[:, 2])]),
                          onder=m(self.sheet_eye)),
             # end of the klauwval, shackled to a strop on the klauw of the gaffel
             klauwval=dict(klauw=m([4260.0, -1.0, 4114.0])),

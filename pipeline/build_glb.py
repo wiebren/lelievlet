@@ -8,17 +8,12 @@ Scene graph: group node -> part node (extras: id, naam, groep, materiaal, handle
 """
 import json
 import struct
-from pathlib import Path
 
+import meshoptimizer as meshopt
 import numpy as np
 
-try:                                                  # the glb is meshopt-packed when the encoder is there (uv run --with meshoptimizer)
-    import meshoptimizer as meshopt
-    MESHOPT = True
-except ImportError:
-    MESHOPT = False
-
 import anchor
+import cad
 import rig_data
 import bakskist
 import borgketting
@@ -33,12 +28,10 @@ import rigging
 import sails
 import wantkettingen
 from parts import (BAND_MATERIAL, BANDS, DEFAULT_BY_LAYER, DROP, GROUPS, HARDWARE, MATERIALS, NUDGE, PARTS,
-                   REGION_SPLITS, SINGLE_SKIN, TWO_TONE)
+                   REGION_SPLITS, TWO_TONE, X_TRANSOM)
 
-ROOT = Path(__file__).resolve().parent.parent
-MESH = ROOT / "build" / "mesh"
-OUT = ROOT / "web" / "public" / "models"
-X_TRANSOM = 737.6            # DWG x of the aft end of the hull plating
+MESH = cad.MESH
+OUT = cad.ROOT / "web" / "public" / "models"
 
 
 def to_model(v, is_point=True):
@@ -48,15 +41,6 @@ def to_model(v, is_point=True):
         out[:, 0] -= X_TRANSOM
         out /= 1000.0
     return out
-
-
-def single_skin(V, N, F):
-    """Keep one side of a paper-thin solid (sails are modelled 0.1 mm thick)."""
-    fn = np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]])
-    area = np.linalg.norm(fn, axis=1, keepdims=True); unit = fn / np.maximum(area, 1e-12)
-    cov = (unit * area).T @ unit
-    axis = np.linalg.eigh(cov)[1][:, -1]                 # dominant normal direction
-    return F[(unit @ axis) > 0.5]
 
 
 def faces_outward(V, N, F):
@@ -97,7 +81,16 @@ def split_at(V, N, F, G, axis, c):
     labels = []
     for tri, g in zip(F, G):
         side = [t[i] > 1e-7 for i in tri]
-        if all(side) or not any(side) or any(abs(t[i]) <= 1e-7 for i in tri):
+        on = [abs(t[i]) <= 1e-7 for i in tri]
+        if on.count(True) == 1:                            # a vertex on the plane: cut from it, if the other two straddle it
+            k = on.index(True)
+            a, b, c_ = tri[k], tri[(k + 1) % 3], tri[(k + 2) % 3]
+            if (t[b] > 0) != (t[c_] > 0):
+                bc = cross(b, c_)
+                out += [(a, b, bc), (a, bc, c_)]                                     # winding kept
+                labels += [g, g]
+                continue
+        if all(side) or not any(side) or any(on):
             out.append(tuple(tri)); labels.append(g); continue
         k = side.index(True) if side.count(True) == 1 else side.index(False)     # the lone vertex
         a, b, c_ = tri[k], tri[(k + 1) % 3], tri[(k + 2) % 3]
@@ -165,32 +158,37 @@ def compact(V, N, F):
     return V[used], N[used], remap[F]
 
 
-def main():
-    report = json.loads((ROOT / "build" / "tessellation_report.json").read_text())
-    parts = {}
-    sail_meshes = sails.build(MESH)          # curved cloth replaces the flat CAD sails
-    rig_meshes = rigging.build(MESH)         # marllijnen laid with proper marlsteken
-    rig = rig_data.Rig(MESH)                 # axes and anchors for the viewer's animations
-    # the harpjes: one light bow put where each of the CAD's is (gelijk does the rest of the small ones)
-    shared = harpjes.build(MESH)
-    light = gelijk.Lighter()                 # small fittings lighter, and what the CAD has twice made from one
-    for row in report:
-        p = MESH / f"{row['name']}.npz"
-        if not p.exists():
-            continue
-        d = np.load(p)
-        V, N, F = d["V"].astype(np.float64), d["N"].astype(np.float64), d["F"].astype(np.int64)
+def replacements(mesh_dir):
+    """Meshes that take the place of CAD bodies, each {handle: mesh}: the sails (curved cloth instead
+    of the flat CAD sails; their lijken and hoeken under "_extra"), the rigging (marllijnen laid
+    with proper marlsteken, the fokkenschoten, the fold of the roerkop) and the harpjes (one light
+    bow put where each of the CAD's is; gelijk does the rest of the small ones)."""
+    return sails.build(mesh_dir), rigging.build(mesh_dir), harpjes.build(mesh_dir)
+
+
+def bodies(mesh_dir, replaced, light):
+    """Every CAD body that goes into the model, as it goes in, in DWG mm: dropped, replaced, moved,
+    oriented, reshaped and made lighter. `light` is a gelijk.Lighter, which learns the copies as
+    it goes. Yields (row of the tessellation report, body): body holds V, N, F, G, and UV, W and
+    zeil for a sail (None otherwise); `centre` is the middle of its box before hardware.reshape,
+    and `before` the mesh (V, F) the lighter was given."""
+    sail_meshes, rig_meshes, shared = replaced
+    for row in cad.report():
         h = row["handle"]
         if h in DROP:
             continue
+        V, N, F, G = cad.load(h, mesh_dir)
         if h in shared:                                     # before the nudge: it moves the one put in its place
             V, N, F = shared[h]
         if h in NUDGE:
             V = V + np.array(NUDGE[h])
         if row["type"] == "3DSOLID" and row["closed_shells"] != row["shells"] and h not in shared:
-            # open shell: OpenCascade could not orient it, so use the sign of the enclosed volume
+            # open shell: OpenCascade could not orient it, so use the sign of the enclosed volume. An
+            # open shell encloses nothing exactly: what it comes to depends on the point it is
+            # measured about, and from as far off as the DWG origin the gap can outweigh the body.
+            # About its own middle it comes to the body's volume, with the sign of its winding.
             fn = np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]])
-            if (V[F[:, 0]] * fn).sum() < 0:
+            if ((V[F[:, 0]] - V.mean(0)) * fn).sum() < 0:
                 F = F[:, ::-1].copy(); N = -N
         UV = zeil = W = None
         if h in sail_meshes:
@@ -199,20 +197,34 @@ def main():
             W = sm.get("W")
         elif h in rig_meshes:
             V, N, F = rig_meshes[h]
-        elif h in SINGLE_SKIN:
-            F = single_skin(V, N, F)
-        entry = PARTS.get(h) or DEFAULT_BY_LAYER.get(row["layer"]) or ("overig", "Overig", "beslag", "verzinkt")
-        if h not in PARTS and row["layer"] == "StagSolids":
-            fixed_to = rig.attachment((V.min(0) + V.max(0)) / 2)
-            if fixed_to:
-                entry = HARDWARE[fixed_to]
-        band = np.zeros(len(F), bool)
-        G = d["G"].astype(np.int64) if h not in shared else np.zeros(len(F), np.int64)   # B-rep face of every triangle
+        if h in shared or h in sail_meshes or h in rig_meshes:
+            G = np.zeros(len(F), np.int64)                  # a mesh of its own: no B-rep faces
+        assert len(G) == len(F), f"{h}: a B-rep face for every triangle"
+        centre = (V.min(0) + V.max(0)) / 2
         V, N, F, G = hardware.reshape(h, V, N, F, G, split_at)
-        if h not in shared and h not in sail_meshes and h not in rig_meshes and h not in SINGLE_SKIN:
+        before = (V, F)
+        if h not in shared and h not in sail_meshes and h not in rig_meshes:
             made = light(h, V, N, F)
             if made is not None:
                 V, N, F = made; G = np.zeros(len(F), np.int64)
+        assert len(G) == len(F), f"{h}: a B-rep face for every triangle"   # split_at, cut_bands, REGION_SPLITS pair them
+        yield row, dict(V=V, N=N, F=F, G=G, UV=UV, W=W, zeil=zeil, centre=centre, before=before)
+
+
+def main():
+    parts = {}
+    replaced = replacements(MESH)
+    sail_meshes = replaced[0]
+    rig = rig_data.Rig(MESH)                 # axes and anchors for the viewer's animations
+    light = gelijk.Lighter()                 # small fittings lighter, and what the CAD has twice made from one
+    for row, body in bodies(MESH, replaced, light):
+        h = row["handle"]
+        V, N, F, G, UV, W, zeil = (body[k] for k in ("V", "N", "F", "G", "UV", "W", "zeil"))
+        entry = PARTS.get(h) or DEFAULT_BY_LAYER.get(row["layer"]) or ("overig", "Overig", "beslag", "verzinkt")
+        if h not in PARTS and row["layer"] == "StagSolids":
+            fixed_to = rig.attachment(body["centre"])
+            if fixed_to:
+                entry = HARDWARE[fixed_to]
         band = np.zeros(len(F), bool)
         if h in BANDS:                                      # painted bands: cut the mesh where they start and end
             V, N, F, G, band = cut_bands(V, N, F, G, BANDS[h])
@@ -275,13 +287,19 @@ def main():
     # ---- glTF assembly
     blob = bytearray(); views, accessors, meshes, nodes, materials = [], [], [], [], []
     mat_index = {}
+    # Buffer 0 is the binary chunk: what is stored. Buffer 1 has no data at all; it is the fallback
+    # buffer of EXT_meshopt_compression, which only gives the decoded views a place of their own
+    # size (as gltfpack does it), so no view claims more of buffer 0 than it takes there.
+    fallback = 0                                         # its length so far
 
     def add_view(data, target, packed=None):
-        """A buffer view; `packed` = (array, stride, mode) has it meshopt-encoded in place, with the
-        plain layout the decoder gives back described in the view."""
+        """A buffer view; `packed` = (array, stride, mode) has it meshopt-encoded: the encoded bytes
+        go into buffer 0, named in the extension, and the view itself describes the plain layout
+        the decoder gives back, in the fallback buffer."""
+        nonlocal fallback
         while len(blob) % 4:
             blob.append(0)
-        if packed is None or not MESHOPT:
+        if packed is None:
             views.append(dict(buffer=0, byteOffset=len(blob), byteLength=len(data), target=target))
             blob.extend(data)
             return len(views) - 1
@@ -291,9 +309,11 @@ def main():
         ext = dict(buffer=0, byteOffset=len(blob), byteLength=len(enc), byteStride=stride, count=count, mode=mode)
         if filt:
             ext["filter"] = filt[0]
-        views.append(dict(buffer=0, byteOffset=len(blob), byteLength=len(data), byteStride=stride if mode == "ATTRIBUTES" else None, target=target,
+        fallback += -fallback % 4
+        views.append(dict(buffer=1, byteOffset=fallback, byteLength=len(data), byteStride=stride if mode == "ATTRIBUTES" else None, target=target,
                           extensions=dict(EXT_meshopt_compression=ext)))
         views[-1] = {k: v for k, v in views[-1].items() if v is not None}
+        fallback += len(data)
         blob.extend(enc)
         return len(views) - 1
 
@@ -315,19 +335,14 @@ def main():
             F = np.concatenate(skin["F"]).astype(np.uint32)
             ln = np.linalg.norm(N, axis=1, keepdims=True); ln[ln == 0] = 1; N = (N / ln).astype(np.float32)
             V = V.astype(np.float32)
-            if MESHOPT:                                     # on the grid, and the normals in 8 bits
-                E = exp_filter(V); V = exp_decoded(E); On = oct_filter(N)
-                pv = add_view(V.tobytes(), 34962, (E, 12, "ATTRIBUTES", "EXPONENTIAL"))
-                nv = add_view(On.tobytes(), 34962, (On, 4, "ATTRIBUTES", "OCTAHEDRAL"))
-                normal = dict(componentType=5120, normalized=True)
-            else:
-                pv = add_view(V.tobytes(), 34962); nv = add_view(N.tobytes(), 34962)
-                normal = dict(componentType=5126)
+            E = exp_filter(V); V = exp_decoded(E); On = oct_filter(N)     # on the grid, and the normals in 8 bits
+            pv = add_view(V.tobytes(), 34962, (E, 12, "ATTRIBUTES", "EXPONENTIAL"))
+            nv = add_view(On.tobytes(), 34962, (On, 4, "ATTRIBUTES", "OCTAHEDRAL"))
             iv = add_view(F.tobytes(), 34963, (F.ravel(), 4, "TRIANGLES"))
             a0 = len(accessors)
             accessors.append(dict(bufferView=pv, componentType=5126, count=len(V), type="VEC3",
                                   min=V.min(0).tolist(), max=V.max(0).tolist()))
-            accessors.append(dict(bufferView=nv, **normal, count=len(N), type="VEC3"))
+            accessors.append(dict(bufferView=nv, componentType=5120, normalized=True, count=len(N), type="VEC3"))
             accessors.append(dict(bufferView=iv, componentType=5125, count=int(F.size), type="SCALAR"))
             attributes = dict(POSITION=a0, NORMAL=a0 + 1)
             if skin["UV"]:
@@ -364,12 +379,14 @@ def main():
             roots.append(len(nodes) - 1)
     nodes.append(dict(name="lelievlet", children=roots, extras=dict(tuig=rig.extras())))
     packing = ["EXT_meshopt_compression", "KHR_mesh_quantization"]
-    gltf = dict(**(dict(extensionsUsed=packing, extensionsRequired=packing) if MESHOPT else {}),
+    gltf = dict(extensionsUsed=packing, extensionsRequired=packing,
                 asset=dict(version="2.0", generator="vlet pipeline/build_glb.py",
                            extras=dict(bron="Scouting Nederland 3D-Model-binded.dwg (2012)", eenheid="m",
                                        assen="x = spiegel naar boeg, y = omhoog, z = stuurboord")),
                 scene=0, scenes=[dict(nodes=[len(nodes) - 1])], nodes=nodes, meshes=meshes, materials=materials,
-                accessors=accessors, bufferViews=views, buffers=[dict(byteLength=len(blob))])
+                accessors=accessors, bufferViews=views,
+                buffers=[dict(byteLength=len(blob)),
+                         dict(byteLength=fallback, extensions=dict(EXT_meshopt_compression=dict(fallback=True)))])
     js = json.dumps(gltf, separators=(",", ":")).encode()
     js += b" " * (-len(js) % 4)
     while len(blob) % 4:

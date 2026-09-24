@@ -6,13 +6,10 @@ Everything is in CAD millimetres (x forward, y to port, z up), like the bodies i
   build()    returns parts that have no CAD body - mastbout, grendelbout, borglijntje lummelbout,
              the two mikhouders, the six dolpotten with their gusset plates
 """
-from pathlib import Path
-
 import numpy as np
 
+import cad
 from rigging import tube
-
-MESH = Path(__file__).resolve().parent.parent / "build" / "mesh"
 
 # -- mastkoker: both bolts run athwartships through holes (r = 6) in its sides, y = -51.1 .. 50.9
 MASTBOUT = (4361.2, 745.2)          # (x, z) through the mast itself, on its centreline
@@ -285,14 +282,14 @@ def slide_notch(V):
 KAST_FOOT_X, KAST_FOOT_SHIFT = 3370.0, -14.5
 
 
-VLAK_UNDER_KAST = "PartSolids-Long_Shell_583F"   # the starboard vlak: its underside is where the kast ends
+VLAK_UNDER_KAST = "583F"     # the starboard vlak: its underside is where the kast ends
 
 
 def zwaardkast(V, N, F, G):
     V = V.copy(); V[V[:, 0] < KAST_FOOT_X, 0] += KAST_FOOT_SHIFT
     # the CAD runs the plates of the kast 13 mm out through the bottom: everything below the
     # underside of the vlak, which rockers along the slot, is brought up flush with it
-    Vv, _ = _load(MESH, VLAK_UNDER_KAST)
+    Vv = cad.load(VLAK_UNDER_KAST)[0]
     near = Vv[np.abs(Vv[:, 1]) < 60.0]
     order = np.argsort(near[:, 0])
     xs, zs = near[order, 0], near[order, 2]
@@ -365,8 +362,7 @@ def _onto_edge(P, E):
 
 
 def kim(handle, V, F):
-    from pathlib import Path
-    Vv, Fv = _load(Path(__file__).resolve().parent.parent / "build" / "mesh", f"PartSolids-Long_Shell_{KIM_ON[handle]}")
+    Vv, _, Fv, _ = cad.load(KIM_ON[handle])
     Pk, first, back = np.unique(V.round(4), axis=0, return_index=True, return_inverse=True)   # a corner is shared by the faces that meet in it
     Pk = V[first]
     Pv = np.unique(Vv.round(4), axis=0)
@@ -486,14 +482,14 @@ def bar_tube(V, N, F, G):
 # -- boeisel into the dolboord: the CAD runs the top edge of the boeisel 1 to 3 mm outside the
 # 20 mm pipe of the dolboord it is meant to end inside, so it shows through the pipe wherever
 # that is faceted. Every vertex of the edge is drawn in onto the pipe's axis until it is inside.
-BOEISEL_IN = {"5827": "StiffenerSolids_5A3B", "5A33": "StiffenerSolids_5A65"}
+BOEISEL_IN = {"5827": "5A3B", "5A33": "5A65"}
 PIPE_R, PIPE_INSIDE = 10.0, 1.0      # the pipe, and how far inside it the edge is put
 PIPE_FADE = 4.0                      # over this distance outside the pipe the pull fades to nothing
 PIPE_STATION = 60.0                  # the pipe's axis is sampled this far apart along the boat
 
 
 def boeisel_into_dolboord(handle, V):
-    Vd, Fd = _load(MESH, BOEISEL_IN[handle])
+    Vd, _, Fd, _ = cad.load(BOEISEL_IN[handle])
     top = V[:, 2].max()
     xs = np.arange(Vd[:, 0].min() + 30.0, Vd[:, 0].max() - 30.0, PIPE_STATION)
     axis = []
@@ -520,7 +516,7 @@ def boeisel_into_dolboord(handle, V):
 # is swept anew along its own centre line, read off those faces: each ring's middle is a point on
 # the axis.
 PIPES = {"5A3B", "5A65"}
-PIPE_R, PIPE_SIDES, PIPE_STEP = 10.0, 20, 20.0
+PIPE_SIDES, PIPE_STEP = 20, 20.0     # its radius is PIPE_R, above
 
 
 def _sweep(C, r, sides):
@@ -650,13 +646,8 @@ DOLPOT_X = dict(plecht=4412.0, voor=3432.0, achter=2488.0)
 DOLPOT_R, DOLPOT_WALL, DOLPOT_H = 13.45, 2.65, 100.0         # 3/4": 26.9 outside, wall 2.65
 GUSSET_T, GUSSET_H, GUSSET_STEPS = 4.0, 50.0, 8              # thickness, height, steps along the plating
 DOLPOT_SIDES = (("bb", 1.0), ("sb", -1.0))                   # sign of y
-DOLBOORD_BODY = dict(bb="StiffenerSolids_5A3B", sb="StiffenerSolids_5A65")
-BOEISEL_BODY = dict(bb="PartSolids-Long_Shell_5827", sb="PartSolids-Long_Shell_5A33")
-
-
-def _load(mesh_dir, name):
-    d = np.load(mesh_dir / f"{name}.npz")
-    return d["V"].astype(float), d["F"].astype(int)
+DOLBOORD_BODY = dict(bb="5A3B", sb="5A65")
+BOEISEL_BODY = dict(bb="5827", sb="5A33")
 
 
 def _section(V, F, x):
@@ -696,7 +687,7 @@ def dolpot_axes(mesh_dir):
     on the inboard side of that circle, its top at the top of it."""
     out = {}
     for side, s in DOLPOT_SIDES:
-        V, F = _load(mesh_dir, DOLBOORD_BODY[side])
+        V, _, F, _ = cad.load(DOLBOORD_BODY[side], mesh_dir)
         for key, x in DOLPOT_X.items():
             (y, z), r = _round_section(_section(V, F, x))
             out[f"{side}_{key}"] = np.array([x, y - s * (r + DOLPOT_R), z + r])
@@ -737,7 +728,7 @@ def dolpotten(mesh_dir):
     axes = dolpot_axes(mesh_dir)
     out = []
     for side, s in DOLPOT_SIDES:
-        V, F = _load(mesh_dir, BOEISEL_BODY[side])
+        V, _, F, _ = cad.load(BOEISEL_BODY[side], mesh_dir)
         meshes = []
         for key in DOLPOT_X:
             top = axes[f"{side}_{key}"]
@@ -753,7 +744,7 @@ def dolpotten(mesh_dir):
 # other against the forward face of the achterschot on the centreline; the 20 mm bar of the mik
 # slides through them with play and its foot lands on the vlak. The face is a flat vertical plate,
 # so the pipe wall touches it along a line and no filler plate is needed.
-ACHTERSCHOT_BODY = "PartSolids-Frame_59F2"
+ACHTERSCHOT_BODY = "59F2"
 MIKHOUDER_DROP, MIKHOUDER_PITCH, MIKHOUDER_H = 40.0, 250.0, 50.0   # below the top edge, apart, long
 
 
@@ -761,7 +752,7 @@ def mikhouder_axes(mesh_dir):
     """(top rim of the upper pipe, bottom rim of the lower one) on their common vertical axis,
     measured from the achterschot itself: its forward face is the plate's highest x, and the top
     edge of that face is where it turns aft into the flange the achterdek lands on."""
-    V, _ = _load(mesh_dir, ACHTERSCHOT_BODY)
+    V = cad.load(ACHTERSCHOT_BODY, mesh_dir)[0]
     x = V[:, 0].max()
     top = V[V[:, 0] > x - 1e-3, 2].max()
     z = top - MIKHOUDER_DROP

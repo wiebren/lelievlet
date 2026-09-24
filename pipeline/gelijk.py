@@ -15,30 +15,16 @@ lies on it to within the tessellation's own play.
         every body this touches, before and after, and how far it moved (mm)
 """
 import itertools
-import json
-from pathlib import Path
 
 import numpy as np
 
-from lighter import lighter, off_by, spread
+import cad
+from lighter import lighter, off_by, spread, surface_axes
 
-ROOT = Path(__file__).resolve().parent.parent
 SMALL = 250.0               # mm: the diagonal of a body's box, below which it is made lighter
 ERROR = 0.15                # mm: how far its surface may move
 EXTRA = {"5760": 0.5, "576B": 0.5}   # the roeiriemen: 2.8 m, and the one the other mirrored
 SAME = dict(area=0.005, spread=0.3, mean=0.1, most=0.6)   # what "the same body" allows: relative, mm, mm, mm
-
-
-def _pose(V, F):
-    """Area-weighted middle, the axes of the spread of the surface (columns, smallest first), how
-    far it spreads along each (mm), and its area."""
-    a, b, c = V[F[:, 0]], V[F[:, 1]], V[F[:, 2]]
-    area = np.linalg.norm(np.cross(b - a, c - a), axis=1) / 2
-    mid = (a + b + c) / 3
-    o = (mid * area[:, None]).sum(0) / area.sum()
-    X = mid - o
-    w, E = np.linalg.eigh((X * area[:, None]).T @ X / area.sum())
-    return o, E, np.sqrt(np.maximum(w, 0)), area.sum()
 
 
 class Lighter:
@@ -52,7 +38,7 @@ class Lighter:
         span = float(np.linalg.norm(V.max(0) - V.min(0)))
         if span >= SMALL and handle not in EXTRA:
             return None
-        o, E, spread, area = _pose(V, F)
+        o, E, spread, area = surface_axes(V, F)
         for ref in self.done:
             if abs(ref["area"] - area) > SAME["area"] * area or np.abs(ref["spread"] - spread).max() > max(SAME["spread"], 1e-3 * span):
                 continue
@@ -96,22 +82,16 @@ class Lighter:
 
 
 def check(mesh_dir):
-    report = json.loads((ROOT / "build" / "tessellation_report.json").read_text())
-    from parts import DROP
-    import harpjes
-    skip = set(harpjes.PIN_OF) | set(DROP)
+    """Every body the build makes lighter, taken the way the build takes it (build_glb.bodies):
+    how far the lighter one lies from what it was given, in mm."""
+    import build_glb                                      # here: the build imports this module
     light = Lighter()
-    worst = []
-    for row in report:
-        p = mesh_dir / f"{row['name']}.npz"
-        if not p.exists() or row["handle"] in skip:
-            continue
-        d = np.load(p)
-        V, N, F = d["V"].astype(float), d["N"].astype(float), d["F"].astype(np.int64)
-        out = light(row["handle"], V, N, F)
-        if out is None:
-            continue
-        p95, most = off_by(V, F, out[0], out[2])
+    worst, seen = [], 0
+    for row, body in build_glb.bodies(mesh_dir, build_glb.replacements(mesh_dir), light):
+        if len(light.log) == seen:
+            continue                                      # left as it was
+        seen = len(light.log)
+        p95, most = off_by(*body["before"], body["V"], body["F"])
         h, before, after, of = light.log[-1]
         worst.append((most, h))
         print(f"  {h}: {before:5d} -> {after:5d}{f'  (copy of {of})' if of else '':18s}  off by {p95:.2f} mm (95%), {most:.2f} at most")
@@ -120,4 +100,4 @@ def check(mesh_dir):
 
 
 if __name__ == "__main__":
-    check(ROOT / "build" / "mesh")
+    check(cad.MESH)

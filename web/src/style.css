@@ -318,9 +318,8 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   #course-markers .caption { font-size: 8.5px; letter-spacing: 0.03em; }
 }
 
-/* The progress bar of the running procedure, in the same strip as the control bar. main.js sets
-   --procedure-lift to how far the open popover it has to ride over reaches, and --procedure-top to
-   how far it reaches up, which is where the info tile steps over it. */
+/* The progress bar of the running procedure, at the foot of the viewer in the middle. main.js sets
+   --procedure-top to how far it reaches up, which is where the info tile steps over it. */
 #procedure {
   position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
   z-index: 4; width: min(520px, calc(100cqw - 16px)); display: flex; align-items: center; gap: 8px;
@@ -402,14 +401,14 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 
 
 
-/* the progress bar holds the middle of that same strip: only a wide embed has room beside it */
+/* the progress bar holds the middle of the foot of the viewer: only a wide embed has room beside it
+   for the info tile, which otherwise stands over it */
 @container (max-width: 1360px) {
   .lv.procedure-open #info { bottom: var(--procedure-top, 76px); }
 }
 
-/* The bar stands half an icon left of centre so that Modus sits dead centre, which means the icons
-   to the right of it reach further than half the width. Below about 460 px there is no room for
-   that and they would fall off the edge, so from there the whole bar is centred instead. */
+/* a narrow embed: the info tile takes the whole width of the foot, less the margins (with nothing
+   selected it stays the round search button in the corner) */
 @container (max-width: 460px) {
   #info { right: 16px; left: 16px; min-width: 0; }
 }
@@ -426,14 +425,10 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 }
 
 /* ---------------------------------------------------------------- Oefenen (quiz)
-   The start panel is the third in the top left corner (only one of the three is open at a time),
-   so its icon sits under Onderdelen and those panels start 54 px lower. The card of a running
-   round hangs above the control bar, on the same foot as the progress bar and lifted over an open
-   popover by the same --procedure-lift. While a round runs, .lv.quiz-on takes away everything
-   that would give an answer away. */
+   The start panel is a section of the Oefenen popover in the column of controls. The card of a
+   running round stands at the foot of the viewer, in the middle, where the progress bar is
+   otherwise. While a round runs, .lv.quiz-on takes away everything that would give an answer away. */
 #quiz { position: static; }                                 /* a section of Oefenen (#learn-panel) */
-#quiz header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
-#quiz h2 { margin: 0; font-size: 16px; }
 /* the exercises: one row each, its name and what it asks, the chosen one in the accent */
 .kinds { display: grid; gap: 4px; }
 .kinds button {
@@ -488,8 +483,7 @@ button.primary:disabled:hover { background: var(--accent); }
 #quiz-debug .eigen { color: var(--accent); }
 #quiz-debug p { margin: 0 0 6px; color: var(--muted); font-size: 12px; }
 
-/* the card: question, answers, feedback and what to do next, in one box. The control bar is gone
-   while a round runs, so it stands at the foot of the viewer. */
+/* the card: question, answers, feedback and what to do next, in one box, at the foot of the viewer */
 .focus-card {
   position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
   z-index: 4; width: min(520px, calc(100cqw - 32px)); max-height: calc(100% - 32px); overflow: auto;
@@ -575,8 +569,8 @@ button.primary:disabled:hover { background: var(--accent); }
 .lv.ops-on > .icon-button:not(#fullscreen-toggle, #toestand-toggle), .lv.ops-on > aside:not(#toestand), .lv.ops-on #controls,
 .lv.ops-on #hover, .lv.ops-on #info { display: none; }
 
-/* The debug aids (Wal (test) and Toestand) stay in either focus mode: they only exist with their
-   debug flag on, and are what a run is checked with. */
+/* The debug aid Toestand stays in either focus mode: it only exists with its debug flag on, and is
+   what a run is checked with. */
 /* while a round runs there is only the boat and the card: every button, bar and panel goes (full
    screen stays, it is no menu), and with them everything that would name a part */
 .lv.quiz-on > .icon-button:not(#fullscreen-toggle, #toestand-toggle), .lv.quiz-on > aside:not(#toestand), .lv.quiz-on #controls,

@@ -21,26 +21,20 @@ Both follow from the CAD's gap; neither is a choice made here.
   build(mesh_dir)          [(id, naam, groep, materiaal, (V, N, F))]
   build_spriet(mesh_dir)   the same, for the spriet on the hanekam
 """
-import json
-from pathlib import Path
-
 import numpy as np
 
 import borgketting
+import cad
+import parts
 from hardware import _finish, _join, bead, bolt, prism    # the mesh helpers, so this file is geometry only
-from parts import FOK_TACK as _FOK_TACK
 from rigging import tube
-
-ROOT = Path(__file__).resolve().parent.parent
 
 VOORSTAG = "51D0"            # the wire, with a thimble eye spliced into its lower end
 HANEKAM = "589A"             # the plate on the stem head, with three holes athwartships
 
-# Corners of the fok as the CAD draws it, the tack lowered with the harpje of the kettinkje; see
-# fok_tack / fok_head / fok_clew in rig_data.py.
-FOK_TACK = np.array(_FOK_TACK)
-FOK_HEAD = np.array([4580.0, -0.7, 5090.8])
-FOK_CLEW = np.array([4268.7, 722.2, 1134.6])
+# Corners of the fok as the CAD draws it, the tack lowered with the harpje of the kettinkje
+# (parts.HALS_SHIFT).
+FOK_TACK, FOK_HEAD, FOK_CLEW = np.array(parts.FOK_TACK), np.array(parts.FOK_HEAD), np.array(parts.FOK_CLEW)
 
 # -- stagleuver, after the 50 mm cast hook sold for it: 51.5 long over all, 27 wide, 10 thick at
 # the shoulder. The jaw is a C of 14 mm inside closed by a thin spring-loaded gate; the other end
@@ -74,17 +68,12 @@ RING_UP = 2.0 / 3.0          # how far up the arm it sits
 RING_GAP = 1.1               # it is meant to bear on stay and arm; this leaves both a hair clear
 
 
-def _load(mesh_dir, handle):
-    report = json.loads((ROOT / "build" / "tessellation_report.json").read_text())
-    name = next(r["name"] for r in report if r["handle"] == handle)
-    d = np.load(mesh_dir / f"{name}.npz")
-    return d["V"].astype(float), d["F"].astype(int), d["G"]
 
 
 def stay_axis(mesh_dir):
     """Point, unit direction (up the stay) and radius of the voorstag. The wire is one long
     cylindrical face; its vertices come in rings, and the mean of a full ring lies on the axis."""
-    V, F, G = _load(mesh_dir, VOORSTAG)
+    V, _, F, G = cad.load(VOORSTAG, mesh_dir)
     g = np.bincount(G).argmax()                          # the wire itself; the rest is the splice
     P = V[np.unique(F[G == g])]
     d = np.linalg.eigh(np.cov((P - P.mean(0)).T))[1][:, -1]
@@ -101,7 +90,7 @@ def stay_axis(mesh_dir):
 def stay_eye(mesh_dir):
     """Middle of the thimble eye spliced into the foot of the stay. The splice is a flat bight of
     wire, so the mean of the vertices of that bight is the middle of the opening it leaves."""
-    V, F, _ = _load(mesh_dir, VOORSTAG)
+    V, _, F, _ = cad.load(VOORSTAG, mesh_dir)
     P = V[np.unique(F[V[F][:, :, 2].max(axis=1) < V[:, 2].min() + 45.0])]
     return P.mean(0)
 
@@ -109,7 +98,7 @@ def stay_eye(mesh_dir):
 def hanekam_holes(mesh_dir):
     """[(centre, radius)] of the holes in the hanekam, frontmost first. They are the faces that
     run right through the plate and whose section is a circle."""
-    V, F, G = _load(mesh_dir, HANEKAM)
+    V, _, F, G = cad.load(HANEKAM, mesh_dir)
     y0, y1 = V[:, 1].min(), V[:, 1].max()
     out = []
     for g in np.unique(G):
@@ -349,7 +338,7 @@ SPRIET_HOOK_IN = 40.0        # middle of the feet of the hook, from the forward 
 
 
 def _hanekam(mesh_dir):
-    V, N, F, _ = borgketting._load(mesh_dir, HANEKAM)
+    V, N, F, _ = cad.load(HANEKAM, mesh_dir)
     return V, N, F
 
 

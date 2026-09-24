@@ -83,7 +83,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     </svg>
   </button>
 
-  <!-- the boat controls: a row of icons along the bottom, each opening its own popover -->
+  <!-- the boat controls: a column of icons at the top left, each opening its own popover beside it -->
   <nav id="controls" aria-label="Bediening">
     <!-- Boot: the mode, the course against the wind and the riemen, in one panel; its icon shows the mode -->
     <button id="boat-toggle" class="icon-button" type="button" aria-label="Boot" title="Boot" aria-expanded="false" aria-controls="boat-panel">
@@ -257,8 +257,8 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     </div>
   </nav>
 
-  <!-- the timeline of the procedure that is running (Reven, Zeilen, Mast): it floats above the control bar,
-       and rides over an open popover so the two never cover each other -->
+  <!-- the timeline of the procedure that is running (Reven, Zeilen, Mast): it floats at the foot of the
+       viewer, in the middle; while a run of an operation is watched it goes into the card (handelingen.js) -->
   <div id="procedure" role="group" aria-label="Stappen van de procedure" hidden>
     <button id="procedure-previous" class="icon-button" type="button" aria-label="Vorige stap" title="Vorige stap">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

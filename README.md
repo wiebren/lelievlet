@@ -163,7 +163,7 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 | `aanpassen.plaatsKleur` | hexkleur | `'#0b0b0b'` | Kleur van de belettering van de plaats. |
 | `aanpassen.bakskleur` | hexkleur | `'#c8102e'` | Accentkleur: beslag, roerkop, hanekam, mastbanden en de geschilderde banden. |
 | `aanpassen.kleuren.<zone>` | hexkleur | zie hieronder | Kleur per verfzone: `romp` `#0a0a0b`, `berghout` `#0a0a0b`, `boeisel` `#f5c20d`, `dolboord` `#0a0a0b`, `voordek` `#8f9499`, `achterdek` `#8f9499`, `kuip` `#8f9499`, `zwaardkast` `#8f9499`. |
-| `aanpassen.opslaan` | boolean | `true` | `false`: het Aanpassen-paneel leest en schrijft geen `localStorage`; elke bezoeker begint bij jouw waarden. |
+| `aanpassen.opslaan` | boolean | `true` | `false`: de viewer leest en schrijft geen `localStorage` (Aanpassen, de score en keuzes van Oefenen, de vinkjes bij Manoeuvres); elke bezoeker begint bij jouw waarden. |
 | `toestand.modus` | `'zeilen'` \| `'roeien'` \| `'wrikken'` | `'zeilen'` | De modus waarin de viewer opent. |
 | `toestand.tuig` | `'op'` \| `'gestreken'` \| `'mast'` | `'op'` | Zeilen op, zeilen gestreken of mast gestreken. |
 | `toestand.koers` | getal | `90` | Graden van de wind af: `0` is kop in de wind, `45` aan de wind, `90` halve wind, `135` ruime wind, `180` voor de wind (met de fok te loevert); daartussen mag ook. Positief: wind over stuurboord, negatief: over bakboord. Tussen 0 en 45 wordt 45. |
@@ -201,7 +201,7 @@ markup die vroeger de body van `index.html` was, in één `<div class="lv">`), e
 `web/src/main.js` aan. Er draait niets meer op importniveau: alles wat `main.js` deed zit in die
 functie, en geen enkel `src`-bestand houdt nog veranderlijke toestand op moduleniveau. Elk
 `document.getElementById` is een opzoeking in de shadow root geworden, alles wat op `document.body`
-stond (`quiz-on`, `procedure-open`, `--procedure-lift`, `--procedure-top`) staat nu op
+stond (`quiz-on`, `procedure-open`, `--procedure-top`) staat nu op
 `.lv`, en elke listener op `window` of `document` hangt aan een `AbortSignal` die `destroy()` afvuurt.
 Omdat een gebeurtenis buiten de shadow root naar het hostelement wordt omgericht, leest de code die
 moet weten waar een klik of toets echt begon `e.composedPath()[0]` in plaats van `e.target`. De
@@ -340,7 +340,9 @@ achterdek, kuip, zwaardkast (incl. zwaardloper, mastkoker en de kikkers daarop).
 elk sterker dan de vorige: de eigen standaardwaarden van de viewer, wat de pagina in
 `config.aanpassen` meegeeft, en wat deze gebruiker in deze browser heeft ingesteld — dat laatste
 blijft bewaard in `localStorage` onder `lelievlet.aanpassen.v1`, tenzij `aanpassen.opslaan` op
-`false` staat. "Standaardwaarden" zet alles terug naar waar deze viewer begon, dus naar de waarden
+`false` staat. Alleen wat afwijkt van de eerste twee lagen wordt bewaard: verandert de pagina later
+haar `config.aanpassen`, dan krijgt ook een bezoeker die ooit iets anders aanpaste de nieuwe waarden.
+"Standaardwaarden" zet alles terug naar waar deze viewer begon, dus naar de waarden
 van de pagina als die er zijn. Alle tekst naar de gebruiker toe is Nederlands.
 
 ## Modi en animatie
@@ -412,9 +414,10 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   vorige stap, play/pause, volgende stap en een schuif over de hele timeline met een streepje bij elke
   stapgrens, het nummer en het Nederlandse label van de stap waarin hij zit, en de naam van de
   procedure. Hij speelt vanzelf af; slepen aan de schuif scrubt en pauzeert, play brengt hem verder
-  naar wat opgedragen was. Hij ligt boven een geopende popover (`--procedure-lift`) en de infotegel
-  stapt eroverheen (`--procedure-top`). Zodra de procedure stilligt vervaagt hij na 2.5 s, tenzij zijn
-  eigen paneel open staat, de muis erboven hangt of hij de focus heeft - zo kan een afgelopen
+  naar wat opgedragen was. Hij staat onderaan in het midden; in een smalle viewer stapt de infotegel
+  eroverheen (`--procedure-top`). Bij een handeling die bekeken wordt staat hij in de kaart, bij
+  oefenen is hij er niet: daar zijn de stappen de vragen. Zodra de procedure stilligt vervaagt hij
+  na 2.5 s, tenzij zijn eigen paneel open staat, de muis erboven hangt of hij de focus heeft - zo kan een afgelopen
   procedure vanuit "Handelingen" teruggescrubd worden.
 - Onderdelen somt elk onderdeel per groep op, doorzoekbaar, met één regel per naam
   (vier dollen zijn één regel "Dol ×4"). Een bakboord- en een stuurboordtweeling delen één regel onder
@@ -586,9 +589,9 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
 - Dodemanseind (`pipeline/hardware.py`): twee slagen om de gaffel op 10 cm van de nok, daarna slap
   naar de hanepootloper, het punt op de gaffeldraad waar de piekenval is vastgezet; zwaait met de
   gaffel mee.
-- Kraanlijn (niet in de CAD): van de wervel omhoog over een blokje (`makeBlokje`) aan het
-  bakboordoog van de masttopring, het enige oog dat niets draagt, en omlaag naar de bovenste
-  bakboordkikker op de mastkoker, de enige vrije. Elk frame gelegd: hij hangt slap, zwaait met de giek
+- Kraanlijn (niet in de CAD): van de wervel omhoog over de tweede schijf van het blok van de
+  klauwval bij de hommerring (daarom een dubbel blok, in plaats van het enkele uit de CAD), en omlaag
+  naar de bovenste bakboordkikker op de mastkoker, de enige vrije. Elk frame gelegd: hij hangt slap, zwaait met de giek
   mee en ligt tegen het doek aan als het zeil naar bakboord bolt.
 - Vlaggenstok, knop en vlag (`web/src/flag.js`): een gebogen stok (recht in de buis, daarna naar
   achteren overbuigend, taps) die in de open bovenkant van de roerkoning staat, een 1"-buis, zodat hij
@@ -706,7 +709,9 @@ gebruiker het vaakst fout heeft.
 De score per entry en de totalen aller tijden staan in `localStorage` onder de enkele sleutel
 `lelievlet.quiz.v1` — `{ v: 1, totaal: { goed, fout, rondes, beste }, per: { <nr>: { goed, fout,
 laatst } }, keuze: { kind, length, level } }`. Elke toegang is afgeschermd, zodat de quiz net zo goed
-werkt zonder storage; "Wissen" onderaan het startpaneel wist de score (niet de keuze) na een inline
+werkt zonder storage, en met `aanpassen.opslaan: false` wordt er niets gelezen of geschreven. Twee
+viewers op één pagina tellen samen: elke wijziging wordt gelegd op wat er op dat moment bewaard staat.
+"Wissen" onderaan het startpaneel wist de score (niet de keuze) na een inline
 "Score wissen?".
 
 `main.js` geeft de quiz wat hij nodig heeft via één aanroep `initQuiz({ … })` na `initModes` en

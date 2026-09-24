@@ -5,7 +5,10 @@ import { unpack } from './config.js';
 // embedder switched that off. Paint zones are glTF material names written by pipeline/parts.py.
 //
 // Three layers, each beating the one under it: the viewer's own defaults, the defaults the page
-// passed in `config.aanpassen`, and what this user saved in this browser.
+// passed in `config.aanpassen`, and what this user saved in this browser. Only what the user made
+// different from the first two is saved, so a page that changes its defaults later still reaches a
+// visitor who once changed something else - and two viewers on one site do not hand each other
+// their colours.
 
 const STORAGE_KEY = 'lelievlet.aanpassen.v1';
 
@@ -44,19 +47,34 @@ function baseOf(config) {
   return base;
 }
 
+/** The base with what this user saved on top, key by key. */
 function load(base, opslaan) {
-  if (!opslaan) return structuredClone(base);
+  const config = structuredClone(base);
+  if (!opslaan) return config;
   try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}');
-    return { ...structuredClone(base), ...saved, kleuren: { ...base.kleuren, ...saved.kleuren } };
-  } catch {
-    return structuredClone(base);
-  }
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}') ?? {};
+    for (const key of FIELDS) if (typeof saved[key] === 'string') config[key] = saved[key];
+    for (const [zone] of ZONES) if (typeof saved.kleuren?.[zone] === 'string') config.kleuren[zone] = saved.kleuren[zone];
+  } catch { /* nothing saved, no storage, or something else under the key: the base */ }
+  return config;
 }
 
-function save(config, opslaan) {
+// a colour picker hands back lower case, a page may have written its colour in capitals
+const COLOURS = new Set(['naamKleur', 'plaatsKleur', 'bakskleur']);
+const same = (a, b, colour) => (colour ? String(a).toLowerCase() === String(b).toLowerCase() : a === b);
+
+/** Only what differs from the base is written; nothing at all when nothing does. */
+function save(config, base, opslaan) {
   if (!opslaan) return;
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(config)); } catch { /* private mode */ }
+  const own = {};
+  for (const key of FIELDS) if (!same(config[key], base[key], COLOURS.has(key))) own[key] = config[key];
+  for (const [zone] of ZONES) {
+    if (!same(config.kleuren[zone], base.kleuren[zone], true)) (own.kleuren ??= {})[zone] = config.kleuren[zone];
+  }
+  try {
+    if (Object.keys(own).length) localStorage.setItem(STORAGE_KEY, JSON.stringify(own));
+    else localStorage.removeItem(STORAGE_KEY);
+  } catch { /* private mode */ }
 }
 
 /** Open/close behaviour of the panel; works before the model has loaded. */
@@ -101,14 +119,14 @@ export function initCustomize(ui, appConfig, targets) {
   for (const key of FIELDS) {
     const input = ui.getElementById(`cfg-${key}`);
     input.value = config[key];
-    input.addEventListener('input', () => { config[key] = input.value; apply[key](input.value); save(config, opslaan); });
+    input.addEventListener('input', () => { config[key] = input.value; apply[key](input.value); save(config, base, opslaan); });
   }
   // one colour picker per paint zone
   for (const [zone, label] of ZONES) {
     const row = document.createElement('label');
     row.className = 'color-row';
     const input = Object.assign(document.createElement('input'), { type: 'color', id: `cfg-kleur-${zone}`, value: config.kleuren[zone] });
-    input.addEventListener('input', () => { config.kleuren[zone] = input.value; applyZone(zone, input.value); save(config, opslaan); });
+    input.addEventListener('input', () => { config.kleuren[zone] = input.value; applyZone(zone, input.value); save(config, base, opslaan); });
     row.append(input, Object.assign(document.createElement('span'), { textContent: label }));
     colorList.append(row);
   }
@@ -127,7 +145,7 @@ export function initCustomize(ui, appConfig, targets) {
   // back to where this viewer started, which is the page's own defaults if it gave any
   ui.getElementById('customize-reset').addEventListener('click', () => {
     Object.assign(config, structuredClone(base));
-    save(config, opslaan);
+    save(config, base, opslaan);
     applyAll();
   });
 

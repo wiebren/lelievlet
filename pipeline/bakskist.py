@@ -17,15 +17,11 @@ the floor it stands on, which is not level, so the whole chest leans forward wit
   build(mesh_dir)      [(id, naam, groep, materiaal, (V, N, F))] - kist, deksel, beslag, handvatten
   placement(mesh_dir)  frame and inside size of the chest, to stow items in it later
 """
-import json
-from pathlib import Path
-
 import numpy as np
 
+import cad
 from hardware import _finish, _join, bead, prism           # the mesh helpers, so this file is geometry only
 from rigging import tube
-
-ROOT = Path(__file__).resolve().parent.parent
 
 # -- the chest. 600 x 380 x 350 over the battens (365 with the lid shut). 380 rather than the 400
 # of a chest ashore because the vlonders are cut back to y = 511.6 along the voorschot and the
@@ -62,15 +58,6 @@ FLOOR_BOARDS = ("5639", "5633", "5636")
 VOORSCHOT = "59E9"
 
 
-_BY_HANDLE = {}
-
-
-def _load(mesh_dir, handle):
-    if not _BY_HANDLE:                                   # the report is read once, not per body
-        report = json.loads((ROOT / "build" / "tessellation_report.json").read_text())
-        _BY_HANDLE.update({r["handle"]: r["name"] for r in report})
-    d = np.load(mesh_dir / f"{_BY_HANDLE[handle]}.npz")
-    return d["V"].astype(float), d["F"].astype(int)
 
 
 def floor_plane(mesh_dir):
@@ -79,7 +66,7 @@ def floor_plane(mesh_dir):
     allows for a slope athwartships as well; there is none, it comes out at 3e-10 mm/mm."""
     up = []
     for handle in FLOOR_BOARDS:
-        V, F = _load(mesh_dir, handle)
+        V, _, F, _ = cad.load(handle, mesh_dir)
         n = np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]])
         area = np.linalg.norm(n, axis=1)
         up.append(V[F[n[:, 2] / area > 0.99]].reshape(-1, 3))       # triangles of the top face
@@ -91,7 +78,7 @@ def floor_plane(mesh_dir):
 def voorschot_face(mesh_dir):
     """x of the aft face of the voorschot, the bulkhead the chest is stowed against. The plate is
     flat and vertical, so that face is simply its lowest x."""
-    V, _ = _load(mesh_dir, VOORSCHOT)
+    V = cad.load(VOORSCHOT, mesh_dir)[0]
     return V[:, 0].min()
 
 

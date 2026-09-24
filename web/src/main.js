@@ -34,6 +34,8 @@ export function mount(ui, host, config) {
   const wrap = ui.querySelector('.lv');
   const $ = (id) => ui.getElementById(id);
   const asset = makeAsset(config.assets);
+  // aanpassen.opslaan false: nothing of this viewer is read from or written to localStorage, in any module
+  const opslaan = config.aanpassen?.opslaan !== false;
 
   const controller = new AbortController();
   const { signal } = controller;
@@ -57,7 +59,7 @@ export function mount(ui, host, config) {
   const realTarget = (e) => e.composedPath()[0] ?? e.target;
 
   initCustomizePanel(ui, { signal, engaged });
-  const logboek = initLogboek(ui);
+  const logboek = initLogboek(ui, { opslaan });
   // Volledig scherm works from the first frame: it needs nothing of the model
   const fullscreen = initFullscreen({ ui, host, config, signal, engaged, realTarget, onDestroy });
 
@@ -65,7 +67,6 @@ export function mount(ui, host, config) {
   // has no button of its own but a link at the foot of Aanpassen. Oefenen is a popover of the column.
   const closePanel = new Map();                  // panel id -> close it
   const openPanel = new Map();                   // panel id -> open it
-  const CORNER = [];                            // panels that share a corner, and so are open one at a time
   for (const [button, panel, onToggle] of [['parts-toggle', 'parts', partsPanelToggled],
                                            [null, 'about'], ['toestand-toggle', 'toestand', (open) => toestandToggled(open)],
                                            ['log-toggle', 'logboek']]) {
@@ -78,11 +79,7 @@ export function mount(ui, host, config) {
     };
     closePanel.set(panel, () => setOpen(false));
     openPanel.set(panel, () => setOpen(true));
-    toggle?.addEventListener('click', () => {
-      const open = aside.hidden;
-      if (open && CORNER.includes(panel)) for (const other of CORNER) if (other !== panel) closePanel.get(other)();
-      setOpen(open);
-    });
+    toggle?.addEventListener('click', () => setOpen(aside.hidden));
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && engaged()) setOpen(false); }, { signal });
   }
   $('about-close').addEventListener('click', () => closePanel.get('about')());
@@ -209,9 +206,9 @@ export function mount(ui, host, config) {
     buildPartList();
     addEdges(parts);                                         // every part there is by now, the viewer's own too
     quiz = initQuiz({ parts, scene, select, flyTo, setCovered, openLearn: (kind) => openLearn(kind),
-                      setHighlights, partVisible, closePanel,
+                      setHighlights, partVisible, closePanel, opslaan,
                       ui, wrap, config, signal, engaged, realTarget, onDestroy });   // Oefenen
-    handelingen = initHandelingen({ ui, wrap, modes, stepProcedure, dismissProcedure, setCovered, signal, engaged, realTarget, onDestroy });
+    handelingen = initHandelingen({ ui, wrap, modes, stepProcedure, dismissProcedure, setCovered, opslaan, signal, engaged, realTarget, onDestroy });
     closePanel.set('learn', () => modes.closePopover());    // a round or a run takes the whole screen
     initLearn();
     loaded = true;
@@ -588,7 +585,8 @@ export function mount(ui, host, config) {
     modes.helm.steer(helmRay.ray);
   };
   canvas.addEventListener('pointerdown', (e) => {
-    if (e.button !== 0 || !modes?.helm.grab(pick(e))) return;
+    // not in a focus mode: a run is looked at, and in a quiz round a click on the helmstok is an answer
+    if (e.button !== 0 || handelingen?.active() || quiz?.active() || !modes?.helm.grab(pick(e))) return;
     e.stopImmediatePropagation();
     steering = true; downAt = null; steerFrom = [e.clientX, e.clientY];
     canvas.setPointerCapture(e.pointerId);
@@ -741,17 +739,20 @@ export function mount(ui, host, config) {
   // ---------------------------------------------------------------- keyboard navigation
   // Arrows move the viewpoint, Shift + arrows orbit around the boat, + / - zoom. Applied per frame
   // while held - and only while this viewer has the pointer or the focus, so the page it is embedded
-  // in keeps its own arrow keys.
-  const held = new Set();
+  // in keeps its own arrow keys. A held key is kept by its physical key (e.code), not by the character
+  // it gives: Shift + = gives '+' but, with Shift let go first, a keyup for '='; what it does is
+  // settled on the way down, by the character where it is known, so + and - work on any layout.
+  const held = new Map();                                       // e.code -> 'left' | 'right' | 'up' | 'down' | 'in' | 'out'
   window.addEventListener('keydown', (e) => {
     // the search field and the rows of the parts list keep their arrow keys to themselves
-    if (!engaged() || !NAV_KEYS.has(e.key)) return;
+    const action = NAV_KEYS.get(e.key) ?? NAV_CODES.get(e.code);
+    if (!engaged() || !action) return;
     if (realTarget(e).closest?.('input:not([type=checkbox]), textarea, select, #parts')) return;
     if (!held.size) aimAt(0, 0);                                // moves and zooms go by what is in the middle
-    held.add(e.key);
+    held.set(e.code || e.key, action);
     e.preventDefault();
   }, { signal });
-  window.addEventListener('keyup', (e) => held.delete(e.key), { signal });
+  window.addEventListener('keyup', (e) => held.delete(e.code || e.key), { signal });
   window.addEventListener('blur', () => held.clear(), { signal });
   host.addEventListener('pointerleave', () => held.clear(), { signal });
 
@@ -765,9 +766,10 @@ export function mount(ui, host, config) {
 
   function keyboardNavigate(dt) {
     if (!held.size) return;
-    const x = (held.has('ArrowRight') ? 1 : 0) - (held.has('ArrowLeft') ? 1 : 0);
-    const y = (held.has('ArrowUp') ? 1 : 0) - (held.has('ArrowDown') ? 1 : 0);
-    const zoom = (held.has('+') || held.has('=') ? 1 : 0) - (held.has('-') || held.has('_') ? 1 : 0);
+    const on = new Set(held.values());
+    const x = (on.has('right') ? 1 : 0) - (on.has('left') ? 1 : 0);
+    const y = (on.has('up') ? 1 : 0) - (on.has('down') ? 1 : 0);
+    const zoom = (on.has('in') ? 1 : 0) - (on.has('out') ? 1 : 0);
     offset.copy(camera.position).sub(controls.target);
     if ((x || y) && !shiftDown) {                               // arrows move the viewpoint
       const speed = offset.length() * 0.6 * dt;                 // speed scales with the viewing distance
@@ -788,8 +790,9 @@ export function mount(ui, host, config) {
 
   // ---------------------------------------------------------------- progress bar of the running procedure
   // Reven and Tuig are timelines (see procedure.js): this bar follows the one last set going, steps
-  // through it and scrubs it. It hangs above the control bar and is lifted over an open popover, so
-  // the bar and the popover never cover each other.
+  // through it and scrubs it. It stands at the foot of the viewer, in the middle; while a run of an
+  // operation is watched it is in the card instead (handelingen.js), and while one is practised it is
+  // not there at all: the questions are the steps.
   const procBar = $('procedure');
   const procTime = $('procedure-time');
   const procStep = $('procedure-step');
@@ -879,30 +882,18 @@ export function mount(ui, host, config) {
   for (const type of ['pointerup', 'pointercancel']) {
     window.addEventListener(type, () => { procDragging = false; }, { signal });
   }
-  // the press stays here: the control bar closes its popover on a pointerdown outside it, and the
-  // panel of the procedure is what keeps this bar in view while it is scrubbed
+  // the press stays here: the column of controls closes its popover on a pointerdown outside it, and
+  // the panel of the procedure is what keeps this bar in view while it is scrubbed
   procBar.addEventListener('pointerdown', (e) => e.stopPropagation());
 
-  /** How far up an open popover reaches: the wind panel hangs its course markers above its own box. */
-  function popoverTop(panel) {
-    let top = panel.getBoundingClientRect().top;
-    for (const child of panel.children) top = Math.min(top, child.getBoundingClientRect().top);
-    return top;
-  }
-
-  /** The bar rides above the open popover; the info tile in turn steps over the bar. */
+  /** How far up the bar reaches: in a narrow embed the info tile steps over it (--procedure-top). */
   function placeProcedureBar() {
-    const panel = null;                                  // the popovers stand in the left column now, not over this strip
-    // the popovers stand on the same foot as the bar, so their reach is all the lift it needs
-    const lift = panel ? panel.getBoundingClientRect().bottom - popoverTop(panel) + PROC_GAP : 0;
-    wrap.style.setProperty('--procedure-lift', `${lift}px`);
     if (procBar.hidden) return;
     const top = wrap.getBoundingClientRect().bottom - procBar.getBoundingClientRect().top;
     wrap.style.setProperty('--procedure-top', `${top + PROC_GAP}px`);
   }
-  // a hidden panel measures 0, so this reports the popovers opening, closing and changing height
+  // a hidden bar measures 0, so this reports it coming into view as well as changing height
   const procRoom = new ResizeObserver(placeProcedureBar);
-  for (const panel of ui.querySelectorAll('#controls .popover')) procRoom.observe(panel);
   procRoom.observe(procBar);
   onResize(placeProcedureBar);
   onDestroy(() => procRoom.disconnect());
@@ -910,7 +901,8 @@ export function mount(ui, host, config) {
   /** Per frame: fill the bar with where the procedure stands, and decide whether it is in view. */
   function stepProcedureBar() {
     const p = modes?.procedure() ?? null;
-    if (!p) { procBar.hidden = true; wrap.classList.remove('procedure-open'); stepsQueued = 0; return; }
+    // practising an operation (handelingen.js), the next step is the question: no bar to see or click
+    if (!p || wrap.classList.contains('ops-oefenen')) { procBar.hidden = true; wrap.classList.remove('procedure-open'); stepsQueued = 0; return; }
     // after the card of a run closed, its bar stays away until another procedure is shown, or this
     // one is started afresh
     const inCard = wrap.classList.contains('ops-on');
@@ -958,9 +950,9 @@ export function mount(ui, host, config) {
 
     // it stays while it runs or stands still half way, while its own popover is open - so a finished
     // procedure can be scrubbed back through - and while it is hovered or has the focus
-    const panel = $('ops-panel');
+    const panel = $('ops-panel');                         // in sight: its section shown, and the Oefenen popover open
     const now = performance.now();
-    if (!p.resting || !panel.hidden || procBar.matches(':hover, :focus-within')) procWoke = now;
+    if (!p.resting || panel.offsetParent !== null || procBar.matches(':hover, :focus-within')) procWoke = now;
     const show = wrap.classList.contains('ops-on') || now - procWoke < REST_MS;   // in the card of a run it stays
     procBar.classList.toggle('faded', !show);
     wrap.classList.toggle('procedure-open', show);
@@ -1232,10 +1224,14 @@ const FLIGHT_MS = 700;
 const SEARCH_MS = 250;                 // the search for a direction never holds up a click for long
 const XRAY_BELOW = 3;                  // fewer sample points in view than this: show the part through the boat
 const REST_MS = 2500;                  // how long a procedure that is done stays in view
-const PROC_GAP = 8;                    // the same air the popovers leave above the control bar
-const NAV_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', '+', '=', '-', '_']);
+const PROC_GAP = 8;                    // air between the progress bar and the info tile that steps over it
+// what a key does, by the character it gives, and by the physical key for a character not in this list
+const NAV_KEYS = new Map([['ArrowLeft', 'left'], ['ArrowRight', 'right'], ['ArrowUp', 'up'], ['ArrowDown', 'down'],
+                          ['+', 'in'], ['=', 'in'], ['-', 'out'], ['_', 'out']]);
+const NAV_CODES = new Map([['ArrowLeft', 'left'], ['ArrowRight', 'right'], ['ArrowUp', 'up'], ['ArrowDown', 'down'],
+                           ['Equal', 'in'], ['NumpadAdd', 'in'], ['Minus', 'out'], ['NumpadSubtract', 'out']]);
 
-export const fold = (text) => text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+const fold = (text) => text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 
 // The two ways a name carries its side: as a suffix, "Wantputting (bakboord)", or as a prefix,
 // "Bakboord want". Anything else is no twin and keeps its own name - "Voorstag met spanner" and

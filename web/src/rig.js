@@ -358,33 +358,6 @@ export function layChain(links, path) {
 }
 
 /**
- * Blokje: a small single block hanging from an eye by its shackle. Origin = where it hangs from,
- * the sheave (radius userData.sheave, centre userData.centre below the origin) stands in the
- * local x-y plane.
- */
-export function makeBlokje() {
-  const steel = new THREE.MeshStandardMaterial({ color: 0x9aa0a6, metalness: 0.75, roughness: 0.4 });
-  const group = new THREE.Group();
-  const R = 0.016; const DROP = 0.050;
-  const shackle = new THREE.Mesh(new THREE.TorusGeometry(0.010, 0.0022, 8, 20), steel);
-  shackle.position.y = -0.008; shackle.rotation.y = Math.PI / 2;   // through the eye, across the block
-  const sheave = new THREE.Mesh(new THREE.CylinderGeometry(R, R, 0.010, 24), steel);
-  sheave.rotation.x = Math.PI / 2; sheave.position.y = -DROP;
-  const cheek = new THREE.Shape();                                  // pear-shaped cheek plate
-  cheek.absarc(0, -DROP, R + 0.006, Math.PI * 1.12, Math.PI * 1.88, false);
-  cheek.lineTo(0.006, -0.012); cheek.lineTo(-0.006, -0.012); cheek.closePath();
-  for (const z of [-0.0075, 0.0055]) {
-    const plate = new THREE.Mesh(new THREE.ExtrudeGeometry(cheek, { depth: 0.002, bevelEnabled: false }), steel);
-    plate.position.z = z;
-    group.add(plate);
-  }
-  group.add(shackle, sheave);
-  group.userData.materials = [steel];
-  group.userData.sheave = R; group.userData.centre = new THREE.Vector3(0, -DROP, 0);
-  return group;
-}
-
-/**
  * Mik: the crutch the lowered giek, gaffel and sail rest in (and the mast when it is down). Its
  * foot stands in the mikhouders on the achterschot. Vademecum p. 35, "MIK eindbewerking
  * verzinken": a solid bar of 20 ø, 1210 mm over all, with two hoops bent from 12 ø rod, both in

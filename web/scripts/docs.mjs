@@ -174,18 +174,33 @@ function objectOf(name) {
   const text = modes.slice(modes.indexOf('{', at), modes.indexOf('};', at) + 1);
   return Function(`return ${text}`)();
 }
-/** The preconditions of each operation, as the reasons the viewer shows. */
+/** The step order a manoeuvre's run checks, from `<name>.needs = { ... };` in modes.js. */
+function needsOf(name) {
+  const m = modes.match(new RegExp(`\\b${name}\\.needs = (\\{[\\s\\S]*?\\})\\s*;`));
+  if (!m) throw new Error(`docs.mjs: no \`${name}.needs = { ... };\` in src/modes.js`);
+  try {
+    return Function(`return ${m[1]}`)();
+  } catch (error) {
+    throw new Error(`docs.mjs: \`${name}.needs\` in src/modes.js is no plain object literal (${error.message})`);
+  }
+}
+/**
+ * The preconditions of each operation, as the reasons the viewer shows, in the order it checks them
+ * (it shows the first that fails). A shared precondition stands in the list by its name.
+ */
 function opsOf() {
   const at = modes.indexOf('const OPS = {');
   const block = modes.slice(at, modes.indexOf('\n  };', at));
+  // preconditions shared between operations, written once as `const name = [check, 'reason'];`
+  const shared = Object.fromEntries([...modes.matchAll(/const (\w+) = \[[^\]\n]*'([^']+)'\];/g)].map((m) => [m[1], m[2]]));
+  if (!shared.notReefing) throw new Error('docs.mjs: no `const notReefing = [..., \'reason\']` in src/modes.js');
+  const named = new RegExp(`'([^']+)'|\\b(${Object.keys(shared).join('|')})\\b`, 'g');
   const out = {};
   const heads = [...block.matchAll(/^ {4}(\w+): \{/gm)];
   heads.forEach((h, i) => {
     const body = block.slice(h.index, heads[i + 1]?.index ?? block.length);
     const needs = body.slice(body.indexOf('needs:'));
-    const reasons = [...needs.matchAll(/'([^']+)'/g)].map((r) => r[1]);
-    if (/notReefing/.test(needs)) reasons.splice(reasons.length ? reasons.length - (/\[\(\) => !tackOn/.test(needs) ? 1 : 0) : 0, 0, 'Eerst het reven afmaken');
-    out[h[1]] = reasons;
+    out[h[1]] = [...needs.matchAll(named)].map((r) => r[1] ?? shared[r[2]]);
   });
   return out;
 }
@@ -248,6 +263,7 @@ function manoeuvres() {
     'Eerst afmeren': 'de boot ligt afgemeerd', 'Alleen van een langswal': 'de wal is een langswal',
     'Eerst kop in de wind leggen': 'de wind komt van voren (minder dan 45° van de boeg)',
     'Eerst het draaien afmaken': 'er is geen kop in de wind leggen bezig',
+    'Eerst het afmeren of draaien afmaken': 'er is geen afmeren of kop in de wind leggen half af',
     'Afgemeerd alleen kop in de wind, of met de wind over de steiger': 'niet afgemeerd, of afgemeerd kop in de wind, of aan de wind of halve wind met de wind over de steiger',
     'Alleen met de wind van achteren': 'de wind komt van achteren (135° of meer van de boeg)',
     'Eerst aan de wind of halve wind gaan varen': 'de boot vaart aan de wind of halve wind (niet kop in de wind, niet ruime of voor de wind)',
@@ -450,7 +466,7 @@ losgooien hoort bij het afvaren (D1, D2, D8).
 Voorwaarden:
 ${pre('afmeren')}
 
-${turnTable(berth, { aan: ['los'], aspring: ['voor', 'achter'], vspring: ['aspring'] })}
+${turnTable(berth, needsOf('berthing'))}
 
 ## Afgemeerd: de wind draait
 
@@ -487,7 +503,7 @@ weer langs de steiger ligt.
 Voorwaarden:
 ${pre('kopInDeWind')}
 
-${turnTable(turnRound, { vlos: ['boeg'], aslos: ['vlos'], alos: ['aslos'], aspring: ['achter'], vspring: ['aspring'], boegin: ['vspring'] })}
+${turnTable(turnRound, needsOf('turning'))}
 
 ## Afvaren van langswal
 
@@ -511,7 +527,7 @@ grootzeil aan na de fok over. Afvaren gaat alleen vooruit.
 Voorwaarden:
 ${pre('afvaren')}
 
-${turnTable(leave, { aspring: ['vspring'], fok: ['bak'], aan: ['fok'], willen: ['voor'] })}
+${turnTable(leave, needsOf('leaving'))}
 
 ## Wat er geroepen wordt, en het spoor
 

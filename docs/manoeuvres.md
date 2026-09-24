@@ -64,8 +64,9 @@ ook niet als fout antwoord.
 
 Voorwaarden:
 - de mast staat — anders grijs met *Eerst de mast zetten*
-- niet afgemeerd, of afgemeerd kop in de wind, of aan de wind of halve wind met de wind over de steiger — anders grijs met *Afgemeerd alleen kop in de wind, of met de wind over de steiger*
 - er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
+- er is geen afmeren of kop in de wind leggen half af — anders grijs met *Eerst het afmeren of draaien afmaken*
+- niet afgemeerd, of afgemeerd kop in de wind, of aan de wind of halve wind met de wind over de steiger — anders grijs met *Afgemeerd alleen kop in de wind, of met de wind over de steiger*
 
 Hijsen is strijken in omgekeerde volgorde. Het zeilinstructieboek geeft hijsen een eigen volgorde
 (grootschoot en zeilbandjes los; gaffel op ±45°, beide vallen samen; klauwval vast; piek stellen met
@@ -363,6 +364,7 @@ grootzeil aan na de fok over. Afvaren gaat alleen vooruit.
 
 Voorwaarden:
 - de boot ligt afgemeerd — anders grijs met *Eerst afmeren*
+- er is geen afmeren of kop in de wind leggen half af — anders grijs met *Eerst het afmeren of draaien afmaken*
 - de wal is een langswal — anders grijs met *Alleen van een langswal*
 - de wind komt van voren (minder dan 45° van de boeg) — anders grijs met *Eerst kop in de wind leggen*
 - de zeilen staan — anders grijs met *Eerst de zeilen hijsen*

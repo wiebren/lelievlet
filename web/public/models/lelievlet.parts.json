@@ -842,8 +842,8 @@
    1139,
    52
   ],
-  "triangles": 2274,
-  "vertices": 1352
+  "triangles": 2254,
+  "vertices": 1330
  },
  {
   "id": "boegspriet",
@@ -2470,8 +2470,8 @@
    "52E9"
   ],
   "afmetingen_mm": [
-   1661,
-   1873,
+   1660,
+   1874,
    56
   ],
   "triangles": 6552,
@@ -2487,7 +2487,7 @@
   ],
   "afmetingen_mm": [
    2473,
-   59,
+   57,
    56
   ],
   "triangles": 6552,

@@ -11,15 +11,16 @@ scaled on the 200 mm width of that doft; the steel so drawn comes to 7.6 kg at 7
 """
 import numpy as np
 
-from hardware import _finish, _join, _load, bead, lug, pipe, prism
+import cad
+from hardware import _finish, _join, bead, lug, pipe, prism
 from rigging import thin, tube
 
 # -- where it is stowed. Starboard side: a bakskist goes against the same bulkhead to port, so
 # nothing of the anchor gear may reach past y = +60 there.
-VOORSCHOT_BODY = "PartSolids-Frame_59E9"
-VOORDEK_BODY = "PartSolids-Long_Shell_59D4"
-VLAK_BODY = "PartSolids-Long_Shell_583F"                 # starboard half; the two meet at y = 0
-FLOOR_BODIES = ("BuikdenningSolids_5620", "BuikdenningSolids_5623", "BuikdenningSolids_5626")
+VOORSCHOT_BODY = "59E9"
+VOORDEK_BODY = "59D4"
+VLAK_BODY = "583F"                                      # starboard half; the two meet at y = 0
+FLOOR_BODIES = ("5620", "5623", "5626")
 ANCHOR_Y = -310.0           # centre of the crown: as far outboard as the floor boards reach
 
 
@@ -38,10 +39,10 @@ def _surface_z(V, F, P):
     return np.where(hit.any(1), np.max(np.where(hit, z, -np.inf), axis=1), np.nan)
 
 
-def _bodies(mesh_dir, names):
+def _bodies(mesh_dir, handles):
     V, F, n = [], [], 0
-    for name in names:
-        v, f = _load(mesh_dir, name)
+    for handle in handles:
+        v, _, f, _ = cad.load(handle, mesh_dir)
         V.append(v); F.append(f + n); n += len(v)
     return np.concatenate(V), np.concatenate(F)
 
@@ -130,7 +131,7 @@ def _anchor(mesh_dir):
     lower edges of the tripping plates stand on the floor boards."""
     meshes, hole, top = _anchor_local()
     V = np.concatenate([v for v, _, _ in meshes])
-    dx = _load(mesh_dir, VOORSCHOT_BODY)[0][:, 0].min() - V[:, 0].max()
+    dx = cad.load(VOORSCHOT_BODY, mesh_dir)[0][:, 0].min() - V[:, 0].max()
     low = V[V[:, 2].argmin()]                            # the edge of a tripping plate
     off = np.array([dx, ANCHOR_Y, float(_floor(mesh_dir)(low[0] + dx)) - low[2]])
     return [(v + off, n, f) for v, n, f in meshes], hole + off, top + off
@@ -175,9 +176,11 @@ def _chain_path(mesh_dir):
     return P[:int(CHAIN_LEN / 2.0) + 1]
 
 
-def _link(centre, t, u):
-    """One short link: a stadium-shaped ring round the plane spanned by t (its long axis) and u."""
-    r, straight = (CHAIN_WIDTH - CHAIN_WIRE) / 2, CHAIN_PITCH - (CHAIN_WIDTH - CHAIN_WIRE)
+def _link(centre, t, u, pitch=CHAIN_PITCH, wire=CHAIN_WIRE, width=CHAIN_WIDTH, sides=CHAIN_SIDES):
+    """One short link: a stadium-shaped ring round the plane spanned by t (its long axis) and u.
+    The sizes are the ankerketting's unless given: the pitch, the thickness of the wire, the
+    outside width, and how many sides the section of the wire has."""
+    r, straight = (width - wire) / 2, pitch - (width - wire)
     arc = np.linspace(-np.pi / 2, np.pi / 2, 6)
     path = np.vstack([np.c_[straight / 2 + r * np.cos(arc), r * np.sin(arc)],       # one round end
                       np.c_[-straight / 2 - r * np.cos(arc), -r * np.sin(arc)]])    # and the other
@@ -186,16 +189,16 @@ def _link(centre, t, u):
     tan = np.roll(pts, -1, axis=0) - np.roll(pts, 1, axis=0)
     tan /= np.linalg.norm(tan, axis=1, keepdims=True)
     e1 = np.cross(n, tan)                                # in the plane of the ring, outwards
-    ang = np.linspace(0, 2 * np.pi, CHAIN_SIDES, endpoint=False)
+    ang = np.linspace(0, 2 * np.pi, sides, endpoint=False)
     dirs = (np.cos(ang)[None, :, None] * e1[:, None, :] + np.sin(ang)[None, :, None] * n)
-    V = (pts[:, None, :] + CHAIN_WIRE / 2 * dirs).reshape(-1, 3)
+    V = (pts[:, None, :] + wire / 2 * dirs).reshape(-1, 3)
     m, F = len(pts), []
     for i in range(m):
         j = (i + 1) % m
-        for k in range(CHAIN_SIDES):
-            k2 = (k + 1) % CHAIN_SIDES
-            F += [(i * CHAIN_SIDES + k, i * CHAIN_SIDES + k2, j * CHAIN_SIDES + k),
-                  (i * CHAIN_SIDES + k2, j * CHAIN_SIDES + k2, j * CHAIN_SIDES + k)]
+        for k in range(sides):
+            k2 = (k + 1) % sides
+            F += [(i * sides + k, i * sides + k2, j * sides + k),
+                  (i * sides + k2, j * sides + k2, j * sides + k)]
     return V, dirs.reshape(-1, 3), np.array(F)
 
 
@@ -230,7 +233,7 @@ OOG_PROFILE = np.array([    # half the omega: distance along the plating, rise o
 def _stem(mesh_dir):
     """The stem, as the line where the two vlak plates meet: an arc-length parameterised polyline
     at y = 0 with, at every point, the normal pointing aft into the boat."""
-    V = _load(mesh_dir, VLAK_BODY)[0]
+    V = cad.load(VLAK_BODY, mesh_dir)[0]
     P = np.unique(V[(np.abs(V[:, 1]) < 0.01) & (V[:, 0] > 6100.0)].round(3), axis=0)
     P = _spline(P[np.argsort(P[:, 2])], 400, passes=0)
     s = np.r_[0.0, np.cumsum(np.linalg.norm(np.diff(P, axis=0), axis=1))]
@@ -282,7 +285,7 @@ def _coil(mesh_dir, start):
 def _deck_run(mesh_dir):
     """The stretch over the voordek: it lies on the deck, so the deck is sampled along the way.
     A gentle bow to starboard keeps it off the centreline and gives it a little slack."""
-    V, F = _load(mesh_dir, VOORDEK_BODY)
+    V, _, F, _ = cad.load(VOORDEK_BODY, mesh_dir)
     t = np.linspace(0.0, 1.0, 44)
     x = DECK_X[0] + t * (DECK_X[1] - DECK_X[0])
     y = -(55.0 * (1 - t) + 10.0 * t) - 30.0 * np.sin(np.pi * t)

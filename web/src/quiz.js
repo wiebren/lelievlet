@@ -23,7 +23,9 @@ import { quizEntries, quizNaam } from './config.js';
 // to its niveau - as long as quizdata.js names one at all.
 //
 // The stats per entry and the all-time totals live in localStorage under one key; every access is
-// wrapped, so the quiz works just as well without storage.
+// wrapped, so the quiz works just as well without storage - and with aanpassen.opslaan false it is
+// not touched at all. Two viewers on one page share that key: a change is laid onto what is stored
+// at that moment, so neither writes away what the other one counted.
 
 const STORE = 'lelievlet.quiz.v1';
 const LENGTHS = { 10: 10, 20: 20, alles: Infinity };
@@ -120,7 +122,7 @@ function close(typed, key) {
 }
 
 export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
-                           setHighlights, partVisible, closePanel,
+                           setHighlights, partVisible, closePanel, opslaan = true,
                            ui, wrap, config, signal, engaged, realTarget, onDestroy }) {
   const $ = (id) => ui.getElementById(id);
   const all = (selector) => [...ui.querySelectorAll(selector)];
@@ -167,22 +169,33 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   // { v: 1, totaal: { goed, fout, rondes, beste }, per: { <nr>: { goed, fout, laatst } },
   //   keuze: { kind, length, level } } - the last choices of the start panel
   const EMPTY = { goed: 0, fout: 0, rondes: 0, beste: 0 };
-  let store = { totaal: { ...EMPTY }, per: {}, keuze: {} };
+  const fresh = () => ({ totaal: { ...EMPTY }, per: {}, keuze: {} });
 
-  function loadStore() {
+  /** What is stored now, or null: no storage, storage switched off, or something else under the key. */
+  function readStore() {
+    if (!opslaan) return null;
     try {
       const raw = JSON.parse(localStorage.getItem(STORE) ?? 'null');
-      if (raw?.totaal) store = { totaal: { ...EMPTY, ...raw.totaal }, per: raw.per ?? {}, keuze: raw.keuze ?? {} };
-    } catch { /* no storage, or it holds something else: start from nothing */ }
+      return raw?.totaal ? { totaal: { ...EMPTY, ...raw.totaal }, per: raw.per ?? {}, keuze: raw.keuze ?? {} } : null;
+    } catch { return null; }                       // no storage, or it holds something else: start from nothing
   }
-  function saveStore() {
+  let store = readStore() ?? fresh();
+
+  /**
+   * One change to the score or the choices: made to what is stored right now - which another viewer
+   * on the page may have added to since this one read it - and written back, so only this change is
+   * added. What was read becomes this viewer's own copy. Without storage it is made in memory.
+   */
+  function change(fn) {
+    const now = readStore() ?? store;
+    fn(now);
+    store = now;
+    if (!opslaan) return;
     try { localStorage.setItem(STORE, JSON.stringify({ v: 1, ...store })); } catch { /* it works without */ }
   }
-  function clearStore() {
-    store = { totaal: { ...EMPTY }, per: {}, keuze: store.keuze };
-    saveStore();                                   // the choices of the panel are no score: they stay
+  function clearStore() {                          // the choices of the panel are no score: they stay
+    change((s) => { s.totaal = { ...EMPTY }; s.per = {}; });
   }
-  loadStore();
 
   const statsOf = (entry) => store.per[entry.nr] ?? { goed: 0, fout: 0, laatst: 0 };
 
@@ -326,8 +339,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   };
   const choose = () => {
     press(kindButtons, kind, 'kind'); press(lengthButtons, length, 'length'); pressLevel();
-    store.keuze = { kind, length, level };
-    saveStore();
+    change((s) => { s.keuze = { kind, length, level }; });
     refreshPanel();
   };
   for (const b of kindButtons) b.addEventListener('click', () => { kind = b.dataset.kind; choose(); });
@@ -352,6 +364,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
 
   /** How a round would look from here: how much is in view, how long it would be, the total score. */
   function refreshPanel() {
+    store = readStore() ?? store;                  // what another viewer on the page has scored counts too
     const ready = eligible(kind);
     const wanted = pool.filter(inLevel);
     const inView = wanted.filter(there).length;
@@ -452,14 +465,19 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
     );
   }
 
-  /** The panel follows the mode while it is open, the same cheap poll the parts list uses. */
+  /**
+   * The panel follows the mode while it is open, the same cheap poll the parts list uses. The popover
+   * also closes without its toggle (a click outside it, Escape, a round or a run starting): the poll
+   * sees the panel gone from view and stops itself, and a question to wipe the score goes with it.
+   */
+  const quizPanel = $('quiz');
   function panelToggled(open) {
     clearInterval(panelPoll);
     panelPoll = null;
     askConfirm(false);
     if (!open) return;
     refreshPanel();
-    panelPoll = setInterval(refreshPanel, 400);
+    panelPoll = setInterval(() => (quizPanel.offsetParent === null ? panelToggled(false) : refreshPanel()), 400);
   }
 
   // ---------------------------------------------------------------- the card
@@ -775,16 +793,18 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   // ---------------------------------------------------------------- the answer is in
   function settle(right, text) {
     question.answered = true;
-    const stats = store.per[question.entry.nr] ?? (store.per[question.entry.nr] = { goed: 0, fout: 0, laatst: 0 });
-    stats[right ? 'goed' : 'fout']++;
-    stats.laatst = Date.now();
-    store.totaal[right ? 'goed' : 'fout']++;
     round[right ? 'goed' : 'fout']++;
     round.streak = right ? round.streak + 1 : 0;
     round.best = Math.max(round.best, round.streak);
-    store.totaal.beste = Math.max(store.totaal.beste, round.best);
+    const { nr } = question.entry; const { best } = round;
+    change((s) => {
+      const stats = s.per[nr] ?? (s.per[nr] = { goed: 0, fout: 0, laatst: 0 });
+      stats[right ? 'goed' : 'fout']++;
+      stats.laatst = Date.now();
+      s.totaal[right ? 'goed' : 'fout']++;
+      s.totaal.beste = Math.max(s.totaal.beste, best);
+    });
     if (!right) round.wrong.push(question.entry);
-    saveStore();
     refreshHead();
     setFeedback(text, right ? 'goed' : 'fout');
     setActions('Volgende', next, null, null);
@@ -802,8 +822,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
     round.done = true;
     question = null;
     clearQuestion();
-    store.totaal.rondes++;
-    saveStore();
+    change((s) => { s.totaal.rondes++; });
     const total = round.goed + round.fout;
     card.classList.add('results');
     count.textContent = 'Klaar';
@@ -855,7 +874,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   }, { signal });
 
   /**
-   * Whether a locator ring may point at what is lit (main.js asks per highlight). Benoemen and
+   * Whether a locator ring may point at what is lit (the locator asks per frame). Benoemen and
    * Typen light the part as the QUESTION, so a ring is just what is wanted there; Aanwijzen and
    * Kies ask for the part to be found, and nothing at all may point at it before the answer is in.
    */
