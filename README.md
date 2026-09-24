@@ -113,6 +113,37 @@ aanraken, wat er ook met zijn code zou gebeuren.
 - **Opslag:** instellingen, scores en vinkjes worden onder de herkomst van wiebren.github.io bewaard,
   apart van jouw site.
 
+### Als app installeren
+
+De viewer is ook een app die je kunt installeren (een PWA): `https://wiebren.github.io/lelievlet/app.html`.
+Hij opent dan in een eigen venster met een eigen icoon, en werkt ook zonder internet, op het water of
+op de steiger.
+
+- **Vanuit elke viewer:** *Installeer als app* onderaan het tandwielpaneel gaat naar de app-pagina en
+  neemt het zeilnummer, de naam, de plaats en de kleuren mee. Daar staat hoe je installeert: in Chrome
+  en Edge met één knop, in Safari op iPhone en iPad via *Deel › Zet op beginscherm*, in Safari op de
+  Mac via *Archief › Voeg toe aan Dock*, op Android via het menu. Firefox op de computer installeert
+  geen apps. In een ingesloten viewer opent de app-pagina in een nieuw tabblad; `installeren: false`
+  haalt de regel weg. In de geïnstalleerde app zelf staat hij er niet.
+- **De configuratie** komt na de `#` mee, als JSON (net als bij `embed.html`), en de app onthoudt de
+  laatste. Zo start de geïnstalleerde app later, zonder `#`, met dezelfde boot.
+- **Zonder internet:** een service worker (`sw.js`) bewaart alles wat de app nodig heeft: de pagina,
+  het script, het model en de texturen, samen zo'n 2,5 MB.
+- **Bijwerken:** elke build schrijft in `sw.js` een versie, een hash over al die bestanden. Verandert
+  er iets, dan is er een nieuwe `sw.js`. De app vraagt daar bij het starten naar, elk uur, en telkens
+  als hij weer in beeld komt. Is er een nieuwe versie, dan haalt hij die op en biedt hij *Bijwerken*
+  aan.
+
+- **Het icoon** is de eigen boot: de lelievlet in zijaanzicht, in de kleuren en met het zeilnummer
+  die de app meekreeg, plus wat er in de app nog is aangepast. De app-pagina tekent het bij elke start
+  (`web/demo/logo.js`) en de service worker geeft het in plaats van het standaardicoon. Of een
+  geïnstalleerd icoon later nog meeverandert, bepaalt het systeem. De standaardiconen in
+  `web/demo/icons/` komen uit hetzelfde logo, in de kleuren van de viewer zelf, en worden met
+  `pnpm icons` opnieuw gemaakt (dat vraagt `rsvg-convert`, uit librsvg).
+
+Bestanden: `web/demo/app.html`, `app.webmanifest`, `logo.js`, `sw.js` (het sjabloon; de versie en de
+lijst bestanden vult `pnpm build:lib` in) en `icons/`.
+
 ### Wat `create` teruggeeft
 
 ```js
@@ -156,6 +187,7 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 |---|---|---|---|
 | `assets` | string | naast het script | Map waarin `models/` en `textures/` staan, bijvoorbeeld `'https://cdn.example/vlet/'`. Zonder sluitende `/` wordt die toegevoegd; een relatief pad wordt tegen de pagina opgelost. |
 | `volledigScherm` | boolean | `true` | Knop voor volledig scherm, rechtsboven onder het tandwiel, en de sneltoets `f`. `false` haalt de knop weg, laat de `f` met rust en maakt `handle.fullscreen()` een lege huls. |
+| `installeren` | boolean | `true` | *Installeer als app* onderaan het tandwielpaneel: opent de app-pagina op wiebren.github.io met de eigen Aanpassen-waarden, en legt daar uit hoe je installeert. `false` haalt de regel weg. In de geïnstalleerde app zelf staat hij er nooit. |
 | `aanpassen.zeilnummer` | string | `'000'` | Zeilnummer op het grootzeil (max. 4 tekens). |
 | `aanpassen.naam` | string | `'Lelievlet'` | Naam op het boeisel, ter hoogte van het voordek. |
 | `aanpassen.plaats` | string | `'Zwolle'` | Plaats op het boeisel, ter hoogte van het achterdek. |

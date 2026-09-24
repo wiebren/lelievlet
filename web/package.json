@@ -8,7 +8,8 @@
     "build": "vite build",
     "build:lib": "vite build --config vite.lib.config.js",
     "preview": "vite preview",
-    "docs": "node scripts/docs.mjs"
+    "docs": "node scripts/docs.mjs",
+    "icons": "node scripts/icons.mjs"
   },
   "dependencies": {
     "three": "^0.186.0"

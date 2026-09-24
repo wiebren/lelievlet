@@ -30,6 +30,10 @@ import { addEdges } from './edges.js';
  * config: the resolved configuration (see config.js)
  * Returns { ready, destroy, debug, fullscreen, get, set }.
  */
+/** Whether this page runs as an installed app (standalone, not in a browser tab). */
+const runsAsApp = () => ['standalone', 'minimal-ui', 'window-controls-overlay'].some((m) => matchMedia(`(display-mode: ${m})`).matches)
+  || navigator.standalone === true;                                   // iOS
+
 export function mount(ui, host, config) {
   const wrap = ui.querySelector('.lv');
   const $ = (id) => ui.getElementById(id);
@@ -189,6 +193,17 @@ export function mount(ui, host, config) {
       setSailNumber: (text) => { sails.setNumber(text); sailNumber = text; followNumber(); paintScheme?.setNumber(text); },
       setHullText: (key, text, color) => hullText.set(key, text, LETTERING[key].x, LETTERING[key].height, color),
     });
+    // Installeer als app: to the app page on our own site, taking what the user made of the boat with
+    // it, where the page shows how to install it. Not offered inside the installed app itself.
+    const installItem = $('app-install');
+    installItem.hidden = !config.installeren || runsAsApp();
+    installItem.addEventListener('click', () => {
+      const own = Object.fromEntries(['zeilnummer', 'naam', 'naamKleur', 'plaats', 'plaatsKleur', 'bakskleur', 'kleuren'].map((k) => [k, aanpassen[k]]));
+      const url = `${asset('app.html')}?installeer#${encodeURIComponent(JSON.stringify({ aanpassen: own }))}`;
+      // in its own tab, not in this page's place, unless this page is the viewer's own and not framed
+      if (window.top === window.self && new URL(url).origin === location.origin) location.href = url;
+      else window.open(url, '_blank', 'noopener');
+    }, { signal });
     // after initCustomize: it has laid the user's colours on, which is what the paint fades back to
     paintScheme = initPaint({ zoneMaterials, sailMaterials: collectSailMaterials(parts), config: aanpassen, note: logboek.note });
     paintScheme.setNumber(aanpassen.zeilnummer);

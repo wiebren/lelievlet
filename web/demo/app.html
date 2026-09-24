@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Lelievlet 3D</title>
+  <meta name="description" content="Het 3D-model van de lelievlet: onderdelen, zeilen, roeien en manoeuvres.">
+  <meta name="theme-color" content="#1d4e79">
+  <link rel="manifest" href="app.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Lelievlet">
+  <style>
+    :root { --bg: #f4f7f9; --panel: #fff; --ink: #1d2a33; --muted: #5d6c78; --line: #d9e1e7; --accent: #1d4e79; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #151b20; --panel: #1f272e; --ink: #e6edf2; --muted: #9aaab6; --line: #33404a; --accent: #7fb3e6; }
+    }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
+    #vlet { position: fixed; inset: 0; }
+    dialog { max-width: min(420px, calc(100vw - 32px)); padding: 20px 22px 18px; border: 1px solid var(--line); border-radius: 14px;
+             background: var(--panel); color: var(--ink); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25); }
+    dialog::backdrop { background: rgba(10, 20, 30, 0.35); }
+    dialog h2 { margin: 0 0 8px; font-size: 18px; }
+    dialog p { margin: 0 0 10px; }
+    dialog .how { padding: 10px 12px; border-radius: 10px; background: var(--bg); }
+    dialog .knoppen { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+    button { font: inherit; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
+    button.hoofd { background: var(--accent); border-color: var(--accent); color: #fff; }
+    #nieuw { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 10; display: flex; gap: 10px; align-items: center;
+             padding: 8px 10px 8px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18); }
+    #nieuw[hidden] { display: none; }
+  </style>
+</head>
+<body>
+  <!-- The viewer as an app of its own (README: "Als app installeren"). It fills the window. The
+       settings panel of any viewer links here with "Installeer als app": the configuration comes
+       after the # as JSON (as with embed.html) and is remembered for when the installed app starts
+       without it, and ?installeer opens the instructions. The service worker (sw.js, written by
+       the library build) keeps it working without internet and brings each new build in. -->
+  <div id="vlet"></div>
+
+  <dialog id="installeren" aria-labelledby="installeren-titel">
+    <h2 id="installeren-titel">Installeer als app</h2>
+    <p>De lelievlet opent dan in een eigen venster, met een eigen icoon, en werkt ook zonder internet.
+      Je zeilnummer, naam en kleuren gaan mee.</p>
+    <p class="how" id="installeren-hoe"></p>
+    <div class="knoppen">
+      <button type="button" id="installeren-sluiten">Sluiten</button>
+      <button type="button" class="hoofd" id="installeren-nu" hidden>Installeren</button>
+    </div>
+  </dialog>
+
+  <div id="nieuw" role="status" hidden>
+    <span>Er is een nieuwe versie.</span>
+    <button type="button" class="hoofd" id="nieuw-laden">Bijwerken</button>
+  </div>
+
+  <script type="module">
+    import Lelievlet from './lelievlet.js';
+    import { logoSvg } from './logo.js';
+
+    const KEPT = 'lelievlet.app.v1';                  // the configuration the app last came with
+    const AANPASSEN = 'lelievlet.aanpassen.v1';       // what the viewer itself keeps of Aanpassen
+    const store = {
+      get: (key) => { try { return JSON.parse(localStorage.getItem(key) ?? 'null'); } catch { return null; } },
+      set: (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* it works without */ } },
+      drop: (key) => { try { localStorage.removeItem(key); } catch { /* nothing to drop */ } },
+    };
+    const standalone = ['standalone', 'minimal-ui', 'window-controls-overlay'].some((m) => matchMedia(`(display-mode: ${m})`).matches)
+      || navigator.standalone === true;
+
+    // the configuration: brought along after the #, or the one kept from last time
+    let config = null;
+    const raw = location.hash.slice(1);
+    if (raw) {
+      try {
+        const given = JSON.parse(decodeURIComponent(raw));
+        if (given && typeof given === 'object' && !Array.isArray(given)) config = given;
+      } catch { /* not JSON */ }
+      if (config) {
+        store.set(KEPT, config);
+        store.drop(AANPASSEN);                         // what came along is the boat now, not an older edit on top of it
+      } else console.warn('[lelievlet] de configuratie na # is geen JSON-object');
+    }
+    config ??= store.get(KEPT) ?? {};
+    const askInstall = new URLSearchParams(location.search).has('installeer') && !standalone;
+    history.replaceState(null, '', location.pathname);   // a clean address: the one the app is installed with
+
+    Lelievlet.create(document.getElementById('vlet'), config);
+
+    // -- the icon: this boat, in its own colours and with its own sail number - what it came with and
+    // what was changed in the app since (the viewer keeps that). The tab and the iOS home screen
+    // take it from the links here; for the manifest's icons the service worker hands it out in
+    // place of the default ones, from its own cache.
+    const OWN_ICONS = 'lelievlet-eigen';
+    const asDataUrl = (blob) => new Promise((done) => { const r = new FileReader(); r.onload = () => done(r.result); r.readAsDataURL(blob); });
+    const drawIcons = async () => {
+      const saved = store.get(AANPASSEN) ?? {};
+      const given = config.aanpassen ?? {};
+      const boat = { ...given, ...saved, kleuren: { ...(given.kleuren ?? {}), ...(saved.kleuren ?? {}) } };
+      const emblem = await fetch('textures/zeilteken.png').then((r) => r.blob()).then(asDataUrl);
+      const png = async (size, maskable) => {
+        const img = new Image();
+        img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(logoSvg({ look: 'kleur', boat, emblem, size, maskable }))}`;
+        await img.decode();
+        const canvas = Object.assign(document.createElement('canvas'), { width: size, height: size });
+        canvas.getContext('2d').drawImage(img, 0, 0, size, size);
+        return new Promise((done) => canvas.toBlob(done, 'image/png'));
+      };
+      const icons = { 'icons/icon-192.png': [192, false], 'icons/icon-512.png': [512, false],
+                      'icons/icon-maskable-512.png': [512, true], 'icons/apple-touch-icon.png': [180, false] };
+      const drawn = {};
+      for (const [path, [size, maskable]] of Object.entries(icons)) drawn[path] = await png(size, maskable);
+      document.querySelector('link[rel="apple-touch-icon"]').href = await asDataUrl(drawn['icons/apple-touch-icon.png']);
+      document.querySelector('link[rel="icon"]').href = await asDataUrl(drawn['icons/icon-192.png']);
+      if (!('caches' in window)) return;
+      const cache = await caches.open(OWN_ICONS);
+      for (const [path, blob] of Object.entries(drawn)) {
+        await cache.put(new URL(path, location.href).href, new Response(blob, { headers: { 'Content-Type': 'image/png' } }));
+      }
+    };
+    drawIcons().catch((e) => console.warn('[lelievlet] geen eigen icoon:', e));
+
+    // -- installing: the browser's own prompt where there is one, otherwise how to do it in this browser
+    const dialog = document.getElementById('installeren');
+    const how = document.getElementById('installeren-hoe');
+    const now = document.getElementById('installeren-nu');
+    const ua = navigator.userAgent;
+    const ios = /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    const android = /Android/.test(ua);
+    const firefox = /Firefox\//.test(ua);
+    const safari = /Safari\//.test(ua) && !/Chrome|Chromium|CriOS|Edg\//.test(ua);
+    how.textContent = ios ? 'Tik onderin (of bovenin, op een iPad) op het deelsymbool, het vierkantje met de pijl omhoog, en kies ‘Zet op beginscherm’.'
+      : android && firefox ? 'Open het menu (⋮) en kies ‘Installeren’.'
+      : android ? 'Open het menu van de browser (⋮) en kies ‘App installeren’ of ‘Toevoegen aan startscherm’.'
+      : firefox ? 'Firefox op de computer installeert geen apps. Open deze pagina in Chrome, Edge of Safari en kies daar ‘Installeer als app’.'
+      : safari ? 'Kies in de menubalk Archief › Voeg toe aan Dock (Safari 17 of nieuwer).'
+      : 'Klik op het installeersymbool rechts in de adresbalk, of kies in het menu van de browser ‘App installeren’.';
+    let prompt = null;
+    addEventListener('beforeinstallprompt', (e) => {   // Chrome and Edge: it can be done from here
+      e.preventDefault(); prompt = e;
+      now.hidden = false; how.textContent = 'Klik op Installeren, of later op het installeersymbool in de adresbalk.';
+    });
+    now.addEventListener('click', async () => {
+      if (!prompt) return;
+      prompt.prompt(); await prompt.userChoice; prompt = null; now.hidden = true;
+    });
+    addEventListener('appinstalled', () => dialog.close());
+    document.getElementById('installeren-sluiten').addEventListener('click', () => dialog.close());
+    if (askInstall) dialog.showModal();
+
+    // -- updates: the service worker is asked for a new build at start, every hour, and whenever the
+    // app comes back into view; once one has taken over, the app offers to start again with it
+    if ('serviceWorker' in navigator) {
+      let current = navigator.serviceWorker.controller;
+      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((registration) => {
+        const check = () => registration.update().catch(() => { /* offline: next time */ });
+        check();
+        setInterval(check, 60 * 60 * 1000);
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') check(); });
+      }).catch((e) => console.warn('[lelievlet] geen service worker:', e));
+      // the first worker taking over is not news; one taking over from another is a new version
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (current) document.getElementById('nieuw').hidden = false;
+        current = navigator.serviceWorker.controller;
+      });
+      document.getElementById('nieuw-laden').addEventListener('click', () => location.reload());
+    }
+  </script>
+</body>
+</html>

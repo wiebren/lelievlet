@@ -6,6 +6,7 @@
 //   Lelievlet.create(element, {
 //     assets: 'https://…/',                       // where models/ and textures/ are; default: next to the script
 //     volledigScherm: true,                       // false: no full screen button, and the f key does nothing
+//     installeren: true,                          // false: no "Installeer als app" in the settings panel
 //     aanpassen: {
 //       zeilnummer: '442', naam: 'Fluessen', plaats: 'Zwolle',
 //       naamKleur: '#0b0b0b', plaatsKleur: '#0b0b0b',       // the lettering on the boeisel
@@ -46,6 +47,7 @@
 export const DEFAULTS = {
   assets: null,
   volledigScherm: true,
+  installeren: true,
   aanpassen: { opslaan: true },
   toestand: {},
   namen: { onderdelen: {}, stappen: {}, commandos: {}, quiz: {} },

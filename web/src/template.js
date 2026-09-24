@@ -65,6 +65,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     <label class="speed"><span>Snelheid</span>
       <input id="speed" type="range" min="0.25" max="2" step="0.05" value="1" aria-label="Snelheid van de animaties"></label>
     <p class="hint">Pijltjes: verplaatsen · Shift + pijltjes: draaien · + / −: zoomen · Scrollen: inzoomen op de muisaanwijzer</p>
+    <p class="about-link"><button id="app-install" type="button" class="link-button" hidden>Installeer als app</button></p>
     <p class="about-link"><button id="about-open" type="button" class="link-button">Over dit model</button></p>
   </aside>
 
