@@ -223,7 +223,7 @@ export function mount(ui, host, config) {
     quiz = initQuiz({ parts, scene, select, flyTo, setCovered, openLearn: (kind) => openLearn(kind),
                       setHighlights, partVisible, closePanel, opslaan,
                       ui, wrap, config, signal, engaged, realTarget, onDestroy });   // Oefenen
-    handelingen = initHandelingen({ ui, wrap, modes, stepProcedure, dismissProcedure, setCovered, opslaan, signal, engaged, realTarget, onDestroy });
+    handelingen = initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedure, dismissProcedure, setCovered, opslaan, signal, engaged, realTarget, onDestroy });
     closePanel.set('learn', () => modes.closePopover());    // a round or a run takes the whole screen
     initLearn();
     loaded = true;
@@ -873,15 +873,22 @@ export function mount(ui, host, config) {
     }
     if (kant === 'vast') flip = false;                  // only right from its own side
     flip ??= camera.position.distanceTo(mirrored(position)) < camera.position.distanceTo(position);
-    startFlight(flip ? mirrored(position) : position, flip ? mirrored(target) : target, STEP_FLIGHT_MS);
+    const to = flip ? mirrored(position) : position; const look = flip ? mirrored(target) : target;
+    if (camera.position.distanceTo(to) < 0.05 && controls.target.distanceTo(look) < 0.05) return false;   // there already: nothing to wait for
+    startFlight(to, look, STEP_FLIGHT_MS);
     return true;
+  }
+  /** A run starting: the camera goes to where the procedure as a whole is watched from, if it says. */
+  function lookAtProcedure() {
+    const view = modes?.procedureControl.view();
+    if (view) flyToView(view, 1);
   }
   // A click the way a step is already going is one more step, taken when this one is done (the camera
   // goes first again); the other way it turns the step round, or calls it off if it has not moved yet.
   let stepsQueued = 0;
   function clickStep(direction) {
     const p = modes?.procedure();
-    if (p?.stepping && (p.backwards ? -1 : 1) === direction) { stepsQueued += direction; return; }
+    if (p?.stepping && p.heading === direction) { stepsQueued += direction; return; }
     stepsQueued = 0;
     stepProcedure(direction);
   }
@@ -891,7 +898,13 @@ export function mount(ui, host, config) {
   // Dragging the thumb scrubs, which pauses; on release it stays where it was let go and the user
   // presses play to go on. Arrow keys on the focused slider come through the same input event, so the
   // value written per frame is only ever the one the user just set.
-  procTime.addEventListener('input', () => { stepsQueued = 0; modes?.procedureControl.scrub(Number(procTime.value)); });
+  // the slider goes in steps of 0.01 s, and a procedure is seldom that long exactly: at its right-hand
+  // end it is the end, or the run would never be done
+  procTime.addEventListener('input', () => {
+    stepsQueued = 0;
+    const value = Number(procTime.value); const max = Number(procTime.max);
+    modes?.procedureControl.scrub(value > max - Number(procTime.step) ? max : value);
+  });
   procTime.addEventListener('pointerdown', () => { procDragging = true; });
   procTime.addEventListener('change', () => { procDragging = false; });
   for (const type of ['pointerup', 'pointercancel']) {
@@ -954,7 +967,6 @@ export function mount(ui, host, config) {
     const step = live.length ? `${Math.max(at, 0) + 1}/${live.length}  ${p.label}` : p.label;
     if (procStep.textContent !== step) procStep.textContent = step;
     if (procName.textContent !== p.name) procName.textContent = p.name;
-    $('procedure-previous').disabled = p.oneWay;                // overstag: no way back but another tack
     if (procPlaying !== p.playing) {
       procPlaying = p.playing;
       // the icons are SVG groups, which have no hidden property: the attribute has to be set

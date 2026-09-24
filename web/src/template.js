@@ -164,6 +164,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
       </div>
       <div id="ops-panel" class="learn-section">
         <div class="ops">
+        <div class="segmented groups" id="ops-groups" role="radiogroup" aria-label="Soort handeling"></div>
         <div class="kinds" id="ops-list" role="radiogroup" aria-label="Handeling"></div>
         <div class="option" id="ops-turns-row" hidden>
           <span>Slagen</span>

@@ -33,10 +33,22 @@ export class Procedure {
     this.total = at;
     this.t = 0; this.goal = 0; this.playing = false; this.commanded = 0;
     this.direction = 1;             // +1 forwards, -1 backwards: the way it last went, or is going
-    this.rate = 1;                  // how fast it plays: slower while it is stepped through
+    this.rate = PLAY_RATE;          // how fast it plays: slower still while it is stepped through
     this.delay = 0;                 // seconds it waits before it moves: the camera goes first
     this.from = 0;                  // where the step being played set out from
     this.skipped = new Set();       // keys of the steps that do not apply now
+    this.lead = 0;                  // seconds before the first step (leadIn)
+  }
+
+  /**
+   * `seconds` before the first step in which nothing is done yet: a manoeuvre begun under way sails
+   * on for a moment first, so where she comes from is seen. Every step moves up by it; `aanloop`
+   * among the values runs 0..1 over it.
+   */
+  leadIn(seconds) {
+    for (const s of this.steps) { s.begin += seconds; s.end += seconds; }
+    this.total += seconds; this.lead = seconds;
+    return this;
   }
 
   /** Whether this step is skipped: it keeps its place, but does nothing. */
@@ -66,6 +78,7 @@ export class Procedure {
       if (this.t >= s.end) this.values[s.key] = s.to;
       else { if (this.t > s.begin) this.values[s.key] = s.from + (s.to - s.from) * ((this.t - s.begin) / (s.end - s.begin)); break; }
     }
+    if (this.lead > 0) this.values.aanloop = Math.min(this.t / this.lead, 1);
     return this.values;
   }
 
@@ -78,7 +91,7 @@ export class Procedure {
   play() { this.goal = this.commanded; this.playing = Math.abs(this.goal - this.t) > 1e-6; this.normal(); this.aim(this.goal); }
   pause() { this.playing = false; }
   scrub(t) { this.playing = false; this.normal(); this.aim(t); this.seek(t); }
-  normal() { this.rate = 1; this.delay = 0; }
+  normal() { this.rate = PLAY_RATE; this.delay = 0; }
 
   /** Whether a single step is being played (or waits for the camera), rather than the whole of it. */
   get stepping() { return this.playing && this.rate === STEP_RATE; }
@@ -131,6 +144,7 @@ export class Procedure {
   get resting() { return !this.playing && (this.t < 1e-6 || this.t > this.total - 1e-6 || Math.abs(this.t - this.commanded) < 1e-6); }
 }
 
+const PLAY_RATE = 0.7;   // played as a whole it goes a little slower than its steps' seconds, to be followed
 const STEP_RATE = 0.5;   // a step on its own plays at half speed
 
 /**

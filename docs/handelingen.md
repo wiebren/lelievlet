@@ -50,12 +50,15 @@ Voorwaarden die de werklijst gebruikt:
 | Mast strijken | zeilen gestreken |
 | Mast zetten | — |
 | Reven | zeilen op |
-| Overstag gaan (wenden) | zeilen op, anker op, niet afgemeerd, aan de wind of halve wind, geen rif, wending of gijp bezig; alleen vooruit |
-| Gijpen | zeilen op, anker op, niet afgemeerd, ruime of voor de wind, geen rif, wending of gijp bezig; alleen vooruit |
+| Overstag gaan (wenden) | zeilen op, anker op, niet afgemeerd, aan de wind of halve wind, geen rif, wending of gijp bezig |
+| Gijpen | zeilen op, anker op, niet afgemeerd, ruime of voor de wind, geen rif, wending of gijp bezig |
 | Stormrondje | als gijpen |
-| Afmeren (sliplanding aan een langswal) | zeilen op, anker op, niet kop in de wind, geen rif, wending of gijp bezig; legt zelf een langswal aan lij naast het eind van de sliplanding; alleen vooruit |
-| Kop in de wind leggen | afgemeerd, zeilen gestreken, wind van achteren; alleen vooruit |
-| Afvaren van langswal | afgemeerd aan een langswal, kop in de wind, zeilen op, geen rif; alleen vooruit |
+| Afmeren: sliplanding hogerwal | als de sliplanding langswal; legt een steiger dwars op de wind voor de boeg en eindigt kop in de wind op het voorlandvast |
+| Afmeren: opschieter hogerwal | zeilen op, anker op, halve wind of ruimer, geen rif, wending of gijp bezig; legt een steiger dwars op de wind voor de boeg |
+| Afmeren: sliplanding langswal | zeilen op, anker op, niet kop in de wind, geen rif, wending of gijp bezig; legt zelf een langswal aan lij naast het eind van de sliplanding |
+| Afmeren: voor top en takel langswal | als de sliplanding; strijkt onderweg grootzeil en fok en ligt daarna met de wind van achteren |
+| Kop in de wind leggen | afgemeerd aan een langswal, zeilen gestreken, wind van achteren |
+| Afvaren van langswal | afgemeerd aan een langswal, kop in de wind, zeilen op, geen rif |
 | Anker uit / op, midzwaard, riemen en dollen, roeicommando's, sturen | (zonder voorwaarden in het menu) |
 
 Bekende verbetering: [KATZ] 70/64 en [HBO] p. 6 geven hijsen een eigen volgorde (grootschoot en
@@ -88,8 +91,8 @@ Bouwstenen: zie het volgende hoofdstuk.
 | D1 | Afvaren van hogerwal | KB I; [VS1] 9, [HBO] p. 7, [KATZ] 82/76 | afgemeerd, hogerwal, zeilen op, anker op | wal, afmeren, vaart, draaien | L |
 | D2 | Afvaren van langswal | KB I; [KATZ] 83/77 | afgemeerd, langswal, zeilen op | wal, afmeren, vaart, draaien | M |
 | D3 | Afvaren van lagerwal | KB II/III; [KATZ] 84/78 | afgemeerd, lagerwal, mast staat, zeilen gestreken | wal, afmeren, vaart | M |
-| D4 | Aankomen aan hogerwal (sliplanding) | KB I onder toezicht, II/III; [HBO] p. 7, 18, [KATZ] 85/79 | los, aan de wal, zeilen op, anker op, aan de wind | wal, vaart, draaien | L |
-| D5 | Opschieter | KB II/III; [KATZ] 86/80 | los, aan de wal, zeilen op, halve of ruime wind | wal, vaart, draaien | M |
+| D4 | Aankomen aan hogerwal (sliplanding) — gedaan | KB I onder toezicht, II/III; [HBO] p. 7, 18, [KATZ] 85/79 | los, aan de wal, zeilen op, anker op, aan de wind | wal, vaart, draaien | L |
+| D5 | Opschieter — gedaan | KB II/III; [KATZ] 86/80 | los, aan de wal, zeilen op, halve of ruime wind | wal, vaart, draaien | M |
 | D6 | Aanleggen aan lagerwal / voor top en takel | KB III; [HBO] p. 18, [KATZ] 87–88/81–82 | los, lagerwal, zeilen op, aan de wind | wal, vaart, draaien | M |
 | D7 | Afmeren (landvasten en springen) | KB I+, R; [HBO] p. 7, 19, [KATZ] 73/67 | aan de wal, geen vaart | wal, afmeren | M |
 | D8 | Afvaren roeiend | R I+; [KATR] 15/11, [JPR3] p. 19 | afgemeerd, modus roeien, anker op | wal, afmeren, vaart | S |

@@ -1,7 +1,6 @@
 // Handelingen: the Manoeuvres section of the Oefenen popover, and the card of a run.
 //
-// The panel lists the operations - Zeilen hijsen and strijken, Mast strijken and zetten, Reven -
-// each greyed out with its reason while its preconditions are not met (modes.js, OPS), and asks
+// The panel lists the operations a group at a time - Zeil, Wenden, Afmeren, Mast - each greyed out with its reason while its preconditions are not met (modes.js, OPS), and asks
 // how: Bekijken, where it plays by itself and the step controls of the procedure come into the card,
 // or Oefenen, where it stands still and every next step is a question with four options: the right
 // one and steps that could be done in the state the boat is in, only not now (modes.run.question).
@@ -10,9 +9,18 @@
 // While a run is on the viewer is in focus mode (.lv.ops-on): only the boat and the card, like a
 // round of Oefenen in the quiz, whose card this one looks like.
 
+// the groups of the list, and what each operation is called in it
+const GROUPS = [
+  ['Zeil', { hijsen: 'Hijsen', strijken: 'Strijken', reven: 'Reven' }],
+  ['Wenden', { overstag: 'Overstag', gijpen: 'Gijp', stormrondje: 'Stormrondje' }],
+  ['Afmeren', { slipHoger: 'Sliplanding hogerwal', opschieter: 'Opschieter hogerwal', afmeren: 'Sliplanding langswal', topEnTakel: 'Voor top en takel langswal', kopInDeWind: 'Kop in de wind leggen', afvaren: 'Afvaren van langswal' }],
+  ['Mast', { mastZetten: 'Zetten', mastStrijken: 'Strijken' }],
+];
+// and on the card of a run
 const NAMES = {
   hijsen: 'Zeilen hijsen', strijken: 'Zeilen strijken', mastStrijken: 'Mast strijken', mastZetten: 'Mast zetten', reven: 'Reven',
-  overstag: 'Overstag (wenden)', gijpen: 'Gijpen', stormrondje: 'Stormrondje', afmeren: 'Afmeren', kopInDeWind: 'Kop in de wind leggen', afvaren: 'Afvaren van langswal',
+  overstag: 'Overstag (wenden)', gijpen: 'Gijpen', stormrondje: 'Stormrondje', slipHoger: 'Sliplanding hogerwal', opschieter: 'Opschieter', afmeren: 'Sliplanding langswal', topEnTakel: 'Voor top en takel',
+  kopInDeWind: 'Kop in de wind leggen', afvaren: 'Afvaren van langswal',
 };
 const ABOUT = {
   hijsen: 'Zeilbinders af, zeil los, zeilen omhoog',
@@ -23,12 +31,16 @@ const ABOUT = {
   overstag: 'Door de wind naar de andere boeg',
   gijpen: 'Met de achtersteven door de wind',
   stormrondje: 'Oploeven, overstag en weer afvallen: gijpen zonder gijp',
-  afmeren: 'Sliplanding aan een langswal, landvasten en springen vast',
+  slipHoger: 'Aan de wind, zeilen los, met de boeg aan de steiger',
+  opschieter: 'Langs de kant, dan met veel roer in de wind opschieten',
+  afmeren: 'Aan de wind, zeilen los, oploeven langszij',
+  topEnTakel: 'Zeilen strijken, voor de wind langszij drijven',
   kopInDeWind: 'Afgemeerd, wind van achteren: over de boeg draaien',
   afvaren: 'Lijnen los, afduwen, fok bak en wegzeilen',
 };
 const DONE = {
-  hijsen: 'De zeilen staan al', strijken: 'De zeilen zijn al gestreken', mastStrijken: 'De mast ligt al', mastZetten: 'De mast staat al', reven: '', overstag: '', gijpen: '', stormrondje: '', afmeren: 'De boot ligt al afgemeerd', kopInDeWind: '', afvaren: '',
+  hijsen: 'De zeilen staan al', strijken: 'De zeilen zijn al gestreken', mastStrijken: 'De mast ligt al', mastZetten: 'De mast staat al',
+  slipHoger: 'De boot ligt al afgemeerd', opschieter: 'De boot ligt al afgemeerd', afmeren: 'De boot ligt al afgemeerd', topEnTakel: 'De boot ligt al afgemeerd',
 };
 const MARKS = { goed: '✓', fout: '✗' };
 const STORE = 'lelievlet.manoeuvres.v1';      // { v: 1, foutloos: { <op>: true } }: practised through without a mistake
@@ -36,7 +48,7 @@ const STORE = 'lelievlet.manoeuvres.v1';      // { v: 1, foutloos: { <op>: true 
 const el = (tag, className, text) => Object.assign(document.createElement(tag), { className: className ?? '', textContent: text ?? '' });
 const pct = (goed, total) => (total ? Math.round((goed / total) * 100) : 0);
 
-export function initHandelingen({ ui, wrap, modes, stepProcedure, dismissProcedure, setCovered, opslaan = true, signal, engaged, realTarget, onDestroy }) {
+export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedure, dismissProcedure, setCovered, opslaan = true, signal, engaged, realTarget, onDestroy }) {
   const $ = (id) => ui.getElementById(id);
   const run = modes.run;
   const touch = window.matchMedia('(pointer: coarse)');
@@ -59,20 +71,28 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, dismissProcedu
 
   // ---------------------------------------------------------------- the start panel
   const panel = $('ops-panel');
+  const groupBox = $('ops-groups');
   const list = $('ops-list');
   const turnsRow = $('ops-turns-row'); const turnsBox = $('ops-turns');
   const goButtons = { bekijken: $('ops-bekijken'), oefenen: $('ops-oefenen') };   // each starts the chosen one, its own way
-  let chosen = null; let turns = run.turns || 1;
+  let group = null; let chosen = null; let turns = run.turns || 1;
 
-  const rows = Object.keys(NAMES).map((op) => {
+  const groupButtons = GROUPS.map(([g]) => {
+    const b = Object.assign(el('button', null, g), { type: 'button' });
+    b.setAttribute('role', 'radio'); b.dataset.group = g;
+    b.addEventListener('click', () => { group = g; chosen = null; refreshPanel(); });
+    groupBox.append(b);
+    return b;
+  });
+  const rows = GROUPS.flatMap(([g, ops]) => Object.entries(ops).map(([op, label]) => {
     const b = Object.assign(el('button', null), { type: 'button' });
-    b.setAttribute('role', 'radio'); b.dataset.op = op;
+    b.setAttribute('role', 'radio'); b.dataset.op = op; b.dataset.group = g;
     const tick = el('span', 'tick', '✓'); tick.title = 'Foutloos geoefend'; tick.hidden = true;
-    b.append(tick, el('b', null, NAMES[op]), el('span', null, ABOUT[op]));
+    b.append(tick, el('b', null, label), el('span', null, ABOUT[op]));
     b.addEventListener('click', () => { chosen = op; refreshPanel(); });
     list.append(b);
     return b;
-  });
+  }));
   for (let n = 0; n <= run.maxTurns; n++) {
     const b = Object.assign(el('button', null, n === 0 ? 'Geen' : String(n)), { type: 'button' });
     b.setAttribute('role', 'radio'); b.dataset.turns = String(n);
@@ -81,16 +101,23 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, dismissProcedu
   }
   for (const [how, b] of Object.entries(goButtons)) b.addEventListener('click', () => start(chosen, how, turns));
 
-  /** What can be done now: the rows greyed with their reason, the choice moved off one that cannot. */
+  /**
+   * What can be done now: the rows greyed with their reason, the choice moved off one that cannot.
+   * The group shown is the one picked, or at first the first with something in it that can be done.
+   */
   function refreshPanel() {
     const state = Object.fromEntries(run.ops().map((o) => [o.op, o]));
     const can = (op) => !state[op].blocked && !state[op].done;
-    if (!chosen || !can(chosen)) chosen = rows.map((b) => b.dataset.op).find(can) ?? null;
+    group ??= rows.find((b) => can(b.dataset.op))?.dataset.group ?? GROUPS[0][0];
+    const shownRows = rows.filter((b) => b.dataset.group === group);
+    if (!chosen || !can(chosen) || !shownRows.some((b) => b.dataset.op === chosen)) chosen = shownRows.map((b) => b.dataset.op).find(can) ?? null;
+    for (const b of groupButtons) b.setAttribute('aria-checked', String(b.dataset.group === group));
     for (const b of rows) {
       const { op } = b.dataset; const s = state[op];
+      b.hidden = b.dataset.group !== group;
       b.disabled = !can(op);
       b.setAttribute('aria-checked', String(op === chosen));
-      const sub = s.done ? DONE[op] : s.blocked ?? ABOUT[op];
+      const sub = s.done ? DONE[op] ?? ABOUT[op] : s.blocked ?? ABOUT[op];
       if (b.lastChild.textContent !== sub) b.lastChild.textContent = sub;
       b.querySelector('.tick').hidden = !flawless[op];
     }
@@ -187,6 +214,7 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, dismissProcedu
     if (!op) return;
     modes.closePopover();
     if (!run.begin(op, { play: how === 'bekijken', turns: n })) return;
+    lookAtProcedure?.();
     const p = modes.procedure();
     // it counts as the whole manoeuvre only when it starts at its first step: struck halfway and then
     // hoisted from there is a part of it, and earns no tick
@@ -255,7 +283,7 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, dismissProcedu
     current[right ? 'goed' : 'fout']++;
     if (!right) current.wrong.push(q.answer);
     setFeedback(right ? 'Goed!' : `Fout: eerst ${q.answer.toLowerCase()}`, right ? 'goed' : 'fout');
-    stepProcedure(run.direction);                                  // the step is shown: the camera goes first
+    stepProcedure(1);                                              // the next step is shown: the camera goes first
   }
 
   function results() {

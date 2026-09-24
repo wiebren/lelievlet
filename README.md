@@ -527,8 +527,10 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   `web/src/procedure.js`) van die timeline, met alleen zijn eigen stappen op de voortgangsbalk; vorige,
   volgende en de schuif blijven binnen de flow.
 - Oefenen → **Manoeuvres** (`web/src/handelingen.js`) is een startpaneel met de
-  handelingen als rijen, zoals de oefeningen van Oefenen: Zeilen hijsen, Zeilen strijken, Mast
-  strijken, Mast zetten, Reven (met het aantal slagen), Overstag gaan (wenden), Gijpen en het Stormrondje. De
+  handelingen als rijen, zoals de oefeningen van Oefenen, in vier groepen: **Zeil** (hijsen, strijken,
+  reven met het aantal slagen), **Wenden** (overstag, gijp, stormrondje), **Afmeren** (sliplanding en
+  opschieter aan hogerwal, sliplanding en voor top en takel aan een langswal, kop in de wind leggen, afvaren van langswal) en **Mast**
+  (zetten, strijken). De
   stappen en voorwaarden van elk staan in `docs/manoeuvres.md`. Een stap met een commando ("Ree!",
   "Gijp!") laat het commando als tekstballon zien boven wie het roept, net als een gekozen
   roeicommando. Elke handeling heeft
@@ -537,7 +539,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   strijken", "Eerst de mast zetten", "Eerst de zeilen hijsen", "Eerst het reven afmaken") of wat er
   al zo is ("De mast staat al"). Wat niet genoemd is, doet er niet toe: de mast wil alleen gestreken
   en opgebonden zeilen — waar het anker of het midzwaard intussen is, maakt niet uit.
-  Daaronder **Hoe**: **Bekijken** speelt de handeling af, en de stappenbalk (vorige, afspelen,
+  Daaronder twee knoppen: **Bekijken** speelt de handeling af, en de stappenbalk (vorige, afspelen,
   volgende, de schuif) staat dan in de kaart; **Oefenen** laat de boot staan en vraagt bij elke stap
   "Wat is de volgende stap?" met vier antwoorden: de goede en drie die in de toestand van de boot
   nú zouden kunnen, alleen niet nu. Welke dat zijn volgt uit wat elke stap vooraf nodig heeft
