@@ -567,7 +567,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // with way enough, and every tack calm, so she keeps her speed. Here a straight channel along the
   // wind, as in the upper drawing: slagen of one length, and overstag just short of the bank each
   // time. The banks are laid from the way she sails, clear of it on either side.
-  let beating = null; let banks = null;
+  let beating = null; let banks = null; let shores = null; let shoresWanted = false;
   const BEAT = { slag: 18, tacks: 3, ready: 1.2, tack: 1.5, clear: 3.5, bank: 6 };   // m; tack: m per radian of the turn
   const planBeating = (play = true) => {
     beating = drop(beating); sighting = dropSighting(); rescuing = dropRescue(); anchoring = drop(anchoring);
@@ -637,6 +637,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   /** The two banks of the channel: flat strips of land on the water, `lo` and `hi` their inner edges across the wind. */
   const layBanks = (up, across, lo, hi, back, front) => {
     if (banks) { world.remove(banks); banks.geometry.dispose(); }
+    if (shores) { world.remove(shores); shores.geometry.dispose(); }
     const pos = []; const index = [];
     for (const [inner, outer] of [[lo, lo - BEAT.bank], [hi, hi + BEAT.bank]]) {
       const n = pos.length / 3;
@@ -651,6 +652,25 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     banks = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xa4ad8f, side: THREE.DoubleSide,
       polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
     banks.frustumCulled = false; banks.renderOrder = 1; world.add(banks);
+    // seen from the helm the flat strips hardly show: there the banks stand up as two walls of land -
+    // a dyke with clumps of trees - along their edges, far on ahead and astern
+    const wall = [];
+    const rise = (u, seed) => 1.4 + 0.3 * Math.sin(u * 0.21 + seed)
+      + 3.5 * Math.max(0, Math.sin(u * 0.33 + seed * 2) * Math.sin(u * 0.071 + seed));   // the trees
+    for (const [edgeAt, seed] of [[lo, 1], [hi, 4]]) {
+      const from = back - 150; const to = front + 150; const n = Math.ceil(to - from);
+      for (let i = 0; i < n; i++) {
+        const u0 = from + ((to - from) * i) / n; const u1 = from + ((to - from) * (i + 1)) / n;
+        const a = across.clone().multiplyScalar(edgeAt).addScaledVector(up, u0);
+        const b = across.clone().multiplyScalar(edgeAt).addScaledVector(up, u1);
+        const y0 = tuig.waterlijn_m - 0.3; const h0 = tuig.waterlijn_m + rise(u0, seed); const h1 = tuig.waterlijn_m + rise(u1, seed);
+        wall.push(a.x, y0, a.z, b.x, y0, b.z, a.x, h0, a.z, b.x, y0, b.z, b.x, h1, b.z, a.x, h0, a.z);
+      }
+    }
+    const wallGeometry = new THREE.BufferGeometry();
+    wallGeometry.setAttribute('position', new THREE.Float32BufferAttribute(wall, 3));
+    shores = new THREE.Mesh(wallGeometry, new THREE.MeshBasicMaterial({ color: 0x93a391, side: THREE.DoubleSide }));
+    shores.frustumCulled = false; shores.visible = false; world.add(shores);
   };
 
   // -- ankeren (zeilinstructieboek § 5.13, pp. 87-89), under sail or with the sails down already.
@@ -1316,6 +1336,10 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const RESCUE_NEEDS = { overstag: ['oploeven'], bak: ['vast'], binnen: ['vast'], weg: ['binnen'] };
   let drenkelingMesh = null; let pointingArrow = null;
   const POINTING = { length: 1.4, above: 0.85, out: 0.75 };         // m: the arrow; its origin over the middle of the doft, a head's height up; the start that far out from it
+  // seen from the helm it would stand in the way, over his shoulder: there it is half the size, low
+  // over the middle of the voorste doft, in front of him, and starts closer in
+  const POINTING_HELM = { size: 0.5, above: 0.25, out: 0.25 };
+  let lookingFrom = 'vogel';                                        // the view of a run (main.js), for what is only right from one place
   /** The pointing arm, as an arrow floating over the achterste doft, where the one who points sits. */
   const pointing = () => pointingArrow ??= (() => {
     const g = new THREE.Group(); g.visible = false;
@@ -1327,6 +1351,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     g.add(shaft, head); scene.add(g);                                // along +y: turned to the drenkeling each frame
     const box = new THREE.Box3(); for (const m of meshesOf(['doft_achter'])) box.expandByObject(m);
     g.userData.from = new THREE.Vector3((box.min.x + box.max.x) / 2, box.max.y + POINTING.above, 0);
+    const fore = new THREE.Box3(); for (const m of meshesOf(['doft_voor'])) fore.expandByObject(m);
+    g.userData.fromHelm = fore.isEmpty() ? g.userData.from.clone()
+      : new THREE.Vector3((fore.min.x + fore.max.x) / 2, fore.max.y + POINTING_HELM.above, 0);
     return g;
   })();
   const drenkeling = () => drenkelingMesh ??= (() => {             // a head and a life jacket, in the water; made when first needed
@@ -1442,12 +1469,14 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const arrow = pointing();
     const told = smoothstep(clamp((v.wijzen - 0.35) / 0.65, 0, 1));   // it comes once "Wijs!" has been called
     arrow.visible = d.visible && told > 0 && v.vast < 1;
-    arrow.scale.setScalar(Math.max(told, 1e-3));
+    const helm = lookingFrom === 'schipper';
+    arrow.scale.setScalar(Math.max(told * (helm ? POINTING_HELM.size : 1), 1e-3));
     if (arrow.visible) {
       const at = toBoat(d.position, tmp0); at.y += 0.12;             // their head, in the boat's frame
       // turned about its origin over the doft, and started a little way out along where it points
-      const dir = at.sub(arrow.userData.from).normalize();
-      arrow.position.copy(arrow.userData.from).addScaledVector(dir, POINTING.out);
+      const from = helm ? arrow.userData.fromHelm : arrow.userData.from;
+      const dir = at.sub(from).normalize();
+      arrow.position.copy(from).addScaledVector(dir, helm ? POINTING_HELM.out : POINTING.out);
       arrow.quaternion.setFromUnitVectors(UP, dir);
     }
     if (rescuing.t >= rescuing.total - 1e-6 || v.vaart <= 0) return;
@@ -3953,7 +3982,10 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     if (tacking) { tacking.tick(step); layTack(); }                 // it steers: the course it sets is the one read below
     berthing?.tick(step); leaving?.tick(step); turning?.tick(step); rescuing?.tick(step); sighting?.tick(step); anchoring?.tick(step); beating?.tick(step); hauling?.tick(step);
     layBerth(); layLeave(); layTurn(); layRescue(); showBearing(); layAnchoring();
-    if (banks) banks.visible = Boolean(beating) && shown === beating;
+    if (banks) {
+      const on = Boolean(beating) && shown === beating;
+      banks.visible = on && !shoresWanted; shores.visible = on && shoresWanted;
+    }
     const sailing = state.mode === 'zeilen';
     const side = Math.sign(state.course) || 1;                      // +1: wind over starboard, sails to port
     const course = Math.min(Math.abs(state.course), RUN);
@@ -4836,12 +4868,42 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     }
     return out;
   };
+  let runStart = null;                                              // { proc, t }: where the operation of the card set out from
   const run = {
     ops: () => Object.keys(OPS).map((op) => ({ op, blocked: blocked(op), done: OPS[op].done() })),
     maxTurns: reefInfo.max_slagen,
     get turns() { return reefWanted; },
     /** Starts an operation; `play` false leaves it standing at its start, for practising. */
-    begin(op, { play = true, turns = reefWanted } = {}) {
+    begin(op, options = {}) {
+      runStart = null;
+      if (!this.plan(op, options)) return false;
+      runStart = shown && { proc: shown, t: shown.t };             // where it set out from: the cross goes back there
+      return true;
+    },
+    /**
+     * Called off before its end (the cross of its card): the boat as it was when it began. Its
+     * timeline goes back to where it set out, and a manoeuvre lets go of her there - so nothing is
+     * left half done that would stand in the way of what comes next.
+     */
+    abandon() {
+      const at = runStart; runStart = null;
+      if (!at || at.proc !== shown) return;
+      const proc = shown;
+      proc.scrub(at.t);
+      update(0);                                                    // she is posed as it has her there
+      if (proc === tacking) {                                       // at its start a turn no longer steers: the course it set out on
+        tackSteers = true; setCourse(wrap180(Math.round(tacking.side * tacking.from)) || 0); tackSteers = false;
+      } else if (proc === berthing) { berthing = dropBerthing(); layWal(null); }   // the steiger it laid goes with it
+      else if (proc === leaving) leaving = drop(leaving);
+      else if (proc === turning) turning = dropTurning();
+      else if (proc === hauling) hauling = drop(hauling);
+      else if (proc === rescuing) rescuing = dropRescue();
+      else if (proc === sighting) sighting = dropSighting();
+      else if (proc === anchoring) anchoring = drop(anchoring);
+      else if (proc === beating) beating = drop(beating);
+      if (dock.mooring && dock.mooring === proc.way) dock.mooring = null;   // free again where the way began
+    },
+    plan(op, { play = true, turns = reefWanted } = {}) {
       if (blocked(op)) return false;
       if (op === 'reven') { setReef(turns, play); return true; }
       if (op === 'overstag') { planTurn('overstag', play); return true; }
@@ -4902,7 +4964,12 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       return { answer, options: shuffled([answer, ...others]) };
     },
     /** Whether it has come to its end, the way it goes. */
-    get finished() { if (!shown) return true; return this.direction > 0 ? shown.t >= shown.total - 1e-6 : shown.t <= 1e-6; },
+    // at the end of its timeline, or with no step left to do that way (only skipped ones, or a tail)
+    get finished() {
+      if (!shown) return true;
+      const d = this.direction;
+      return (d > 0 ? shown.t >= shown.total - 1e-6 : shown.t <= 1e-6) || (!shown.playing && !shown.upcoming(d));
+    },
   };
 
   const rowButtons = all('#oars-panel button');
@@ -5173,7 +5240,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     roeien: state.rowing, commando: { ...state.commando },
     zwaard: state.midzwaard,
   });
-  return { update, state, click, reveal, helm: helmControl, procedure, procedureControl, apply, current, run,
+  return { update, state, click, reveal, helm: helmControl,
+           /** Where a run is looked at from now (main.js): 'vogel', 'dichtbij', 'boven' or 'schipper'. */
+           lookFrom: (v) => { lookingFrom = v; }, procedure, procedureControl, apply, current, run,
            closePopover: () => openPopover(null), placePopover: () => { if (opened) place(opened); },
            dock: { layWal, cast: () => casting(), conditions: walConditions, get speed() { return dock.speed; },
                    /** Her heading in the world, and whether a manoeuvre (or the wind, swinging her on her bow line) turns her now. */
@@ -5182,6 +5251,25 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
                    trackBox: (out) => { out.makeEmpty(); for (const q of track.points) out.expandByPoint(toBoat(q, tmp0)); return out; },
                    get turnsHer() { return Boolean(shown) && [tacking, berthing, leaving, turning, rescuing, sighting, anchoring, beating].includes(shown) || Boolean(dock.moored && bowOnNow()); },
                    /** Whether the view stays on her, rather than taking in her track: opkruisen, where the way is long and the track would drag it about. */
+                   /** A point in the world, in the boat's frame (model space), and back. */
+                   toBoat: (v, out) => toBoat(v, out), toWorld: (v, out) => toWorld(v, out),
+                   /**
+                    * Where the manoeuvre shown goes, in the world: the whole of its way when it has one,
+                    * the steiger, her track so far, and where she is. What a view from above takes in.
+                    */
+                   extent: (out) => {
+                     out.makeEmpty(); out.expandByPoint(tmp0.copy(dock.p).setY(0));
+                     const path = shown?.way?.path;
+                     if (path) for (let i = 0; i <= 40; i++) out.expandByPoint(path(i / 40, tmp0).setY(0));
+                     for (const q of track.points) out.expandByPoint(tmp0.copy(q).setY(0));
+                     if (dock.steiger) { const { o, x, half } = edge(); for (const e of [-half, half]) out.expandByPoint(tmp0.copy(o).addScaledVector(x, e)); }
+                     return out;
+                   },
+                   /**
+                    * Seen from the helm (`on`): the banks of a channel stand up as walls of land instead of
+                    * lying flat. Whether there is a channel in sight, which then is all the land there is.
+                    */
+                   shores: (on) => { shoresWanted = on; return Boolean(banks) && Boolean(beating) && shown === beating; },
                    get followsHer() { return Boolean(beating) && shown === beating; },
                    get moored() { return dock.moored; }, get kind() { return dock.kind; } },
            bowsprit: bowsprit && { get on() { return bowsprit.want; }, set: setBowsprit },

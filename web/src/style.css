@@ -562,7 +562,9 @@ button.primary:disabled:hover { background: var(--accent); }
   position: static; transform: none; width: auto; margin-top: 8px; padding: 0; border: 0; background: none;
   backdrop-filter: none;
 }
-#ops-card .steps #procedure-name { display: none; }                /* the card says what it is */
+#ops-card .steps #procedure-name { display: none; }
+#ops-card .views { display: flex; margin-top: 6px; }                /* where it is looked at from */
+#ops-card .views button { flex: 1; padding: 3px 4px; font-size: 12px; }                /* the card says what it is */
 #ops-card.bekijken .head .count, #ops-card.bekijken .head .bar { visibility: hidden; }   /* the step controls count for themselves */
 /* practising: compact - no hint, smaller answers, and the verdict on the row of Volgende */
 #ops-card .hint { display: none; }

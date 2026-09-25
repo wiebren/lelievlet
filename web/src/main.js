@@ -106,7 +106,7 @@ export function mount(ui, host, config) {
   scene.environment = environment;
   scene.environmentIntensity = 0.4;
 
-  const camera = new THREE.PerspectiveCamera(35, 1, 0.05, 200);
+  const camera = new THREE.PerspectiveCamera(FOV, 1, 0.05, 200);
   const controls = new OrbitControls(camera, canvas);
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
@@ -239,7 +239,8 @@ export function mount(ui, host, config) {
     quiz = initQuiz({ parts, scene, select, flyTo, setCovered, openLearn: (kind) => openLearn(kind),
                       setHighlights, partVisible, closePanel, opslaan,
                       ui, wrap, config, signal, engaged, realTarget, onDestroy });   // Oefenen
-    handelingen = initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedure, dismissProcedure, setCovered, opslaan, signal, engaged, realTarget, onDestroy });
+    handelingen = initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedure, dismissProcedure,
+      runView: { get: () => runViewChosen, set: chooseRunView }, setCovered, opslaan, signal, engaged, realTarget, onDestroy });
     closePanel.set('learn', () => modes.closePopover());    // a round or a run takes the whole screen
     initLearn();
     loaded = true;
@@ -420,7 +421,7 @@ export function mount(ui, host, config) {
     const center = modelBox.getCenter(new THREE.Vector3());
     const size = modelBox.getSize(new THREE.Vector3());
     const radius = size.length() / 2;
-    const dist = radius / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * 0.82;
+    const dist = radius / Math.sin(THREE.MathUtils.degToRad(FOV / 2)) * 0.82;   // the lens it is going back to
     const dir = {
       iso: new THREE.Vector3(-0.55, 0.35, 0.78),
       side: new THREE.Vector3(0, 0, 1),
@@ -466,6 +467,7 @@ export function mount(ui, host, config) {
   const sight = new THREE.Vector3();
   const aimProbe = new THREE.Raycaster();
   function aimAt(x, y) {
+    if (runView() === 'schipper') return;                           // from the helm the target is the way he looks
     aimProbe.setFromCamera(pointer.set(x, y), camera);
     const hit = aimProbe.intersectObjects(pickable(), false)[0];
     if (!hit) return;                                          // the sky: keep the target where it is
@@ -855,20 +857,15 @@ export function mount(ui, host, config) {
   });
   // A step on its own is shown: the camera first goes to the parts it is about - all the room they
   // take up while it plays, from the side - and then it plays.
+  // In Bovenaf and Schipper the camera stays where it is; Dichtbij goes to the parts even where the
+  // step says where to look from.
   const stepBox = new THREE.Box3();
   function stepProcedure(direction) {
-    const focus = modes?.procedureControl.focus(direction);
-    const view = modes?.procedureControl.camera(direction);
+    const v = runView();
+    const view = v === 'vogel' ? modes?.procedureControl.camera(direction) : null;
     let flying = false;
     if (view) flying = flyToView(view, direction);
-    else if (focus?.length) {
-      const span = new THREE.Box3();
-      modes.procedureControl.across(direction, () => span.union(worldBox(focus, stepBox)));
-      flying = !span.isEmpty() && flyTo(focus, { box: span, low: true, near: true, ms: STEP_FLIGHT_MS });
-      // what cannot be seen from anywhere (the midzwaard going up into its kast) is selected for the
-      // step: lit, and drawn through the boat
-      if (flying && focus.some((p) => p.xray)) { select(focus); for (const p of focus) p.xray = true; refreshHighlight(); }
-    }
+    else if (v === 'vogel' || v === 'dichtbij') flying = flyToStep(direction);
     modes?.procedureControl.step(direction, flying ? STEP_FLIGHT_MS / 1000 : 0);
   }
   /**
@@ -897,6 +894,10 @@ export function mount(ui, host, config) {
   }
   /** A run starting: the camera goes to where the procedure as a whole is watched from, if it says. */
   function lookAtProcedure() {
+    const v = runView();
+    closeAt = -1; above = null; easing = null;
+    if (v === 'dichtbij') { closeAt = modes?.procedure()?.index ?? -1; flyToStep(1); return; }
+    if (v !== 'vogel') return;                                      // Bovenaf and Schipper take it up themselves, per frame
     const view = modes?.procedureControl.view();
     if (view) flyToView(view, 1);
   }
@@ -1140,12 +1141,172 @@ export function mount(ui, host, config) {
   function turnWithHer() {
     const dock = modes?.dock; if (!dock) return;
     const h = dock.heading; const was = headingWas; headingWas = h;
-    if (was === null || !dock.turnsHer) return;
+    if (was === null || !dock.turnsHer || runView() !== 'vogel') return;
     const d = Math.atan2(Math.sin(h - was), Math.cos(h - was));
     if (!d || Math.abs(d) > 0.5) return;                        // a new world laid is no turn
     turnPoint(camera.position, d); turnPoint(controls.target, d);
     if (flight) { turnPoint(flight.from, d); turnPoint(flight.fromTarget, d); }
   }
+  // The view of a run is chosen in its card: Vogelvlucht (from over her, the way each manoeuvre is
+  // laid out to be watched, turning with her - the default), Dichtbij (at what is being done, from
+  // step to step), Bovenaf (straight down on the water, standing still: she sails through the
+  // picture, the wind from the top) and Schipper (from where the helmsman sits, looking ahead over
+  // the bow, with a shore round the horizon to see her turn by). Out of a run it is Vogelvlucht.
+  const RUN_VIEWS = ['vogel', 'dichtbij', 'boven', 'schipper'];
+  const RUN_VIEW_STORE = 'lelievlet.beeld.v1';
+  let runViewChosen = (() => {
+    try { const v = localStorage.getItem(RUN_VIEW_STORE); return RUN_VIEWS.includes(v) ? v : 'vogel'; } catch { return 'vogel'; }
+  })();
+  /** The view in force: the one chosen while the card of a run is open. */
+  const runView = () => (wrap.classList.contains('ops-on') ? runViewChosen : 'vogel');
+  function chooseRunView(v) {
+    if (!RUN_VIEWS.includes(v) || v === runViewChosen) return;
+    runViewChosen = v;
+    try { localStorage.setItem(RUN_VIEW_STORE, v); } catch { /* remembered for this visit only */ }
+    handledAt = -Infinity; lookAtProcedure();
+  }
+  let viewWas = 'vogel';                                            // the view in force last frame
+  let closeAt = -1;                                                 // Dichtbij: the step last gone to
+  let above = null;                                                 // Bovenaf: { box, up } in the world
+  let easing = null;                                                // Bovenaf and Schipper: on the way in, { from, fromTarget, t }
+  let helmZ = 0;                                                    // Schipper: the side he sits on, to windward
+  const aboveTarget = new THREE.Vector3(); const abovePos = new THREE.Vector3(); const aboveUp = new THREE.Vector3();
+  const extentBox = new THREE.Box3(); const extentSphere = new THREE.Sphere();
+  const tmpV = new THREE.Vector3();
+  // where the helmsman's eyes are: sitting just before the achterdek, on the side, the end of the
+  // helmstok in hand - measured once the boat is there
+  let helmEyeAt = null;
+  const helmEye = () => {
+    if (helmEyeAt) return helmEyeAt;
+    const deck = worldBox(parts.filter((p) => p.extras.id === 'achterdek'), new THREE.Box3());
+    helmEyeAt = deck.isEmpty() ? new THREE.Vector3(1.3, 1.6, 0) : new THREE.Vector3(deck.max.x, deck.max.y + 0.85, 0);
+    return helmEyeAt;
+  };
+
+  /** The step one on (+1) or back (-1), looked at close: the parts it is about, from the side. */
+  function flyToStep(direction, ms = STEP_FLIGHT_MS) {
+    const focus = modes?.procedureControl.focus(direction);
+    if (!focus?.length) return false;
+    const span = new THREE.Box3();
+    modes.procedureControl.across(direction, () => span.union(worldBox(focus, stepBox)));
+    const flying = !span.isEmpty() && flyTo(focus, { box: span, low: true, near: true, ms });
+    // what cannot be seen from anywhere (the midzwaard going up into its kast) is selected for the
+    // step: lit, and drawn through the boat
+    if (flying && focus.some((p) => p.xray)) { select(focus); for (const p of focus) p.xray = true; refreshHighlight(); }
+    return flying;
+  }
+
+  /** Per frame, in a view other than Vogelvlucht: the camera where that view has it. False in Vogelvlucht. */
+  function followRunView(dt) {
+    const v = runView(); const dock = modes?.dock;
+    // from the helm: land all round, or in a channel only its two banks, standing up along it
+    modes?.lookFrom(v);
+    const channel = modes?.dock.shores(v === 'schipper') ?? false;
+    horizon.visible = v === 'schipper' && !channel;
+    // Schipper looks out as a person does: some 90 degrees across (less upright on a narrow screen)
+    const fov = v === 'schipper'
+      ? THREE.MathUtils.clamp(2 * THREE.MathUtils.radToDeg(Math.atan(Math.tan(THREE.MathUtils.degToRad(SCHIPPER_ACROSS / 2)) / camera.aspect)), 50, 85)
+      : FOV;
+    if (Math.abs(camera.fov - fov) > 0.05) {
+      camera.fov += (fov - camera.fov) * (1 - Math.exp(-dt * 4));
+      if (Math.abs(camera.fov - fov) < 0.05) camera.fov = fov;
+      camera.updateProjectionMatrix();
+    }
+    // from the helm there is only looking round: no moving over, no going in or out
+    controls.enablePan = controls.enableZoom = v !== 'schipper';
+    // back from another view (the card closed, or Vogelvlucht chosen for a run that has no view of its
+    // own): from the helm or from high above the usual view would take over from nowhere in particular,
+    // so it flies to the one the viewer opens with
+    if (v === 'vogel' && viewWas !== 'vogel' && !(wrap.classList.contains('ops-on') && modes?.procedureControl.view())) setView('iso');
+    viewWas = v;
+    if (v === 'vogel' || !dock) { closeAt = -1; above = null; easing = null; return false; }
+    if (v === 'dichtbij') {                                         // played on its own: along to each step as it begins
+      const p = modes.procedure();
+      if (p?.playing && !p.stepping && p.index !== closeAt && !flight) { closeAt = p.index; flyToStep(1); }
+      controls.maxDistance = MAX_DISTANCE;
+      return true;
+    }
+    if (v === 'boven' && performance.now() - handledAt < 3000) { easing = null; return true; }   // moved by hand: left there a while
+    if (v === 'boven') {
+      // the whole of the manoeuvre from straight above, still on the water: whatever she will go
+      // over, and whatever her track has taken in, only ever more of it
+      dock.extent(extentBox);
+      if (!above) {
+        const wind = THREE.MathUtils.degToRad(modes.state.course);
+        const up = dock.toWorld(tmpV.set(turnAbout.x + Math.cos(wind), 0, Math.sin(wind)), new THREE.Vector3())
+          .sub(dock.toWorld(tmpV.copy(turnAbout), new THREE.Vector3())).setY(0).normalize();
+        above = { box: extentBox.clone(), up };
+      } else above.box.union(extentBox);
+      above.box.getBoundingSphere(extentSphere);
+      const half = Math.min(THREE.MathUtils.degToRad(camera.fov / 2), Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect));
+      const height = (extentSphere.radius + 4) / Math.tan(half);
+      dock.toBoat(extentSphere.center, aboveTarget).setY(0);
+      // a hair off vertical, on the lee side, so the top of the picture is where the wind comes from
+      dock.toBoat(tmpV.copy(extentSphere.center).addScaledVector(above.up, -height * 0.01), aboveUp).setY(0);
+      abovePos.copy(aboveUp).setY(height);
+      controls.maxDistance = Math.max(MAX_DISTANCE, height * 1.2);
+    } else {
+      // Schipper: on the achterdoft, on the side the wind comes from, looking ahead past the mast
+      const wind = Math.sin(THREE.MathUtils.degToRad(modes.state.course));
+      helmZ += ((Math.abs(wind) > 0.05 ? Math.sign(wind) * 0.55 : 0) - helmZ) * (1 - Math.exp(-dt * 1.5));
+      const eye = helmEye();
+      abovePos.set(eye.x, eye.y, helmZ);
+      aboveTarget.set(eye.x + 12, eye.y - 0.9, helmZ * 0.3);
+      controls.maxDistance = MAX_DISTANCE;
+      horizon.matrix.makeRotationY(dock.heading).setPosition(abovePos.x, 0, abovePos.z);
+      if (easing?.t >= 1) {
+        // sitting there: a drag turns the head. What it orbits is a hand's width before the eye, and
+        // the eye is put back every frame, so only the way it looks changes - and stays, with her
+        tmpV.copy(controls.target).sub(camera.position).normalize();
+        camera.position.copy(abovePos); controls.target.copy(abovePos).addScaledVector(tmpV, LOOK_REACH);
+        return true;
+      }
+    }
+    flight = null;
+    if (!easing) easing = { from: camera.position.clone(), fromTarget: controls.target.clone(), t: 0 };
+    easing.t = Math.min(easing.t + dt / 1.2, 1);
+    const k = easing.t * easing.t * (3 - 2 * easing.t);
+    camera.position.lerpVectors(easing.from, abovePos, k);
+    controls.target.lerpVectors(easing.fromTarget, aboveTarget, k);
+    return true;
+  }
+
+  // Schipper: land all round, far off - low polders with clumps of trees, a few church towers and
+  // windmills - fixed in the world, so when she turns it goes by. Only there.
+  const horizon = (() => {
+    const group = new THREE.Group(); group.matrixAutoUpdate = false; group.visible = false;
+    const R = 150; const N = 360; const pos = [];
+    const rise = (a) => 1.6 + 0.7 * Math.sin(a * 3 + 1) + 0.4 * Math.sin(a * 11 + 2)
+      + 3.2 * Math.max(0, Math.sin(a * 23) * Math.sin(a * 5 + 0.5));                   // the trees
+    for (let i = 0; i < N; i++) {
+      const a0 = (i / N) * 2 * Math.PI; const a1 = ((i + 1) / N) * 2 * Math.PI;
+      const [x0, z0, x1, z1] = [Math.cos(a0) * R, Math.sin(a0) * R, Math.cos(a1) * R, Math.sin(a1) * R];
+      const [h0, h1] = [rise(a0), rise(a1)];
+      pos.push(x0, -10, z0, x1, -10, z1, x0, h0, z0, x1, -10, z1, x1, h1, z1, x0, h0, z0);   // down under the water's edge
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    const land = new THREE.MeshBasicMaterial({ color: 0x93a391, side: THREE.DoubleSide });
+    group.add(new THREE.Mesh(geometry, land));
+    const far = new THREE.MeshBasicMaterial({ color: 0x7c8a82 });
+    const at = (a, r = R - 3) => new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r);
+    for (const a of [0.5, 2.6, 4.3]) {                                                   // church towers
+      const tower = new THREE.Mesh(new THREE.BoxGeometry(3, 13, 3), far); tower.position.copy(at(a)).setY(6.5);
+      const spire = new THREE.Mesh(new THREE.ConeGeometry(2.2, 8, 4), far); spire.position.copy(at(a)).setY(17);
+      group.add(tower, spire);
+    }
+    for (const a of [1.4, 3.5, 5.5]) {                                                   // windmills
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 2.4, 11, 8), far); body.position.copy(at(a)).setY(5.5);
+      const sails = new THREE.Group(); sails.position.copy(at(a, R - 5)).setY(11); sails.lookAt(0, 11, 0);
+      for (const turn of [0.3, 0.3 + Math.PI / 2]) {
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(17, 1.3, 0.2), far); blade.rotation.z = turn; sails.add(blade);
+      }
+      group.add(body, sails);
+    }
+    scene.add(group);
+    return group;
+  })();
+
 
   const clock = new THREE.Clock();
   let elapsed = 0;                 // ms since the first frame; the pulse and the rings beat on it
@@ -1155,7 +1316,7 @@ export function mount(ui, host, config) {
     keyboardNavigate(dt);
     modes?.update(dt, speed);
     turnWithHer();
-    keepTrackInView(dt);
+    if (!followRunView(dt)) keepTrackInView(dt);
     night?.update(dt, speed);
     paintScheme?.update(dt);
     stepProcedureBar();
@@ -1313,6 +1474,9 @@ const ELEVATIONS = [40, 65, 15, 85];
 const LOW_ELEVATIONS = [20, 8, 35];
 const LOW_Y = Math.sin(THREE.MathUtils.degToRad(20));
 const SQUARE_ON = 3;                   // how much looking square onto a flat movement weighs, in sample points seen
+const FOV = 35;                         // degrees, upright: the lens of every view but Schipper
+const SCHIPPER_ACROSS = 90;
+const LOOK_REACH = 0.25;                // m before the helmsman's eye that a drag turns the view about             // degrees across the picture, seen from the helm
 const STEP_FLIGHT_MS = 1400;           // the camera goes to a step at half the speed of a click in the list
 const SAMPLES = [[0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
 const MARGIN = 1.6;                    // room left around the part

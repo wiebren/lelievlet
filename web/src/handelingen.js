@@ -66,12 +66,20 @@ const DONE = {
   ankerenZeil: 'De boot ligt al voor anker', ankerenKaal: 'De boot ligt al voor anker', ankerOpZeil: 'Het anker is op', ankerOpKaal: 'Het anker is op',
 };
 const MARKS = { goed: '✓', fout: '✗' };
+// the views of a run, in its card
+const VIEWS = { vogel: 'Vogelvlucht', dichtbij: 'Dichtbij', boven: 'Bovenaf', schipper: 'Schipper' };
+const VIEW_TITLES = {
+  vogel: 'Van schuin boven, zoals de manoeuvre het beste te volgen is',
+  dichtbij: 'Dichtbij wat er bij elke stap gebeurt',
+  boven: 'Recht van boven, stil boven het water',
+  schipper: 'Vanaf de plaats van de schipper, vooruit kijkend',
+};
 const STORE = 'lelievlet.manoeuvres.v1';      // { v: 1, foutloos: { <op>: true } }: practised through without a mistake
 
 const el = (tag, className, text) => Object.assign(document.createElement(tag), { className: className ?? '', textContent: text ?? '' });
 const pct = (goed, total) => (total ? Math.round((goed / total) * 100) : 0);
 
-export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedure, dismissProcedure, setCovered, opslaan = true, signal, engaged, realTarget, onDestroy }) {
+export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedure, dismissProcedure, runView, setCovered, opslaan = true, signal, engaged, realTarget, onDestroy }) {
   const $ = (id) => ui.getElementById(id);
   const run = modes.run;
   const touch = window.matchMedia('(pointer: coarse)');
@@ -166,6 +174,18 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
   const stop = Object.assign(el('button', 'stop', '×'), { type: 'button', title: 'Stoppen' });
   stop.setAttribute('aria-label', 'Stoppen');
   const head = el('div', 'head'); head.append(name, count, bar, stop);
+  // where it is looked at from (main.js keeps the camera there)
+  const views = el('div', 'segmented views');
+  views.setAttribute('role', 'radiogroup'); views.setAttribute('aria-label', 'Camera');
+  const viewButtons = Object.entries(VIEWS).map(([v, label]) => {
+    const b = Object.assign(el('button', null, label), { type: 'button', title: VIEW_TITLES[v] });
+    b.setAttribute('role', 'radio'); b.dataset.view = v;
+    b.addEventListener('click', () => { runView?.set(v); showView(); });
+    views.append(b);
+    return b;
+  });
+  const showView = () => { for (const b of viewButtons) b.setAttribute('aria-checked', String(b.dataset.view === runView?.get())); };
+  views.hidden = !runView;
   const big = el('div', 'big');
   const vraag = el('div', 'vraag');
   const hint = el('div', 'hint');
@@ -177,7 +197,7 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
   const extra = Object.assign(el('button', 'extra'), { type: 'button' });
   const secondary = Object.assign(el('button', 'link-button secondary'), { type: 'button' });
   actions.append(feedback, secondary, extra, primary);             // what was right or wrong, beside Volgende
-  card.append(head, big, vraag, hint, holder, answers, actions);
+  card.append(head, views, big, vraag, hint, holder, answers, actions);
   wrap.append(card);
   card.addEventListener('pointerdown', (e) => e.stopPropagation());
   const procBar = $('procedure'); const procHome = procBar.parentNode; const procNext = procBar.nextSibling;
@@ -237,7 +257,6 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
     if (!op) return;
     modes.closePopover();
     if (!run.begin(op, { play: how === 'bekijken', turns: n })) return;
-    lookAtProcedure?.();
     const p = modes.procedure();
     // it counts as the whole manoeuvre only when it starts at its first step: struck halfway and then
     // hoisted from there is a part of it, and earns no tick
@@ -248,6 +267,8 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
     card.classList.toggle('bekijken', how === 'bekijken');
     setDone(false);
     setFocus(true);
+    showView();
+    lookAtProcedure?.();                                           // in the view chosen: the card is open now
     follow();                                                      // the count and the bar at once, not on the next tick
     if (how === 'oefenen') ask();
     else {
@@ -324,6 +345,8 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
   }
 
   function close() {
+    // called off before its end: the boat goes back to how it was when it began
+    if (current && !current.done && !run.finished) run.abandon();
     current = null;
     setFeedback(null);
     setFocus(false);

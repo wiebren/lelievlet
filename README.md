@@ -564,6 +564,20 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   die stap zien (de camera eerst, zoals altijd), een fout antwoord de goede; na de laatste stap volgt
   de uitslag. Zolang een handeling loopt staat de viewer in focusmodus (`.lv.ops-on`), net als bij
   Oefenen: alleen de boot, de kaart en volledig scherm, en een klik op het model doet niets.
+  Aan het eind van de handeling wordt het kruisje een groene **Klaar**. Dat gebeurt zodra er in de
+  richting van de handeling geen stap meer te doen is. Het kruisje daarvoor breekt de handeling af
+  (`run.abandon()` in `modes.js`): de tijdlijn gaat terug naar waar de handeling begon, en een
+  manoeuvre laat de boot daar los. Zo ligt de boot er weer bij zoals ervoor, zonder iets half gedaan.
+  Een steiger die Afmeren had gelegd verdwijnt, en na een afgebroken wending of gijp vaart ze weer
+  haar oude koers.
+  Bovenin de kaart kies je het beeld (`main.js`, onthouden in `lelievlet.beeld.v1`):
+  - **Vogelvlucht** (standaard): van schuin boven, zoals elke manoeuvre het zelf aangeeft; de camera
+    draait mee met de boot en houdt het spoor in beeld.
+  - **Dichtbij**: bij elke stap naar de onderdelen waar het om gaat.
+  - **Bovenaf**: recht van boven en stil boven het water, met de wind van boven. De boot vaart door
+    het beeld en het beeld groeit mee met haar spoor.
+  - **Schipper**: vanaf de plaats van de roerganger, net voor het achterdek aan de loefzijde, vooruit
+    kijkend. Rondom ligt in de verte land, met kerktorens en molens, zodat je ziet dat ze draait.
   Een rif is een nieuwe timeline vanaf de huidige stand naar het gekozen aantal slagen.
 - Mast strijken (tweede helft van de timeline van het tuig): fok eraf; het opgedoekte zeil met giek en
   gaffel, één stijve bundel die op twee punten wordt gedragen, gaat van de vork van de mik in de
