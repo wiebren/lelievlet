@@ -142,9 +142,11 @@ op de steiger.
   aan.
 
 - **Het icoon** is de eigen boot: de lelievlet in zijaanzicht, in de kleuren en met het zeilnummer
-  die de app meekreeg, plus wat er in de app nog is aangepast. De app-pagina tekent het bij elke start
-  (`web/demo/logo.js`) en de service worker geeft het in plaats van het standaardicoon. Of een
-  geïnstalleerd icoon later nog meeverandert, bepaalt het systeem. De standaardiconen in
+  die de app meekreeg, plus wat er in de app nog is aangepast. De app-pagina tekent het bij de start
+  (`web/demo/logo.js`), en opnieuw zodra in de app de kleuren of het zeilnummer veranderen; de service
+  worker geeft het in plaats van het standaardicoon. Of het icoon op het beginscherm meeverandert,
+  bepaalt het systeem: een iPhone houdt het icoon waarmee de app is toegevoegd, Chrome kijkt af en toe
+  (hooguit eens per dag, bij het starten) en vraagt dan of het nieuwe icoon mag. De standaardiconen in
   `web/demo/icons/` komen uit hetzelfde logo, in de kleuren van de viewer zelf, en worden met
   `pnpm icons` opnieuw gemaakt (dat vraagt `rsvg-convert`, uit librsvg).
 
@@ -540,9 +542,10 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   volgende en de schuif blijven binnen de flow.
 - Oefenen → **Manoeuvres** (`web/src/handelingen.js`) is een startpaneel met de
   handelingen als rijen, zoals de oefeningen van Oefenen, in vier groepen: **Zeil** (hijsen, strijken,
-  reven met het aantal slagen), **Wenden** (overstag, gijp, stormrondje), **Afmeren** (sliplanding en
-  opschieter aan hogerwal, sliplanding en voor top en takel aan een langswal, kop in de wind leggen, afvaren van langswal) en **Mast**
-  (zetten, strijken). De
+  reven met het aantal slagen), **Wenden** (overstag, gijp, stormrondje, man over boord,
+  dwarspeiling), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een langswal de
+  sliplanding en voor top en takel; aanleggen aan lagerwal), **Afvaren** (van hogerwal, langswal en
+  lagerwal, en kop in de wind leggen) en **Mast** (zetten, strijken). De
   stappen en voorwaarden van elk staan in `docs/manoeuvres.md`. Een stap met een commando ("Ree!",
   "Gijp!") laat het commando als tekstballon zien boven wie het roept, net als een gekozen
   roeicommando. Elke handeling heeft

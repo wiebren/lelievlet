@@ -12,15 +12,19 @@
 // the groups of the list, and what each operation is called in it
 const GROUPS = [
   ['Zeil', { hijsen: 'Hijsen', strijken: 'Strijken', reven: 'Reven' }],
-  ['Wenden', { overstag: 'Overstag', gijpen: 'Gijp', stormrondje: 'Stormrondje' }],
-  ['Afmeren', { slipHoger: 'Sliplanding hogerwal', opschieter: 'Opschieter hogerwal', afmeren: 'Sliplanding langswal', topEnTakel: 'Voor top en takel langswal', kopInDeWind: 'Kop in de wind leggen', afvaren: 'Afvaren van langswal' }],
+  ['Wenden', { overstag: 'Overstag', gijpen: 'Gijp', stormrondje: 'Stormrondje', manOverBoord: 'Man over boord', peiling: 'Dwarspeiling' }],
+  ['Afmeren', { slipHoger: 'Sliplanding hogerwal', opschieter: 'Opschieter hogerwal',
+    afmeren: 'Sliplanding langswal', topEnTakel: 'Voor top en takel langswal', aanleggenLager: 'Aanleggen aan lagerwal' }],
+  ['Afvaren', { afvarenHoger: 'Van hogerwal', afvaren: 'Van langswal', afvarenLager: 'Van lagerwal', kopInDeWind: 'Kop in de wind leggen' }],
   ['Mast', { mastZetten: 'Zetten', mastStrijken: 'Strijken' }],
 ];
 // and on the card of a run
 const NAMES = {
   hijsen: 'Zeilen hijsen', strijken: 'Zeilen strijken', mastStrijken: 'Mast strijken', mastZetten: 'Mast zetten', reven: 'Reven',
-  overstag: 'Overstag (wenden)', gijpen: 'Gijpen', stormrondje: 'Stormrondje', slipHoger: 'Sliplanding hogerwal', opschieter: 'Opschieter', afmeren: 'Sliplanding langswal', topEnTakel: 'Voor top en takel',
-  kopInDeWind: 'Kop in de wind leggen', afvaren: 'Afvaren van langswal',
+  overstag: 'Overstag (wenden)', gijpen: 'Gijpen', stormrondje: 'Stormrondje', manOverBoord: 'Man over boord',
+  slipHoger: 'Sliplanding hogerwal', peiling: 'Sliplanding met dwarspeiling', opschieter: 'Opschieter', afmeren: 'Sliplanding langswal',
+  topEnTakel: 'Voor top en takel', aanleggenLager: 'Aanleggen aan lagerwal',
+  afvarenHoger: 'Afvaren van hogerwal', afvaren: 'Afvaren van langswal', afvarenLager: 'Afvaren van lagerwal', kopInDeWind: 'Kop in de wind leggen',
 };
 const ABOUT = {
   hijsen: 'Zeilbinders af, zeil los, zeilen omhoog',
@@ -31,16 +35,22 @@ const ABOUT = {
   overstag: 'Door de wind naar de andere boeg',
   gijpen: 'Met de achtersteven door de wind',
   stormrondje: 'Oploeven, overstag en weer afvallen: gijpen zonder gijp',
+  manOverBoord: 'Afvallen, oploeven, dwarspeiling, overstag en oppikken',
   slipHoger: 'Aan de wind, zeilen los, met de boeg aan de steiger',
+  peiling: 'Overstag op een dwarspeiling, dan de sliplanding aan hogerwal',
   opschieter: 'Langs de kant, dan met veel roer in de wind opschieten',
   afmeren: 'Aan de wind, zeilen los, oploeven langszij',
   topEnTakel: 'Zeilen strijken, voor de wind langszij drijven',
-  kopInDeWind: 'Afgemeerd, wind van achteren: over de boeg draaien',
+  aanleggenLager: 'Grootzeil strijken, voor de wind, fok strijken, afsturen',
+  afvarenHoger: 'Afzetten, deinzen, fok bak en wegzeilen',
   afvaren: 'Lijnen los, afduwen, fok bak en wegzeilen',
+  afvarenLager: 'Wegroeien, kop in de wind, grootzeil hijsen',
+  kopInDeWind: 'Afgemeerd, wind van achteren: over de boeg draaien',
 };
 const DONE = {
   hijsen: 'De zeilen staan al', strijken: 'De zeilen zijn al gestreken', mastStrijken: 'De mast ligt al', mastZetten: 'De mast staat al',
-  slipHoger: 'De boot ligt al afgemeerd', opschieter: 'De boot ligt al afgemeerd', afmeren: 'De boot ligt al afgemeerd', topEnTakel: 'De boot ligt al afgemeerd',
+  slipHoger: 'De boot ligt al afgemeerd', peiling: 'De boot ligt al afgemeerd', opschieter: 'De boot ligt al afgemeerd',
+  afmeren: 'De boot ligt al afgemeerd', topEnTakel: 'De boot ligt al afgemeerd', aanleggenLager: 'De boot ligt al afgemeerd',
 };
 const MARKS = { goed: '✓', fout: '✗' };
 const STORE = 'lelievlet.manoeuvres.v1';      // { v: 1, foutloos: { <op>: true } }: practised through without a mistake

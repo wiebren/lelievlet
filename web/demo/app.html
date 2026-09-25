@@ -134,7 +134,23 @@
         await cache.put(new URL(path, location.href).href, new Response(blob, { headers: { 'Content-Type': 'image/png' } }));
       }
     };
-    drawIcons().catch((e) => console.warn('[lelievlet] geen eigen icoon:', e));
+    // drawn again as soon as the colours or the sail number are changed in the app: the viewer keeps
+    // them in localStorage, which is looked at every two seconds and when the app comes back into view.
+    // Only once a change has held for one look, so a colour being dragged is not drawn at every step.
+    // The home screen itself goes its own way: an iPhone keeps the icon it was added with, Chrome
+    // looks for a new one now and then and may ask before it takes it.
+    const edits = () => { try { return localStorage.getItem(AANPASSEN) ?? ''; } catch { return ''; } };
+    let drawnFor = edits(); let seen = drawnFor;
+    const redraw = () => drawIcons().catch((e) => console.warn('[lelievlet] geen eigen icoon:', e));
+    const followEdits = () => {
+      const now = edits();
+      if (now !== seen) { seen = now; return; }                    // still changing: wait for it to settle
+      if (now === drawnFor) return;
+      drawnFor = now; redraw();
+    };
+    redraw();
+    setInterval(followEdits, 2000);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { seen = edits(); followEdits(); } });
 
     // -- installing: the browser's own prompt where there is one, otherwise how to do it in this browser
     const dialog = document.getElementById('installeren');

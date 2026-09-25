@@ -112,7 +112,8 @@ export function mount(ui, host, config) {
   controls.dampingFactor = 0.08;
   controls.zoomToCursor = true;          // the wheel zooms towards what is under the pointer
   controls.minDistance = 0.02;           // close enough to read a shackle; see aimAt() for why it stays usable
-  controls.maxDistance = 60;
+  const MAX_DISTANCE = 60;                                           // how far out the view goes, but to keep a manoeuvre's track in (keepTrackInView)
+  controls.maxDistance = MAX_DISTANCE;
 
   const sun = new THREE.DirectionalLight(0xffffff, 1.4);
   sun.position.set(4, 9, 6);
@@ -645,7 +646,8 @@ export function mount(ui, host, config) {
   const meshBox = new THREE.Box3();
   let flight = null;
 
-  controls.addEventListener('start', () => { flight = null; });        // the user takes the controls
+  let handledAt = -Infinity;                                        // when the user last moved the view
+  controls.addEventListener('start', () => { flight = null; handledAt = performance.now(); });   // the user takes the controls
 
   /**
    * World box of what the part looks like now. Meshes are moved through position/quaternion and the
@@ -1101,6 +1103,34 @@ export function mount(ui, host, config) {
   let headingWas = null;
   const turnAxis = new THREE.Vector3(0, 1, 0); const turnAbout = new THREE.Vector3(2.8, 0, 0);   // her pivot, in model space
   const turnPoint = (v, a) => v.sub(turnAbout).applyAxisAngle(turnAxis, a).add(turnAbout);
+  // ...and the whole of her track stays in the picture: when it would run off it, the view draws back
+  // and moves over, smoothly, until it fits with room to spare - so it does not start and stop again
+  // with every bit the track grows - never in closer on its own, and not for a few seconds after the
+  // view was moved by hand. What lies past the water is drawn on the sky.
+  let refitting = false;
+  const trackBox = new THREE.Box3(); const trackSphere = new THREE.Sphere();
+  const lookFrom = new THREE.Vector3(); const lookAt = new THREE.Vector3();
+  function keepTrackInView(dt) {
+    const dock = modes?.dock;
+    if (!dock?.turnsHer) { controls.maxDistance = MAX_DISTANCE; refitting = false; return; }
+    if (flight || performance.now() - handledAt < 3000) return;
+    if (dock.trackBox(trackBox).isEmpty()) return;
+    trackBox.expandByPoint(turnAbout).getBoundingSphere(trackSphere);   // and the boat
+    const half = Math.min(THREE.MathUtils.degToRad(camera.fov / 2), Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect));
+    const need = (trackSphere.radius + 1.5) / Math.sin(half);
+    const off = lookFrom.copy(camera.position).sub(controls.target); const dist = off.length();
+    // does it all fit, with the target where it is - with `room` to spare?
+    const fits = (room) => dist >= need * room && lookAt.copy(trackSphere.center).sub(controls.target).length() + trackSphere.radius * room <= Math.tan(half) * dist;
+    if (!refitting && fits(1)) return;
+    refitting = !fits(1.25);                                        // on until there is a quarter more room than needed
+    if (!refitting) return;
+    controls.maxDistance = Math.max(MAX_DISTANCE, need * 1.35, controls.maxDistance);
+    const k = 1 - Math.exp(-dt * 1.2);
+    controls.target.lerp(trackSphere.center, k);
+    off.setLength(THREE.MathUtils.lerp(dist, Math.max(dist, need * 1.3), k));
+    camera.position.copy(controls.target).add(off);
+  }
+
   function turnWithHer() {
     const dock = modes?.dock; if (!dock) return;
     const h = dock.heading; const was = headingWas; headingWas = h;
@@ -1119,6 +1149,7 @@ export function mount(ui, host, config) {
     keyboardNavigate(dt);
     modes?.update(dt, speed);
     turnWithHer();
+    keepTrackInView(dt);
     night?.update(dt, speed);
     paintScheme?.update(dt);
     stepProcedureBar();
