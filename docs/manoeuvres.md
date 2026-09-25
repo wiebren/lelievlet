@@ -12,11 +12,11 @@ van stappen veranderen (`namen.stappen`); hier staan de standaardnamen.
 ## Het menu Handelingen
 
 Oefenen (de studentenmuts in de kolom linksboven) → Manoeuvres, alleen in de modus Zeilen, toont de
-handelingen per groep: **Zeil** (hijsen, strijken, reven), **Wenden** (overstag, gijp, stormrondje,
-man over boord, dwarspeiling), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een
-langswal de sliplanding en voor top en takel; aanleggen aan lagerwal),
-**Afvaren** (van hogerwal, langswal en lagerwal, en kop in de wind leggen) en **Mast** (zetten,
-strijken). Eerst staat de groep open met de eerste handeling die kan.
+handelingen per groep: **Tuigage** (mast zetten, zeilen aanslaan, hijsen, reven, strijken en afslaan, mast strijken), **Wenden** (overstag, gijp, stormrondje,
+opkruisen, man over boord, dwarspeiling), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een
+langswal de sliplanding en voor top en takel; aanleggen aan lagerwal; verhalen),
+**Afvaren** (van hogerwal, langswal en lagerwal, en kop in de wind leggen) en **Anker** (ankeren en
+anker op, onder zeil en zonder zeilen). Eerst staat de groep open met de eerste handeling die kan.
 Een handeling die niet kan is grijs, met de reden eronder; een die al gedaan is zegt dat ("De mast
 staat al"). De voorwaarden kijken naar hoe de boot er *nu* bij ligt, niet naar wat er het laatst
 gevraagd is. Wat niet genoemd wordt doet er niet toe: de mast strijken vraagt gestreken en
@@ -36,7 +36,7 @@ Daaronder kies je:
   gedaan is. Ze komen vooral uit de handeling zelf, soms uit de andere helft van het tuig. Bij de
   manoeuvres (wenden, gijpen, afmeren, afvaren, kop in de wind) komen er zetten van andere manoeuvres
   bij, zodat er altijd vier antwoorden zijn: één of twee uit de manoeuvre zelf, de rest uit wat je
-  varend zou kunnen doen (oploeven, afvallen, ree, fok bak, gijp, zeilen los, strijken, anker uit…),
+  varend zou kunnen doen (oploeven, afvallen, ree, fok bak, gijp, zeilen los, strijken, anker zakken…),
   bij het afmeren ook stootwillen en landvasten, en afgemeerd de lijnen, stootwillen en afduwen. Een
   andere naam voor dezelfde zet als het goede antwoord (*Afvallen* bij *Iets afvallen*) staat er nooit
   tussen. Na elk antwoord wordt de goede stap getoond; aan het eind volgt de uitslag.
@@ -55,29 +55,31 @@ Voorwaarden:
 - de mast staat — anders grijs met *De mast ligt al*
 - er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
 
-Ligt de boot afgemeerd, dan vallen *Kop in de wind*, *Anker uit* en *Midzwaard op* weg: ze ligt al kop
-in de wind en de landvasten houden haar vast, dus er gaat geen anker uit en daarom ook het midzwaard
-niet op. Bij hijsen vallen om dezelfde reden *Midzwaard neer*, *Anker op* en *Afvallen* weg. De stappen
-blijven op de voortgangsbalk staan, gearceerd, en worden overgeslagen. In Oefenen komen ze niet voor,
-ook niet als fout antwoord.
+Strijken gaat stilliggend of varend, altijd met de kop in de wind (zeilinstructieboek § 5.2,
+pp. 64–65), en zonder anker: ankeren is een manoeuvre op zich (zie *Ankeren*). Ligt de boot al stil,
+afgemeerd of voor anker, dan valt *Kop in de wind* weg, en bij hijsen *Afvallen*: ze ligt al kop in de
+wind en gaat nergens heen. De stap blijft op de voortgangsbalk staan, gearceerd, en wordt
+overgeslagen; in Oefenen komt hij niet voor, ook niet als fout antwoord.
+
+Het boek zet de mik ná het strijken van het grootzeil; hier gaat de mik eerst, zodat giek en gaffel in
+de vork zakken. Bij hijsen klopt de volgorde wel: het grootzeil omhoog, dan de mik eruit.
 
 | # | Stap | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|
 | 1 | Kop in de wind | — | 1,5 s |
-| 2 | Anker uit | — | 4 s |
-| 3 | Midzwaard op | — | 1,5 s |
-| 4 | Fok strijken | — | 2 s |
-| 5 | Mik zetten | — | 1,5 s |
-| 6 | Grootzeil strijken | Mik zetten | 2,5 s |
-| 7 | Zeil opdoeken | Grootzeil strijken | 1,5 s |
-| 8 | Zeilbinders om | Zeil opdoeken | 1,2 s |
+| 2 | Fok strijken | — | 2 s |
+| 3 | Mik zetten | — | 1,5 s |
+| 4 | Grootzeil strijken | Mik zetten | 2,5 s |
+| 5 | Zeil opdoeken | Grootzeil strijken | 1,5 s |
+| 6 | Zeilbinders om | Zeil opdoeken | 1,2 s |
 
 ## Zeilen hijsen
 
 Voorwaarden:
 - de mast staat — anders grijs met *Eerst de mast zetten*
+- de zeilen zijn aangeslagen — anders grijs met *Eerst de zeilen aanslaan*
 - er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
-- er is geen afmeren of kop in de wind leggen half af — anders grijs met *Eerst het afmeren of draaien afmaken*
+- er is geen afmeren, kop in de wind leggen of verhalen half af — anders grijs met *Eerst het afmeren, draaien of verhalen afmaken*
 - niet afgemeerd, of afgemeerd kop in de wind, of aan de wind of halve wind met de wind over de steiger — anders grijs met *Afgemeerd alleen kop in de wind, of met de wind over de steiger*
 
 Hijsen is strijken in omgekeerde volgorde. Het zeilinstructieboek geeft hijsen een eigen volgorde
@@ -92,9 +94,138 @@ op de werklijst.
 | 3 | Grootzeil hijsen | Zeil losmaken | 2,5 s |
 | 4 | Mik wegnemen | Grootzeil hijsen | 1,5 s |
 | 5 | Fok hijsen | Fok aanslaan | 2 s |
-| 6 | Midzwaard neer | — | 1,5 s |
-| 7 | Anker op | — | 4 s |
-| 8 | Afvallen | — | 1,5 s |
+| 6 | Afvallen | — | 1,5 s |
+
+## Zeilen aanslaan en afslaan
+
+Een zeil kunnen aanslaan aan de rondhouten van het eigen schip, en het schip zeilklaar en nachtklaar
+maken (CWO Kielboot III, Handboek Opleidingen). **Afslaan** kan als de zeilen gestreken en opgebonden
+zijn: de fok van de voorstag en in de zeilzak, het grootzeil van gaffel en giek en opgeborgen; gaffel
+en giek blijven kaal in de mik liggen. **Aanslaan** is hetzelfde achterstevoren, in de volgorde van het
+Handboek: eerst het grootzeil aan gaffel en giek en de vallen erop, dan de fok: uit de zak, de val
+klaar, de halshoek vast, de leuvers van onder af aan de voorstag, en de fokkenschoten ingeschoren met
+een achtknoop. Afgeslagen kun je niet hijsen; de mast strijken kan wel, en heeft dan geen fok meer af
+te slaan.
+
+Voorwaarden, afslaan:
+- de zeilen zijn gestreken en opgebonden — anders grijs met *Eerst de zeilen strijken*
+
+| # | Stap | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|
+| 1 | Fokkenschoten losmaken | — | 1,5 s |
+| 2 | Leuvers van de voorstag halen | — | 2 s |
+| 3 | Halshoek van de fok losmaken | Leuvers van de voorstag halen | 1 s |
+| 4 | Fok in de zeilzak | Halshoek van de fok losmaken | 1,5 s |
+| 5 | Klauwval en piekenval losmaken | — | 1,5 s |
+| 6 | Grootzeil van gaffel en giek losmaken en opbergen | Klauwval en piekenval losmaken | 3 s |
+
+Aanslaan:
+
+| # | Stap | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|
+| 1 | Grootzeil aan gaffel en giek binden | — | 3 s |
+| 2 | Klauwval en piekenval aanslaan | Grootzeil aan gaffel en giek binden | 1,5 s |
+| 3 | Fok uit de zeilzak, fokkenval klaar hangen | — | 1,5 s |
+| 4 | Halshoek van de fok vastmaken | Fok uit de zeilzak, fokkenval klaar hangen | 1 s |
+| 5 | Leuvers van onder af aanslaan | Halshoek van de fok vastmaken | 2 s |
+| 6 | Fokkenschoten inscheren, met een achtknoop | — | 1,5 s |
+
+## Ankeren
+
+Voor anker gaan en het anker ophalen (zeilinstructieboek § 5.13.2 en § 5.13.3, pp. 87–89), onder
+zeil of met de zeilen al gestreken. Ankeren is een manoeuvre op zich, los van hijsen en strijken; met
+een klik op anker, ketting of ankerlijn gaat het anker ook zonder manoeuvre uit of op.
+
+**Ankeren onder zeil** volgt het boek. Na de laatste wending gaat de fok omlaag, zodat ze rustig op het
+grootzeil naar de plek vaart; dan in de wind en het midzwaard omhoog (dan blijft ze beter in de wind
+liggen). Met een peiling op de wal kijk je of ze stil ligt: pas als ze achteruit gaat *Het anker
+zakken!*, anders vaart ze over het anker heen. De lijn wordt langzaam gevierd (valt de kop af, dan
+remmend steken), tot 5 à 6 maal de diepte; met een achtergrondpeiling controleer je of het anker houdt.
+Als laatste gaat het grootzeil omlaag; opdoeken en opbinden is daarna gewoon Zeilen strijken.
+
+**Ankeren zonder zeilen**: met de zeilen al omlaag is er niets om haar kop in de wind te sturen. Anker
+klaarleggen, midzwaard omhoog, *Het anker zakken!*; terwijl ze terugdrijft en de lijn gevierd wordt,
+trekt het anker haar met de kop in de wind.
+
+**Anker op onder zeil**: ze ligt kop in de wind achter het anker. De lijn wordt eerst gehieuwd
+(ingekort); dan de zeilen hijsen, eerst het grootzeil, de fok als laatste; dan hieuwen tot recht op en
+neer, met de laatste meters vaart makend. Zodra het anker los is roept de ankermaat *Anker los!*, de
+fok wordt bak getrokken naar de toekomstige loefzijde en ze vaart weg op een rustige koers; daarna
+wordt het anker binnengehaald en opgeruimd. Het midzwaard gaat vanzelf weer neer.
+
+**Anker op zonder zeilen**: hieuwen tot recht op en neer, *Anker los!*, en binnen.
+
+Zo zat het eerst, en waarom het anders is: *Anker uit* en *Midzwaard op* zaten midden in Zeilen
+strijken, meteen na het oploeven, en hijsen haalde het anker weer op. Het boek kent bij hijsen en
+strijken geen anker, en laat bij ankeren het anker pas zakken als de boot achteruit gaat; mét vaart
+zou ze eroverheen varen. Vieren, de lijnlengte en de controle ontbraken, en bij anker op het hieuwen
+en de fok bak.
+
+Voor Oefenen: het anker laten zakken voordat ze achteruit gaat is precies de fout waar het boek voor
+waarschuwt, dus die staat ertussen. Vieren en controleren pas als het anker zakt; anker los pas na
+het hieuwen tot recht op en neer, de fok bak pas als het los is, wegvaren daarna. Alleen vooruit.
+
+Voorwaarden, ankeren onder zeil:
+- de zeilen staan — anders grijs met *Eerst de zeilen hijsen*
+- de boot is niet afgemeerd — anders grijs met *Eerst losgooien*
+- de boot vaart een koers (niet kop in de wind) — anders grijs met *Eerst een koers varen, niet kop in de wind*
+- er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
+- er is geen wending of gijp bezig — anders grijs met *Eerst de wending of gijp afmaken*
+
+| # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|---|
+| 1 | Fok strijken | “Fok strijken!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 2 | De boot in de wind sturen | — | — | volgt uit de afstand en de snelheid |
+| 3 | Midzwaard omhoog | — | — | volgt uit de afstand en de snelheid |
+| 4 | Op de wal peilen of de boot stil ligt | — | — | volgt uit de afstand en de snelheid |
+| 5 | Als ze achteruit gaat: het anker laten zakken | “Het anker zakken!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 6 | Ankerlijn langzaam vieren | — | Als ze achteruit gaat: het anker laten zakken | volgt uit de afstand en de snelheid |
+| 7 | De lijn 5 à 6 maal de diepte laten vieren | — | Als ze achteruit gaat: het anker laten zakken | volgt uit de afstand en de snelheid |
+| 8 | Met een achtergrondpeiling controleren of het anker houdt | — | Als ze achteruit gaat: het anker laten zakken | 2 s |
+| 9 | Grootzeil strijken | “Grootzeil strijken!” (de roerganger) | — | 3 s |
+
+Voorwaarden, ankeren zonder zeilen:
+- grootzeil en fok zijn omlaag, opgedoekt of niet (de mast mag liggen) — anders grijs met *Eerst de zeilen omlaag*
+- de boot is niet afgemeerd — anders grijs met *Eerst losgooien*
+
+| # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|---|
+| 1 | Anker klaarleggen | — | — | 2 s |
+| 2 | Midzwaard omhoog | — | — | 1,5 s |
+| 3 | Het anker laten zakken | “Het anker zakken!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 4 | Ankerlijn langzaam vieren | — | Het anker laten zakken | volgt uit de afstand en de snelheid |
+| 5 | De lijn 5 à 6 maal de diepte laten vieren | — | Het anker laten zakken | volgt uit de afstand en de snelheid |
+| 6 | Met een achtergrondpeiling controleren of het anker houdt | — | Het anker laten zakken | 2 s |
+
+Voorwaarden, anker op onder zeil:
+- de boot ligt voor anker — anders grijs met *Eerst ankeren*
+- er is geen ankeren of anker op bezig — anders grijs met *Eerst het ankeren afmaken*
+- grootzeil en fok zijn gestreken (opgedoekt of niet) en de mast staat — anders grijs met *Eerst grootzeil en fok strijken*
+- er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
+
+| # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|---|
+| 1 | Kop in de wind leggen | — | — | 1 s |
+| 2 | Ankerlijn hieuwen | — | — | volgt uit de afstand en de snelheid |
+| 3 | Grootzeil hijsen | “Grootzeil hijsen!” (de roerganger) | — | 4 s |
+| 4 | Fok hijsen | “Fok hijsen!” (de roerganger) | — | 2 s |
+| 5 | Ankerlijn hieuwen tot recht op en neer | — | — | volgt uit de afstand en de snelheid |
+| 6 | Zeggen wanneer het anker los is | “Anker los!” (de fokkenist) | Ankerlijn hieuwen tot recht op en neer | 1,5 s |
+| 7 | Fok bak trekken | “Fok bak!” (de roerganger) | Zeggen wanneer het anker los is | volgt uit de afstand en de snelheid |
+| 8 | Op een rustige koers wegvaren | — | Fok bak trekken | volgt uit de afstand en de snelheid |
+| 9 | Anker binnenhalen en opruimen | — | Zeggen wanneer het anker los is | volgt uit de afstand en de snelheid |
+
+Voorwaarden, anker op zonder zeilen:
+- de boot ligt voor anker — anders grijs met *Eerst ankeren*
+- er is geen ankeren of anker op bezig — anders grijs met *Eerst het ankeren afmaken*
+- grootzeil en fok zijn omlaag, opgedoekt of niet (de mast mag liggen) — anders grijs met *Eerst de zeilen omlaag*
+
+| # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|---|
+| 1 | Ankerlijn hieuwen | — | — | volgt uit de afstand en de snelheid |
+| 2 | Ankerlijn hieuwen tot recht op en neer | — | — | volgt uit de afstand en de snelheid |
+| 3 | Zeggen wanneer het anker los is | “Anker los!” (de fokkenist) | Ankerlijn hieuwen tot recht op en neer | 1,5 s |
+| 4 | Anker binnenhalen en opruimen | — | Zeggen wanneer het anker los is | 3 s |
 
 ## Mast strijken
 
@@ -255,6 +386,29 @@ Voorwaarden:
 | 7 | Afvallen | — | — | 1,5 s, plus 1 s per 45° ruimer dan aan de wind |
 | 8 | Fok over | “Fok over!” (de roerganger) | Fok bak | 1,5 s |
 | 9 | Fok aan | “Fok aan!” (de roerganger) | — | 1,5 s |
+
+## Opkruisen
+
+Naar een punt bovenwinds in een kanaal of een rivier moet je vaak overstag: opkruisen of laveren
+(zeilinstructieboek § 5.8, p. 75). Het stuk tussen twee wendingen heet een slag. Vaar zo hoog mogelijk
+met genoeg snelheid, en ga rustig overstag, met weinig roer: zo houd je de meeste vaart.
+
+De viewer legt een recht kanaal langs de wind, zoals de bovenste tekening in het boek: twee oevers
+aan weerszijden, op een paar meter van waar ze keert. Ze loeft op tot aan de wind (als ze dat nog niet
+voer) en vaart vier slagen van gelijke lengte, de eerste en de laatste half zo lang, met drie keer
+**Klaar om te wenden**, **Ree** daartussen, telkens vlak voor de oever. Elke slag heet naar zijn boeg:
+*Slag over stuurboord* of *over bakboord, zo hoog mogelijk*. Aan het eind vaart ze gewoon verder. Het
+kanaal en het spoor blijven in beeld zolang de oefening loopt.
+
+Voorwaarden:
+- de zeilen staan — anders grijs met *Eerst de zeilen hijsen*
+- het anker is op — anders grijs met *Eerst het anker op*
+- de boot is niet afgemeerd — anders grijs met *Eerst losgooien*
+- de boot vaart een koers (niet kop in de wind) — anders grijs met *Eerst een koers varen, niet kop in de wind*
+- er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
+- er is geen wending of gijp bezig — anders grijs met *Eerst de wending of gijp afmaken*
+
+Voor Oefenen: telkens *Ree* pas na *Klaar om te wenden*. Alleen vooruit.
 
 ## Man over boord
 
@@ -623,6 +777,49 @@ Voorwaarden:
 | 9 | Voorspring vastmaken | “Voorspring vast!” (de roerganger) | Achterspring vastmaken | 2 s |
 | 10 | Stootwil van de boeg binnen | — | Voorspring vastmaken | 3 s |
 
+## Verhalen
+
+Langszij afgemeerd wordt de boot een bolder verder langs de steiger gehaald (CWO: "zonder gebruik te
+maken van de motor", met spierkracht, "zo veel mogelijk vanuit de kuip"). Ze gaat naar voren als er
+voor de boeg nog een bolder is om het voorlandvast naar te leiden, anders naar achteren. Het boek geeft
+de stappen niet; zo gaat het hier:
+
+- **Springen los**: die houden haar op haar plaats langs de steiger.
+- **De landvast aan de kant waar ze heen gaat naar de volgende bolder**, twee meter verder.
+- **Aan die landvast halen**, vanuit de kuip, terwijl de andere landvast op zijn bolder blijft en
+  gevierd wordt.
+- **De andere landvast opnieuw vast**, aan de bolder die bij haar nieuwe plaats hoort.
+- **Springen weer vast**, naar de bolder bij haar midden.
+
+De zeilen zijn gestreken. Voor Oefenen is fout: halen voordat de landvast op de volgende bolder ligt,
+en een lijn vastmaken voordat ze op haar nieuwe plaats ligt.
+
+Voorwaarden:
+- de boot ligt afgemeerd — anders grijs met *Eerst afmeren*
+- er is geen afmeren, kop in de wind leggen of verhalen half af — anders grijs met *Eerst het afmeren, draaien of verhalen afmaken*
+- ze ligt langszij (niet met de boeg aan de steiger) — anders grijs met *Alleen langszij*
+- de zeilen zijn gestreken en opgebonden — anders grijs met *Eerst de zeilen strijken*
+
+Naar voren:
+
+| # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|---|
+| 1 | Springen losmaken | “Springen los!” (de roerganger) | — | 2 s |
+| 2 | Voorlandvast naar de volgende bolder | “Voorlandvast verzetten!” (de roerganger) | Springen losmaken | 3 s |
+| 3 | Aan de voorlandvast naar voren halen | “Halen!” (de roerganger) | Voorlandvast naar de volgende bolder | 6 s |
+| 4 | Achterlandvast opnieuw vastmaken | “Achterlandvast vast!” (de roerganger) | Aan de voorlandvast naar voren halen | 2 s |
+| 5 | Springen weer vastmaken | “Springen vast!” (de roerganger) | Aan de voorlandvast naar voren halen | 2 s |
+
+Naar achteren:
+
+| # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|---|
+| 1 | Springen losmaken | “Springen los!” (de roerganger) | — | 2 s |
+| 2 | Achterlandvast naar de volgende bolder | “Achterlandvast verzetten!” (de roerganger) | Springen losmaken | 3 s |
+| 3 | Aan de achterlandvast naar achteren halen | “Halen!” (de roerganger) | Achterlandvast naar de volgende bolder | 6 s |
+| 4 | Voorlandvast opnieuw vastmaken | “Voorlandvast vast!” (de roerganger) | Aan de achterlandvast naar achteren halen | 2 s |
+| 5 | Springen weer vastmaken | “Springen vast!” (de roerganger) | Aan de achterlandvast naar achteren halen | 2 s |
+
 ## Afvaren van langswal
 
 Wegvaren van een langswal (zeilinstructieboek § 5.9.2, p. 77). De boot ligt kop in de wind met de
@@ -644,7 +841,7 @@ aan na de fok bak. Afvaren gaat alleen vooruit.
 
 Voorwaarden:
 - de boot ligt afgemeerd — anders grijs met *Eerst afmeren*
-- er is geen afmeren of kop in de wind leggen half af — anders grijs met *Eerst het afmeren of draaien afmaken*
+- er is geen afmeren, kop in de wind leggen of verhalen half af — anders grijs met *Eerst het afmeren, draaien of verhalen afmaken*
 - de wal is een langswal — anders grijs met *Alleen van een langswal*
 - de wind komt van voren (minder dan 45° van de boeg) — anders grijs met *Eerst kop in de wind leggen*
 - de zeilen staan — anders grijs met *Eerst de zeilen hijsen*
@@ -680,7 +877,7 @@ Voor Oefenen: deinzen pas na het afzetten, wegzeilen pas na de fok bak. Alleen v
 
 Voorwaarden:
 - de boot ligt afgemeerd — anders grijs met *Eerst afmeren*
-- er is geen afmeren of kop in de wind leggen half af — anders grijs met *Eerst het afmeren of draaien afmaken*
+- er is geen afmeren, kop in de wind leggen of verhalen half af — anders grijs met *Eerst het afmeren, draaien of verhalen afmaken*
 - de boot ligt met de boeg aan een hogerwal, op het voorlandvast — anders grijs met *Alleen van een hogerwal*
 - de wind komt van voren (minder dan halve wind) — anders grijs met *Eerst kop in de wind*
 - de zeilen staan — anders grijs met *Eerst de zeilen hijsen*
@@ -712,7 +909,7 @@ Alleen vooruit.
 
 Voorwaarden:
 - de boot ligt afgemeerd — anders grijs met *Eerst afmeren*
-- er is geen afmeren of kop in de wind leggen half af — anders grijs met *Eerst het afmeren of draaien afmaken*
+- er is geen afmeren, kop in de wind leggen of verhalen half af — anders grijs met *Eerst het afmeren, draaien of verhalen afmaken*
 - de wal is een lagerwal — anders grijs met *Alleen van een lagerwal*
 - grootzeil en fok zijn gestreken (opgedoekt of niet) en de mast staat — anders grijs met *Eerst grootzeil en fok strijken*
 - er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*

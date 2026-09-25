@@ -541,11 +541,11 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   `web/src/procedure.js`) van die timeline, met alleen zijn eigen stappen op de voortgangsbalk; vorige,
   volgende en de schuif blijven binnen de flow.
 - Oefenen → **Manoeuvres** (`web/src/handelingen.js`) is een startpaneel met de
-  handelingen als rijen, zoals de oefeningen van Oefenen, in vier groepen: **Zeil** (hijsen, strijken,
-  reven met het aantal slagen), **Wenden** (overstag, gijp, stormrondje, man over boord,
+  handelingen als rijen, zoals de oefeningen van Oefenen, in vijf groepen: **Tuigage** (mast zetten, zeilen
+  aanslaan, hijsen, reven met het aantal slagen, strijken en afslaan, mast strijken), **Wenden** (overstag, gijp, stormrondje, opkruisen, man over boord,
   dwarspeiling), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een langswal de
-  sliplanding en voor top en takel; aanleggen aan lagerwal), **Afvaren** (van hogerwal, langswal en
-  lagerwal, en kop in de wind leggen) en **Mast** (zetten, strijken). De
+  sliplanding en voor top en takel; aanleggen aan lagerwal; verhalen), **Afvaren** (van hogerwal, langswal en
+  lagerwal, en kop in de wind leggen) en **Anker** (ankeren en anker op, onder zeil en zonder zeilen). De
   stappen en voorwaarden van elk staan in `docs/manoeuvres.md`. Een stap met een commando ("Ree!",
   "Gijp!") laat het commando als tekstballon zien boven wie het roept, net als een gekozen
   roeicommando. Elke handeling heeft

@@ -1,6 +1,7 @@
 // Handelingen: the Manoeuvres section of the Oefenen popover, and the card of a run.
 //
-// The panel lists the operations a group at a time - Zeil, Wenden, Afmeren, Mast - each greyed out with its reason while its preconditions are not met (modes.js, OPS), and asks
+// The panel lists the operations a group at a time - Zeil, Wenden, Afmeren, Afvaren, Anker, Mast -
+// each greyed out with its reason while its preconditions are not met (modes.js, OPS), and asks
 // how: Bekijken, where it plays by itself and the step controls of the procedure come into the card,
 // or Oefenen, where it stands still and every next step is a question with four options: the right
 // one and steps that could be done in the state the boat is in, only not now (modes.run.question).
@@ -11,33 +12,38 @@
 
 // the groups of the list, and what each operation is called in it
 const GROUPS = [
-  ['Zeil', { hijsen: 'Hijsen', strijken: 'Strijken', reven: 'Reven' }],
-  ['Wenden', { overstag: 'Overstag', gijpen: 'Gijp', stormrondje: 'Stormrondje', manOverBoord: 'Man over boord', peiling: 'Dwarspeiling' }],
+  ['Tuigage', { mastZetten: 'Mast zetten', aanslaan: 'Zeilen aanslaan', hijsen: 'Zeilen hijsen', reven: 'Reven',
+    strijken: 'Zeilen strijken', afslaan: 'Zeilen afslaan', mastStrijken: 'Mast strijken' }],
+  ['Wenden', { overstag: 'Overstag', gijpen: 'Gijp', stormrondje: 'Stormrondje', opkruisen: 'Opkruisen', manOverBoord: 'Man over boord', peiling: 'Dwarspeiling' }],
   ['Afmeren', { slipHoger: 'Sliplanding hogerwal', opschieter: 'Opschieter hogerwal',
-    afmeren: 'Sliplanding langswal', topEnTakel: 'Voor top en takel langswal', aanleggenLager: 'Aanleggen aan lagerwal' }],
+    afmeren: 'Sliplanding langswal', topEnTakel: 'Voor top en takel langswal', aanleggenLager: 'Aanleggen aan lagerwal', verhalen: 'Verhalen' }],
   ['Afvaren', { afvarenHoger: 'Van hogerwal', afvaren: 'Van langswal', afvarenLager: 'Van lagerwal', kopInDeWind: 'Kop in de wind leggen' }],
-  ['Mast', { mastZetten: 'Zetten', mastStrijken: 'Strijken' }],
+  ['Anker', { ankerenZeil: 'Ankeren onder zeil', ankerenKaal: 'Ankeren zonder zeilen', ankerOpZeil: 'Anker op onder zeil', ankerOpKaal: 'Anker op zonder zeilen' }],
 ];
 // and on the card of a run
 const NAMES = {
-  hijsen: 'Zeilen hijsen', strijken: 'Zeilen strijken', mastStrijken: 'Mast strijken', mastZetten: 'Mast zetten', reven: 'Reven',
-  overstag: 'Overstag (wenden)', gijpen: 'Gijpen', stormrondje: 'Stormrondje', manOverBoord: 'Man over boord',
-  slipHoger: 'Sliplanding hogerwal', peiling: 'Sliplanding met dwarspeiling', opschieter: 'Opschieter', afmeren: 'Sliplanding langswal',
-  topEnTakel: 'Voor top en takel', aanleggenLager: 'Aanleggen aan lagerwal',
+  aanslaan: 'Zeilen aanslaan', afslaan: 'Zeilen afslaan', hijsen: 'Zeilen hijsen', strijken: 'Zeilen strijken', mastStrijken: 'Mast strijken', mastZetten: 'Mast zetten', reven: 'Reven',
+  overstag: 'Overstag (wenden)', gijpen: 'Gijpen', stormrondje: 'Stormrondje', opkruisen: 'Opkruisen', manOverBoord: 'Man over boord',
+  slipHoger: 'Sliplanding hogerwal', peiling: 'Dwarspeiling', opschieter: 'Opschieter', afmeren: 'Sliplanding langswal',
+  topEnTakel: 'Voor top en takel', aanleggenLager: 'Aanleggen aan lagerwal', verhalen: 'Verhalen',
   afvarenHoger: 'Afvaren van hogerwal', afvaren: 'Afvaren van langswal', afvarenLager: 'Afvaren van lagerwal', kopInDeWind: 'Kop in de wind leggen',
+  ankerenZeil: 'Ankeren onder zeil', ankerenKaal: 'Ankeren zonder zeilen', ankerOpZeil: 'Anker op onder zeil', ankerOpKaal: 'Anker op zonder zeilen',
 };
 const ABOUT = {
+  aanslaan: 'Grootzeil aan gaffel en giek, fok aan de voorstag',
+  afslaan: 'Fok van de stag in de zak, grootzeil van de rondhouten',
   hijsen: 'Zeilbinders af, zeil los, zeilen omhoog',
-  strijken: 'Kop in de wind, anker uit, zeilen omlaag en opdoeken',
+  strijken: 'Kop in de wind, zeilen omlaag en opdoeken',
   mastStrijken: 'Fok af, tuig in de mik, mast omlaag',
   mastZetten: 'Mast omhoog, tuig terug in de vork, fok aan',
   reven: 'Een rolrif: slagen om de giek',
   overstag: 'Door de wind naar de andere boeg',
   gijpen: 'Met de achtersteven door de wind',
   stormrondje: 'Oploeven, overstag en weer afvallen: gijpen zonder gijp',
+  opkruisen: 'In een kanaal naar de wind: slagen en telkens overstag',
   manOverBoord: 'Afvallen, oploeven, dwarspeiling, overstag en oppikken',
   slipHoger: 'Aan de wind, zeilen los, met de boeg aan de steiger',
-  peiling: 'Overstag op een dwarspeiling, dan de sliplanding aan hogerwal',
+  peiling: 'Aan de wind, dwarspeiling, overstag en over het punt',
   opschieter: 'Langs de kant, dan met veel roer in de wind opschieten',
   afmeren: 'Aan de wind, zeilen los, oploeven langszij',
   topEnTakel: 'Zeilen strijken, voor de wind langszij drijven',
@@ -46,11 +52,18 @@ const ABOUT = {
   afvaren: 'Lijnen los, afduwen, fok bak en wegzeilen',
   afvarenLager: 'Wegroeien, kop in de wind, grootzeil hijsen',
   kopInDeWind: 'Afgemeerd, wind van achteren: over de boeg draaien',
+  verhalen: 'Langszij een bolder verder, aan de lijnen vanuit de kuip',
+  ankerenZeil: 'Fok strijken, in de wind, achteruit: anker zakken',
+  ankerenKaal: 'Anker zakken, ze drijft terug en ligt in de wind',
+  ankerOpZeil: 'Hieuwen, zeilen hijsen, anker los, fok bak en weg',
+  ankerOpKaal: 'Hieuwen tot recht op en neer, anker los en binnen',
 };
 const DONE = {
+  aanslaan: 'De zeilen zijn aangeslagen', afslaan: 'De zeilen zijn afgeslagen',
   hijsen: 'De zeilen staan al', strijken: 'De zeilen zijn al gestreken', mastStrijken: 'De mast ligt al', mastZetten: 'De mast staat al',
-  slipHoger: 'De boot ligt al afgemeerd', peiling: 'De boot ligt al afgemeerd', opschieter: 'De boot ligt al afgemeerd',
+  slipHoger: 'De boot ligt al afgemeerd', opschieter: 'De boot ligt al afgemeerd',
   afmeren: 'De boot ligt al afgemeerd', topEnTakel: 'De boot ligt al afgemeerd', aanleggenLager: 'De boot ligt al afgemeerd',
+  ankerenZeil: 'De boot ligt al voor anker', ankerenKaal: 'De boot ligt al voor anker', ankerOpZeil: 'Het anker is op', ankerOpKaal: 'Het anker is op',
 };
 const MARKS = { goed: '✓', fout: '✗' };
 const STORE = 'lelievlet.manoeuvres.v1';      // { v: 1, foutloos: { <op>: true } }: practised through without a mistake

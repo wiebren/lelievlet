@@ -225,10 +225,17 @@ function manoeuvres() {
   const leaveHoger = stepsOf('Afvaren van hogerwal');
   const leaveLager = stepsOf('Afvaren van lagerwal');
   const rescue = stepsOf('Man over boord');
+  const bend = stepsOf('Zeilen afslaan'); const BEND_NEEDS = objectOf('BEND_NEEDS');
+  const bendRows = (list, back) => table(['#', 'Stap', 'Eerst gedaan (voor Oefenen)', 'Duur'], list.map((s, i) => [i + 1, back ? s.back : s.label,
+    (back ? list.filter((d) => (BEND_NEEDS[d.key] ?? []).includes(s.key)).map((d) => d.back) : (BEND_NEEDS[s.key] ?? []).map((k) => list.find((x) => x.key === k).label)).join(', ') || '—',
+    secs(s)]));
+  const ankerIn = stepsOf('Ankeren onder zeil'); const ankerInKaal = stepsOf('Ankeren zonder zeilen');
+  const ankerUit = stepsOf('Anker op onder zeil'); const ankerUitKaal = stepsOf('Anker op zonder zeilen');
   const turnRound = stepsOf('Kop in de wind');
+  const haulAhead = stepsOf('Verhalen naar voren'); const haulAstern = stepsOf('Verhalen naar achteren');
   const WHO = { roer: 'de roerganger', fok: 'de fokkenist' };
   const turnTable = (list, needs) => table(['#', 'Stap', 'Roept', 'Eerst gedaan (voor Oefenen)', 'Duur'], list.map((s, i) => [i + 1, s.label,
-    s.say ? `“${s.say}” (${WHO[s.by]})` : '—', (needs[s.key] ?? []).map((k) => list.find((x) => x.key === k).label).join(', ') || '—', secs(s)]));
+    s.say ? `“${s.say}” (${WHO[s.by]})` : '—', (needs[s.key] ?? []).map((k) => list.find((x) => x.key === k)?.label).filter(Boolean).join(', ') || '—', secs(s)]));
   const OPS = opsOf();
   const split = rig.findIndex((s) => s.key === 'ties') + 1;
   const sails = rig.slice(0, split); const mast = rig.slice(split);
@@ -266,12 +273,14 @@ function manoeuvres() {
     'Eerst de mast zetten': 'de mast staat', 'De mast ligt al': 'de mast staat',
     'Eerst het reven afmaken': 'er wordt niet gereefd', 'Eerst de zeilen strijken': 'de zeilen zijn gestreken en opgebonden',
     'Eerst de zeilen hijsen': 'de zeilen staan', 'Eerst het anker op': 'het anker is op',
+    'Eerst de zeilen omlaag': 'grootzeil en fok zijn omlaag, opgedoekt of niet (de mast mag liggen)',
+    'Eerst ankeren': 'de boot ligt voor anker', 'Eerst de zeilen aanslaan': 'de zeilen zijn aangeslagen', 'Eerst het ankeren afmaken': 'er is geen ankeren of anker op bezig',
     'Eerst losgooien': 'de boot is niet afgemeerd',
     'Eerst een koers varen, niet kop in de wind': 'de boot vaart een koers (niet kop in de wind)',
-    'Eerst afmeren': 'de boot ligt afgemeerd', 'Alleen van een langswal': 'de wal is een langswal', 'Alleen aan een langswal': 'de wal is een langswal',
+    'Eerst afmeren': 'de boot ligt afgemeerd', 'Alleen van een langswal': 'de wal is een langswal', 'Alleen aan een langswal': 'de wal is een langswal', 'Alleen langszij': 'ze ligt langszij (niet met de boeg aan de steiger)',
     'Eerst kop in de wind leggen': 'de wind komt van voren (minder dan 45° van de boeg)',
     'Eerst het draaien afmaken': 'er is geen kop in de wind leggen bezig',
-    'Eerst het afmeren of draaien afmaken': 'er is geen afmeren of kop in de wind leggen half af',
+    'Eerst het afmeren, draaien of verhalen afmaken': 'er is geen afmeren, kop in de wind leggen of verhalen half af',
     'Afgemeerd alleen kop in de wind, of met de wind over de steiger': 'niet afgemeerd, of afgemeerd kop in de wind, of aan de wind of halve wind met de wind over de steiger',
     'Alleen met de wind van achteren': 'de wind komt van achteren (135° of meer van de boeg)',
     'Alleen van een hogerwal': 'de boot ligt met de boeg aan een hogerwal, op het voorlandvast',
@@ -308,11 +317,11 @@ van stappen veranderen (\`namen.stappen\`); hier staan de standaardnamen.
 ## Het menu Handelingen
 
 Oefenen (de studentenmuts in de kolom linksboven) → Manoeuvres, alleen in de modus Zeilen, toont de
-handelingen per groep: **Zeil** (hijsen, strijken, reven), **Wenden** (overstag, gijp, stormrondje,
-man over boord, dwarspeiling), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een
-langswal de sliplanding en voor top en takel; aanleggen aan lagerwal),
-**Afvaren** (van hogerwal, langswal en lagerwal, en kop in de wind leggen) en **Mast** (zetten,
-strijken). Eerst staat de groep open met de eerste handeling die kan.
+handelingen per groep: **Tuigage** (mast zetten, zeilen aanslaan, hijsen, reven, strijken en afslaan, mast strijken), **Wenden** (overstag, gijp, stormrondje,
+opkruisen, man over boord, dwarspeiling), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een
+langswal de sliplanding en voor top en takel; aanleggen aan lagerwal; verhalen),
+**Afvaren** (van hogerwal, langswal en lagerwal, en kop in de wind leggen) en **Anker** (ankeren en
+anker op, onder zeil en zonder zeilen). Eerst staat de groep open met de eerste handeling die kan.
 Een handeling die niet kan is grijs, met de reden eronder; een die al gedaan is zegt dat ("De mast
 staat al"). De voorwaarden kijken naar hoe de boot er *nu* bij ligt, niet naar wat er het laatst
 gevraagd is. Wat niet genoemd wordt doet er niet toe: de mast strijken vraagt gestreken en
@@ -332,7 +341,7 @@ Daaronder kies je:
   gedaan is. Ze komen vooral uit de handeling zelf, soms uit de andere helft van het tuig. Bij de
   manoeuvres (wenden, gijpen, afmeren, afvaren, kop in de wind) komen er zetten van andere manoeuvres
   bij, zodat er altijd vier antwoorden zijn: één of twee uit de manoeuvre zelf, de rest uit wat je
-  varend zou kunnen doen (oploeven, afvallen, ree, fok bak, gijp, zeilen los, strijken, anker uit…),
+  varend zou kunnen doen (oploeven, afvallen, ree, fok bak, gijp, zeilen los, strijken, anker zakken…),
   bij het afmeren ook stootwillen en landvasten, en afgemeerd de lijnen, stootwillen en afduwen. Een
   andere naam voor dezelfde zet als het goede antwoord (*Afvallen* bij *Iets afvallen*) staat er nooit
   tussen. Na elk antwoord wordt de goede stap getoond; aan het eind volgt de uitslag.
@@ -350,11 +359,14 @@ volledig scherm; een klik op het model doet dan niets.
 Voorwaarden:
 ${pre('strijken')}
 
-Ligt de boot afgemeerd, dan vallen *Kop in de wind*, *Anker uit* en *Midzwaard op* weg: ze ligt al kop
-in de wind en de landvasten houden haar vast, dus er gaat geen anker uit en daarom ook het midzwaard
-niet op. Bij hijsen vallen om dezelfde reden *Midzwaard neer*, *Anker op* en *Afvallen* weg. De stappen
-blijven op de voortgangsbalk staan, gearceerd, en worden overgeslagen. In Oefenen komen ze niet voor,
-ook niet als fout antwoord.
+Strijken gaat stilliggend of varend, altijd met de kop in de wind (zeilinstructieboek § 5.2,
+pp. 64–65), en zonder anker: ankeren is een manoeuvre op zich (zie *Ankeren*). Ligt de boot al stil,
+afgemeerd of voor anker, dan valt *Kop in de wind* weg, en bij hijsen *Afvallen*: ze ligt al kop in de
+wind en gaat nergens heen. De stap blijft op de voortgangsbalk staan, gearceerd, en wordt
+overgeslagen; in Oefenen komt hij niet voor, ook niet als fout antwoord.
+
+Het boek zet de mik ná het strijken van het grootzeil; hier gaat de mik eerst, zodat giek en gaffel in
+de vork zakken. Bij hijsen klopt de volgorde wel: het grootzeil omhoog, dan de mik eruit.
 
 ${forward(sails)}
 
@@ -369,6 +381,81 @@ een plooi van nok naar hals; fok als laatste; vallen opschieten — [KATZ] p. 64
 op de werklijst.
 
 ${backward(sails)}
+
+## Zeilen aanslaan en afslaan
+
+Een zeil kunnen aanslaan aan de rondhouten van het eigen schip, en het schip zeilklaar en nachtklaar
+maken (CWO Kielboot III, Handboek Opleidingen). **Afslaan** kan als de zeilen gestreken en opgebonden
+zijn: de fok van de voorstag en in de zeilzak, het grootzeil van gaffel en giek en opgeborgen; gaffel
+en giek blijven kaal in de mik liggen. **Aanslaan** is hetzelfde achterstevoren, in de volgorde van het
+Handboek: eerst het grootzeil aan gaffel en giek en de vallen erop, dan de fok: uit de zak, de val
+klaar, de halshoek vast, de leuvers van onder af aan de voorstag, en de fokkenschoten ingeschoren met
+een achtknoop. Afgeslagen kun je niet hijsen; de mast strijken kan wel, en heeft dan geen fok meer af
+te slaan.
+
+Voorwaarden, afslaan:
+${pre('afslaan')}
+
+${bendRows(bend, false)}
+
+Aanslaan:
+
+${bendRows([...bend].reverse(), true)}
+
+## Ankeren
+
+Voor anker gaan en het anker ophalen (zeilinstructieboek § 5.13.2 en § 5.13.3, pp. 87–89), onder
+zeil of met de zeilen al gestreken. Ankeren is een manoeuvre op zich, los van hijsen en strijken; met
+een klik op anker, ketting of ankerlijn gaat het anker ook zonder manoeuvre uit of op.
+
+**Ankeren onder zeil** volgt het boek. Na de laatste wending gaat de fok omlaag, zodat ze rustig op het
+grootzeil naar de plek vaart; dan in de wind en het midzwaard omhoog (dan blijft ze beter in de wind
+liggen). Met een peiling op de wal kijk je of ze stil ligt: pas als ze achteruit gaat *Het anker
+zakken!*, anders vaart ze over het anker heen. De lijn wordt langzaam gevierd (valt de kop af, dan
+remmend steken), tot 5 à 6 maal de diepte; met een achtergrondpeiling controleer je of het anker houdt.
+Als laatste gaat het grootzeil omlaag; opdoeken en opbinden is daarna gewoon Zeilen strijken.
+
+**Ankeren zonder zeilen**: met de zeilen al omlaag is er niets om haar kop in de wind te sturen. Anker
+klaarleggen, midzwaard omhoog, *Het anker zakken!*; terwijl ze terugdrijft en de lijn gevierd wordt,
+trekt het anker haar met de kop in de wind.
+
+**Anker op onder zeil**: ze ligt kop in de wind achter het anker. De lijn wordt eerst gehieuwd
+(ingekort); dan de zeilen hijsen, eerst het grootzeil, de fok als laatste; dan hieuwen tot recht op en
+neer, met de laatste meters vaart makend. Zodra het anker los is roept de ankermaat *Anker los!*, de
+fok wordt bak getrokken naar de toekomstige loefzijde en ze vaart weg op een rustige koers; daarna
+wordt het anker binnengehaald en opgeruimd. Het midzwaard gaat vanzelf weer neer.
+
+**Anker op zonder zeilen**: hieuwen tot recht op en neer, *Anker los!*, en binnen.
+
+Zo zat het eerst, en waarom het anders is: *Anker uit* en *Midzwaard op* zaten midden in Zeilen
+strijken, meteen na het oploeven, en hijsen haalde het anker weer op. Het boek kent bij hijsen en
+strijken geen anker, en laat bij ankeren het anker pas zakken als de boot achteruit gaat; mét vaart
+zou ze eroverheen varen. Vieren, de lijnlengte en de controle ontbraken, en bij anker op het hieuwen
+en de fok bak.
+
+Voor Oefenen: het anker laten zakken voordat ze achteruit gaat is precies de fout waar het boek voor
+waarschuwt, dus die staat ertussen. Vieren en controleren pas als het anker zakt; anker los pas na
+het hieuwen tot recht op en neer, de fok bak pas als het los is, wegvaren daarna. Alleen vooruit.
+
+Voorwaarden, ankeren onder zeil:
+${pre('ankerenZeil')}
+
+${turnTable(ankerIn, objectOf('ANCHOR_NEEDS'))}
+
+Voorwaarden, ankeren zonder zeilen:
+${pre('ankerenKaal')}
+
+${turnTable(ankerInKaal, objectOf('ANCHOR_NEEDS'))}
+
+Voorwaarden, anker op onder zeil:
+${pre('ankerOpZeil')}
+
+${turnTable(ankerUit, objectOf('ANCHOR_NEEDS'))}
+
+Voorwaarden, anker op zonder zeilen:
+${pre('ankerOpKaal')}
+
+${turnTable(ankerUitKaal, objectOf('ANCHOR_NEEDS'))}
 
 ## Mast strijken
 
@@ -457,6 +544,24 @@ Voorwaarden:
 ${pre('stormrondje')}
 
 ${turnTable(storm, TACK_NEEDS)}
+
+## Opkruisen
+
+Naar een punt bovenwinds in een kanaal of een rivier moet je vaak overstag: opkruisen of laveren
+(zeilinstructieboek § 5.8, p. 75). Het stuk tussen twee wendingen heet een slag. Vaar zo hoog mogelijk
+met genoeg snelheid, en ga rustig overstag, met weinig roer: zo houd je de meeste vaart.
+
+De viewer legt een recht kanaal langs de wind, zoals de bovenste tekening in het boek: twee oevers
+aan weerszijden, op een paar meter van waar ze keert. Ze loeft op tot aan de wind (als ze dat nog niet
+voer) en vaart vier slagen van gelijke lengte, de eerste en de laatste half zo lang, met drie keer
+**Klaar om te wenden**, **Ree** daartussen, telkens vlak voor de oever. Elke slag heet naar zijn boeg:
+*Slag over stuurboord* of *over bakboord, zo hoog mogelijk*. Aan het eind vaart ze gewoon verder. Het
+kanaal en het spoor blijven in beeld zolang de oefening loopt.
+
+Voorwaarden:
+${pre('opkruisen')}
+
+Voor Oefenen: telkens *Ree* pas na *Klaar om te wenden*. Alleen vooruit.
 
 ## Man over boord
 
@@ -715,6 +820,34 @@ Voorwaarden:
 ${pre('kopInDeWind')}
 
 ${turnTable(turnRound, needsOf('turning'))}
+
+## Verhalen
+
+Langszij afgemeerd wordt de boot een bolder verder langs de steiger gehaald (CWO: "zonder gebruik te
+maken van de motor", met spierkracht, "zo veel mogelijk vanuit de kuip"). Ze gaat naar voren als er
+voor de boeg nog een bolder is om het voorlandvast naar te leiden, anders naar achteren. Het boek geeft
+de stappen niet; zo gaat het hier:
+
+- **Springen los**: die houden haar op haar plaats langs de steiger.
+- **De landvast aan de kant waar ze heen gaat naar de volgende bolder**, twee meter verder.
+- **Aan die landvast halen**, vanuit de kuip, terwijl de andere landvast op zijn bolder blijft en
+  gevierd wordt.
+- **De andere landvast opnieuw vast**, aan de bolder die bij haar nieuwe plaats hoort.
+- **Springen weer vast**, naar de bolder bij haar midden.
+
+De zeilen zijn gestreken. Voor Oefenen is fout: halen voordat de landvast op de volgende bolder ligt,
+en een lijn vastmaken voordat ze op haar nieuwe plaats ligt.
+
+Voorwaarden:
+${pre('verhalen')}
+
+Naar voren:
+
+${turnTable(haulAhead, needsOf('hauling'))}
+
+Naar achteren:
+
+${turnTable(haulAstern, needsOf('hauling'))}
 
 ## Afvaren van langswal
 

@@ -1114,6 +1114,12 @@ export function mount(ui, host, config) {
     const dock = modes?.dock;
     if (!dock?.turnsHer) { controls.maxDistance = MAX_DISTANCE; refitting = false; return; }
     if (flight || performance.now() - handledAt < 3000) return;
+    if (dock.followsHer) {                                          // kept on her: the camera comes along if the view drifted off her
+      const k = 1 - Math.exp(-dt * 1.2);
+      lookFrom.copy(camera.position).sub(controls.target);
+      controls.target.lerp(turnAbout, k); camera.position.copy(controls.target).add(lookFrom);
+      return;
+    }
     if (dock.trackBox(trackBox).isEmpty()) return;
     trackBox.expandByPoint(turnAbout).getBoundingSphere(trackSphere);   // and the boat
     const half = Math.min(THREE.MathUtils.degToRad(camera.fov / 2), Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect));
