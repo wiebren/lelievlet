@@ -140,6 +140,51 @@
 /* right hand corner: under Aanpassen, and out of sight while that panel stands in its place */
 #fullscreen-toggle { top: 70px; }
 #customize:not([hidden]) ~ #fullscreen-toggle { display: none; }
+/* Melden: under Volledig scherm, or in its place when there is none; its panel stands where Aanpassen does */
+#feedback-toggle { top: 124px; }
+#fullscreen-toggle[hidden] ~ #feedback-toggle { top: 70px; }
+#customize:not([hidden]) ~ #feedback-toggle { display: none; }
+#feedback {
+  position: absolute; top: 70px; right: 70px; width: min(320px, calc(100cqw - 102px)); max-height: calc(100% - 90px); overflow: auto;
+  padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  backdrop-filter: blur(8px); box-shadow: 0 8px 32px rgba(22, 34, 46, 0.18); z-index: 6;
+}
+#feedback header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+#feedback h2 { margin: 0; font-size: 16px; }
+#feedback h3 { margin: 4px 0 8px; font-size: 14px; }
+#feedback .fb-lead { margin: 0 0 10px; font-size: 13px; }
+#feedback .fb-lead a { color: var(--accent); }
+#feedback .hint { margin: 6px 0 10px; }
+#feedback .fb-note { margin: 0 0 10px; padding: 8px 10px; font-size: 12px; border-radius: 8px; background: rgba(11, 92, 173, 0.08); }
+#feedback .fb-shot { display: block; width: 100%; border-radius: 8px; border: 1px solid var(--line); background: var(--bg-top); }
+#feedback .fb-retake { margin: 0 0 8px; font-size: 12px; }
+#feedback .fb-retake .link-button { color: var(--accent); }
+#feedback .fb-field { display: block; margin-bottom: 10px; }
+#feedback .fb-field span { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+#feedback .fb-field textarea, #feedback .fb-field input {
+  width: 100%; font: inherit; font-size: 14px; padding: 6px 8px; border-radius: 8px;
+  border: 1px solid var(--line); background: #fff; color: var(--text); resize: vertical;
+}
+#feedback .fb-field textarea:focus, #feedback .fb-field input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+#feedback .fb-check { display: flex; gap: 8px; align-items: center; font-size: 13px; cursor: pointer; }
+#feedback .fb-kinds { display: grid; gap: 6px; }
+#feedback .fb-where {
+  display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0 0 12px; padding: 8px 10px;
+  font-size: 13px; border-radius: 8px; background: rgba(127, 127, 127, 0.08);
+}
+#feedback .fb-where dt { color: var(--muted); }
+#feedback .fb-where dd { margin: 0; font-weight: 600; }
+#feedback .fb-kinds button { display: grid; gap: 2px; padding: 8px 10px; text-align: left; }
+#feedback .fb-kinds button span { font-size: 12px; color: var(--muted); }
+#feedback .fb-details { margin: 0 0 10px; font-size: 12px; color: var(--muted); }
+#feedback .fb-details pre {
+  max-height: 180px; overflow: auto; margin: 6px 0 0; padding: 8px 10px; font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: rgba(127, 127, 127, 0.1); border-radius: 8px; user-select: text;
+}
+#feedback .fb-actions { display: flex; gap: 8px; margin-top: 10px; }
+#feedback .fb-actions button { flex: 1; padding: 8px 12px; }
+#feedback .fb-actions button:disabled { opacity: 0.4; cursor: default; }
+#feedback .fb-back { display: block; margin-top: 10px; font-size: 12px; }
 
 /* Over dit model: opened from the foot of Aanpassen, it stands in the middle of the viewer */
 #about {
@@ -581,14 +626,14 @@ button.primary:disabled:hover { background: var(--accent); }
 #ops-card .actions .primary { flex: none; margin-left: auto; min-height: 34px; padding: 6px 16px; }
 #ops-card.results .actions .feedback { flex-wrap: wrap; }
 #ops-card .steps #procedure .step { font-size: 16px; font-weight: 600; }
-.lv.ops-on > .icon-button:not(#fullscreen-toggle, #toestand-toggle), .lv.ops-on > aside:not(#toestand), .lv.ops-on #controls,
+.lv.ops-on > .icon-button:not(#fullscreen-toggle, #toestand-toggle, #feedback-toggle), .lv.ops-on > aside:not(#toestand, #feedback), .lv.ops-on #controls,
 .lv.ops-on #hover, .lv.ops-on #info { display: none; }
 
 /* The debug aid Toestand stays in either focus mode: it only exists with its debug flag on, and is
    what a run is checked with. */
 /* while a round runs there is only the boat and the card: every button, bar and panel goes (full
    screen stays, it is no menu), and with them everything that would name a part */
-.lv.quiz-on > .icon-button:not(#fullscreen-toggle, #toestand-toggle), .lv.quiz-on > aside:not(#toestand), .lv.quiz-on #controls,
+.lv.quiz-on > .icon-button:not(#fullscreen-toggle, #toestand-toggle, #feedback-toggle), .lv.quiz-on > aside:not(#toestand, #feedback), .lv.quiz-on #controls,
 .lv.quiz-on #hover, .lv.quiz-on #info, .lv.quiz-on #procedure { display: none; }
 
 @container (max-width: 640px) {

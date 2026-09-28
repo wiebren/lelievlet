@@ -7,6 +7,7 @@
 //     assets: 'https://…/',                       // where models/ and textures/ are; default: next to the script
 //     volledigScherm: true,                       // false: no full screen button, and the f key does nothing
 //     installeren: true,                          // false: no "Installeer als app" in the settings panel
+//     feedback: { url: 'https://…/melding' },       // where Melden POSTs its report as JSON; default: ours, null: saved as a file. false: no Melden
 //     aanpassen: {
 //       zeilnummer: '442', naam: 'Fluessen', plaats: 'Zwolle',
 //       naamKleur: '#0b0b0b', plaatsKleur: '#0b0b0b',       // the lettering on the boeisel
@@ -48,6 +49,7 @@ export const DEFAULTS = {
   assets: null,
   volledigScherm: true,
   installeren: true,
+  feedback: { url: 'https://europe-west4-lelievlet.cloudfunctions.net/lelievlet-melden' },   // files it as an issue on GitHub
   aanpassen: { opslaan: true },
   toestand: {},
   namen: { onderdelen: {}, stappen: {}, commandos: {}, quiz: {} },

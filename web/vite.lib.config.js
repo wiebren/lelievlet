@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { copyFileSync, cpSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -33,8 +34,16 @@ const demoPage = {
   },
 };
 
+/** Which build this is, for a feedback report: the commit, marked when the tree had changes, and when. */
+const build = (() => {
+  const git = (args) => { try { return execSync(`git ${args}`, { cwd: here, encoding: 'utf8' }).trim(); } catch { return ''; } };
+  const commit = git('rev-parse --short HEAD') || 'onbekend';
+  return { commit: git('status --porcelain -- .') ? `${commit}-gewijzigd` : commit, datum: new Date().toISOString() };
+})();
+
 export default defineConfig({
   plugins: [demoPage],
+  define: { __LV_BUILD__: JSON.stringify(build) },
   build: {
     outDir: 'dist-lib',
     emptyOutDir: true,

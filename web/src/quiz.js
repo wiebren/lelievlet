@@ -888,5 +888,9 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
 
   onDestroy?.(() => stopPulse());
   quizToggle.disabled = false;      // the model is in: the quiz can be opened
-  return { panelToggled, click, rings, active: () => Boolean(round) };
+  /** The round as it stands, for a feedback report: what kind, how far, and the part asked about now. */
+  const info = () => round && { soort: round.kind, vraag: `${Math.min(round.index + 1, round.queue.length)} / ${round.queue.length}`,
+    goed: round.goed, fout: round.fout, fouten: round.fouten, klaar: round.done,
+    onderdeel: question?.entry && { nr: question.entry.nr, naam: question.entry.naam }, type: question?.type };
+  return { panelToggled, click, rings, active: () => Boolean(round), info };
 }

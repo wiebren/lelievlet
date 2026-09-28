@@ -15,12 +15,14 @@ const SAVED = 'data-lv-vol-overflow';       // on the html element: the scrollin
 
 /**
  * ui, host, config: as mount() has them; signal, engaged, realTarget and onDestroy likewise.
+ * asApp: the page runs as an installed app.
  * Returns { toggle }: toggle(on) with `on` left out flips it. It gives back the promise of the
  * request, so a caller can wait for it - but only a real click or keypress is ever granted one.
  */
-export function initFullscreen({ ui, host, config, signal, engaged, realTarget, onDestroy }) {
+export function initFullscreen({ ui, host, config, signal, engaged, realTarget, onDestroy, asApp = false }) {
   const button = ui.getElementById('fullscreen-toggle');
-  if (!config.volledigScherm) {                 // no button, no key, and the handle does nothing
+  // installed as an app the viewer has the whole window already: there is nothing to go full screen to
+  if (!config.volledigScherm || asApp) {        // no button, no key, and the handle does nothing
     button.hidden = true;
     return { toggle: () => Promise.resolve() };
   }

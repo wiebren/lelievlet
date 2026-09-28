@@ -14,6 +14,7 @@ import { initLogboek } from './logboek.js';
 import { initNight } from './rig.js';
 import { initLocator } from './locator.js';
 import { initFullscreen } from './fullscreen.js';
+import { initFeedback } from './feedback.js';
 import { makeAsset } from './assets.js';
 import { naamVan, merge, unpack } from './config.js';
 import { addEdges } from './edges.js';
@@ -66,7 +67,11 @@ export function mount(ui, host, config) {
   initCustomizePanel(ui, { signal, engaged });
   const logboek = initLogboek(ui, { opslaan });
   // Volledig scherm works from the first frame: it needs nothing of the model
-  const fullscreen = initFullscreen({ ui, host, config, signal, engaged, realTarget, onDestroy });
+  const fullscreen = initFullscreen({ ui, host, config, signal, engaged, realTarget, onDestroy, asApp: runsAsApp() });
+  // Melden: from the first frame too - a model that will not load is worth a report as well
+  const feedback = initFeedback({ ui, config, signal, engaged, snapshot: () => snapshot(),
+    closeOthers: () => { if (!$('customize').hidden) $('customize-close').click(); closePanel.get('about')?.(); } });
+  $('customize-toggle').addEventListener('click', () => feedback.close());   // Aanpassen stands where it does
 
   // panels behind a button: the parts list (the search in the part card), and Over dit model, which
   // has no button of its own but a link at the foot of Aanpassen. Oefenen is a popover of the column.
@@ -1485,6 +1490,80 @@ export function mount(ui, host, config) {
     setTimeout(() => { button.textContent = 'Kopieer als JSON'; }, 1500);
   });
 
+  // ---------------------------------------------------------------- what a report takes along
+  // The last few errors on the page: a report of something stuck is more use with them. The page's
+  // own errors are in it too - an embed cannot tell them apart - which is all the more to go on.
+  const errors = [];
+  const keepError = (message) => { errors.push({ tijd: new Date().toISOString(), melding: String(message).slice(0, 500) }); if (errors.length > 10) errors.shift(); };
+  window.addEventListener('error', (e) => keepError(e.error?.stack ?? e.message), { signal });
+  window.addEventListener('unhandledrejection', (e) => keepError(e.reason?.stack ?? e.reason), { signal });
+
+  /** The graphics card, where the browser names it: a model drawn wrong is often a driver. */
+  const gpu = (() => {
+    try {
+      const gl = renderer.getContext(); const info = gl.getExtension('WEBGL_debug_renderer_info');
+      return info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+    } catch { return null; }
+  })();
+
+  /**
+   * For Melden (feedback.js): the picture as it is now, and everything the viewer knows about where
+   * it is. The canvas is drawn again and read at once - its buffer is not kept between frames - and
+   * made smaller, as a JPEG, so a report stays well under a megabyte.
+   */
+  function snapshot() {
+    let screenshot = null;
+    try {
+      if (loaded) renderer.render(scene, camera);
+      const scale = Math.min(1, SHOT_WIDTH / canvas.width);
+      const out = Object.assign(document.createElement('canvas'), { width: Math.round(canvas.width * scale), height: Math.round(canvas.height * scale) });
+      const g = out.getContext('2d');
+      const box = wrap.getBoundingClientRect(); const style = getComputedStyle(wrap);
+      g.fillStyle = style.getPropertyValue('--bg-bottom').trim() || '#f4f7f9';      // the sky is the page behind a transparent canvas
+      g.fillRect(0, 0, out.width, out.height);
+      g.drawImage(canvas, 0, 0, out.width, out.height);
+      if (box.width && box.height) screenshot = out.toDataURL('image/jpeg', 0.85);
+    } catch (error) { keepError(`schermafbeelding: ${error}`); }
+
+    const visibleText = (el) => el && el.offsetParent !== null ? el.innerText.replace(/\s+\n/g, '\n').trim().slice(0, 1000) : undefined;
+    const p = modes?.procedure();
+    const { width: w, height: h } = wrap.getBoundingClientRect();
+    const gegevens = {
+      build: BUILD,
+      tijd: new Date().toISOString(),
+      pagina: location.href,
+      geladen: loaded,
+      toestand: get(),
+      // the step numbered the way the bar numbers it: without the steps skipped this time
+      procedure: p && { naam: p.name, stap: p.label, index: p.index, stappen: p.steps.filter((st) => !st.skipped).length,
+                        stapNr: p.steps.filter((st) => !st.skipped).indexOf(p.steps[p.index]) + 1 || undefined,
+                        t: Math.round(p.t * 100) / 100, totaal: Math.round(p.total * 100) / 100,
+                        speelt: p.playing, terug: p.backwards },
+      handeling: handelingen?.info() ?? undefined,
+      quiz: quiz?.info() ?? undefined,
+      beeld: runView(),
+      snelheid: speed,
+      // what stands open, and what it says: the card of a run or a quiz, the procedure bar, the calls
+      panelen: [...ui.querySelectorAll('aside, .popover, #cmd-panel, .focus-card')].filter((e) => e.offsetParent !== null && e.id !== 'feedback').map((e) => e.id || e.className),
+      teksten: {
+        kaart: visibleText([...ui.querySelectorAll('.focus-card')].find((e) => e.offsetParent !== null)),
+        procedure: visibleText(procBar),
+        onderdeel: visibleText(infoCard),
+        roepen: bubbles.map((b) => b.el.textContent),
+      },
+      insluiting: { assets: config.assets, namen: config.namen, quiz: config.quiz },
+      apparaat: {
+        browser: navigator.userAgent, taal: navigator.language,
+        scherm: `${screen.width}×${screen.height}`, viewer: `${Math.round(w)}×${Math.round(h)}`,
+        pixelratio: window.devicePixelRatio, aanraken: matchMedia('(pointer: coarse)').matches,
+        app: runsAsApp(), volledigScherm: Boolean(document.fullscreenElement ?? document.webkitFullscreenElement) || host.hasAttribute('data-lv-vol'),
+        gpu,
+      },
+      fouten: errors.length ? [...errors] : undefined,
+    };
+    return { screenshot, gegevens: JSON.parse(JSON.stringify(gegevens)) };   // plain data: no undefined, nothing live
+  }
+
   const debug = { camera, controls, scene, parts, rows, held, keyboardNavigate, select, flyTo,
                   sideOf, pickTwin, config,
                   get modes() { return modes; }, get regions() { return regions; },
@@ -1507,6 +1586,9 @@ const ELEVATIONS = [40, 65, 15, 85];
 const LOW_ELEVATIONS = [20, 8, 35];
 const LOW_Y = Math.sin(THREE.MathUtils.degToRad(20));
 const SQUARE_ON = 3;                   // how much looking square onto a flat movement weighs, in sample points seen
+const SHOT_WIDTH = 1600;                // px: the widest a screenshot in a report is
+// the build this is: the commit and when it was made (vite.lib.config.js); the dev server has none
+const BUILD = typeof __LV_BUILD__ !== 'undefined' ? __LV_BUILD__ : { commit: 'dev', datum: null };
 const FOV = 35;                         // degrees, upright: the lens of every view but Schipper
 const SCHIPPER_ACROSS = 90;
 const LOOK_REACH = 0.25;                // m before the helmsman's eye that a drag turns the view about             // degrees across the picture, seen from the helm

@@ -388,5 +388,8 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
   }, { signal });
   onDestroy?.(() => clearInterval(tick));
 
-  return { active: () => Boolean(current), refresh: refreshPanel };
+  /** The run as it stands, for a feedback report: which operation, watched or practised, and how far. */
+  const info = () => current && { handeling: current.op, naam: NAMES[current.op], hoe: current.mode, stappen: current.total,
+    goed: current.goed, fout: current.fout, klaar: current.done, vraag: current.question && { opties: current.question.options, antwoord: current.question.answer, beantwoord: current.answered } };
+  return { active: () => Boolean(current), refresh: refreshPanel, info };
 }

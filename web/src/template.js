@@ -84,6 +84,22 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     </svg>
   </button>
 
+  <!-- Melden, onder Volledig scherm: wat er niet klopt, met de toestand van de viewer (feedback.js) -->
+  <button id="feedback-toggle" class="icon-button" type="button" aria-label="Melden" title="Iets melden dat niet klopt" aria-expanded="false" aria-controls="feedback">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M20.5 12a8.5 8.5 0 0 1-12.4 7.5L3.5 20.5l1.1-4.3A8.5 8.5 0 1 1 20.5 12z"/>
+      <path d="M12 7.6v5"/><path d="M12 16.1v.1"/>
+    </svg>
+  </button>
+
+  <aside id="feedback" hidden>
+    <header>
+      <h2>Melden</h2>
+      <button id="feedback-close" type="button" class="link-button" aria-label="Sluiten">Sluiten</button>
+    </header>
+    <div id="feedback-body"></div>
+  </aside>
+
   <!-- the boat controls: a column of icons at the top left, each opening its own popover beside it -->
   <nav id="controls" aria-label="Bediening">
     <!-- Boot: the mode, the course against the wind and the riemen, in one panel; its icon shows the mode -->
@@ -222,7 +238,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
       </div>
     </div>
 
-    <button id="cmd-toggle" class="icon-button" type="button" aria-label="Roeicommando" title="Roeicommando" aria-expanded="false" aria-controls="cmd-panel">
+    <button id="cmd-toggle" class="icon-button" type="button" aria-label="Roeicommando" title="Roeicommando" aria-expanded="false" aria-controls="cmd-panel" hidden>
       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M4 10v4l3 .6L15 19V5L7 9.4z"/>
         <path d="M18 9.5a3.5 3.5 0 0 1 0 5"/>
