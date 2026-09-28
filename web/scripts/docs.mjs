@@ -229,6 +229,17 @@ function manoeuvres() {
   const bendRows = (list, back) => table(['#', 'Stap', 'Eerst gedaan (voor Oefenen)', 'Duur'], list.map((s, i) => [i + 1, back ? s.back : s.label,
     (back ? list.filter((d) => (BEND_NEEDS[d.key] ?? []).includes(s.key)).map((d) => d.back) : (BEND_NEEDS[s.key] ?? []).map((k) => list.find((x) => x.key === k).label)).join(', ') || '—',
     secs(s)]));
+  // the roeimanoeuvres: their needs are written in their own branch of planPulling
+  const needsAfter = (name) => {
+    const at = modes.indexOf(`new Procedure('${name}'`); const next = modes.indexOf('new Procedure(', at + 1);
+    const i = modes.indexOf('needs = {', at);
+    if (i < 0 || (next > 0 && i > next)) return {};
+    const body = modes.slice(i + 'needs = {'.length, modes.indexOf('};', i));
+    return Object.fromEntries([...body.matchAll(/(\w+): \[([^\]]*)\]/g)].map(([, k, v]) => [k, [...v.matchAll(/'(\w+)'/g)].map((x) => x[1])]));
+  };
+  const ROWS = ['Achtje roeien', 'Afvaren roeiend', 'Aanleggen met de boeg', 'Zijwaartse aanleg', 'Aanleggen met de spiegel', 'Man overboord roeiend']
+    .map((name) => [name, stepsOf(name), needsAfter(name)]);
+  const ankerRoei = stepsOf('Ankeren roeiend'); const ankerOpRoei = stepsOf('Anker op roeiend');
   const heave = stepsOf('Bijliggen'); const HEAVE_NEEDS = objectOf('HEAVE_NEEDS');
   const heaveRows = (list, back) => table(['#', 'Stap', 'Eerst gedaan (voor Oefenen)', 'Duur'], list.map((s, i) => [i + 1, back ? s.back : s.label,
     (back ? [] : (HEAVE_NEEDS[s.key] ?? []).map((k) => list.find((x) => x.key === k).label)).join(', ') || '—', secs(s)]));
@@ -236,7 +247,7 @@ function manoeuvres() {
   const ankerUit = stepsOf('Anker op onder zeil'); const ankerUitKaal = stepsOf('Anker op zonder zeilen');
   const turnRound = stepsOf('Kop in de wind');
   const haulAhead = stepsOf('Verhalen naar voren'); const haulAstern = stepsOf('Verhalen naar achteren');
-  const WHO = { roer: 'de roerganger', fok: 'de fokkenist' };
+  const WHO = { roer: 'de roerganger', fok: 'de fokkenist', voor: 'de haakvoor' };
   const turnTable = (list, needs) => table(['#', 'Stap', 'Roept', 'Eerst gedaan (voor Oefenen)', 'Duur'], list.map((s, i) => [i + 1, s.label,
     s.say ? `“${s.say}” (${WHO[s.by]})` : '—', (needs[s.key] ?? []).map((k) => list.find((x) => x.key === k)?.label).filter(Boolean).join(', ') || '—', secs(s)]));
   const OPS = opsOf();
@@ -248,7 +259,7 @@ function manoeuvres() {
     const n = Number(s.seconds);
     if (/GYBE_COURSE/.test(s.seconds)) return '0,6 s, plus 1 s per 30° hoger dan voor de wind';
     if (/\/ 45/.test(s.seconds)) return `${s.seconds.match(/^\s*(\d+(\.\d+)?)/)[1].replace('.', ',')} s, plus 1 s per 45° ruimer dan aan de wind`;
-    if (/seconds\('/.test(s.seconds)) return 'volgt uit de afstand en de snelheid';
+    if (/(seconds|sec)\('/.test(s.seconds)) return 'volgt uit de afstand en de snelheid';
     if (/FENDER_SECONDS/.test(s.seconds)) return `${modes.match(/const FENDER_SECONDS = ([\d.]+)/)[1].replace('.', ',')} s`;
     if (/SWING\.seconds/.test(s.seconds)) return `${modes.match(/const SWING = \{[^}]*seconds: ([\d.]+)/)[1].replace('.', ',')} s`;
     if (/LINE_SECONDS/.test(s.seconds)) return `${String(modes.match(/const LINE_SECONDS = ([\d.]+)/)[1]).replace('.', ',')} s`;
@@ -279,6 +290,8 @@ function manoeuvres() {
     'Eerst de zeilen omlaag': 'grootzeil en fok zijn omlaag, opgedoekt of niet (de mast mag liggen)',
     'Eerst ankeren': 'de boot ligt voor anker', 'Eerst de zeilen aanslaan': 'de zeilen zijn aangeslagen', 'Eerst het ankeren afmaken': 'er is geen ankeren of anker op bezig',
     'Eerst losgooien': 'de boot is niet afgemeerd',
+    'Alleen in de modus roeien': 'de boot is in de modus roeien', 'Eerst afvaren': 'de boot ligt niet aan de kant en vaart geen manoeuvre',
+    'Eerst aanleggen': 'de boot ligt aan de kant', 'Eerst dwars op de wind roeien': 'ze roeit dwars op de wind (45° tot 135°)',
     'Eerst een koers varen, niet kop in de wind': 'de boot vaart een koers (niet kop in de wind)',
     'Eerst afmeren': 'de boot ligt afgemeerd', 'Alleen van een langswal': 'de wal is een langswal', 'Alleen aan een langswal': 'de wal is een langswal', 'Alleen langszij': 'ze ligt langszij (niet met de boeg aan de steiger)',
     'Eerst kop in de wind leggen': 'de wind komt van voren (minder dan 45° van de boeg)',
@@ -299,13 +312,11 @@ function manoeuvres() {
     ? OPS[op].map((r) => `- ${CONDITION[r] ?? r} — anders grijs met *${r}*`).join('\n')
     : '- geen');
 
-  const commands = [...template.matchAll(/<div class="choices( beide)?" data-boord="(\w+)">[\s\S]*?<\/div>/g)];
-  const say = Object.fromEntries([...modes.matchAll(/^ {2}(\w+): \{[^}]*say: '([^']*)'/gm)].map((m) => [m[1], m[2]]));
-  const knoppen = new Map();
-  for (const [block, , boord] of commands) {
-    for (const m of block.matchAll(/data-commando="(\w+)">([^<]+)</g)) knoppen.set(m[1], { knop: m[2], beide: boord === 'beide' });
-  }
-  const cmdRows = [...knoppen].map(([key, { knop, beide }]) => [knop, beide ? 'hele boot' : 'per boord', say[key] ? `“${say[key]}”` : '—']);
+  // the roeicommando card: the calls to the whole boat, and what a boord (or both) can be told
+  const cmdRows = [
+    ...[...template.matchAll(/data-call="\w+" data-hint="([^"]+)"><b>([^<]+)<\/b>/g)].map((m) => [m[2], 'beide boorden', m[1]]),
+    ...[...template.matchAll(/data-order="\w+" data-hint="([^"]+)"><b>([^<]+)<\/b>/g)].map((m) => [m[2], 'bakboord, stuurboord of beide', m[1]]),
+  ];
 
   return `# Handelingen en manoeuvres
 
@@ -320,7 +331,7 @@ van stappen veranderen (\`namen.stappen\`); hier staan de standaardnamen.
 
 ## Het menu Handelingen
 
-Oefenen (de studentenmuts in de kolom linksboven) → Manoeuvres, alleen in de modus Zeilen, toont de
+Oefenen (de studentenmuts in de kolom linksboven) → Manoeuvres, in de modus Zeilen en Roeien, toont de
 handelingen per groep: **Tuigage** (mast zetten, zeilen aanslaan, hijsen, reven, strijken en afslaan, mast strijken), **Wenden** (overstag, gijp, stormrondje,
 opkruisen, man over boord, dwarspeiling, bijliggen en weer varen), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een
 langswal de sliplanding en voor top en takel; aanleggen aan lagerwal; verhalen),
@@ -405,6 +416,57 @@ ${bendRows(bend, false)}
 Aanslaan:
 
 ${bendRows([...bend].reverse(), true)}
+
+## Roeimanoeuvres
+
+In de modus roeien heeft Oefenen › Manoeuvres een eigen groep, **Roeien**; de groepen van het zeilen
+staan er dan niet. De manoeuvres volgen *CWO Roeien* van Scouting Nederland (2021, § 2.4, de leidraad
+voor het diploma); het Katwijkse roei-instructieboek (§ 2.3) heeft dezelfde met oudere woorden
+("Bakboord, stuurboord" waar de leidraad "beide boorden" zegt, "Zwem!" waar hij "Drijf!" zegt). De
+roerganger roept, de roeiers roeien: bij elke stap staan de riemen zoals het commando zegt (halen,
+stoppen af, strijken, lopen, op). Wie roept staat erbij; de haakvoor zit voorin.
+
+- **Achtje roeien** (§ 2.4.1): bij X een scherpe bocht over bakboord tot ze weer bij X is, een stuk
+  rechtdoor, een scherpe bocht over stuurboord, en rechtdoor verder.
+- **Afvaren** (§ 2.4.2): riemen op, dollen in en richten, los voor (de roerganger maakt zelf de
+  achterlandvast los), afzetten, stootwillen binnen, riemen toe en wegroeien. Ligt ze met de boeg
+  aan de kant, dan zet de haakvoor haar recht naar achteren af en draait ze achteruit rond; met de
+  spiegel aan de kant gaat ze vooruit weg.
+- **Aanleggen met de boeg** (§ 2.4.3): loodrecht op de kant aan; op riemen, zodat ze afremt; vlak
+  voor de kant beide boorden stoppen af, en ze ligt stil met de boeg bij de kant. De haakvoor stapt
+  met de landvast op de kant.
+- **Zijwaartse aanleg** (§ 2.4.4): ook loodrecht op de kant aan; op riemen, stootwillen buiten aan
+  stuurboord, stuurboord laat de riemen lopen en bakboord stopt, maar nog niet af. Vlak voor de kant
+  gaat de helmstok ver naar stuurboord en roept de roerganger "af": ze draait om haar as en ligt stil
+  langs de kant, met stuurboord ertegen. Voor- en achterlandvast gaan de kant op.
+- **Aanleggen met de spiegel** (§ 2.4.5): langs de kant tot de plek; de spiegel ernaar draaien
+  (bakboord stopt af, stuurboord haalt op), dan achteruit strijken - het roer werkt nu andersom -, op
+  riemen en afstoppen vlak bij de kant. De achterlandvast gaat de kant op.
+- **Man overboord** (§ 2.4.7): op riemen, zodat de drenkeling geen klap krijgt; "Man overboord!",
+  "Drijf!" en de haakvoor wijst (de pijl, vanaf het voordek). Ze roeit weg, maakt een grote boog en
+  komt bijna tegen de wind in terug, met de drenkeling aan de hoge kant; afstoppen, riemen laten lopen
+  en de drenkeling binnenhalen tussen de eerste en de tweede doft. Ze begint dwars op de wind.
+- **Ankeren** (§ 2.4.8) en **anker op** (§ 2.4.10): zie hieronder; ze gebruiken het anker zoals de
+  andere ankermanoeuvres.
+
+Aanleggen legt een eigen kant, recht voor haar (boeg, zijkant) of langs haar stuurboordkant
+(spiegel); of het een hogerwal, lagerwal of langswal is volgt uit de wind. Met het kruisje breekt de
+manoeuvre af: de kant verdwijnt weer en ze roeit verder zoals ze begon.
+
+${ROWS.map(([name, list, needs]) => `### ${name}
+
+${turnTable(list, needs)}`).join('\n\n')}
+
+### Ankeren roeiend
+
+${turnTable(ankerRoei, { zakken: ['strijk'], vieren: ['zakken'], lengte: ['zakken'], controle: ['zakken'], geroeid: ['controle'] })}
+
+### Anker op roeiend
+
+${turnTable(ankerOpRoei, { hieuwen: ['riemen'], los: ['recht'], binnen: ['los'], weg: ['binnen'] })}
+
+Voorwaarden, bijvoorbeeld aanleggen met de boeg:
+${pre('aanleggenBoeg')}
 
 ## Bijliggen
 
@@ -580,7 +642,8 @@ met genoeg snelheid, en ga rustig overstag, met weinig roer: zo houd je de meest
 
 De viewer legt een recht kanaal langs de wind, zoals de bovenste tekening in het boek: twee oevers
 aan weerszijden, op een paar meter van waar ze keert. Ze loeft op tot aan de wind (als ze dat nog niet
-voer) en vaart vier slagen van gelijke lengte, de eerste en de laatste half zo lang, met drie keer
+voer) en vaart vier slagen: twee van gelijke lengte, de eerste half zo lang en de laatste iets langer
+dan die halve (ze vaart na de laatste wending nog een stuk door), met drie keer
 **Klaar om te wenden**, **Ree** daartussen, telkens vlak voor de oever. Elke slag heet naar zijn boeg:
 *Slag over stuurboord* of *over bakboord, zo hoog mogelijk*. Aan het eind vaart ze gewoon verder. Het
 kanaal en het spoor blijven in beeld zolang de oefening loopt.
@@ -995,11 +1058,25 @@ bolling van de zeilen volgen de koers.
 
 ## Roeicommando's
 
-Een commando begint met *Op… riemen*, behalve de twee die meteen moeten worden uitgevoerd (*Stopt…
-af* en *Riemen… lopen*). De roerganger roept het met de boorden ervoor: *Bakboord, stuurboord haalt
-op… gelijk*.
+Het icoon Roeicommando opent een kleine kaart onderaan de viewer (op een telefoon een strook langs de
+onderkant), in twee stappen. De commando's en houdingen volgen de roeicommando's van sloeproeien.nl
+en CWO Roeien. Bovenaan staan **Bakboord**, **Beide boorden** en **Stuurboord**; die openen wat een
+boord gezegd kan worden. Daaronder staan de roepen aan de hele boot:
 
-${table(['Knop', 'Voor', 'De roerganger roept'], cmdRows)}
+- **Haalt op**: de roeiers buigen naar voren met gestrekte armen, de bladen voor, klaar voor de eerste
+  slag. Dit is iets anders dan **Riemen toe** (de riem rustig in de dol, in rust) en **Op riemen**
+  (haaks op de boot, evenwijdig aan het water, de bladen verticaal).
+- **Gelijk**: één slag.
+- **Door roeien op slag**: slag na slag, in het ritme van de slag.
+
+Een slag roeit elk boord dat klaar is (na *haalt op* of *strijkt*) of al roeit, in zijn eigen
+richting. *Strijkt* roeit zelf niets: de roeiers gaan achterover zitten, klaar om achteruit te roeien;
+roeit het boord al op slag, dan gaan de slagen meteen achteruit. Een boord met de riemen toe, op
+riemen, afgestopt, lopend, op of binnen roeit niet mee. *Bakboord stopt af*, dan *Gelijk*: stuurboord
+haalt, bakboord remt, en de pijl op het water wijst naar bakboord. Onder elk boord staat wat het nu
+doet.
+
+${table(['Knop', 'Voor', 'Wat het doet'], cmdRows)}
 `;
 }
 

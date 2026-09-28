@@ -11,7 +11,7 @@ van stappen veranderen (`namen.stappen`); hier staan de standaardnamen.
 
 ## Het menu Handelingen
 
-Oefenen (de studentenmuts in de kolom linksboven) → Manoeuvres, alleen in de modus Zeilen, toont de
+Oefenen (de studentenmuts in de kolom linksboven) → Manoeuvres, in de modus Zeilen en Roeien, toont de
 handelingen per groep: **Tuigage** (mast zetten, zeilen aanslaan, hijsen, reven, strijken en afslaan, mast strijken), **Wenden** (overstag, gijp, stormrondje,
 opkruisen, man over boord, dwarspeiling, bijliggen en weer varen), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een
 langswal de sliplanding en voor top en takel; aanleggen aan lagerwal; verhalen),
@@ -129,6 +129,145 @@ Aanslaan:
 | 4 | Halshoek van de fok vastmaken | Fok uit de zeilzak, fokkenval klaar hangen | 1 s |
 | 5 | Leuvers van onder af aanslaan | Halshoek van de fok vastmaken | 2 s |
 | 6 | Fokkenschoten inscheren, met een achtknoop | — | 1,5 s |
+
+## Roeimanoeuvres
+
+In de modus roeien heeft Oefenen › Manoeuvres een eigen groep, **Roeien**; de groepen van het zeilen
+staan er dan niet. De manoeuvres volgen *CWO Roeien* van Scouting Nederland (2021, § 2.4, de leidraad
+voor het diploma); het Katwijkse roei-instructieboek (§ 2.3) heeft dezelfde met oudere woorden
+("Bakboord, stuurboord" waar de leidraad "beide boorden" zegt, "Zwem!" waar hij "Drijf!" zegt). De
+roerganger roept, de roeiers roeien: bij elke stap staan de riemen zoals het commando zegt (halen,
+stoppen af, strijken, lopen, op). Wie roept staat erbij; de haakvoor zit voorin.
+
+- **Achtje roeien** (§ 2.4.1): bij X een scherpe bocht over bakboord tot ze weer bij X is, een stuk
+  rechtdoor, een scherpe bocht over stuurboord, en rechtdoor verder.
+- **Afvaren** (§ 2.4.2): riemen op, dollen in en richten, los voor (de roerganger maakt zelf de
+  achterlandvast los), afzetten, stootwillen binnen, riemen toe en wegroeien. Ligt ze met de boeg
+  aan de kant, dan zet de haakvoor haar recht naar achteren af en draait ze achteruit rond; met de
+  spiegel aan de kant gaat ze vooruit weg.
+- **Aanleggen met de boeg** (§ 2.4.3): loodrecht op de kant aan; op riemen, zodat ze afremt; vlak
+  voor de kant beide boorden stoppen af, en ze ligt stil met de boeg bij de kant. De haakvoor stapt
+  met de landvast op de kant.
+- **Zijwaartse aanleg** (§ 2.4.4): ook loodrecht op de kant aan; op riemen, stootwillen buiten aan
+  stuurboord, stuurboord laat de riemen lopen en bakboord stopt, maar nog niet af. Vlak voor de kant
+  gaat de helmstok ver naar stuurboord en roept de roerganger "af": ze draait om haar as en ligt stil
+  langs de kant, met stuurboord ertegen. Voor- en achterlandvast gaan de kant op.
+- **Aanleggen met de spiegel** (§ 2.4.5): langs de kant tot de plek; de spiegel ernaar draaien
+  (bakboord stopt af, stuurboord haalt op), dan achteruit strijken - het roer werkt nu andersom -, op
+  riemen en afstoppen vlak bij de kant. De achterlandvast gaat de kant op.
+- **Man overboord** (§ 2.4.7): op riemen, zodat de drenkeling geen klap krijgt; "Man overboord!",
+  "Drijf!" en de haakvoor wijst (de pijl, vanaf het voordek). Ze roeit weg, maakt een grote boog en
+  komt bijna tegen de wind in terug, met de drenkeling aan de hoge kant; afstoppen, riemen laten lopen
+  en de drenkeling binnenhalen tussen de eerste en de tweede doft. Ze begint dwars op de wind.
+- **Ankeren** (§ 2.4.8) en **anker op** (§ 2.4.10): zie hieronder; ze gebruiken het anker zoals de
+  andere ankermanoeuvres.
+
+Aanleggen legt een eigen kant, recht voor haar (boeg, zijkant) of langs haar stuurboordkant
+(spiegel); of het een hogerwal, lagerwal of langswal is volgt uit de wind. Met het kruisje breekt de
+manoeuvre af: de kant verdwijnt weer en ze roeit verder zoals ze begon.
+
+### Achtje roeien
+
+| # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|---|
+| 1 | Scherpe bocht over bakboord | “Op riemen, bakboord stopt af, stuurboord haalt op… gelijk!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 2 | Een stuk rechtdoor | “Op riemen, beide boorden haalt op… gelijk!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 3 | Scherpe bocht over stuurboord | “Op riemen, stuurboord stopt af, bakboord haalt op… gelijk!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 4 | Rechtdoor: het achtje is rond | “Op riemen, beide boorden haalt op… gelijk!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+
+### Afvaren roeiend
+
+| # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|---|
+| 1 | Beide boorden riemen op | “Beide boorden riemen… op!” (de roerganger) | — | 2 s |
+| 2 | Dollen in de dolpotten | “Dollen… in!” (de roerganger) | — | 1,5 s |
+| 3 | Dollen richten | “Dollen… richten!” (de roerganger) | — | 1,5 s |
+| 4 | De haakvoor maakt de voorlandvast los, de roerganger de achterlandvast | “Los… voor!” (de roerganger) | — | 2 s |
+| 5 | Van de kant afzetten | “Zet… af!” (de roerganger) | De haakvoor maakt de voorlandvast los, de roerganger de achterlandvast | volgt uit de afstand en de snelheid |
+| 6 | Stootwillen binnen | “Stootwillen binnen!” (de roerganger) | — | 1,5 s |
+| 7 | Riemen in de dollen | “Riemen… toe!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 8 | Achteruit rond: bakboord strijkt, stuurboord haalt op | “Op riemen, bakboord strijkt, stuurboord haalt op… gelijk!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 9 | Wegroeien | “Op riemen, beide boorden haalt op… gelijk!” (de roerganger) | Riemen in de dollen | volgt uit de afstand en de snelheid |
+
+### Aanleggen met de boeg
+
+| # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|---|
+| 1 | Haakvoor klaar met de voorlandvast | “Haakvoor, klaar om aan te leggen!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 2 | Op riemen: ze vaart nog door, maar remt af | “Op riemen!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 3 | Beide boorden stoppen af: stil met de boeg bij de kant | “Beide boorden stopt… af!” (de roerganger) | Op riemen: ze vaart nog door, maar remt af | volgt uit de afstand en de snelheid |
+| 4 | De haakvoor stapt met de landvast op de kant en houdt de boot af | — | Beide boorden stoppen af: stil met de boeg bij de kant | 2 s |
+
+### Zijwaartse aanleg
+
+| # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|---|
+| 1 | Haakvoor klaar maken om aan te leggen | “Haakvoor, klaar maken om aan te leggen!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 2 | Op riemen | “Op riemen!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 3 | Stootwillen buiten aan stuurboord | “Stootwillen buiten aan stuurboord!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 4 | Stuurboord laat de riemen lopen, bakboord stopt (nog niet af) | “Stuurboord riemen… lopen, bakboord stopt!” (de roerganger) | Op riemen | volgt uit de afstand en de snelheid |
+| 5 | Helmstok ver naar stuurboord en af: ze draait om haar as en ligt stil langs de kant | “Af!” (de roerganger) | Stuurboord laat de riemen lopen, bakboord stopt (nog niet af), Stootwillen buiten aan stuurboord | volgt uit de afstand en de snelheid |
+| 6 | De haakvoor stapt met de voorlandvast op de kant, de roerganger met de achterlandvast | — | Helmstok ver naar stuurboord en af: ze draait om haar as en ligt stil langs de kant | 2 s |
+
+### Aanleggen met de spiegel
+
+| # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|---|
+| 1 | Langs de kant naar de plek waar je wilt aanleggen | — | — | volgt uit de afstand en de snelheid |
+| 2 | De spiegel naar de kant draaien | “Op riemen, bakboord stopt af, stuurboord haalt op… gelijk!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 3 | Achteruit naar de kant strijken; het roer werkt nu andersom | “Beide boorden strijkt… gelijk!” (de roerganger) | De spiegel naar de kant draaien | volgt uit de afstand en de snelheid |
+| 4 | Vlak bij de kant: op riemen | “Op riemen!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 5 | Beide boorden stoppen af, tot stilstand | “Beide boorden stopt… af!” (de roerganger) | Vlak bij de kant: op riemen | volgt uit de afstand en de snelheid |
+| 6 | Met de achterlandvast overboord stappen en de boot vastleggen | — | Beide boorden stoppen af, tot stilstand | 2 s |
+
+### Man overboord roeiend
+
+| # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|---|
+| 1 | Op riemen, zodat de drenkeling geen klap krijgt | “Op riemen!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 2 | Man overboord roepen | “Man overboord!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 3 | De drenkeling laten drijven, niet zwemmen | “Drijf!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 4 | De haakvoor aanwijzen, die de hele tijd naar de drenkeling wijst | “Haakvoor, wijs!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 5 | Wegroeien van de drenkeling | “Beide boorden haalt op… gelijk!” (de roerganger) | De haakvoor aanwijzen, die de hele tijd naar de drenkeling wijst | volgt uit de afstand en de snelheid |
+| 6 | Een grote boog, zodat ze bijna tegen de wind in bij de drenkeling komt | — | — | volgt uit de afstand en de snelheid |
+| 7 | Op de drenkeling aan, met de drenkeling aan de hoge kant | — | — | volgt uit de afstand en de snelheid |
+| 8 | Vlak bij de drenkeling afstoppen | “Beide boorden stopt… af!” (de roerganger) | Op de drenkeling aan, met de drenkeling aan de hoge kant | volgt uit de afstand en de snelheid |
+| 9 | Riemen laten lopen | “Riemen… lopen!” (de roerganger) | Vlak bij de drenkeling afstoppen | 1,5 s |
+| 10 | De drenkeling aan de hoge kant binnenhalen, tussen de eerste en de tweede doft | — | Riemen laten lopen | 3 s |
+
+### Ankeren roeiend
+
+| # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|---|
+| 1 | Vragen of het anker geborgd is: aan de lijn, en de lijn aan de boot | “Haakvoor, is het anker geborgd?” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 2 | De boot tegen de wind in roeien | — | — | volgt uit de afstand en de snelheid |
+| 3 | Haakvoor klaar met het anker op het voordek | “Klaar om het anker overboord te zetten!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 4 | Beide boorden stoppen af: de vaart eruit | “Beide boorden stopt… af!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 5 | Even strijken, zodat ze heel zachtjes achteruit gaat | “Beide boorden strijkt… gelijk!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 6 | Het anker voorzichtig laten zakken, niet gooien | “Zet het anker overboord!” (de roerganger) | Even strijken, zodat ze heel zachtjes achteruit gaat | volgt uit de afstand en de snelheid |
+| 7 | Achteruit strijken zodat het anker zich ingraaft, de lijn rustig vieren | — | Het anker voorzichtig laten zakken, niet gooien | volgt uit de afstand en de snelheid |
+| 8 | De lijn ongeveer 3 maal de diepte vieren en bij de punt vastzetten | — | Het anker voorzichtig laten zakken, niet gooien | volgt uit de afstand en de snelheid |
+| 9 | Met een achtergrondpeiling controleren of het anker houdt | — | Het anker voorzichtig laten zakken, niet gooien | 2 s |
+| 10 | Zwaard op | “Zwaard op!” (de roerganger) | — | 1,5 s |
+| 11 | Riemen binnen | “Riemen… geroeid!” (de roerganger) | Met een achtergrondpeiling controleren of het anker houdt | 2 s |
+| 12 | Dollen uit de dolpotten | “Dollen… uit!” (de roerganger) | — | 1,5 s |
+
+### Anker op roeiend
+
+| # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|---|
+| 1 | Zwaard in | “Zwaard in!” (de roerganger) | — | 1,5 s |
+| 2 | Riemen op, dollen in, dollen richten, riemen toe | “Riemen… op! Dollen… in! Dollen… richten! Riemen… toe!” (de roerganger) | — | 2,5 s |
+| 3 | De haakvoor trekt de boot aan de ankerlijn naar het anker | — | Riemen op, dollen in, dollen richten, riemen toe | volgt uit de afstand en de snelheid |
+| 4 | Boven het anker: de roeiers houden de boot afgestopt | “Anker recht op en neer!” (de haakvoor) | — | volgt uit de afstand en de snelheid |
+| 5 | Het anker ophalen | “Anker… op!” (de roerganger) | Boven het anker: de roeiers houden de boot afgestopt | 1,5 s |
+| 6 | Het anker binnenboord en opruimen | “Anker binnen!” (de haakvoor) | Het anker ophalen | 3 s |
+| 7 | Wegroeien | “Op riemen, beide boorden haalt op… gelijk!” (de roerganger) | Het anker binnenboord en opruimen | volgt uit de afstand en de snelheid |
+
+Voorwaarden, bijvoorbeeld aanleggen met de boeg:
+- de boot is in de modus roeien — anders grijs met *Alleen in de modus roeien*
+- het anker is op — anders grijs met *Eerst het anker op*
+- de boot ligt niet aan de kant en vaart geen manoeuvre — anders grijs met *Eerst afvaren*
 
 ## Bijliggen
 
@@ -433,7 +572,8 @@ met genoeg snelheid, en ga rustig overstag, met weinig roer: zo houd je de meest
 
 De viewer legt een recht kanaal langs de wind, zoals de bovenste tekening in het boek: twee oevers
 aan weerszijden, op een paar meter van waar ze keert. Ze loeft op tot aan de wind (als ze dat nog niet
-voer) en vaart vier slagen van gelijke lengte, de eerste en de laatste half zo lang, met drie keer
+voer) en vaart vier slagen: twee van gelijke lengte, de eerste half zo lang en de laatste iets langer
+dan die halve (ze vaart na de laatste wending nog een stuk door), met drie keer
 **Klaar om te wenden**, **Ree** daartussen, telkens vlak voor de oever. Elke slag heet naar zijn boeg:
 *Slag over stuurboord* of *over bakboord, zo hoog mogelijk*. Aan het eind vaart ze gewoon verder. Het
 kanaal en het spoor blijven in beeld zolang de oefening loopt.
@@ -1013,18 +1153,33 @@ bolling van de zeilen volgen de koers.
 
 ## Roeicommando's
 
-Een commando begint met *Op… riemen*, behalve de twee die meteen moeten worden uitgevoerd (*Stopt…
-af* en *Riemen… lopen*). De roerganger roept het met de boorden ervoor: *Bakboord, stuurboord haalt
-op… gelijk*.
+Het icoon Roeicommando opent een kleine kaart onderaan de viewer (op een telefoon een strook langs de
+onderkant), in twee stappen. De commando's en houdingen volgen de roeicommando's van sloeproeien.nl
+en CWO Roeien. Bovenaan staan **Bakboord**, **Beide boorden** en **Stuurboord**; die openen wat een
+boord gezegd kan worden. Daaronder staan de roepen aan de hele boot:
 
-| Knop | Voor | De roerganger roept |
+- **Haalt op**: de roeiers buigen naar voren met gestrekte armen, de bladen voor, klaar voor de eerste
+  slag. Dit is iets anders dan **Riemen toe** (de riem rustig in de dol, in rust) en **Op riemen**
+  (haaks op de boot, evenwijdig aan het water, de bladen verticaal).
+- **Gelijk**: één slag.
+- **Door roeien op slag**: slag na slag, in het ritme van de slag.
+
+Een slag roeit elk boord dat klaar is (na *haalt op* of *strijkt*) of al roeit, in zijn eigen
+richting. *Strijkt* roeit zelf niets: de roeiers gaan achterover zitten, klaar om achteruit te roeien;
+roeit het boord al op slag, dan gaan de slagen meteen achteruit. Een boord met de riemen toe, op
+riemen, afgestopt, lopend, op of binnen roeit niet mee. *Bakboord stopt af*, dan *Gelijk*: stuurboord
+haalt, bakboord remt, en de pijl op het water wijst naar bakboord. Onder elk boord staat wat het nu
+doet.
+
+| Knop | Voor | Wat het doet |
 |---|---|---|
-| Op… slag | hele boot | “haalt op… gelijk, op… slag” |
-| Riemen… over | hele boot | “riemen… over” |
-| Riemen… op | hele boot | “riemen… op” |
-| Riemen… geroeid | hele boot | “riemen… geroeid” |
-| Haalt op… gelijk | per boord | “haalt op… gelijk” |
-| Op… riemen | per boord | — |
-| Strijkt… gelijk | per boord | “strijkt… gelijk” |
-| Stopt… af | per boord | “stopt… af” |
-| Riemen… lopen | per boord | “riemen… lopen” |
+| Haalt op | beide boorden | naar voren buigen met gestrekte armen, de bladen voor: klaar voor de eerste slag |
+| Door roeien op slag | beide boorden | slag na slag, elk boord dat klaar is of roeit, in zijn eigen richting |
+| Gelijk | beide boorden | één slag van elk boord dat klaar is of roeit, in zijn eigen richting |
+| Riemen toe | bakboord, stuurboord of beide | de riem rustig in de dol leggen: rust |
+| Op riemen | bakboord, stuurboord of beide | haaks op de boot, evenwijdig aan het water, de bladen verticaal |
+| Stopt af | bakboord, stuurboord of beide | de bladen verticaal in het water: de vaart eruit |
+| Strijkt | bakboord, stuurboord of beide | achterover zitten, klaar om achteruit te roeien |
+| Riemen lopen | bakboord, stuurboord of beide | de riemen langs de boot naar achteren, boven het water |
+| Riemen op | bakboord, stuurboord of beide | de riemen rechtop tussen de voeten |
+| Riemen geroeid | bakboord, stuurboord of beide | de riemen netjes binnen neerleggen |

@@ -1013,12 +1013,24 @@ export function mount(ui, host, config) {
     if (covered > 0 && w > 0 && h > 0) camera.setViewOffset(w, h, 0, covered / 2, w, h);
     else camera.clearViewOffset();
   }
-  const setCovered = (px) => { if (px === covered) return; covered = px; frame(); };
+  // by who: the card of a quiz round or a run, and the roeicommando card; the picture clears the most
+  const coveredBy = {};
+  const setCovered = (px, who = 'card') => {
+    coveredBy[who] = px;
+    const most = Math.max(0, ...Object.values(coveredBy));
+    if (most === covered) return; covered = most; frame();
+  };
+  // the roeicommando card (modes.js) lifts the picture too, while it is open: its size tells
+  const cmdCard = $('cmd-panel');
+  const cmdCover = new ResizeObserver(() => setCovered(cmdCard.hidden ? 0
+    : Math.max(0, Math.round(wrap.getBoundingClientRect().bottom - cmdCard.getBoundingClientRect().top)), 'cmd'));
+  cmdCover.observe(cmdCard);
+  onDestroy(() => cmdCover.disconnect());
 
   // ---------------------------------------------------------------- Oefenen
   // A popover of the column: first what to practise - Manoeuvres (handelingen.js) or Onderdelen
   // (quiz.js) - then that one's own start panel. It opens on the one chosen last; Manoeuvres is only
-  // there while sailing (modes.js hides its button), and without it the panel shows Onderdelen.
+  // there while sailing or rowing (modes.js hides its button), and without it the panel shows Onderdelen.
   let learnKind = 'manoeuvres';
   let openLearn = () => {};
   function initLearn() {
@@ -1054,31 +1066,51 @@ export function mount(ui, host, config) {
 
   // ---------------------------------------------------------------- what is called out
   // A command - "Klaar om te wenden!", "Gijp!", a roeicommando - floats in a speech bubble over the
-  // one who calls it: the helmsman in the stern, or the fokkenist by the mast. It follows the boat on
-  // the screen, and fades once it has had time to be read.
-  const callout = Object.assign(document.createElement('div'), { className: 'callout' });
-  callout.hidden = true;
-  wrap.append(callout);
-  const SPEAKERS = { roer: new THREE.Vector3(1.0, 1.45, 0), fok: new THREE.Vector3(3.8, 1.5, 0) };   // model space: where their heads are
-  let calloutUntil = 0; let calloutAt = SPEAKERS.roer;
+  // one who calls it: the helmsman in the stern, the fokkenist by the mast, or the haakvoor in the
+  // bow. It follows the boat on the screen, and fades once it has had time to be read. Commands in
+  // quick succession each get a bubble of their own: the newest at the speaker, the ones before it
+  // stacked above, the oldest on top, each fainter than the one below it. A call of several
+  // commands ("Op… riemen. Bakboord stopt… af") is split into them.
+  const SPEAKERS = { roer: new THREE.Vector3(1.0, 1.45, 0), fok: new THREE.Vector3(3.8, 1.5, 0), voor: new THREE.Vector3(5.1, 1.35, 0) };   // model space: where their heads are (voor: the haakvoor)
+  const BUBBLES = { max: 4, gap: 6, tail: 8, fade: [1, 0.72, 0.5, 0.32] };   // per speaker; opacity from the newest up
+  let bubbles = [];                                                 // { el, who, until }, oldest first
   function say(text, who = 'roer') {
     if (!text) return;
-    callout.textContent = text;
-    calloutAt = SPEAKERS[who] ?? SPEAKERS.roer;
-    calloutUntil = performance.now() + 1800 + 50 * text.length;
-    callout.hidden = false; callout.classList.remove('gone');
+    const at = SPEAKERS[who] ? who : 'roer';
+    for (const part of text.split(/(?<=[!.?])\s+(?=\S)/)) {
+      const el = Object.assign(document.createElement('div'), { className: 'callout', textContent: part });
+      wrap.append(el);
+      bubbles.push({ el, who: at, until: performance.now() + 1800 + 50 * part.length });
+    }
+    // no more than a few over one speaker: the oldest go
+    for (const w of Object.keys(SPEAKERS)) {
+      const mine = bubbles.filter((b) => b.who === w);
+      for (const b of mine.slice(0, Math.max(0, mine.length - BUBBLES.max))) b.el.remove();
+    }
+    bubbles = bubbles.filter((b) => b.el.isConnected);
   }
   const calloutPoint = new THREE.Vector3();
   function stepCallout() {
-    if (callout.hidden) return;
+    if (!bubbles.length) return;
     const now = performance.now();
-    if (now > calloutUntil) { callout.classList.add('gone'); if (now > calloutUntil + 400) { callout.hidden = true; return; } }
-    calloutPoint.copy(calloutAt).project(camera);
+    for (const b of bubbles) if (now > b.until + 400) b.el.remove();
+    bubbles = bubbles.filter((b) => b.el.isConnected);
     const box = wrap.getBoundingClientRect();
-    const behind = calloutPoint.z > 1;
-    callout.style.visibility = behind ? 'hidden' : '';
-    callout.style.left = `${((calloutPoint.x + 1) / 2) * box.width}px`;
-    callout.style.top = `${((1 - calloutPoint.y) / 2) * box.height}px`;
+    for (const w of Object.keys(SPEAKERS)) {
+      const mine = bubbles.filter((b) => b.who === w);
+      if (!mine.length) continue;
+      calloutPoint.copy(SPEAKERS[w]).project(camera);
+      const behind = calloutPoint.z > 1;
+      const x = ((calloutPoint.x + 1) / 2) * box.width; const y = ((1 - calloutPoint.y) / 2) * box.height;
+      let lift = 0;
+      mine.slice().reverse().forEach((b, i) => {                    // the newest at the speaker, older ones above it
+        b.el.style.visibility = behind ? 'hidden' : '';
+        b.el.style.left = `${x}px`; b.el.style.top = `${y - lift}px`;
+        b.el.classList.toggle('older', i > 0);                      // only the newest points at the speaker
+        b.el.style.opacity = now > b.until ? '0' : String(BUBBLES.fade[Math.min(i, BUBBLES.fade.length - 1)]);
+        lift += b.el.offsetHeight + BUBBLES.gap + (i === 0 ? BUBBLES.tail : 0);
+      });
+    }
   }
 
   // ---------------------------------------------------------------- loop

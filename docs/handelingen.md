@@ -34,7 +34,7 @@ Voorwaarden die de werklijst gebruikt:
 | geen rif bezig | de Reven-procedure speelt niet |
 | anker op | het anker ligt aan boord, niet op de bodem |
 | modus zeilen / roeien | de gekozen modus |
-| koers … | de koers ten opzichte van de wind (aan de wind ≤ 60°, halve wind, ruime wind, voor de wind ≥ 150°) |
+| koers … | de koers ten opzichte van de wind: aan de wind vanaf 45° (dichter bij de wind is het kop in de wind), halve wind vanaf 70°, ruime wind vanaf 112°, voor de wind vanaf 158° (`CLOSE_HAULED`, `HALVE_WIND`, `RUIME_WIND`, `DOWNWIND` in `modes.js`) |
 | riemen uit | beide riemen liggen in hun dol |
 | aan de wal | er ligt een wal of steiger binnen bereik |
 | afgemeerd / los | de landvasten zijn vast aan de wal, of los |
@@ -70,6 +70,12 @@ Voorwaarden die de werklijst gebruikt:
 | Anker op zonder zeilen | voor anker, grootzeil en fok omlaag |
 | Kop in de wind leggen | afgemeerd aan een langswal, zeilen gestreken, wind van achteren |
 | Afvaren van langswal | afgemeerd aan een langswal, kop in de wind, zeilen op, geen rif |
+| Bijliggen / weer varen | bijliggen: zeilen op, anker op, niet afgemeerd, aan de wind tot halve wind (40°–120°), geen rif, wending of gijp bezig; weer varen: ze ligt bij |
+| Verhalen | afgemeerd, langszij (niet met de boeg of de spiegel aan de kant), zeilen gestreken, geen afmeren of draaien bezig |
+| Roeien: achtje, aanleggen met de boeg, zijwaartse aanleg, aanleggen met de spiegel | modus roeien, anker op, niet afgemeerd; aanleggen legt zelf een kant |
+| Roeien: afvaren | modus roeien, aan de kant (langszij, met de boeg of met de spiegel) |
+| Roeien: man overboord | modus roeien, anker op, niet afgemeerd, dwars op de wind (45°–135°) |
+| Roeien: ankeren / anker op | modus roeien; ankeren: niet afgemeerd; anker op: voor anker |
 | Anker uit / op, midzwaard, riemen en dollen, roeicommando's, sturen | (zonder voorwaarden in het menu) |
 
 Bekende verbetering: [KATZ] 70/64 en [HBO] p. 6 geven hijsen een eigen volgorde (grootschoot en
@@ -96,10 +102,60 @@ over is:
 | *Grootzeil hijsen!*, *Fok hijsen!* | Grootzeil hijsen, Fok hijsen | Anker op onder zeil |
 | *Fok bak!* | Fok bak trekken | Anker op onder zeil |
 | *Fok bak!* | Fok bak houden | Bijliggen |
+| *Haakvoor, is het anker geborgd?* | Vragen of het anker geborgd is | Ankeren roeiend |
 | *Springen los!*, *Springen vast!* | Springen losmaken, Springen weer vastmaken | Verhalen |
 | *Voorlandvast verzetten!*, *Achterlandvast verzetten!* | Landvast naar de volgende bolder | Verhalen |
 | *Halen!* | Aan de landvast halen | Verhalen |
 | *Voorlandvast vast!*, *Achterlandvast vast!* | Landvast opnieuw vastmaken | Verhalen |
+| *Fok bak houden!* | Fok bak houden | Overstag, stormrondje; *Fok bak houden!* ook bij afvaren van langswal |
+| *Stootwillen uit!*, *Zeilen los!*, *Grootzeil aan!* | Stootwillen uit, Zeilen los, Grootzeil aan | Sliplanding langswal en hogerwal |
+| *Voorlandvast vast!*, *Achterlandvast vast!*, *Achterspring vast!*, *Voorspring vast!* | De landvasten en springen vastmaken | Afmeren (alle vormen), kop in de wind leggen |
+| *Voorspring los!*, *Achterspring los!*, *Achterlandvast los!* | De lijnen losmaken | Afvaren van langswal, kop in de wind leggen |
+| *Voorlandvast los, afduwen!* | Voorlandvast los, afduwen | Afvaren van langswal |
+| *Wijs!* | Iemand aanwijzen die naar de drenkeling wijst | Man over boord (zeilen; het boek zegt alleen "De stuurman wijst iemand aan") |
+| *Stootwil naar de boeg!*, *Voorlandvast los!*, *Spiegel afduwen!*, *Stootwillen naar de andere kant!* | De stappen van kop in de wind leggen | Kop in de wind leggen (geen boek beschrijft deze manoeuvre) |
+| *Op riemen, bakboord strijkt, stuurboord haalt op… gelijk!* | Achteruit rond, van de boeg aan de kant af | Afvaren roeiend (eigen stap, niet in CWO Roeien) |
+
+## Afwijkingen van de boeken: te beslissen
+
+Uit een controle van alle manoeuvres tegen de bronnen (september 2026). Waar de viewer anders doet dan
+het boek, staat hier wat de viewer doet, wat de bron zegt, en wat er beslist moet worden: het boek
+volgen, of de afwijking houden en hem als bewuste keuze in `docs/manoeuvres.md` vermelden. Waar de
+boeken het onderling oneens zijn, staat dat erbij; daar volgt de viewer er één.
+
+### Te beslissen
+
+| # | Manoeuvre | De viewer | De bron | Beslissing |
+|---|---|---|---|---|
+| 1 | Overstag | Na *Fok bak* nog *Fok bak houden* (met de roep *Fok bak houden!*) en *Afvallen*, dan *Fok over* | [KATZ] 76/70, [HBO] p. 7 en Meestoxopeus: van *fok bak* rechtstreeks naar *fok over* ("als de boot net door de wind heen is") | De twee stappen weghalen, of houden als toelichting op wat er gebeurt |
+| 2 | Overstag | Geen stap *Kijken of de weg vrij is* | [KATZ] 76/70, stap 2 | Toevoegen, of weglaten omdat het water leeg is |
+| 3 | Man over boord (zeilen) | Ze vaart 1,5 bootlengte door voor ze keert | [HBO] p. 13: ongeveer 4 bootlengtes; [KATZ] 89–90: 3 à 4, of 4 à 5 scheepslengtes | Naar 4 bootlengtes, of houden (korter in beeld) |
+| 4 | Man over boord (zeilen) | Geen *Man dwars!* en *Man vast!* | [HBO] p. 13 | Toevoegen |
+| 5 | Aanleggen aan lagerwal | Laatste stap: op het laatste moment van de kant af sturen, een kwartslag, langszij | [KATZ] 88/82 en Meestoxopeus: eindigen met "Alles in orde maken om aan te kunnen leggen" | De stap houden (het komt van ons, niet uit het boek), of het boek volgen |
+| 6 | Reven | Grootschoot verhangen en schootring terug vóór de vallen doorgezet worden; begint met *Kop in de wind* | [KATZ] 72/66: klauwval vast, piekenval stellen, en het hoefijzer als laatste; geen *kop in de wind* in de lijst | De volgorde van het boek nemen |
+| 7 | Hijsen | Strijken achteruit | [KATZ] 70/64 en [HBO] p. 6: een eigen volgorde (grootschoot los, gaffel op ±45°, klauwval vóór piek, fok als laatste, vallen opschieten) | Een eigen hijsvolgorde bouwen (al bekend) |
+| 8 | Strijken | De mik vóór grootzeil strijken | [KATZ]: de mik na grootzeil strijken | Al bekend; de volgorde van het boek nemen |
+| 9 | Sliplanding | *Grootzeil aan* altijd | [KATZ] 85/79: alleen "als je te vroeg stilligt" | Houden (zo toont hij wat het boek bedoelt), of alleen als ze te vroeg stil ligt |
+| 10 | Anker op onder zeil (Oefenen) | *Anker binnenhalen* mag na *Anker los* | [KATZ] 95/89: pas na *Rustige koers wegvaren* | `ANCHOR_NEEDS.binnen` op `['weg']` zetten |
+| 11 | Kop in de wind leggen, verhalen, ankeren en anker op zonder zeilen | Eigen stappen en roepen | Geen boek beschrijft deze manoeuvres ([KATZ] 83/77 zegt alleen "zonodig ... verhaalt") | Houden als eigen uitwerking; zo in de docs zetten |
+
+### De boeken zijn het oneens; de viewer volgt er één
+
+| Manoeuvre | De viewer volgt | De andere bron |
+|---|---|---|
+| Bijliggen | Meestoxopeus p. 3: het grootzeil iets vieren, zoals bij ruime wind | [KATZ] 9/3 noemt het *bijdraaien* en viert het grootzeil helemaal; *bijliggen* is daar een stormtechniek |
+| Voor top en takel | [KATZ] 87/81: afvallen tot voor de wind | Meestoxopeus p. 82: afvallen tot ruime wind |
+| Afvaren van hogerwal (deinzen) | [KATZ]: fok bak | [HBO] p. 12: "bij voorkeur zonder fok bak" |
+| Man over boord, het eind | [KATZ]: rustige koers doorvaren | [HBO]: bijliggen |
+
+### Roeien
+
+| # | Manoeuvre | De viewer | De bron | Beslissing |
+|---|---|---|---|---|
+| 12 | Afvaren roeiend | Van de boeg aan de kant: een eigen stap achteruit rond | [JPR3] p. 19 beschrijft alleen afvaren langszij | Houden als eigen uitwerking, of alleen langszij toestaan |
+| 13 | Afvaren roeiend (Oefenen) | *Riemen toe* mag vóór het afzetten | [JPR3] p. 19: riemen toe "als er genoeg ruimte is", na het afzetten | *toe* laten wachten op *zet* |
+| 14 | Ankeren roeiend (Oefenen) | *Het anker overboord* pas na *strijken* | [JPR3] p. 23: strijken kan, "bijv. bij weinig wind" | Strijken niet verplicht stellen |
+| 15 | Man overboord roeiend | De drenkeling altijd binnen tussen de eerste en de tweede doft | [JPR3] p. 22: zo zonder mast; met een mast bij het zijstag | Kiezen naar of de mast staat |
 
 ## Werklijst
 
@@ -131,19 +187,19 @@ Bouwstenen: zie het volgende hoofdstuk.
 | D5 | Opschieter — gedaan | KB II/III; [KATZ] 86/80 | los, aan de wal, zeilen op, halve of ruime wind | wal, vaart, draaien | M |
 | D6 | Aanleggen aan lagerwal / voor top en takel — gedaan | KB III; [HBO] p. 18, [KATZ] 87–88/81–82 | los, lagerwal, zeilen op, aan de wind | wal, vaart, draaien | M |
 | D7 | Afmeren (landvasten en springen) — gedaan | KB I+, R; [HBO] p. 7, 19, [KATZ] 73/67 | aan de wal, geen vaart | wal, afmeren | M |
-| D8 | Afvaren roeiend | R I+; [KATR] 15/11, [JPR3] p. 19 | afgemeerd, modus roeien, anker op | wal, afmeren, vaart | S |
-| D9 | Aanleggen met de punt | R I/II; [VSR12] 4, [KATR] 15/11, [JPR3] p. 19 | los, aan de wal, modus roeien, riemen uit | wal, vaart | M |
-| D10 | Aanleggen met de zijkant | R III; [VSR3] 7, [KATR] 16/12, [JPR3] p. 20 | los, aan de wal, modus roeien, riemen uit | wal, vaart, draaien | M |
-| D11 | Aanleggen met de spiegel | R III; [VSR3] 6, [JPR3] p. 21 | los, aan de wal, modus roeien, riemen uit | wal, vaart, draaien | M |
+| D8 | Afvaren roeiend — gedaan | R I+; [KATR] 15/11, [JPR3] p. 19 | afgemeerd, modus roeien, anker op | wal, afmeren, vaart | S |
+| D9 | Aanleggen met de punt — gedaan (met de boeg) | R I/II; [VSR12] 4, [KATR] 15/11, [JPR3] p. 19 | los, aan de wal, modus roeien, riemen uit | wal, vaart | M |
+| D10 | Aanleggen met de zijkant — gedaan | R III; [VSR3] 7, [KATR] 16/12, [JPR3] p. 20 | los, aan de wal, modus roeien, riemen uit | wal, vaart, draaien | M |
+| D11 | Aanleggen met de spiegel — gedaan | R III; [VSR3] 6, [JPR3] p. 21 | los, aan de wal, modus roeien, riemen uit | wal, vaart, draaien | M |
 | D12 | Verhalen — gedaan | alle vorderingsstaten | afgemeerd, zeilen gestreken | wal, afmeren | S |
 
 ### Roeimanoeuvres
 
 | # | Manoeuvre | Niveau, bron | Voorwaarden | Bouwstenen | Omvang |
 |---|---|---|---|---|---|
-| B1 | Achtje roeien, bochten | R I/II, III; [VSR12] 5, [VSR3] 8, [KATR] 14/10, [JPR3] p. 18 | modus roeien, riemen uit, anker op | draaien, vaart | M |
-| B6 | Man overboord roeiend | R III; [VSR3] 9, [KATR] 16/12, [JPR3] p. 22 | modus roeien, anker op | draaien, vaart | L |
-| B7 | Ankeren / anker op roeiend | R III; [VSR3] 10, [KATR] 17/13, [JPR3] p. 23–25 | modus roeien, anker aan boord | vaart | S |
+| B1 | Achtje roeien, bochten — achtje gedaan | R I/II, III; [VSR12] 5, [VSR3] 8, [KATR] 14/10, [JPR3] p. 18 | modus roeien, riemen uit, anker op | draaien, vaart | M |
+| B6 | Man overboord roeiend — gedaan | R III; [VSR3] 9, [KATR] 16/12, [JPR3] p. 22 | modus roeien, anker op | draaien, vaart | L |
+| B7 | Ankeren / anker op roeiend — gedaan | R III; [VSR3] 10, [KATR] 17/13, [JPR3] p. 23–25 | modus roeien, anker aan boord | vaart | S |
 | B8 | Jagen | R; [KATR] 18–19/14–15, [JPR3] p. 30 | aan de wal, zeilen gestreken | wal | M |
 | B9 | Slepen | R, KB II/III theorie; [KATR] 19–20/15–16, [KATZ] 98/92 | — | meer boten | L |
 | B10 | Bomen | R; [JPR3] p. 31 | zeilen gestreken | vaart | S |
@@ -184,14 +240,14 @@ gijpen en stormrondje als eigen procedure, en afmeren legt zijn eigen steiger.
 
 | Onderdeel | Status |
 |---|---|
-| Zeilen / Mast / Reven in één menu Handelingen, met voorwaarden | gedaan |
 | Handelingen als startpaneel en kaart met focusmodus; Bekijken en Oefenen (volgende stap kiezen) | gedaan |
-| R1–R5 | gedaan; het debugmenu is weg |
-| A1 Overstag gaan (wenden), met Bekijken en Oefenen | gedaan |
-| A2 Gijpen, met Bekijken en Oefenen | gedaan |
-| Commando's als tekstballon boven wie ze roept | gedaan |
-| A3 Stormrondje, met Bekijken en Oefenen | gedaan |
-| D7 Afmeren met sliplanding aan een langswal (stootwillen, zeilen los, grootzeil aan, langszij; landvasten, springen), met Bekijken en Oefenen | gedaan |
-| D2 Afvaren van langswal (lijnen los in omgekeerde volgorde, afduwen, fok bak, wegzeilen), met Bekijken en Oefenen | gedaan |
-| Afgemeerd de wind verzetten; kop in de wind leggen met de wind van achteren (om de boeg, op de voorspring). Andere windrichtingen volgen | gedaan |
-| A4 en verder, D1, D3–D6, D8–D12 | nog niet begonnen |
+| R1–R5 | gedaan |
+| Tuigage: mast zetten en strijken, zeilen aan- en afslaan, hijsen, reven, strijken | gedaan |
+| Wenden: A1 overstag, A2 gijpen, A3 stormrondje, A4 opkruisen, A5 bijliggen, A9 man over boord, dwarspeiling | gedaan |
+| Afmeren: D4 sliplanding hogerwal, D5 opschieter, D6 voor top en takel en aanleggen aan lagerwal, D7 sliplanding langswal, D12 verhalen | gedaan |
+| Afvaren: D1 van hogerwal, D2 van langswal, D3 van lagerwal; kop in de wind leggen | gedaan |
+| Anker: A10 ankeren en anker op, onder zeil en zonder zeilen | gedaan |
+| Roeien: B1 achtje, B6 man overboord, B7 ankeren en anker op, D8 afvaren, D9–D11 aanleggen met de boeg, de zijkant en de spiegel | gedaan |
+| Commando's als tekstballon boven wie ze roept, gestapeld | gedaan |
+| Afwijkingen van de boeken (hierboven) | te beslissen |
+| A4 oploeven en afvallen als eigen manoeuvre, A11 varend hijsen, A12 loskomen van de grond, C1 zeil- en nachtklaar, C2 trim, B8 jagen, B9 slepen, B10 bomen | nog niet begonnen |

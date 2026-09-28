@@ -217,7 +217,7 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 | `toestand.tuig` | `'op'` \| `'gestreken'` \| `'mast'` | `'op'` | Zeilen op, zeilen gestreken of mast gestreken. |
 | `toestand.koers` | getal | `90` | Graden van de wind af: `0` is kop in de wind, `45` aan de wind, `90` halve wind, `135` ruime wind, `180` voor de wind (met de fok te loevert); daartussen mag ook. Positief: wind over stuurboord, negatief: over bakboord. Tussen 0 en 45 wordt 45. |
 | `toestand.reven` | 0–5 | `0` | Het aantal slagen van het grootzeil om de giek. |
-| `toestand.roeien` | `'naast'` \| `'kruis'` \| `'vier'` | `'kruis'` | Twee riemen naast elkaar, twee kruislings of vier. |
+| `toestand.roeien` | `'naast'` \| `'kruis'` \| `'vier'` | `'vier'` | Twee riemen naast elkaar, twee kruislings of vier. |
 | `toestand.commando` | string of `{ bb, sb }` | `'slag'` | Het roeicommando (sleutels als bij `namen.commandos`). Een string geldt voor de hele boot; per boord kan alleen `haal` `opriemen` `strijk` `stopaf` `lopen`, en een boord dat je weglaat blijft zoals het was. |
 | `toestand.zwaard` | `'neer'` \| `'half'` \| `'op'` | volgt de koers | Het midzwaard. Zonder deze sleutel gaat het op bij roeien, wrikken, voor de wind en voor anker, en anders neer. Met het tuig gestreken of de mast neer staat het altijd op (de stap Midzwaard op). |
 | `toestand.aanzicht` | `'3d'` \| `'zij'` \| `'boven'` \| `'voor'` \| `'achter'` | `'3d'` | Het camerastandpunt waarmee de viewer begint (er zijn geen knoppen meer voor: de camera draai je zelf). |
@@ -548,7 +548,11 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   aanslaan, hijsen, reven met het aantal slagen, strijken en afslaan, mast strijken), **Wenden** (overstag, gijp, stormrondje, opkruisen, man over boord,
   dwarspeiling, bijliggen en weer varen), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een langswal de
   sliplanding en voor top en takel; aanleggen aan lagerwal; verhalen), **Afvaren** (van hogerwal, langswal en
-  lagerwal, en kop in de wind leggen) en **Anker** (ankeren en anker op, onder zeil en zonder zeilen). De
+  lagerwal, en kop in de wind leggen) en **Anker** (ankeren en anker op, onder zeil en zonder zeilen).
+  In de modus roeien is er alleen de groep **Roeien**: achtje, afvaren, aanleggen met de boeg, met de
+  zijkant en met de spiegel, man overboord, ankeren en anker op (CWO Roeien, Scouting Nederland 2021).
+  Bij elke stap roeien de riemen het commando van die stap. Commando's die kort na elkaar komen,
+  staan elk in een eigen tekstballon; de oudste staat bovenaan en is het vaagst. De
   stappen en voorwaarden van elk staan in `docs/manoeuvres.md`. Een stap met een commando ("Ree!",
   "Gijp!") laat het commando als tekstballon zien boven wie het roept, net als een gekozen
   roeicommando. Elke handeling heeft
@@ -680,14 +684,20 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
 - Zeilteken en zeilnummer zijn eigen onderdelen (aanklikbaar, benoemd), dunne lappen die op het doek
   liggen met hun eigen getekende texture, gespiegeld aan stuurboord. Ze buigen en zwaaien met het zeil
   mee, net als de lijken en hoeken.
-- Roeicommando's (bediening "Roeicommando", Katwijks roeiboek H2). Het paneel heeft drie groepen.
-  Bovenaan **Beide boorden**: op slag, riemen over, riemen op en riemen geroeid — die worden aan de
-  hele boot tegelijk gegeven en nooit aan één boord, dus ze staan er één keer en zetten bakboord én
-  stuurboord. Daaronder **Bakboord** en **Stuurboord**, elk met wat een roerganger wél per boord
-  roept: haalt op gelijk (losse slagen met een wachtmoment), op riemen, strijkt gelijk (dezelfde slag
-  achterstevoren), stopt af en riemen lopen. Een keuze voor één boord laat het andere staan zoals het
-  stond — bakboord "strijkt gelijk" terwijl stuurboord nog op slag ligt is precies hoe de boot wordt
-  gedraaid. Een knop van "Beide boorden" is alleen ingedrukt als beide boorden dat commando hebben.
+- Roeicommando's (bediening "Roeicommando", Katwijks roeiboek H2). Het icoon opent een kleine kaart
+  onderaan de viewer; op een telefoon is het een strook langs de onderkant. De kaart blijft open terwijl
+  je hem gebruikt, en het beeld schuift omhoog zodat de boot erboven blijft.
+  - **Bakboord**, **Beide boorden** en **Stuurboord** openen een tweede stap: riemen toe, op riemen,
+    stopt af, strijkt, riemen lopen, riemen op en riemen geroeid. *Strijkt* roeit zelf niets: de
+    roeiers gaan achterover zitten, klaar om achteruit te roeien.
+  - Daaronder staan de roepen aan de hele boot: **Haalt op** (naar voren, de bladen voor: klaar voor
+    de eerste slag), **Gelijk** (één slag) en **Door roeien op slag** (slag na slag). De houdingen
+    volgen sloeproeien.nl. *Haalt op* is iets anders dan *riemen toe* (de riem in rust in de dol) en
+    *op riemen* (haaks, de bladen verticaal); die twee staan in de tweede stap.
+  - Een slag roeit elk boord dat klaar is of al roeit, in zijn eigen richting. Een boord dat afstopt,
+    de riemen toe, op riemen, lopend, op of binnen heeft, roeit niet mee. Onder elk boord staat wat het
+    nu doet.
+  - De roep verschijnt in tekstballonnen boven de roerganger, één per commando.
   Een commando is een houding (`ROEICOMMANDOS` in `web/src/modes.js`: kracht, hoe ver omlaag, hoe ver
   naar achteren gehaald, blad verticaal of vlak, hoe ver binnenboord, staand op de vlonder, in de dol
   of opgeborgen; `beide: true` markeert de commando's voor de hele boot) waar elke riem van dat boord

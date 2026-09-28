@@ -407,7 +407,7 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   content: ''; position: absolute; left: 50%; bottom: -7px; width: 12px; height: 12px; margin-left: -6px;
   background: var(--panel); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); transform: rotate(45deg);
 }
-.callout.gone { opacity: 0; }
+.callout.older::after { display: none; }       /* stacked above the newest one (main.js): no tail */
 
 #loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 16px; }
 
@@ -612,4 +612,49 @@ button.primary:disabled:hover { background: var(--accent); }
   /* the main button fills the row, Annuleren beside it on the same line: nothing wraps in or out */
   .focus-card .actions .primary { flex: 1 1 auto; margin-left: 0; min-height: 42px; }
   .focus-card .actions .extra { flex: 1 1 100%; order: -1; }
+}
+
+/* Roeicommando: a small card along the foot of the viewer (template.js, modes.js), two steps deep:
+   the boorden and the calls to the whole boat, then what a boord is told. While it is open the bar of
+   a procedure stands above it; in a run or a quiz round it goes, like the rest of the controls. */
+.cmd-card {
+  position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 4;
+  width: min(420px, calc(100cqw - 32px)); padding: 6px 10px 10px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  backdrop-filter: blur(8px); box-shadow: 0 6px 20px rgba(22, 34, 46, 0.14);
+}
+.cmd-card .cmd-head { display: flex; align-items: center; gap: 8px; min-height: 30px; }
+.cmd-card .cmd-head .name { flex: none; font-weight: 600; font-size: 13px; }
+.cmd-card .spoken { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-style: italic; font-size: 12px; color: var(--muted); text-align: right; }
+.cmd-card .cmd-head .stop, .cmd-card .cmd-sub .back {
+  flex: none; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%;
+  background: none; color: var(--muted); font-size: 22px; line-height: 1;
+}
+.cmd-card .cmd-head .stop { margin-right: -4px; }
+.cmd-card .cmd-head .stop:hover, .cmd-card .cmd-sub .back:hover { background: var(--line); color: var(--text); }
+.cmd-card .cmd-sub { display: flex; align-items: center; gap: 6px; margin: 2px 0 6px; font-size: 13px; }
+.cmd-card .pads { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 4px; }
+.cmd-card .pads button {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; min-height: 46px;
+  padding: 5px 4px; border: 1px solid var(--line); border-radius: 10px; background: rgba(127, 127, 127, 0.07);
+  color: var(--text); font: inherit; text-align: center; cursor: pointer; transition: background 0.12s, transform 0.08s;
+}
+.cmd-card .pads button b { font-size: 13px; line-height: 1.2; }
+.cmd-card .pads button span { font-size: 11px; line-height: 1.2; color: var(--muted); }
+.cmd-card .pads button span:empty { display: none; }
+.cmd-card .pads [data-side] { background: none; }                     /* the boorden open a step; the calls act */
+.cmd-card .pads.orders { grid-template-columns: repeat(4, minmax(0, 1fr)); }   /* seven: two rows */
+.cmd-card .pads button:hover { background: rgba(127, 127, 127, 0.14); }
+.cmd-card .pads button:active { transform: scale(0.96); }
+.cmd-card .pads button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.lv.cmd-open #procedure { bottom: calc(var(--cmd-height, 0px) + 24px); }
+.lv.ops-on .cmd-card, .lv.quiz-on .cmd-card { display: none; }
+@container (max-width: 640px) {
+  /* a strip along the foot, as the card of a run */
+  .cmd-card {
+    left: 0; right: 0; bottom: 0; transform: none; width: auto;
+    border-radius: 16px 16px 0 0; border-width: 1px 0 0; padding: 6px 10px calc(8px + env(safe-area-inset-bottom));
+  }
+  .lv.cmd-open #procedure { bottom: calc(var(--cmd-height, 0px) + 8px); }
 }

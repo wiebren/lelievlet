@@ -19,7 +19,11 @@ const GROUPS = [
     afmeren: 'Sliplanding langswal', topEnTakel: 'Voor top en takel langswal', aanleggenLager: 'Aanleggen aan lagerwal', verhalen: 'Verhalen' }],
   ['Afvaren', { afvarenHoger: 'Van hogerwal', afvaren: 'Van langswal', afvarenLager: 'Van lagerwal', kopInDeWind: 'Kop in de wind leggen' }],
   ['Anker', { ankerenZeil: 'Ankeren onder zeil', ankerenKaal: 'Ankeren zonder zeilen', ankerOpZeil: 'Anker op onder zeil', ankerOpKaal: 'Anker op zonder zeilen' }],
+  ['Roeien', { achtje: 'Achtje', afvarenRoeiend: 'Afvaren', aanleggenBoeg: 'Aanleggen met de boeg', aanleggenZijkant: 'Zijwaartse aanleg',
+    aanleggenSpiegel: 'Aanleggen met de spiegel', mobRoeiend: 'Man overboord', ankerenRoeiend: 'Ankeren', ankerOpRoeiend: 'Anker op' }],
 ];
+// the groups that go with the boat's mode: rowing has its own, the rest are sailing
+const GROUP_MODE = { Roeien: 'roeien' };
 // and on the card of a run
 const NAMES = {
   aanslaan: 'Zeilen aanslaan', afslaan: 'Zeilen afslaan', hijsen: 'Zeilen hijsen', strijken: 'Zeilen strijken', mastStrijken: 'Mast strijken', mastZetten: 'Mast zetten', reven: 'Reven',
@@ -27,6 +31,8 @@ const NAMES = {
   overstag: 'Overstag (wenden)', gijpen: 'Gijpen', stormrondje: 'Stormrondje', opkruisen: 'Opkruisen', manOverBoord: 'Man over boord',
   slipHoger: 'Sliplanding hogerwal', peiling: 'Dwarspeiling', opschieter: 'Opschieter', afmeren: 'Sliplanding langswal',
   topEnTakel: 'Voor top en takel', aanleggenLager: 'Aanleggen aan lagerwal', verhalen: 'Verhalen',
+  achtje: 'Achtje roeien', afvarenRoeiend: 'Afvaren roeiend', aanleggenBoeg: 'Aanleggen met de boeg', aanleggenZijkant: 'Zijwaartse aanleg',
+  aanleggenSpiegel: 'Aanleggen met de spiegel', mobRoeiend: 'Man overboord roeiend', ankerenRoeiend: 'Ankeren roeiend', ankerOpRoeiend: 'Anker op roeiend',
   afvarenHoger: 'Afvaren van hogerwal', afvaren: 'Afvaren van langswal', afvarenLager: 'Afvaren van lagerwal', kopInDeWind: 'Kop in de wind leggen',
   ankerenZeil: 'Ankeren onder zeil', ankerenKaal: 'Ankeren zonder zeilen', ankerOpZeil: 'Anker op onder zeil', ankerOpKaal: 'Anker op zonder zeilen',
 };
@@ -54,6 +60,14 @@ const ABOUT = {
   afvarenLager: 'Wegroeien, kop in de wind, grootzeil hijsen',
   kopInDeWind: 'Afgemeerd, wind van achteren: over de boeg draaien',
   bijliggen: 'Fok bak, grootzeil vieren, helmstok naar lij: rustig stil liggen',
+  achtje: 'Een rondje over bakboord en een over stuurboord, met scherpe bochten',
+  afvarenRoeiend: 'Riemen op, dollen in, los, afzetten, riemen toe en wegroeien',
+  aanleggenBoeg: 'Loodrecht op de kant aan, op riemen, afstoppen met de boeg bij de kant',
+  aanleggenZijkant: 'Loodrecht op de kant aan, vlak ervoor draaien en langszij stil liggen',
+  aanleggenSpiegel: 'Langs de kant, de spiegel ernaar draaien en achteruit strijken',
+  mobRoeiend: 'Op riemen, drijf, wijs, een grote boog en bijna tegen de wind in ophalen',
+  ankerenRoeiend: 'Tegen de wind in, afstoppen, zachtjes achteruit: anker overboord',
+  ankerOpRoeiend: 'Naar het anker, recht op en neer, anker op en wegroeien',
   weerVaren: 'Helmstok recht, grootzeil aan, fok naar lij: weer op koers',
   verhalen: 'Langszij een bolder verder, aan de lijnen vanuit de kuip',
   ankerenZeil: 'Fok strijken, in de wind, achteruit: anker zakken',
@@ -67,6 +81,7 @@ const DONE = {
   slipHoger: 'De boot ligt al afgemeerd', opschieter: 'De boot ligt al afgemeerd',
   afmeren: 'De boot ligt al afgemeerd', topEnTakel: 'De boot ligt al afgemeerd', aanleggenLager: 'De boot ligt al afgemeerd',
   bijliggen: 'De boot ligt al bij', weerVaren: 'De boot ligt niet bij',
+  ankerenRoeiend: 'De boot ligt al voor anker', ankerOpRoeiend: 'Het anker is op',
   ankerenZeil: 'De boot ligt al voor anker', ankerenKaal: 'De boot ligt al voor anker', ankerOpZeil: 'Het anker is op', ankerOpKaal: 'Het anker is op',
 };
 const MARKS = { goed: '✓', fout: '✗' };
@@ -143,7 +158,12 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
   function refreshPanel() {
     const state = Object.fromEntries(run.ops().map((o) => [o.op, o]));
     const can = (op) => !state[op].blocked && !state[op].done;
-    group ??= rows.find((b) => can(b.dataset.op))?.dataset.group ?? GROUPS[0][0];
+    // only the groups of the mode she is in: rowing its own, sailing the others
+    const mode = modes.state.mode;
+    const fits = (g) => (GROUP_MODE[g] ?? 'zeilen') === mode;
+    for (const b of groupButtons) b.hidden = !fits(b.dataset.group);
+    if (group && !fits(group)) group = null;
+    group ??= rows.find((b) => fits(b.dataset.group) && can(b.dataset.op))?.dataset.group ?? GROUPS.find(([g]) => fits(g))?.[0] ?? GROUPS[0][0];
     const shownRows = rows.filter((b) => b.dataset.group === group);
     if (!chosen || !can(chosen) || !shownRows.some((b) => b.dataset.op === chosen)) chosen = shownRows.map((b) => b.dataset.op).find(can) ?? null;
     for (const b of groupButtons) b.setAttribute('aria-checked', String(b.dataset.group === group));

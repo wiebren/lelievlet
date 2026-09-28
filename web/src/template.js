@@ -229,32 +229,45 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
         <path d="M7.5 14.8 9 19.5"/>
       </svg>
     </button>
-    <div id="cmd-panel" class="popover" role="group" aria-label="Roeicommando" hidden>
-      <p class="spoken" id="cmd-spoken" aria-live="polite"></p>
-      <div class="choices beide" data-boord="beide"><span class="caption">Beide boorden</span>
-        <button type="button" data-commando="slag">Op… slag</button>
-        <button type="button" data-commando="over">Riemen… over</button>
-        <button type="button" data-commando="op">Riemen… op</button>
-        <button type="button" data-commando="geroeid">Riemen… geroeid</button>
-      </div>
-      <div class="boorden">
-        <div class="choices" data-boord="bb"><span class="caption">Bakboord</span>
-          <button type="button" data-commando="haal">Haalt op… gelijk</button>
-          <button type="button" data-commando="opriemen">Op… riemen</button>
-          <button type="button" data-commando="strijk">Strijkt… gelijk</button>
-          <button type="button" data-commando="stopaf">Stopt… af</button>
-          <button type="button" data-commando="lopen">Riemen… lopen</button>
-        </div>
-        <div class="choices" data-boord="sb"><span class="caption">Stuurboord</span>
-          <button type="button" data-commando="haal">Haalt op… gelijk</button>
-          <button type="button" data-commando="opriemen">Op… riemen</button>
-          <button type="button" data-commando="strijk">Strijkt… gelijk</button>
-          <button type="button" data-commando="stopaf">Stopt… af</button>
-          <button type="button" data-commando="lopen">Riemen… lopen</button>
-        </div>
+  </nav>
+
+  <!-- Roeicommando: a small card along the foot of the viewer, two steps deep (modes.js). The main
+       row calls to the whole boat: Haalt op (both boorden ready for a stroke ahead), Door roeien op
+       slag (stroke after stroke) and Gelijk (one stroke, each boord the way it was told). Bakboord,
+       Beide boorden and Stuurboord open what a boord can be told: riemen op, stopt af, strijkt (the
+       next stroke goes astern), riemen lopen, riemen geroeid. It stays open while it is used. -->
+  <div id="cmd-panel" class="cmd-card" role="group" aria-label="Roeicommando" hidden>
+    <div class="cmd-head">
+      <span class="name">Roeicommando</span>
+      <span class="spoken" id="cmd-spoken" aria-live="polite"></span>
+      <button type="button" class="stop" id="cmd-close" aria-label="Sluiten" title="Sluiten">×</button>
+    </div>
+    <div data-panel="main">
+      <div class="pads">
+        <button type="button" data-side="bb"><b>Bakboord</b><span data-state="bb"></span></button>
+        <button type="button" data-side="beide"><b>Beide boorden</b><span data-state="beide"></span></button>
+        <button type="button" data-side="sb"><b>Stuurboord</b><span data-state="sb"></span></button>
+        <button type="button" data-call="haalop" data-hint="naar voren buigen met gestrekte armen, de bladen voor: klaar voor de eerste slag"><b>Haalt op</b></button>
+        <button type="button" data-call="slag" data-hint="slag na slag, elk boord dat klaar is of roeit, in zijn eigen richting"><b>Door roeien op slag</b></button>
+        <button type="button" data-call="gelijk" data-hint="één slag van elk boord dat klaar is of roeit, in zijn eigen richting"><b>Gelijk</b></button>
       </div>
     </div>
-  </nav>
+    <div data-panel="side" hidden>
+      <div class="cmd-sub">
+        <button type="button" class="back" id="cmd-back" aria-label="Terug" title="Terug">‹</button>
+        <b id="cmd-side-name">Bakboord</b>
+      </div>
+      <div class="pads orders">
+        <button type="button" data-order="toe" data-hint="de riem rustig in de dol leggen: rust"><b>Riemen toe</b></button>
+        <button type="button" data-order="opriemen" data-hint="haaks op de boot, evenwijdig aan het water, de bladen verticaal"><b>Op riemen</b></button>
+        <button type="button" data-order="stopaf" data-hint="de bladen verticaal in het water: de vaart eruit"><b>Stopt af</b></button>
+        <button type="button" data-order="strijk" data-hint="achterover zitten, klaar om achteruit te roeien"><b>Strijkt</b></button>
+        <button type="button" data-order="lopen" data-hint="de riemen langs de boot naar achteren, boven het water"><b>Riemen lopen</b></button>
+        <button type="button" data-order="op" data-hint="de riemen rechtop tussen de voeten"><b>Riemen op</b></button>
+        <button type="button" data-order="geroeid" data-hint="de riemen netjes binnen neerleggen"><b>Riemen geroeid</b></button>
+      </div>
+    </div>
+  </div>
 
   <!-- the timeline of the procedure that is running (Reven, Zeilen, Mast): it floats at the foot of the
        viewer, in the middle; while a run of an operation is watched it goes into the card (handelingen.js) -->
