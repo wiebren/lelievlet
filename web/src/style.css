@@ -51,12 +51,17 @@
   background: linear-gradient(var(--bg-top), var(--bg-bottom));
 }
 
+/* On a touch screen a drag on a button, a card or the corner of the viewer must not move the page
+   (or zoom it, and then pan it): the buttons would go off the screen. Nothing in the viewer is
+   panned or zoomed by the browser; a panel that scrolls is a scroll container and scrolls itself. */
 .lv {
   position: relative;
   container-type: inline-size;
   width: 100%;
   height: 100%;
   overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
   font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
   color: var(--text);
   background: linear-gradient(var(--bg-top), var(--bg-bottom));

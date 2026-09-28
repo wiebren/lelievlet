@@ -123,7 +123,7 @@ function close(typed, key) {
 
 export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
                            setHighlights, partVisible, closePanel, opslaan = true,
-                           ui, wrap, config, signal, engaged, realTarget, onDestroy }) {
+                           ui, wrap, config, signal, engaged, realTarget, onDestroy, rowing = () => false }) {
   const $ = (id) => ui.getElementById(id);
   const all = (selector) => [...ui.querySelectorAll(selector)];
   const touch = window.matchMedia('(pointer: coarse)');     // a finger: tik, and room for the keyboard
@@ -325,6 +325,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   const asLevel = (value) => (value === ROEIEN ? ROEIEN : [1, 2, 3].includes(Number(value)) ? Number(value) : null);
   let level = asLevel(store.keuze.level) ?? asLevel(config?.quiz?.niveau) ?? TOP_LEVEL;
   let zeilLevel = level === ROEIEN ? TOP_LEVEL : level;      // what Zeilen comes back to
+  let rowedFor = false;                                      // Roeien set because she was rowing, not by hand
   let panelPoll = null;
   onDestroy?.(() => clearInterval(panelPoll));
 
@@ -346,7 +347,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   for (const b of lengthButtons) b.addEventListener('click', () => { length = b.dataset.length; choose(); });
   for (const b of levelButtons) b.addEventListener('click', () => { level = zeilLevel = Number(b.dataset.level); choose(); });
   for (const b of disciplineButtons) {
-    b.addEventListener('click', () => { level = b.dataset.discipline === ROEIEN ? ROEIEN : zeilLevel; choose(); });
+    b.addEventListener('click', () => { level = b.dataset.discipline === ROEIEN ? ROEIEN : zeilLevel; rowedFor = false; choose(); });
   }
   press(kindButtons, kind, 'kind'); press(lengthButtons, length, 'length'); pressLevel();
   startButton.addEventListener('click', () => startRound(kind, length, false));
@@ -476,6 +477,10 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
     panelPoll = null;
     askConfirm(false);
     if (!open) return;
+    // rowing or sculling, the panel opens on Roeien: those are the names that go with what she does;
+    // sailing again, it goes back to Zeilen - unless Roeien was chosen by hand
+    if (levelled && rowing() && level !== ROEIEN) { level = ROEIEN; rowedFor = true; pressLevel(); }
+    else if (levelled && !rowing() && rowedFor && level === ROEIEN) { level = zeilLevel; rowedFor = false; pressLevel(); }
     refreshPanel();
     panelPoll = setInterval(() => (quizPanel.offsetParent === null ? panelToggled(false) : refreshPanel()), 400);
   }

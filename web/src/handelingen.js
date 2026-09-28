@@ -14,7 +14,7 @@
 const GROUPS = [
   ['Tuigage', { mastZetten: 'Mast zetten', aanslaan: 'Zeilen aanslaan', hijsen: 'Zeilen hijsen', reven: 'Reven',
     strijken: 'Zeilen strijken', afslaan: 'Zeilen afslaan', mastStrijken: 'Mast strijken' }],
-  ['Wenden', { overstag: 'Overstag', gijpen: 'Gijp', stormrondje: 'Stormrondje', opkruisen: 'Opkruisen', manOverBoord: 'Man over boord', peiling: 'Dwarspeiling' }],
+  ['Wenden', { overstag: 'Overstag', gijpen: 'Gijp', stormrondje: 'Stormrondje', opkruisen: 'Opkruisen', manOverBoord: 'Man over boord', peiling: 'Dwarspeiling', bijliggen: 'Bijliggen', weerVaren: 'Weer varen' }],
   ['Afmeren', { slipHoger: 'Sliplanding hogerwal', opschieter: 'Opschieter hogerwal',
     afmeren: 'Sliplanding langswal', topEnTakel: 'Voor top en takel langswal', aanleggenLager: 'Aanleggen aan lagerwal', verhalen: 'Verhalen' }],
   ['Afvaren', { afvarenHoger: 'Van hogerwal', afvaren: 'Van langswal', afvarenLager: 'Van lagerwal', kopInDeWind: 'Kop in de wind leggen' }],
@@ -23,6 +23,7 @@ const GROUPS = [
 // and on the card of a run
 const NAMES = {
   aanslaan: 'Zeilen aanslaan', afslaan: 'Zeilen afslaan', hijsen: 'Zeilen hijsen', strijken: 'Zeilen strijken', mastStrijken: 'Mast strijken', mastZetten: 'Mast zetten', reven: 'Reven',
+  bijliggen: 'Bijliggen', weerVaren: 'Weer varen uit bijliggen',
   overstag: 'Overstag (wenden)', gijpen: 'Gijpen', stormrondje: 'Stormrondje', opkruisen: 'Opkruisen', manOverBoord: 'Man over boord',
   slipHoger: 'Sliplanding hogerwal', peiling: 'Dwarspeiling', opschieter: 'Opschieter', afmeren: 'Sliplanding langswal',
   topEnTakel: 'Voor top en takel', aanleggenLager: 'Aanleggen aan lagerwal', verhalen: 'Verhalen',
@@ -52,6 +53,8 @@ const ABOUT = {
   afvaren: 'Lijnen los, afduwen, fok bak en wegzeilen',
   afvarenLager: 'Wegroeien, kop in de wind, grootzeil hijsen',
   kopInDeWind: 'Afgemeerd, wind van achteren: over de boeg draaien',
+  bijliggen: 'Fok bak, grootzeil vieren, helmstok naar lij: rustig stil liggen',
+  weerVaren: 'Helmstok recht, grootzeil aan, fok naar lij: weer op koers',
   verhalen: 'Langszij een bolder verder, aan de lijnen vanuit de kuip',
   ankerenZeil: 'Fok strijken, in de wind, achteruit: anker zakken',
   ankerenKaal: 'Anker zakken, ze drijft terug en ligt in de wind',
@@ -63,6 +66,7 @@ const DONE = {
   hijsen: 'De zeilen staan al', strijken: 'De zeilen zijn al gestreken', mastStrijken: 'De mast ligt al', mastZetten: 'De mast staat al',
   slipHoger: 'De boot ligt al afgemeerd', opschieter: 'De boot ligt al afgemeerd',
   afmeren: 'De boot ligt al afgemeerd', topEnTakel: 'De boot ligt al afgemeerd', aanleggenLager: 'De boot ligt al afgemeerd',
+  bijliggen: 'De boot ligt al bij', weerVaren: 'De boot ligt niet bij',
   ankerenZeil: 'De boot ligt al voor anker', ankerenKaal: 'De boot ligt al voor anker', ankerOpZeil: 'Het anker is op', ankerOpKaal: 'Het anker is op',
 };
 const MARKS = { goed: '✓', fout: '✗' };

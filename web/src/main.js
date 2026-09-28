@@ -235,10 +235,11 @@ export function mount(ui, host, config) {
 
     for (const p of parts) groups.get(p.extras.groep)?.parts.push(p);   // after initModes: it adds the windvaan
     buildPartList();
-    addEdges(parts);                                         // every part there is by now, the viewer's own too
+    addEdges(parts, { signal });                             // every part there is by now, the viewer's own too; drawn in after the first picture
     quiz = initQuiz({ parts, scene, select, flyTo, setCovered, openLearn: (kind) => openLearn(kind),
                       setHighlights, partVisible, closePanel, opslaan,
-                      ui, wrap, config, signal, engaged, realTarget, onDestroy });   // Oefenen
+                      ui, wrap, config, signal, engaged, realTarget, onDestroy,
+                      rowing: () => ['roeien', 'wrikken'].includes(modes?.state.mode) });   // Oefenen
     handelingen = initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedure, dismissProcedure,
       runView: { get: () => runViewChosen, set: chooseRunView }, setCovered, opslaan, signal, engaged, realTarget, onDestroy });
     closePanel.set('learn', () => modes.closePopover());    // a round or a run takes the whole screen

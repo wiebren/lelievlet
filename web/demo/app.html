@@ -16,7 +16,7 @@
     @media (prefers-color-scheme: dark) {
       :root { --bg: #151b20; --panel: #1f272e; --ink: #e6edf2; --muted: #9aaab6; --line: #33404a; --accent: #7fb3e6; }
     }
-    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
+    html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: none; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
     #vlet { position: fixed; inset: 0; }
     dialog { max-width: min(420px, calc(100vw - 32px)); padding: 20px 22px 18px; border: 1px solid var(--line); border-radius: 14px;
              background: var(--panel); color: var(--ink); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25); }
@@ -89,17 +89,27 @@
     // on its home screen, and the start_url of the manifest the page hands out (below)
     const hash = Object.keys(config).length ? `#${await packConfig(config)}` : '';
     history.replaceState(null, '', location.pathname + hash);
-    (async () => {
+    // The manifest is handed out again with the boat's own icons in it, as data: Android makes its
+    // home screen icon from the manifest's icons, fetched apart from this page, and so never saw the
+    // ones the service worker keeps (the sail number went missing there). Handed out afresh whenever
+    // the icons are drawn again.
+    const baseManifest = fetch('app.webmanifest').then((r) => r.json()).catch(() => null);
+    let manifestUrl = null;
+    const publishManifest = async (icons = {}) => {
       try {
-        const manifest = await fetch('app.webmanifest').then((r) => r.json());
+        const manifest = structuredClone(await baseManifest);
+        if (!manifest) return;
         const at = (path) => new URL(path, location.href).href;   // a manifest from a blob: everything absolute
         // the file itself has no start_url, so a browser that reads it starts where this page is: here too
         Object.assign(manifest, { id: at(manifest.id), start_url: location.href, scope: at(manifest.scope) });
-        for (const icon of manifest.icons) icon.src = at(icon.src);
+        for (const icon of manifest.icons) icon.src = icons[icon.src] ?? at(icon.src);
         const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-        document.querySelector('link[rel="manifest"]').href = URL.createObjectURL(blob);
+        if (manifestUrl) URL.revokeObjectURL(manifestUrl);
+        manifestUrl = URL.createObjectURL(blob);
+        document.querySelector('link[rel="manifest"]').href = manifestUrl;
       } catch (e) { console.warn('[lelievlet] geen eigen manifest:', e); }
-    })();
+    };
+    publishManifest();
 
     Lelievlet.create(document.getElementById('vlet'), config);
 
@@ -126,8 +136,11 @@
                       'icons/icon-maskable-512.png': [512, true], 'icons/apple-touch-icon.png': [180, false] };
       const drawn = {};
       for (const [path, [size, maskable]] of Object.entries(icons)) drawn[path] = await png(size, maskable);
-      document.querySelector('link[rel="apple-touch-icon"]').href = await asDataUrl(drawn['icons/apple-touch-icon.png']);
-      document.querySelector('link[rel="icon"]').href = await asDataUrl(drawn['icons/icon-192.png']);
+      const asData = {};
+      for (const [path, blob] of Object.entries(drawn)) asData[path] = await asDataUrl(blob);
+      document.querySelector('link[rel="apple-touch-icon"]').href = asData['icons/apple-touch-icon.png'];
+      document.querySelector('link[rel="icon"]').href = asData['icons/icon-192.png'];
+      await publishManifest(asData);
       if (!('caches' in window)) return;
       const cache = await caches.open(OWN_ICONS);
       for (const [path, blob] of Object.entries(drawn)) {

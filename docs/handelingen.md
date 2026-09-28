@@ -95,6 +95,7 @@ over is:
 | *Fok strijken!*, *Grootzeil strijken!* | Fok strijken, Grootzeil strijken | Ankeren onder zeil, voor top en takel, aanleggen aan lagerwal |
 | *Grootzeil hijsen!*, *Fok hijsen!* | Grootzeil hijsen, Fok hijsen | Anker op onder zeil |
 | *Fok bak!* | Fok bak trekken | Anker op onder zeil |
+| *Fok bak!* | Fok bak houden | Bijliggen |
 | *Springen los!*, *Springen vast!* | Springen losmaken, Springen weer vastmaken | Verhalen |
 | *Voorlandvast verzetten!*, *Achterlandvast verzetten!* | Landvast naar de volgende bolder | Verhalen |
 | *Halen!* | Aan de landvast halen | Verhalen |
@@ -113,7 +114,7 @@ Bouwstenen: zie het volgende hoofdstuk.
 | A2 | Gijpen — gedaan | KB I; [VS1] 8, [HBO] p. 7, [KATZ] 77/71 | zeilen op, anker op, voor de wind | draaien, vaart | M |
 | A3 | Stormrondje — gedaan | KB II/III; [HBO] p. 11, 17, [KATZ] 78/72 | zeilen op, anker op, ruime of voor de wind | draaien | S |
 | A4 | Oploeven, afvallen, opkruisen — opkruisen gedaan | KB I–III; [HBO] p. 7, 17, [KATZ] 74–75/68–69, 81/75 | zeilen op | draaien | S–M |
-| A5 | Bijliggen | KB II/III; [HBO] p. 18, [KATZ] 9/3 | zeilen op, anker op | vaart | S |
+| A5 | Bijliggen — gedaan, met weer varen | KB II/III; [HBO] p. 18, [KATZ] 9/3 | zeilen op, anker op | vaart | S |
 | A9 | Man over boord onder zeil — gedaan | KB II/III; [VS2] 14, [HBO] p. 13, 18, [KATZ] 89–90/83–84 | zeilen op, anker op | draaien, vaart | L |
 | A10 | Ankeren / anker op onder zeil — gedaan, ook zonder zeilen | KB III; [HBO] p. 19, [KATZ] 93–95/87–89 | zeilen op, anker aan boord | vaart | M |
 | A11 | Varend hijsen | KB III; [HBO] p. 16, [KATZ] 71/65 | mast staat, zeilen gestreken, anker op | — | S |

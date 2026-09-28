@@ -229,6 +229,9 @@ function manoeuvres() {
   const bendRows = (list, back) => table(['#', 'Stap', 'Eerst gedaan (voor Oefenen)', 'Duur'], list.map((s, i) => [i + 1, back ? s.back : s.label,
     (back ? list.filter((d) => (BEND_NEEDS[d.key] ?? []).includes(s.key)).map((d) => d.back) : (BEND_NEEDS[s.key] ?? []).map((k) => list.find((x) => x.key === k).label)).join(', ') || '—',
     secs(s)]));
+  const heave = stepsOf('Bijliggen'); const HEAVE_NEEDS = objectOf('HEAVE_NEEDS');
+  const heaveRows = (list, back) => table(['#', 'Stap', 'Eerst gedaan (voor Oefenen)', 'Duur'], list.map((s, i) => [i + 1, back ? s.back : s.label,
+    (back ? [] : (HEAVE_NEEDS[s.key] ?? []).map((k) => list.find((x) => x.key === k).label)).join(', ') || '—', secs(s)]));
   const ankerIn = stepsOf('Ankeren onder zeil'); const ankerInKaal = stepsOf('Ankeren zonder zeilen');
   const ankerUit = stepsOf('Anker op onder zeil'); const ankerUitKaal = stepsOf('Anker op zonder zeilen');
   const turnRound = stepsOf('Kop in de wind');
@@ -289,6 +292,7 @@ function manoeuvres() {
     'Eerst halve wind, ruime of voor de wind gaan varen': 'de boot vaart halve wind, ruime wind of voor de wind (70° of meer van de wind)',
     'Eerst aan de wind of halve wind gaan varen': 'de boot vaart aan de wind of halve wind (niet kop in de wind, niet ruime of voor de wind)',
     'Eerst de wending of gijp afmaken': 'er is geen wending of gijp bezig',
+    'Eerst aan de wind of halve wind varen': 'ze vaart aan de wind, halve wind of iets ruimer (40° tot 120°)',
     'Eerst ruime of voor de wind gaan varen': 'de boot vaart ruime wind of voor de wind (niet halve wind of hoger)',
   };
   const pre = (op) => (OPS[op]?.length
@@ -318,7 +322,7 @@ van stappen veranderen (\`namen.stappen\`); hier staan de standaardnamen.
 
 Oefenen (de studentenmuts in de kolom linksboven) → Manoeuvres, alleen in de modus Zeilen, toont de
 handelingen per groep: **Tuigage** (mast zetten, zeilen aanslaan, hijsen, reven, strijken en afslaan, mast strijken), **Wenden** (overstag, gijp, stormrondje,
-opkruisen, man over boord, dwarspeiling), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een
+opkruisen, man over boord, dwarspeiling, bijliggen en weer varen), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een
 langswal de sliplanding en voor top en takel; aanleggen aan lagerwal; verhalen),
 **Afvaren** (van hogerwal, langswal en lagerwal, en kop in de wind leggen) en **Anker** (ankeren en
 anker op, onder zeil en zonder zeilen). Eerst staat de groep open met de eerste handeling die kan.
@@ -401,6 +405,29 @@ ${bendRows(bend, false)}
 Aanslaan:
 
 ${bendRows([...bend].reverse(), true)}
+
+## Bijliggen
+
+Een rustige koers met weinig vaart, waarop de boot bijna niet schommelt: om een drenkeling aan boord
+te halen, voor EHBO, of om te wachten (CWO Kielboot; Meestoxopeus p. 3 "bijliggen", Katwijk p. 3
+"bijdraaien", en in het Handboek Opleidingen bij man over boord). De **fok bak houden**, het
+**grootzeil vieren** tot ongeveer als bij ruime wind, en de **helmstok naar lij**: het roer stuurt
+haar tegen de wind in en de bakke fok duwt de boeg weg, zodat ze op zo'n 55° blijft liggen. Ze maakt
+weinig vaart en drijft langzaam naar lij. Vaart ze halve wind, dan loeft ze eerst op tot aan de wind.
+Het Katwijkse boek laat het grootzeil helemaal vieren; hier is het half, zoals bij Meestoxopeus.
+
+Ze blijft bijliggen tot ze weer gaat varen: met **Weer varen** (dezelfde stappen achterstevoren, terug
+naar de koers van voor het bijliggen), met een koers die je zelf zet, of met een andere manoeuvre.
+Voor Oefenen is fout: de helmstok naar lij voordat de fok bak staat (dan draait ze de wind in).
+
+Voorwaarden:
+${pre('bijliggen')}
+
+${heaveRows(heave, false)}
+
+Weer varen:
+
+${heaveRows([...heave].reverse(), true)}
 
 ## Ankeren
 

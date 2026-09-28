@@ -13,7 +13,7 @@ van stappen veranderen (`namen.stappen`); hier staan de standaardnamen.
 
 Oefenen (de studentenmuts in de kolom linksboven) → Manoeuvres, alleen in de modus Zeilen, toont de
 handelingen per groep: **Tuigage** (mast zetten, zeilen aanslaan, hijsen, reven, strijken en afslaan, mast strijken), **Wenden** (overstag, gijp, stormrondje,
-opkruisen, man over boord, dwarspeiling), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een
+opkruisen, man over boord, dwarspeiling, bijliggen en weer varen), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een
 langswal de sliplanding en voor top en takel; aanleggen aan lagerwal; verhalen),
 **Afvaren** (van hogerwal, langswal en lagerwal, en kop in de wind leggen) en **Anker** (ankeren en
 anker op, onder zeil en zonder zeilen). Eerst staat de groep open met de eerste handeling die kan.
@@ -129,6 +129,44 @@ Aanslaan:
 | 4 | Halshoek van de fok vastmaken | Fok uit de zeilzak, fokkenval klaar hangen | 1 s |
 | 5 | Leuvers van onder af aanslaan | Halshoek van de fok vastmaken | 2 s |
 | 6 | Fokkenschoten inscheren, met een achtknoop | — | 1,5 s |
+
+## Bijliggen
+
+Een rustige koers met weinig vaart, waarop de boot bijna niet schommelt: om een drenkeling aan boord
+te halen, voor EHBO, of om te wachten (CWO Kielboot; Meestoxopeus p. 3 "bijliggen", Katwijk p. 3
+"bijdraaien", en in het Handboek Opleidingen bij man over boord). De **fok bak houden**, het
+**grootzeil vieren** tot ongeveer als bij ruime wind, en de **helmstok naar lij**: het roer stuurt
+haar tegen de wind in en de bakke fok duwt de boeg weg, zodat ze op zo'n 55° blijft liggen. Ze maakt
+weinig vaart en drijft langzaam naar lij. Vaart ze halve wind, dan loeft ze eerst op tot aan de wind.
+Het Katwijkse boek laat het grootzeil helemaal vieren; hier is het half, zoals bij Meestoxopeus.
+
+Ze blijft bijliggen tot ze weer gaat varen: met **Weer varen** (dezelfde stappen achterstevoren, terug
+naar de koers van voor het bijliggen), met een koers die je zelf zet, of met een andere manoeuvre.
+Voor Oefenen is fout: de helmstok naar lij voordat de fok bak staat (dan draait ze de wind in).
+
+Voorwaarden:
+- de zeilen staan — anders grijs met *Eerst de zeilen hijsen*
+- het anker is op — anders grijs met *Eerst het anker op*
+- de boot is niet afgemeerd — anders grijs met *Eerst losgooien*
+- ze vaart aan de wind, halve wind of iets ruimer (40° tot 120°) — anders grijs met *Eerst aan de wind of halve wind varen*
+- er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
+- er is geen wending of gijp bezig — anders grijs met *Eerst de wending of gijp afmaken*
+
+| # | Stap | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|
+| 1 | Oploeven tot aan de wind | — | 3 s |
+| 2 | Fok bak houden | — | 2,5 s |
+| 3 | Grootzeil vieren | — | 2,5 s |
+| 4 | Helmstok naar lij | Fok bak houden | 3 s |
+
+Weer varen:
+
+| # | Stap | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|
+| 1 | Helmstok recht | — | 3 s |
+| 2 | Grootzeil aanhalen | — | 2,5 s |
+| 3 | Fok over naar lij | — | 2,5 s |
+| 4 | Afvallen naar de oude koers | — | 3 s |
 
 ## Ankeren
 

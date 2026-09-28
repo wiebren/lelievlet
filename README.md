@@ -144,7 +144,10 @@ op de steiger.
 - **Het icoon** is de eigen boot: de lelievlet in zijaanzicht, in de kleuren en met het zeilnummer
   die de app meekreeg, plus wat er in de app nog is aangepast. De app-pagina tekent het bij de start
   (`web/demo/logo.js`), en opnieuw zodra in de app de kleuren of het zeilnummer veranderen; de service
-  worker geeft het in plaats van het standaardicoon. Of het icoon op het beginscherm meeverandert,
+  worker geeft het in plaats van het standaardicoon. Het manifest dat de pagina uitgeeft, bevat de
+  getekende iconen zelf, als data. Android maakt het icoon op het startscherm uit de iconen van het
+  manifest, en die haalt het buiten de pagina om op; zonder dit kreeg het het standaardicoon, zonder
+  zeilnummer. Of het icoon op het beginscherm meeverandert,
   bepaalt het systeem: een iPhone houdt het icoon waarmee de app is toegevoegd, Chrome kijkt af en toe
   (hooguit eens per dag, bij het starten) en vraagt dan of het nieuwe icoon mag. De standaardiconen in
   `web/demo/icons/` komen uit hetzelfde logo, in de kleuren van de viewer zelf, en worden met
@@ -543,7 +546,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
 - Oefenen → **Manoeuvres** (`web/src/handelingen.js`) is een startpaneel met de
   handelingen als rijen, zoals de oefeningen van Oefenen, in vijf groepen: **Tuigage** (mast zetten, zeilen
   aanslaan, hijsen, reven met het aantal slagen, strijken en afslaan, mast strijken), **Wenden** (overstag, gijp, stormrondje, opkruisen, man over boord,
-  dwarspeiling), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een langswal de
+  dwarspeiling, bijliggen en weer varen), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een langswal de
   sliplanding en voor top en takel; aanleggen aan lagerwal; verhalen), **Afvaren** (van hogerwal, langswal en
   lagerwal, en kop in de wind leggen) en **Anker** (ankeren en anker op, onder zeil en zonder zeilen). De
   stappen en voorwaarden van elk staan in `docs/manoeuvres.md`. Een stap met een commando ("Ree!",
