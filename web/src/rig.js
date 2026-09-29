@@ -1030,6 +1030,7 @@ export function initNight({ scene, sun, hemi, wrap, water, toplicht, slowest = 0
   let wasSlow = null;
   let idle = 0;
   let told = false;
+  let held = null;        // how dark something else has it, 0..1; null: the night keeps its own time
 
   const mix = (c, s) => c.now.copy(c.from).lerp(c.to, s);
 
@@ -1046,7 +1047,7 @@ export function initNight({ scene, sun, hemi, wrap, water, toplicht, slowest = 0
       water.material.color.copy(mix(waterColour, s));
       water.material.opacity = lerp(day.waterOpacity, NIGHT.waterOpacity, s);
     }
-    toplicht?.set(s);
+    if (held === null) toplicht?.set(s);                          // held, the lamp is lit by whoever holds it
   };
 
   /** Anything the user does: it puts off the night, but never sends it away once it is there. */
@@ -1054,7 +1055,14 @@ export function initNight({ scene, sun, hemi, wrap, water, toplicht, slowest = 0
 
   const set = (want) => { forced = !!want; on = !!want; if (!want) idle = 0; };
 
+  /** Darkness from outside - a run of nachtklaar maken - `k` 0..1, or null to hand it back. */
+  const hold = (want) => { held = want; if (want !== null) { on = false; forced = null; idle = 0; } };
+
   const update = (dt, speed) => {
+    if (held !== null) {
+      if (Math.abs(held - k) > 1e-4) { k = held; apply(); }
+      return k;
+    }
     const slow = speed <= slowest + 1e-6;
     if (wasSlow === null) wasSlow = slow;
     if (slow !== wasSlow) { forced = null; wasSlow = slow; }      // moving the slider takes the button's word back
@@ -1069,5 +1077,5 @@ export function initNight({ scene, sun, hemi, wrap, water, toplicht, slowest = 0
   };
 
   apply();
-  return { get on() { return on; }, get k() { return k; }, set, update, activity };
+  return { get on() { return on; }, get k() { return k; }, set, update, activity, hold };
 }

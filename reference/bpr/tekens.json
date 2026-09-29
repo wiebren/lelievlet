@@ -1,0 +1,3783 @@
+[
+ {
+  "code": "A.1",
+  "groep": "A",
+  "naam": "In-, uit-, of doorvaren verboden (algemeen teken)",
+  "betekenis": "No entry / no passage (general sign). At a bridge opening: this opening is closed; at a lock or harbour mouth: do not enter or leave.",
+  "vorm": "landscape rectangle 3:2 (board); or light(s); or flag(s)",
+  "kleuren": {
+   "banden": "rood-wit-rood, horizontal; red bands ~37 %, white ~26 % of the height in the BPR drawing",
+   "licht": "rood, vast"
+  },
+  "symbool": "Board: three horizontal bands red / white / red, no border (thin red outline in the drawing). Light version: one red fixed light, or two red fixed lights one above the other. Flag version: a red flag, or two red flags one above the other.",
+  "varianten": [
+   "bord rood-wit-rood",
+   "één rood vast licht",
+   "twee rode lichten boven elkaar",
+   "rode vlag",
+   "twee rode vlaggen boven elkaar",
+   "twee borden, lichten of vlaggen boven elkaar = verbod van langere duur (footnote *) in bijlage 7)",
+   "aan kunstwerken (bijlage 7 G): rode vaste lichten of rood-wit-rode rechthoekige borden"
+  ],
+  "commons": {
+   "bestand": "File:Nederlands scheepvaartteken A.1.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Nederlands_scheepvaartteken_A.1.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/1/1d/Nederlands_scheepvaartteken_A.1.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "SVG version by Bouwe Brouwer"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.08 a",
+   "6.16 lid 9 a",
+   "6.22 lid 1",
+   "6.25 lid 1",
+   "6.26 leden 4 en 5",
+   "6.27 lid 1",
+   "6.28a"
+  ],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65425.png",
+   "65426.png",
+   "65427.png",
+   "65615.png",
+   "65618.png"
+  ],
+  "rst2023": "Preferred as a board; lights at bridges and locks: one red = kunstwerk in bedrijf, doorvaart verboden; two red above each other = niet bediend. Flags only as a temporary fallback. Categories of ships are banned with A.12–A.17/A.20, never with A.1 plus an onderbord."
+ },
+ {
+  "code": "A.1a",
+  "groep": "A",
+  "naam": "Buiten gebruik gestelde gedeelten van de vaarweg; vaarverbod, niet geldend voor een klein schip zonder motor",
+  "betekenis": "Section of waterway taken out of use: nobody may sail there, EXCEPT a small ship without an engine (so a sailing or rowing lelievlet may).",
+  "vorm": "round disc",
+  "kleuren": {
+   "veld": "rood",
+   "balk": "wit"
+  },
+  "symbool": "Red disc with a white horizontal bar across the middle (like the road \"no entry\" sign); the bar is about 1/5 of the diameter high and runs to ~80 % of the diameter.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:Nederlands scheepvaartteken A.1a.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Nederlands_scheepvaartteken_A.1a.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/6/66/Nederlands_scheepvaartteken_A.1a.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "SVG version by Bouwe Brouwer"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.22 lid 2"
+  ],
+  "cwo": [
+   "Kielboot III"
+  ],
+  "bpr_afbeelding": [
+   "65428.png"
+  ],
+  "afwijking_cevni": "German BinSchStrO/CEVNI A.1a uses the same red disc with white bar (\"gesperrte Wasserfläche\"); the BPR wording adds the exception for a small ship without engine."
+ },
+ {
+  "code": "A.2",
+  "groep": "A",
+  "naam": "Voorbijlopen verboden",
+  "betekenis": "No overtaking.",
+  "vorm": "upright rectangle 2:3, white field, red border ~1/10 of the short side, red diagonal corner to corner (top-left to bottom-right)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Two black arrows pointing up, staggered: one lower-left, one upper-right, parallel and vertical.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:Nederlands scheepvaartteken A.2.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Nederlands_scheepvaartteken_A.2.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Nederlands_scheepvaartteken_A.2.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "SVG version by Bouwe Brouwer"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.11"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65429.png"
+  ]
+ },
+ {
+  "code": "A.3",
+  "groep": "A",
+  "naam": "Voorbijlopen verboden voor samenstellen onderling Het verbod geldt niet, wanneer tenminste één van beide betrokken samenstellen een duwstel is waarvan de lengte en breedte niet meer bedragen dan 110 m respectievelijk 12 m",
+  "betekenis": "No overtaking between two convoys (samenstellen); not applicable if one of them is a duwstel of at most 110 × 12 m.",
+  "vorm": "upright rectangle 2:3, white field, red border ~1/10 of the short side, red diagonal corner to corner (top-left to bottom-right)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "As A.2 but each arrow has two stacked arrowheads (= a convoy).",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:Nederlands scheepvaartteken A.3.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Nederlands_scheepvaartteken_A.3.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/7/73/Nederlands_scheepvaartteken_A.3.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "SVG version by Bouwe Brouwer"
+  },
+  "relevant": false,
+  "artikelen": [
+   "6.11"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65430.png"
+  ]
+ },
+ {
+  "code": "A.4",
+  "groep": "A",
+  "naam": "Ontmoeten en voorbijlopen verboden",
+  "betekenis": "No meeting (passing oncoming ships) and no overtaking: a one-way narrows.",
+  "vorm": "upright rectangle 2:3, white field, red border ~1/10 of the short side, red diagonal corner to corner (top-left to bottom-right)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Two vertical black arrows side by side: left one points down, right one points up.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:Nederlands scheepvaartteken A.4.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Nederlands_scheepvaartteken_A.4.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Nederlands_scheepvaartteken_A.4.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "SVG version by Bouwe Brouwer"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.07 lid 1",
+   "6.11 c"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65431.png"
+  ],
+  "rst2023": "Also used at an opened bridge, or a lock/weir open at both ends, shown with 2 x 2 green lights (kunstwerk not operated); the engte rules of 6.07 apply."
+ },
+ {
+  "code": "A.4.1",
+  "groep": "A",
+  "naam": "Ontmoeten en voorbijlopen van samenstellen onderling verboden. Dit verbod geldt niet wanneer tenminste één van beide betrokken samenstellen een duwstel is waarvan de lengte niet meer bedraagt dan 110 m en de breedte niet meer bedraagt dan 12 m",
+  "betekenis": "No meeting or overtaking between convoys (not if one is a duwstel of at most 110 × 12 m).",
+  "vorm": "upright rectangle 2:3, white field, red border ~1/10 of the short side, red diagonal corner to corner (top-left to bottom-right)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "As A.4 (down arrow left, up arrow right) but each arrow has two stacked arrowheads.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:Nederlands scheepvaartteken A.4.1.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Nederlands_scheepvaartteken_A.4.1.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Nederlands_scheepvaartteken_A.4.1.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "SVG version by Bouwe Brouwer"
+  },
+  "relevant": false,
+  "artikelen": [
+   "6.07 lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "247996.png"
+  ],
+  "afwijking_cevni": "Not in the RPR (RST 2023)."
+ },
+ {
+  "code": "A.5",
+  "groep": "A",
+  "naam": "Verboden ligplaats te nemen (ankeren en meren) aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "No berthing (neither anchoring nor mooring) on this side of the waterway.",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Black capital letter P, centred, upright.",
+  "varianten": [
+   "met richtingaanduiding F.2a (traject tussen twee borden)"
+  ],
+  "commons": {
+   "bestand": "File:Nederlands scheepvaartteken A.5.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Nederlands_scheepvaartteken_A.5.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/4/40/Nederlands_scheepvaartteken_A.5.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "SVG version by Bouwe Brouwer"
+  },
+  "relevant": true,
+  "artikelen": [
+   "7.02 lid 1 c"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65432.png"
+  ]
+ },
+ {
+  "code": "A.5.1",
+  "groep": "A",
+  "naam": "Verboden ligplaats te nemen (ankeren en meren) binnen de in meters aangegeven breedte te rekenen vanaf het bord",
+  "betekenis": "No berthing within the width (in metres) shown, measured from the sign.",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Black number (e.g. 20) = metres, centred.",
+  "varianten": [
+   "getal variabel"
+  ],
+  "commons": {
+   "bestand": "File:Nederlands scheepvaartteken A.5.1.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Nederlands_scheepvaartteken_A.5.1.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Nederlands_scheepvaartteken_A.5.1.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "SVG version by Bouwe Brouwer"
+  },
+  "relevant": true,
+  "artikelen": [
+   "7.02 lid 1 k"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65433.png"
+  ]
+ },
+ {
+  "code": "A.6",
+  "groep": "A",
+  "naam": "Verboden te ankeren en ankers, kabels en kettingen te laten slepen aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "No anchoring and no dragging anchors, cables or chains on this side (e.g. over cables and pipelines).",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Black anchor drawn UPSIDE DOWN: curved arms (flukes) at the top, shank down, stock bar and ring at the bottom.",
+  "varianten": [
+   "met richtingaanduiding F.2a"
+  ],
+  "commons": {
+   "bestand": "File:Nederlands scheepvaartteken A.6.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Nederlands_scheepvaartteken_A.6.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/4/43/Nederlands_scheepvaartteken_A.6.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "SVG version by Bouwe Brouwer"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.18 lid 5",
+   "7.03 lid 1 b"
+  ],
+  "cwo": [
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65434.png"
+  ],
+  "afwijking_cevni": "German BinSchStrO draws A.6 as an upright rectangle; the BPR drawing is square.",
+  "rst2023": "Also forbids spudpalen. Two A.6 boards with F.2a arrows mark the stretch; on both banks over zinkers/duikers."
+ },
+ {
+  "code": "A.7",
+  "groep": "A",
+  "naam": "Verboden te meren aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "No mooring on this side.",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Black bolder (mooring bollard) seen from the side, centred.",
+  "varianten": [
+   "met onderbord, b.v. \"Uitzondering bij calamiteiten\" (gereserveerde ligplaats)"
+  ],
+  "commons": {
+   "bestand": "File:Nederlands scheepvaartteken A.7.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Nederlands_scheepvaartteken_A.7.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Nederlands_scheepvaartteken_A.7.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "SVG version by Bouwe Brouwer"
+  },
+  "relevant": true,
+  "artikelen": [
+   "7.04 lid 1 b"
+  ],
+  "cwo": [
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65435.png"
+  ],
+  "rst2023": "Typical near movable bridges (other than waiting for the bridge)."
+ },
+ {
+  "code": "A.8",
+  "groep": "A",
+  "naam": "Verboden te keren",
+  "betekenis": "No turning (winding) the ship.",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Black thick arrow bent into an almost complete circle (like a \"C\" open at the bottom-left), arrowhead at upper right pointing right/clockwise.",
+  "varianten": [
+   "onderbord met lengtebeperking"
+  ],
+  "commons": {
+   "bestand": "File:A.8 Wendeverbot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:A.8_Wendeverbot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/d/d2/A.8_Wendeverbot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "6.13 lid 6"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65436.png"
+  ]
+ },
+ {
+  "code": "A.9",
+  "groep": "A",
+  "naam": "Verboden hinderlijke waterbeweging te veroorzaken",
+  "betekenis": "Do not make disturbing wash (golfslag, zuiging): slow down.",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Two black horizontal wavy lines one above the other, centred.",
+  "varianten": [
+   "lichtvariant: rood licht boven wit licht (verticaal)",
+   "RST: at incidents also a board with upper half red and lower half white, or two boards (red over white), or flags"
+  ],
+  "commons": {
+   "bestand": "File:A.9 Vermeidung von Wellenschlag oder Sogwirkung.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:A.9_Vermeidung_von_Wellenschlag_oder_Sogwirkung.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/4/46/A.9_Vermeidung_von_Wellenschlag_oder_Sogwirkung.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.20 lid 1 e"
+  ],
+  "cwo": [
+   "Kielboot III"
+  ],
+  "bpr_afbeelding": [
+   "65437.png"
+  ],
+  "rst2023": "Preferred over B.6 for protecting moored ships, works, bunker stations. Also 3.29 (a ship itself shows red-over-white)."
+ },
+ {
+  "code": "A.10",
+  "groep": "A",
+  "naam": "Verboden buiten de aangegeven begrenzing te varen",
+  "betekenis": "Do not sail outside the limits shown (between the two boards).",
+  "vorm": "always a pair of square boards set on a point (diamonds), one at each side of the passage",
+  "kleuren": {
+   "bord": "half rood, half wit (verticaal gedeeld)"
+  },
+  "symbool": "Each diamond split along its vertical diagonal: the RED half faces outward (away from the channel), the WHITE half faces the channel. Dashed arrow in the drawing = the permitted width.",
+  "varianten": [
+   "aan vaste bruggen (G.1a)",
+   "dient als referentieteken bij een hoogteschaal (G.5.1b)"
+  ],
+  "commons": {
+   "bestand": "File:A.10 Verbot außerhalb der angezeigten Begrenzung zu fahren.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:A.10_Verbot_au%C3%9Ferhalb_der_angezeigten_Begrenzung_zu_fahren.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/6/67/A.10_Verbot_au%C3%9Ferhalb_der_angezeigten_Begrenzung_zu_fahren.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO",
+   "opmerking": "single board; the pair is \"A.10 Verbot, außerhalb der angezeigten Begrenzung zu fahren.svg\" (CC BY-SA 4.0)"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.24 lid 2 a"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65438.png"
+  ],
+  "rst2023": "Board format smaller than normal (48–160 cm) because the figure is simple."
+ },
+ {
+  "code": "A.11",
+  "groep": "A",
+  "naam": "In-, uit- of doorvaren, wordt aanstonds toegestaan",
+  "betekenis": "Passage not yet allowed, but will be allowed shortly: get ready, the bridge/lock is about to open.",
+  "vorm": "lights (two)",
+  "kleuren": {
+   "licht": "rood boven groen, vast"
+  },
+  "symbool": "Two fixed lights one above the other: red above, green below, in a black housing.",
+  "varianten": [
+   "aan bruggen G.2a, sluizen G.4.1a en G.4.2",
+   "met lichtpijl F.2b"
+  ],
+  "commons": {
+   "bestand": "File:POL Znak Żeglugowy A11 lamp1.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:POL_Znak_%C5%BBeglugowy_A11_lamp1.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/7/7e/POL_Znak_%C5%BBeglugowy_A11_lamp1.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "CC BY-SA 3.0",
+   "auteur": "Orem (wiki-pl: Orem, commons: Orem)"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.26 lid 4 c",
+   "6.28a lid 1 c"
+  ],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65439.png"
+  ],
+  "afwijking_cevni": "CEVNI also allows the two lights side by side; the NL practice is vertical (RST: rood-groen-rood order)."
+ },
+ {
+  "code": "A.11.1",
+  "groep": "A",
+  "naam": "Doorvaren verboden, tenzij de doorvaartopening zo dicht is genaderd, dat stilhouden redelijkerwijs niet meer mogelijk is groen flikkerlicht",
+  "betekenis": "Bridge about to close: no passage, unless you are so close that you cannot reasonably stop any more.",
+  "vorm": "lights (two)",
+  "kleuren": {
+   "licht": "rood vast boven groen flikkerlicht"
+  },
+  "symbool": "Red fixed light above a green FLASHING light (the drawing marks flashing with black wedges in the green disc).",
+  "varianten": [
+   "aan beweegbare bruggen G.2a"
+  ],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [
+   "6.26 lid 4 f"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65440.png"
+  ],
+  "afwijking_cevni": "No CEVNI counterpart found in the Commons sets (not verified against the CEVNI text)."
+ },
+ {
+  "code": "A.12",
+  "groep": "A",
+  "naam": "Verboden voor motorschepen",
+  "betekenis": "No motorised vessels.",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Black three-bladed ship propeller, seen end-on, centred.",
+  "varianten": [
+   "F.4 onderbord"
+  ],
+  "commons": {
+   "bestand": "File:A.12 Fahrverbot für Fahrzeuge mit Maschinenantrieb.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:A.12_Fahrverbot_f%C3%BCr_Fahrzeuge_mit_Maschinenantrieb.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/3/30/A.12_Fahrverbot_f%C3%BCr_Fahrzeuge_mit_Maschinenantrieb.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65441.png"
+  ]
+ },
+ {
+  "code": "A.13",
+  "groep": "A",
+  "naam": "Verboden voor kleine schepen",
+  "betekenis": "No small ships (< 20 m, recreational craft). Applies to a lelievlet.",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "The black word \"sport\" (lower case, bold sans) horizontally across the centre.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:A.13 Fahrverbot für Sportboote.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:A.13_Fahrverbot_f%C3%BCr_Sportboote.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/7/71/A.13_Fahrverbot_f%C3%BCr_Sportboote.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65442.png"
+  ],
+  "afwijking_cevni": "CEVNI A.13 is \"sport and pleasure craft\"; the BPR name is \"kleine schepen\" (the drawing still says \"sport\"). German file draws \"SPORT\" in capitals."
+ },
+ {
+  "code": "A.14",
+  "groep": "A",
+  "naam": "Verboden te waterskiën",
+  "betekenis": "No water skiing.",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Black water skier being towed, facing left, towline to the upper left.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:A.14 Verbot des Wasserskilaufens.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:A.14_Verbot_des_Wasserskilaufens.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/b/b3/A.14_Verbot_des_Wasserskilaufens.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65443.png"
+  ]
+ },
+ {
+  "code": "A.15",
+  "groep": "A",
+  "naam": "Verboden voor zeilschepen",
+  "betekenis": "No sailing vessels. Applies to a lelievlet under sail.",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Black sailboat in side view: triangular mainsail, hull below.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:A.15 Fahrverbot für Segelfahrzeuge.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:A.15_Fahrverbot_f%C3%BCr_Segelfahrzeuge.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/4/40/A.15_Fahrverbot_f%C3%BCr_Segelfahrzeuge.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III"
+  ],
+  "bpr_afbeelding": [
+   "65444.png"
+  ],
+  "rst2023": "Used on big through-waterways, e.g. the Prinses Margrietkanaal."
+ },
+ {
+  "code": "A.16",
+  "groep": "A",
+  "naam": "Verboden voor door spierkracht voortbewogen schepen",
+  "betekenis": "No man-powered craft (rowing boats, canoes, pedalos). Applies to a rowed lelievlet.",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Black rowing boat with one rower, oar diagonal down to the lower left.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:A.16 Fahrverbot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:A.16_Fahrverbot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/1/1c/A.16_Fahrverbot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65446.png"
+  ]
+ },
+ {
+  "code": "A.17",
+  "groep": "A",
+  "naam": "Verboden voor zeilplanken",
+  "betekenis": "No sailboards/windsurfers.",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Black windsurfer: person on a board holding a triangular sail.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:A.17 Verbot des Segelsurfens.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:A.17_Verbot_des_Segelsurfens.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/4/4b/A.17_Verbot_des_Segelsurfens.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III"
+  ],
+  "bpr_afbeelding": [
+   "65447.png"
+  ]
+ },
+ {
+  "code": "A.18",
+  "groep": "A",
+  "naam": "Einde van het vaarweggedeelte waar door snelle motorboten zonder beperking van de snelheid mag worden gevaren",
+  "betekenis": "End of the zone where fast motorboats may exceed 20 km/h.",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Black speedboat planing to the right with a bow wave, crossed by the diagonal.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:POL Znak Żeglugowy A18.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:POL_Znak_%C5%BBeglugowy_A18.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/8/8c/POL_Znak_%C5%BBeglugowy_A18.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "CC BY-SA 3.0",
+   "auteur": "Orem (wiki-pl: Orem, commons: Orem)"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "68704.png"
+  ]
+ },
+ {
+  "code": "A.19",
+  "groep": "A",
+  "naam": "Verboden schepen te water te laten en uit het water te halen",
+  "betekenis": "No launching or hauling out (no slipway use).",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Black boat on a trailer on a sloping slipway, water line bottom-left.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:POL Znak Żeglugowy A19.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:POL_Znak_%C5%BBeglugowy_A19.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/c/c5/POL_Znak_%C5%BBeglugowy_A19.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "CC BY-SA 3.0",
+   "auteur": "Orem (wiki-pl: Orem, commons: Orem)"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "247997.png"
+  ]
+ },
+ {
+  "code": "A.20",
+  "groep": "A",
+  "naam": "Verboden voor waterscooters",
+  "betekenis": "No water scooters (jet skis).",
+  "vorm": "square, white field, red border ~1/10 of the side, red diagonal top-left to bottom-right (about as wide as the border)",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "diagonaal": "rood",
+   "symbool": "zwart"
+  },
+  "symbool": "Black rider on a water scooter with spray, facing right.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:Notice A.20 Water bikes prohibited.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Notice_A.20_Water_bikes_prohibited.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/5/57/Notice_A.20_Water_bikes_prohibited.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "CC0",
+   "auteur": "Ad Verburg"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "67698.png"
+  ]
+ },
+ {
+  "code": "B.1a",
+  "groep": "B",
+  "naam": "Verplichting te varen in de richting aangegeven door de pijl",
+  "betekenis": "Mandatory direction: sail the way the arrow points.",
+  "vorm": "landscape rectangle 3:2, white field, red border ~1/10 of the short side",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black horizontal arrow pointing right (may point left).",
+  "varianten": [
+   "pijl links of rechts",
+   "F.4 onderbord (b.v. motorschip-pictogram)"
+  ],
+  "commons": {
+   "bestand": "File:B.1 Gebot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.1_Gebot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/f/fd/B.1_Gebot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.12"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65453.png"
+  ]
+ },
+ {
+  "code": "B.1b",
+  "groep": "B",
+  "naam": "Verplichting te varen in de richting aangegeven door de pijl (idem)",
+  "betekenis": "Same as B.1a, vertical form.",
+  "vorm": "upright rectangle 2:3, white field, red border",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black vertical arrow pointing up.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [
+   "6.12"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65454.png"
+  ]
+ },
+ {
+  "code": "B.2a",
+  "groep": "B",
+  "naam": "Verplichting zich naar de bakboordszijde van het vaarwater te begeven",
+  "betekenis": "Move over to the port (left) side of the channel.",
+  "vorm": "upright rectangle 2:3, white field, red border",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black arrow coming up from the lower right, jogging to the left, ending in an arrowhead at the upper left.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:B.2a Gebot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.2a_Gebot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/e/e0/B.2a_Gebot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "6.12"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65455.png"
+  ]
+ },
+ {
+  "code": "B.2b",
+  "groep": "B",
+  "naam": "Verplichting zich naar de stuurboordszijde van het vaarwater te begeven",
+  "betekenis": "Move over to the starboard (right) side.",
+  "vorm": "upright rectangle 2:3, white field, red border",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Mirror image of B.2a: arrow jogs from lower left to upper right.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:B.2b Gebot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.2b_Gebot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/0/04/B.2b_Gebot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "Bundesregierung"
+  },
+  "relevant": false,
+  "artikelen": [
+   "6.12"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65456.png"
+  ]
+ },
+ {
+  "code": "B.3a",
+  "groep": "B",
+  "naam": "Verplichting de bakboordszijde van het vaarwater te houden",
+  "betekenis": "Keep to the port side of the channel.",
+  "vorm": "upright rectangle 2:3, white field, red border",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Left: solid black arrow pointing up (own track). Right: dashed black line with arrowhead pointing down (oncoming traffic).",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:B.3a Gebot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.3a_Gebot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/0/09/B.3a_Gebot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "6.12"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65457.png"
+  ]
+ },
+ {
+  "code": "B.3b",
+  "groep": "B",
+  "naam": "Verplichting de stuurboordszijde van het vaarwater te houden",
+  "betekenis": "Keep to the starboard side.",
+  "vorm": "upright rectangle 2:3, white field, red border",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Mirror of B.3a: dashed down-arrow left, solid up-arrow right.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:B.3b Gebot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.3b_Gebot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/5/5f/B.3b_Gebot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "6.12"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65458.png"
+  ]
+ },
+ {
+  "code": "B.4a",
+  "groep": "B",
+  "naam": "Verplichting het vaarwater over te steken naar bakboord",
+  "betekenis": "Cross the channel to port; oncoming ships cross at the same place.",
+  "vorm": "upright rectangle 2:3, white field, red border",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Solid black arrow from lower right crossing to upper left (arrowhead up), and a dashed arrow crossing the other way (arrowhead down, lower left).",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:B.4a Gebot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.4a_Gebot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/7/70/B.4a_Gebot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO",
+   "opmerking": "checked against BPR image 65459: same arrangement; BPR arrows are heavier"
+  },
+  "relevant": false,
+  "artikelen": [
+   "6.12"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65459.png"
+  ]
+ },
+ {
+  "code": "B.4b",
+  "groep": "B",
+  "naam": "Verplichting het vaarwater over te steken naar stuurboord",
+  "betekenis": "Cross the channel to starboard.",
+  "vorm": "upright rectangle 2:3, white field, red border",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Mirror of B.4a.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:B.4 Gebot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.4_Gebot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/1/1c/B.4_Gebot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO",
+   "opmerking": "the German file named \"B.4\" is the mirror of B.4a and matches BPR B.4b (image 65460)"
+  },
+  "relevant": false,
+  "artikelen": [
+   "6.12"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65460.png"
+  ]
+ },
+ {
+  "code": "B.5",
+  "groep": "B",
+  "naam": "Verplichting vóór het bord stil te houden onder bepaalde omstandigheden",
+  "betekenis": "Stop before this board when required (e.g. bridge or lock not yet open): the stop line.",
+  "vorm": "square, white field, red border ~1/10 of the side, no diagonal",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black horizontal bar with rounded ends, centred, ~60 % of the field wide.",
+  "varianten": [
+   "onderbord met de omstandigheid (b.v. \"bij gesloten brug\")"
+  ],
+  "commons": {
+   "bestand": "File:B.5 Gebot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.5_Gebot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/1/12/B.5_Gebot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.26 lid 3 b",
+   "6.28 lid 1"
+  ],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65461.png"
+  ]
+ },
+ {
+  "code": "B.6",
+  "groep": "B",
+  "naam": "Verplichting de vaarsnelheid te beperken, zoals is aangegeven (in km/u)",
+  "betekenis": "Speed limit in km/h.",
+  "vorm": "square, white field, red border ~1/10 of the side, no diagonal",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black number (km/h), e.g. 7, centred.",
+  "varianten": [
+   "F.1 bovenbord: ingaande na … m"
+  ],
+  "commons": {
+   "bestand": "File:B.6 Gebot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.6_Gebot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/3/35/B.6_Gebot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65462.png"
+  ]
+ },
+ {
+  "code": "B.7",
+  "groep": "B",
+  "naam": "Verplichting een geluidssein te geven",
+  "betekenis": "Sound your horn (signal given on an onderbord, e.g. een lange stoot).",
+  "vorm": "square, white field, red border ~1/10 of the side, no diagonal",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black filled disc, centred, ~45 % of the field.",
+  "varianten": [
+   "F.3 onderbord met het sein (streepjes/punten)"
+  ],
+  "commons": {
+   "bestand": "File:B.7 Gebot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.7_Gebot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/0/0d/B.7_Gebot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65463.png"
+  ]
+ },
+ {
+  "code": "B.8",
+  "groep": "B",
+  "naam": "Verplichting bijzonder op te letten",
+  "betekenis": "Keep a special lookout (reason on an onderbord).",
+  "vorm": "square, white field, red border ~1/10 of the side, no diagonal",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black vertical bar with rounded ends, centred.",
+  "varianten": [
+   "F.3 onderbord, b.v. \"regeling scheepvaart\", \"brugbouw\""
+  ],
+  "commons": {
+   "bestand": "File:B.8 Gebot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.8_Gebot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/4/46/B.8_Gebot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65464.png"
+  ]
+ },
+ {
+  "code": "B.9a",
+  "groep": "B",
+  "naam": "Verplichting niet het hoofdvaarwater op te varen of over te steken, indien daardoor schepen op het hoofdvaarwater zouden worden genoodzaakt hun koers of snelheid te wijzigen",
+  "betekenis": "You are on a side channel: do not enter or cross the main channel if that forces its traffic to alter course or speed (T-junction).",
+  "vorm": "square, white field, red border ~1/10 of the side, no diagonal",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black \"T\": broad horizontal band across the upper half (main channel) and a vertical stem down to the bottom edge (your channel).",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:B.9a Gebot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.9a_Gebot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/e/e4/B.9a_Gebot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.16 lid 8"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65465.png"
+  ]
+ },
+ {
+  "code": "B.9b",
+  "groep": "B",
+  "naam": "Verplichting niet het hoofdvaarwater op te varen of over te steken, indien daardoor schepen op het hoofdvaarwater zouden worden genoodzaakt hun koers of snelheid te wijzigen (idem)",
+  "betekenis": "Same, at a crossing.",
+  "vorm": "square, white field, red border ~1/10 of the side, no diagonal",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black cross: broad horizontal band and a vertical band crossing it.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:B.9b Gebot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.9b_Gebot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/9/90/B.9b_Gebot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.16 lid 8"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65466.png"
+  ]
+ },
+ {
+  "code": "B.10",
+  "groep": "B",
+  "naam": "Verplichting zonodig koers en snelheid te wijzigen ten behoeve van uitvarende schepen",
+  "betekenis": "Alter course/speed if necessary for ships leaving a harbour or side channel.",
+  "vorm": "lights (two)",
+  "kleuren": {
+   "licht": "geel, synchroon flikkerend"
+  },
+  "symbool": "Two yellow flashing lights one above the other in a white-framed housing (drawn with black wedges = flashing).",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:POL Znak Żeglugowy B10.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:POL_Znak_%C5%BBeglugowy_B10.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/0/00/POL_Znak_%C5%BBeglugowy_B10.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "CC BY-SA 3.0",
+   "auteur": "Orem (wiki-pl: Orem, commons: Orem)"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65467.png"
+  ],
+  "rst2023": "Rarely or never used in NL; B.9 preferred."
+ },
+ {
+  "code": "B.11a",
+  "groep": "B",
+  "naam": "Verplichting gebruik te maken van marifoon overeenkomstig de daartoe bij algemene regeling vastgestelde voorschriften, dan wel zich te melden op het aangegeven marifoonkanaal",
+  "betekenis": "Use the VHF radio as prescribed.",
+  "vorm": "square, white field, red border ~1/10 of the side, no diagonal",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black letters \"VHF\" centred.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:B.11a Gebot VHF.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.11a_Gebot_VHF.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/a/a1/B.11a_Gebot_VHF.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "67688.png"
+  ]
+ },
+ {
+  "code": "B.11b",
+  "groep": "B",
+  "naam": "Verplichting gebruik te maken van marifoon overeenkomstig de daartoe bij algemene regeling vastgestelde voorschriften, dan wel zich te melden op het aangegeven marifoonkanaal",
+  "betekenis": "Report/listen on the VHF channel shown.",
+  "vorm": "square, white field, red border ~1/10 of the side, no diagonal",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black \"VHF\" above a channel number (e.g. 11).",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:B.11b Gebot VHF.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.11b_Gebot_VHF.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/0/0c/B.11b_Gebot_VHF.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "67689.png"
+  ]
+ },
+ {
+  "code": "B.12",
+  "groep": "B",
+  "naam": "Verplichting tot het gebruik van walstroomaansluitingen",
+  "betekenis": "Ships at this berth must use shore power.",
+  "vorm": "square, white field, red border ~1/10 of the side, no diagonal",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black plug (electric connector) seen from the side, pointing left.",
+  "varianten": [
+   "wit onderbord met uitzonderingen"
+  ],
+  "commons": {
+   "bestand": "File:B.12 Gebot.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:B.12_Gebot.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/4/42/B.12_Gebot.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "7.06a lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "272782.png"
+  ]
+ },
+ {
+  "code": "C.1",
+  "groep": "C",
+  "naam": "Beperkte waterdiepte; eventueel de beschikbare diepte aangegeven in centimeters",
+  "betekenis": "Limited depth; the number (if any) is the available depth in cm (not the permitted draught).",
+  "vorm": "square, white field, red border ~1/10 of the side, no diagonal",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black triangle standing on the bottom edge, apex up (the \"bottom\" rising); optional number above it. Variant (67699): number in white on a black bar in the upper half, black triangle at the bottom.",
+  "varianten": [
+   "zonder getal",
+   "met getal (cm)",
+   "met zwart vlak en witte cijfers",
+   "F.3 onderbord: actuele waterdiepte"
+  ],
+  "commons": {
+   "bestand": "File:C.1 Die Fahrwassertiefe ist begrenzt.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:C.1_Die_Fahrwassertiefe_ist_begrenzt.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/a/ad/C.1_Die_Fahrwassertiefe_ist_begrenzt.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65469.png",
+   "67699.png"
+  ]
+ },
+ {
+  "code": "C.2",
+  "groep": "C",
+  "naam": "Beperkte doorvaarthoogte; eventueel de beschikbare doorvaarthoogte aangegeven in meters",
+  "betekenis": "Limited headroom; number (if any) = clearance in metres.",
+  "vorm": "square, white field, red border ~1/10 of the side, no diagonal",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black triangle hanging from the top edge, apex down; optional number below. Variant (67700): white number on a black bar at the bottom.",
+  "varianten": [
+   "zonder getal",
+   "met getal (m)",
+   "F.3 onderbord: hoogte verminderd met … m"
+  ],
+  "commons": {
+   "bestand": "File:C.2 Die lichte Höhe über dem Wasserspiegel ist begrenzt.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:C.2_Die_lichte_H%C3%B6he_%C3%BCber_dem_Wasserspiegel_ist_begrenzt.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/0/00/C.2_Die_lichte_H%C3%B6he_%C3%BCber_dem_Wasserspiegel_ist_begrenzt.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65470.png",
+   "67700.png"
+  ]
+ },
+ {
+  "code": "C.3",
+  "groep": "C",
+  "naam": "Beperkte breedte van doorvaart of vaarwater; eventueel de beschikbare breedte aangegeven in meters",
+  "betekenis": "Limited width; number = available width in metres.",
+  "vorm": "square, white field, red border ~1/10 of the side, no diagonal",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Two black triangles on the left and right edges, apexes pointing to each other at mid-height; optional number between/above them.",
+  "varianten": [
+   "met getal",
+   "F.3 onderbord b.v. \"brugbouw\""
+  ],
+  "commons": {
+   "bestand": "File:C.3 Die Breite der Durchfahrtsöffnung oder des Fahrwassers ist begrenzt.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:C.3_Die_Breite_der_Durchfahrts%C3%B6ffnung_oder_des_Fahrwassers_ist_begrenzt.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/6/63/C.3_Die_Breite_der_Durchfahrts%C3%B6ffnung_oder_des_Fahrwassers_ist_begrenzt.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65471.png"
+  ]
+ },
+ {
+  "code": "C.4",
+  "groep": "C",
+  "naam": "Vaartbeperkingen; vraag nadere inlichtingen",
+  "betekenis": "Navigation restrictions: ask for information.",
+  "vorm": "square, white field, red border ~1/10 of the side, no diagonal",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Empty white field inside the red border (no symbol).",
+  "varianten": [
+   "onderbord met de aard van de beperking"
+  ],
+  "commons": {
+   "bestand": "File:C.4 Es bestehen Schifffahrtsbeschränkungen.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:C.4_Es_bestehen_Schifffahrtsbeschr%C3%A4nkungen.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/f/f1/C.4_Es_bestehen_Schifffahrtsbeschr%C3%A4nkungen.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65472.png"
+  ],
+  "rst2023": "Rarely or never used in NL."
+ },
+ {
+  "code": "C.5",
+  "groep": "C",
+  "naam": "Het vaarwater bevindt zich op enige afstand van de oever; het op het bord voorkomende getal geeft in meters de afstand aan die de schepen uit de oever dienen te blijven, gerekend vanaf het bord",
+  "betekenis": "The channel lies away from this bank: keep the number of metres off the bank, measured from the sign.",
+  "vorm": "square, white field, red border ~1/10 of the side, no diagonal",
+  "kleuren": {
+   "rand": "rood",
+   "veld": "wit",
+   "symbool": "zwart"
+  },
+  "symbool": "Black pentagon shaped like an arrow pointing to the left (toward the channel), filling most of the field, with a white number (e.g. 12).",
+  "varianten": [
+   "punt naar links of naar rechts, afhankelijk van de oever"
+  ],
+  "commons": {
+   "bestand": "File:C.5 Das Fahrwasser ist am rechten (linken) Ufer eingeengt; die Zahl auf dem Zeichen gibt den Abstand in Metern an, in dem sich die Fahrzeuge vom Tafelzeichen entfernt halten sollen.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:C.5_Das_Fahrwasser_ist_am_rechten_(linken)_Ufer_eingeengt;_die_Zahl_auf_dem_Zeichen_gibt_den_Abstand_in_Metern_an,_in_dem_sich_die_Fahrzeuge_vom_Tafelzeichen_entfernt_halten_sollen.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/e/e7/C.5_Das_Fahrwasser_ist_am_rechten_%28linken%29_Ufer_eingeengt%3B_die_Zahl_auf_dem_Zeichen_gibt_den_Abstand_in_Metern_an%2C_in_dem_sich_die_Fahrzeuge_vom_Tafelzeichen_entfernt_halten_sollen.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65473.png"
+  ]
+ },
+ {
+  "code": "D.1a",
+  "groep": "D",
+  "naam": "Aanbevolen doorvaartopening (vaste bruggen); doorvaart toegestaan (gesloten beweegbare bruggen) — doorvaart uit de tegengestelde richting toegestaan",
+  "betekenis": "Recommended opening of a fixed bridge (or: you may pass under this closed movable bridge if you fit); oncoming traffic may use it too.",
+  "vorm": "square board set on a point (diamond), or a light",
+  "kleuren": {
+   "bord": "geel met zwarte rand",
+   "licht": "geel, vast"
+  },
+  "symbool": "One yellow diamond (square turned 45°) with a thin black outline; or one yellow fixed light. Hung above the middle of the opening.",
+  "varianten": [
+   "bord",
+   "één geel vast licht",
+   "aan kunstwerken: gele ruitvormige borden of gele vaste lichten"
+  ],
+  "commons": {
+   "bestand": "File:D.1 Empfohlene Durchfahrtsöffnung.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:D.1_Empfohlene_Durchfahrts%C3%B6ffnung.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/7/74/D.1_Empfohlene_Durchfahrts%C3%B6ffnung.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.25 lid 2",
+   "6.26 lid 4",
+   "6.27 lid 3"
+  ],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65511.png",
+   "65617.png",
+   "65620.png"
+  ],
+  "rst2023": "Board format smaller than normal. A single yellow light over the only opening of a fixed bridge can serve as orientation light."
+ },
+ {
+  "code": "D.1b",
+  "groep": "D",
+  "naam": "Aanbevolen doorvaartopening (vaste bruggen); doorvaart toegestaan (gesloten beweegbare bruggen) — doorvaart uit de tegengestelde richting verboden",
+  "betekenis": "Recommended opening, one-way: oncoming traffic is not allowed here (they see A.1 on this opening).",
+  "vorm": "two diamonds or two lights",
+  "kleuren": {
+   "bord": "geel met zwarte rand",
+   "licht": "geel, vast"
+  },
+  "symbool": "Two yellow diamonds side by side (preferred) or one above the other; or two yellow fixed lights.",
+  "varianten": [
+   "twee borden naast elkaar",
+   "twee borden boven elkaar",
+   "twee gele lichten naast/boven elkaar"
+  ],
+  "commons": {
+   "bestand": "File:D.1b Empfohlene Durchfahrtsöffnung.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:D.1b_Empfohlene_Durchfahrts%C3%B6ffnung.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/e/e3/D.1b_Empfohlene_Durchfahrts%C3%B6ffnung.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "CC BY-SA 4.0",
+   "auteur": "LukeLR"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.25 lid 2",
+   "6.26 lid 4",
+   "6.27 lid 3"
+  ],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65512.png",
+   "65513.png"
+  ],
+  "rst2023": "Place A.1 on the same opening for the opposite direction."
+ },
+ {
+  "code": "D.2",
+  "groep": "D",
+  "naam": "Aanbeveling binnen de aangegeven begrenzing te varen",
+  "betekenis": "Recommended to keep between the two boards.",
+  "vorm": "always a pair of diamonds, one at each side",
+  "kleuren": {
+   "bord": "half groen, half wit"
+  },
+  "symbool": "Each diamond split vertically: the GREEN half faces the channel (inward), the WHITE half faces outward. Counterpart of A.10.",
+  "varianten": [
+   "lichtvariant (CEVNI): twee groene lichten",
+   "dient als referentieteken bij hoogteschaal"
+  ],
+  "commons": {
+   "bestand": "File:D.2 Empfehlung sich in dem durch die Tafeln begrenzten Raum zu halten.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:D.2_Empfehlung_sich_in_dem_durch_die_Tafeln_begrenzten_Raum_zu_halten.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/1/10/D.2_Empfehlung_sich_in_dem_durch_die_Tafeln_begrenzten_Raum_zu_halten.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO",
+   "opmerking": "single board; pair: \"D.2 Empfehlung, sich in dem durch die Tafeln begrenzten Raum zu halten.svg\" (CC BY-SA 4.0)"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.24 lid 2 b"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65514.png"
+  ]
+ },
+ {
+  "code": "D.3a",
+  "groep": "D",
+  "naam": "Aanbeveling te varen in de richting aangegeven door: de pijl",
+  "betekenis": "Recommended direction.",
+  "vorm": "landscape rectangle 3:2",
+  "kleuren": {
+   "veld": "blauw",
+   "rand": "witte binnenlijn",
+   "pijl": "wit"
+  },
+  "symbool": "White horizontal arrow pointing right (or left) on a blue field.",
+  "varianten": [
+   "F.4 onderbord \"sport\""
+  ],
+  "commons": {
+   "bestand": "File:D.3 Empfehlung in die Richtung des Pfeils zu fahren.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:D.3_Empfehlung_in_die_Richtung_des_Pfeils_zu_fahren.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/c/cd/D.3_Empfehlung_in_die_Richtung_des_Pfeils_zu_fahren.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65515.png"
+  ],
+  "rst2023": "Horizontal arrow preferred."
+ },
+ {
+  "code": "D.3b",
+  "groep": "D",
+  "naam": "Aanbeveling te varen in de richting aangegeven door: idem",
+  "betekenis": "Same, vertical form.",
+  "vorm": "upright rectangle 2:3",
+  "kleuren": {
+   "veld": "blauw",
+   "pijl": "wit"
+  },
+  "symbool": "White vertical arrow pointing up on blue.",
+  "varianten": [],
+  "commons": null,
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65516.png"
+  ],
+  "rst2023": "Does not occur in practice; not in the RPR."
+ },
+ {
+  "code": "D.3c",
+  "groep": "D",
+  "naam": "Aanbeveling te varen in de richting aangegeven door: het isofase licht",
+  "betekenis": "Recommended direction: toward the isophase light (at multi-chamber locks: the chamber that is ready first).",
+  "vorm": "two lights side by side in a white-framed housing",
+  "kleuren": {
+   "licht": "wit vast + wit isofase"
+  },
+  "symbool": "Left: a white fixed light (open circle). Right: a white isophase light (drawn as a circle with two opposite black quadrants).",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:POL Znak Żeglugowy D3 lamp.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:POL_Znak_%C5%BBeglugowy_D3_lamp.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/0/00/POL_Znak_%C5%BBeglugowy_D3_lamp.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "CC BY-SA 3.0",
+   "auteur": "Orem (wiki-pl: Orem, commons: Orem)"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65517.png"
+  ]
+ },
+ {
+  "code": "E.1",
+  "groep": "E",
+  "naam": "In-, uit- of doorvaren toegestaan (algemeen teken)",
+  "betekenis": "Entry / passage permitted.",
+  "vorm": "landscape rectangle 3:2 (board); or light(s)",
+  "kleuren": {
+   "banden": "groen-wit-groen, verticaal (~39/22/39 %)",
+   "licht": "groen, vast"
+  },
+  "symbool": "Board: three VERTICAL bands green / white / green. Light version: one green fixed light, or two green lights one above the other.",
+  "varianten": [
+   "bord groen-wit-groen",
+   "één groen vast licht",
+   "twee groene lichten (boven elkaar)",
+   "aan kunstwerken: groene vaste lichten of groen-wit-groene borden"
+  ],
+  "commons": {
+   "bestand": "File:E.1 Erlaubnis zur Durchfahrt.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.1_Erlaubnis_zur_Durchfahrt.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/1/17/E.1_Erlaubnis_zur_Durchfahrt.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [
+   "6.08 b",
+   "6.16 lid 10 a",
+   "6.26 leden 4 en 6",
+   "6.27 lid 2",
+   "6.28a"
+  ],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65544.png",
+   "65616.png",
+   "65619.png"
+  ],
+  "rst2023": "Lights preferred over the board at kunstwerken; two green lights = not operated / lock open at both ends."
+ },
+ {
+  "code": "E.2",
+  "groep": "E",
+  "naam": "Hoogspanningslijn",
+  "betekenis": "Overhead power line ahead.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White lightning bolt (zigzag with arrowhead) from upper right to lower left.",
+  "varianten": [
+   "F.1 bovenbord met afstand",
+   "C.2 rechts ernaast"
+  ],
+  "commons": {
+   "bestand": "File:E.2 Kreuzung einer Hochspannungsleitung.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.2_Kreuzung_einer_Hochspannungsleitung.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/b/b4/E.2_Kreuzung_einer_Hochspannungsleitung.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65545.png"
+  ]
+ },
+ {
+  "code": "E.3",
+  "groep": "E",
+  "naam": "Stuw",
+  "betekenis": "Weir ahead.",
+  "vorm": "landscape rectangle 3:2",
+  "kleuren": {
+   "veld": "wit met blauwe balken",
+   "rand": "blauw"
+  },
+  "symbool": "Stylised weir: blue horizontal band at the top (the bridge deck) with four/five vertical blue pillars hanging from it on white, blue strip at the bottom.",
+  "varianten": [
+   "F.1 bovenbord met afstand"
+  ],
+  "commons": {
+   "bestand": "File:E.3 Hinweis auf ein Wehr.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.3_Hinweis_auf_ein_Wehr.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/4/4d/E.3_Hinweis_auf_ein_Wehr.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "67690.png"
+  ]
+ },
+ {
+  "code": "E.4a",
+  "groep": "E",
+  "naam": "Niet-vrijvarende veerpont",
+  "betekenis": "Cable ferry ahead (do not pass close in front; the cable may be raised).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White ferry in side view (hull with deckhouse) in the upper part, and a white horizontal line (the cable) across the lower part.",
+  "varianten": [
+   "F.1 bovenbord met afstand (verplicht volgens RST)"
+  ],
+  "commons": {
+   "bestand": "File:E.4a Nicht frei fahrende Fähre.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.4a_Nicht_frei_fahrende_F%C3%A4hre.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/0/0f/E.4a_Nicht_frei_fahrende_F%C3%A4hre.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65546.png"
+  ]
+ },
+ {
+  "code": "E.4b",
+  "groep": "E",
+  "naam": "Vrijvarende veerpont",
+  "betekenis": "Free-moving ferry ahead.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White ferry in side view, no cable line.",
+  "varianten": [
+   "F.1 bovenbord met afstand"
+  ],
+  "commons": {
+   "bestand": "File:E.4b Frei fahrende Fähre.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.4b_Frei_fahrende_F%C3%A4hre.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/0/02/E.4b_Frei_fahrende_F%C3%A4hre.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65547.png"
+  ]
+ },
+ {
+  "code": "E.5",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Berthing (anchoring and mooring) permitted on this side.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White capital P, centred.",
+  "varianten": [
+   "F.2a richtingaanduiding (traject)",
+   "F.4 categorie-onderbord"
+  ],
+  "commons": {
+   "bestand": "File:E.5 Erlaubnis zum Stillliegen auf der Seite der Wasserstraße, auf der das Zeichen steht.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5_Erlaubnis_zum_Stillliegen_auf_der_Seite_der_Wasserstra%C3%9Fe,_auf_der_das_Zeichen_steht.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/1/16/E.5_Erlaubnis_zum_Stillliegen_auf_der_Seite_der_Wasserstra%C3%9Fe%2C_auf_der_das_Zeichen_steht.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [
+   "7.02 lid 2",
+   "7.05 lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65548.png"
+  ]
+ },
+ {
+  "code": "E.5.1",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) tot ten hoogste de aangegeven breedte, in meters gerekend vanaf het bord",
+  "betekenis": "Berthing permitted up to the width in metres from the sign.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White number (e.g. 20), centred.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.1 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.1_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/f/f8/E.5.1_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [
+   "7.05 lid 2"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65549.png"
+  ]
+ },
+ {
+  "code": "E.5.2",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) op het gedeelte van de vaarweg, gelegen tussen de aangegeven afstanden, in meters gerekend vanaf het bord",
+  "betekenis": "Berthing permitted between the two distances (m) from the sign.",
+  "vorm": "landscape rectangle (~2:1), blue",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White \"30-60\" (two numbers with a hyphen).",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.2 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.2_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/3/3f/E.5.2_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "7.05 lid 3"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65550.png"
+  ]
+ },
+ {
+  "code": "E.5.3",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) met ten hoogste het aangegeven aantal schepen langszijde van elkaar, aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Berthing permitted, at most N ships abreast.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White Roman numeral (e.g. IV).",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.3 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.3_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/b/bb/E.5.3_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [
+   "7.05 lid 4"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65551.png"
+  ]
+ },
+ {
+  "code": "E.5.4",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) uitsluitend voor duwvaart die geen blauwe kegels of lichten behoeft te voeren, aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Berthing reserved for push convoys carrying geen blue cone(s) (dangerous goods).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White triangle, apex up (large, centred)",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.4 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.4_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/6/6a/E.5.4_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "7.06 lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65552.png"
+  ]
+ },
+ {
+  "code": "E.5.5",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) uitsluitend voor duwvaart die één blauwe kegel of één blauw licht moet voeren, aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Berthing reserved for push convoys carrying één blue cone(s) (dangerous goods).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White triangle, apex up (large, centred) containing one small blue triangle (apex down) stacked vertically = the blue cones",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.5 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.5_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/9/95/E.5.5_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "7.06 lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65553.png"
+  ]
+ },
+ {
+  "code": "E.5.6",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) uitsluitend voor duwvaart die twee blauwe kegels of twee blauwe lichten moet voeren, aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Berthing reserved for push convoys carrying twee blue cone(s) (dangerous goods).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White triangle, apex up (large, centred) containing two small blue triangles (apex down) stacked vertically = the blue cones",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.6 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.6_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/c/cb/E.5.6_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "7.06 lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65554.png"
+  ]
+ },
+ {
+  "code": "E.5.7",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) uitsluitend voor duwvaart die drie blauwe kegels of drie blauwe lichten moet voeren aan de zijde van de vaarweg, waar het bord is geplaatst",
+  "betekenis": "Berthing reserved for push convoys carrying drie blue cone(s) (dangerous goods).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White triangle, apex up (large, centred) containing three small blue triangles (apex down) stacked vertically = the blue cones",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.7 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.7_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/a/aa/E.5.7_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "7.06 lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65555.png"
+  ]
+ },
+ {
+  "code": "E.5.8",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) uitsluitend voor andere schepen dan duwvaart die geen blauwe kegels of lichten behoeven te voeren, aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Berthing reserved for ships other than push convoys carrying geen blue cone(s) (dangerous goods).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White triangle, apex down (large, centred)",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.8 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.8_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/6/6a/E.5.8_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "7.06 lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65556.png"
+  ]
+ },
+ {
+  "code": "E.5.9",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) uitsluitend voor andere schepen dan duwvaart die één blauwe kegel of één blauw licht moeten voeren, aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Berthing reserved for ships other than push convoys carrying één blue cone(s) (dangerous goods).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White triangle, apex down (large, centred) containing one small blue triangle (apex down) stacked vertically = the blue cones",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.9 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.9_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/c/cc/E.5.9_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "7.06 lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65557.png"
+  ]
+ },
+ {
+  "code": "E.5.10",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) uitsluitend voor andere schepen dan duwvaart die twee blauwe kegels of twee blauwe lichten moeten voeren, aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Berthing reserved for ships other than push convoys carrying twee blue cone(s) (dangerous goods).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White triangle, apex down (large, centred) containing two small blue triangles (apex down) stacked vertically = the blue cones",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.10 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.10_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/c/c2/E.5.10_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "7.06 lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65558.png"
+  ]
+ },
+ {
+  "code": "E.5.11",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) uitsluitend voor andere schepen dan duwvaart die drie blauwe kegels of drie blauwe lichten moeten voeren, aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Berthing reserved for ships other than push convoys carrying drie blue cone(s) (dangerous goods).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White triangle, apex down (large, centred) containing three small blue triangles (apex down) stacked vertically = the blue cones",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.11 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.11_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/3/30/E.5.11_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "7.06 lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65560.png"
+  ]
+ },
+ {
+  "code": "E.5.12",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) uitsluitend voor schepen - zowel duwvaart als andere schepen dan duwvaart - die geen blauwe kegels of lichten behoeven te voeren, aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Berthing reserved for all ships carrying geen blue cone(s) (dangerous goods).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White diamond (large, centred)",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.12 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.12_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/9/99/E.5.12_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "7.06 lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65561.png"
+  ]
+ },
+ {
+  "code": "E.5.13",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) uitsluitend voor schepen - zowel duwvaart als andere schepen dan duwvaart - die één blauwe kegel of één blauw licht moeten voeren, aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Berthing reserved for all ships carrying één blue cone(s) (dangerous goods).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White diamond (large, centred) containing one small blue triangle (apex down) stacked vertically = the blue cones",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.13 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.13_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/b/b6/E.5.13_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "7.06 lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65562.png"
+  ]
+ },
+ {
+  "code": "E.5.14",
+  "groep": "E",
+  "naam": "Toestemming om ligplaats te nemen (ankeren en meren) uitsluitend voor schepen - zowel duwvaart als andere schepen dan duwvaart - die twee blauwe kegels of twee blauwe lichten moeten voeren, aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Berthing reserved for all ships carrying twee blue cone(s) (dangerous goods).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White diamond (large, centred) containing two small blue triangles (apex down) stacked vertically = the blue cones",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.14 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.14_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/7/7a/E.5.14_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "7.06 lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65563.png"
+  ]
+ },
+ {
+  "code": "E.5.15",
+  "groep": "E",
+  "naam": "Toestemming ligplaats te nemen (ankeren en meren) uitsluitend voor schepen - zowel duwvaart als andere schepen dan duwvaart - die drie blauwe kegels of drie blauwe lichten moeten voeren, aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Berthing reserved for all ships carrying drie blue cone(s) (dangerous goods).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White diamond (large, centred) containing three small blue triangles (apex down) stacked vertically = the blue cones",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.5.15 Erlaubnis.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.5.15_Erlaubnis.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/5/5c/E.5.15_Erlaubnis.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "7.06 lid 1"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65564.png"
+  ]
+ },
+ {
+  "code": "E.6",
+  "groep": "E",
+  "naam": "Toestemming te ankeren aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Anchoring permitted on this side.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White anchor, upright (ring on top, arms curving up at the bottom).",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:Notice E.6. Anchoring permitted.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Notice_E.6._Anchoring_permitted.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/0/02/Notice_E.6._Anchoring_permitted.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "CC0",
+   "auteur": "Ad Verburg"
+  },
+  "relevant": true,
+  "artikelen": [
+   "7.03 lid 2"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65565.png"
+  ]
+ },
+ {
+  "code": "E.6.1",
+  "groep": "E",
+  "naam": "Toestemming gebruik te maken van spudpalen aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Spud poles may be used here.",
+  "vorm": "square, dark blue",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White ship in side view on a wavy water line with a vertical spud pole going down into the bottom (horizontal line).",
+  "varianten": [],
+  "commons": null,
+  "relevant": false,
+  "artikelen": [
+   "7.03 lid 3"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "257667.png"
+  ],
+  "afwijking_cevni": "In CEVNI 5 as E.6.1; no free vector found."
+ },
+ {
+  "code": "E.7",
+  "groep": "E",
+  "naam": "Toestemming te meren aan de zijde van de vaarweg waar het bord is geplaatst",
+  "betekenis": "Mooring (to the bank) permitted on this side.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White bolder (bollard), centred.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.7 Erlaubnis zum Festmachen am Ufer auf der Seite der Wasserstraße, auf der das Tafelzeichen steht.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.7_Erlaubnis_zum_Festmachen_am_Ufer_auf_der_Seite_der_Wasserstra%C3%9Fe,_auf_der_das_Tafelzeichen_steht.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/f/fb/E.7_Erlaubnis_zum_Festmachen_am_Ufer_auf_der_Seite_der_Wasserstra%C3%9Fe%2C_auf_der_das_Tafelzeichen_steht.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [
+   "7.04 lid 2"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "66689.png"
+  ]
+ },
+ {
+  "code": "E.7.1",
+  "groep": "E",
+  "naam": "Toestemming te meren voor het onmiddellijk van of aan boord zetten van een auto",
+  "betekenis": "Mooring only to load/unload a car.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White car at the bottom, with a crane jib and hook above it (lifting the car).",
+  "varianten": [
+   "onderbord met maximale duur"
+  ],
+  "commons": {
+   "bestand": "File:E.7.1 Erlaubnis zum Festmachen am Ufer für das sofortige Ein- oder Ausladen eines Kraftwagens.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.7.1_Erlaubnis_zum_Festmachen_am_Ufer_f%C3%BCr_das_sofortige_Ein-_oder_Ausladen_eines_Kraftwagens.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/4/43/E.7.1_Erlaubnis_zum_Festmachen_am_Ufer_f%C3%BCr_das_sofortige_Ein-_oder_Ausladen_eines_Kraftwagens.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65568.png"
+  ]
+ },
+ {
+  "code": "E.8",
+  "groep": "E",
+  "naam": "Plaats om te keren",
+  "betekenis": "Turning place.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White turning arrow as in A.8 (almost full circle, arrowhead upper right).",
+  "varianten": [
+   "onderbord met maximale scheepslengte"
+  ],
+  "commons": {
+   "bestand": "File:E.8 Hinweis auf eine Wendestelle.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.8_Hinweis_auf_eine_Wendestelle.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/8/81/E.8_Hinweis_auf_eine_Wendestelle.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [
+   "6.13 lid 7",
+   "7.02 lid 1 i"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65567.png"
+  ]
+ },
+ {
+  "code": "E.9a",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als hoofdvaarwater ten opzichte van het vaarwater dat daarin uitmondt",
+  "betekenis": "You are on the MAIN waterway (thick line); the joining one (thin line) is a side channel whose traffic gives way.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan seen from above, your channel enters from the bottom edge: crossing: broad vertical band (own channel = main) crossed by a narrower horizontal band to both sides. Thick band ~25 % of the side, thin ~15 % (measured on the BPR drawing). Letters d–i are approximate: trace the BPR image for exact geometry.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.9a Einmündung.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.9a_Einm%C3%BCndung.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/1/1e/E.9a_Einm%C3%BCndung.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65569.png"
+  ]
+ },
+ {
+  "code": "E.9b",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als hoofdvaarwater ten opzichte van het vaarwater dat daarin uitmondt (idem)",
+  "betekenis": "You are on the MAIN waterway (thick line); the joining one (thin line) is a side channel whose traffic gives way.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan seen from above, your channel enters from the bottom edge: broad vertical band, narrower side channel joining from the right. Thick band ~25 % of the side, thin ~15 % (measured on the BPR drawing). Letters d–i are approximate: trace the BPR image for exact geometry.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.9b Einmündung.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.9b_Einm%C3%BCndung.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/e/e6/E.9b_Einm%C3%BCndung.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65570.png"
+  ]
+ },
+ {
+  "code": "E.9c",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als hoofdvaarwater ten opzichte van het vaarwater dat daarin uitmondt (idem)",
+  "betekenis": "You are on the MAIN waterway (thick line); the joining one (thin line) is a side channel whose traffic gives way.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan seen from above, your channel enters from the bottom edge: broad vertical band, narrower side channel joining from the left. Thick band ~25 % of the side, thin ~15 % (measured on the BPR drawing). Letters d–i are approximate: trace the BPR image for exact geometry.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.9c Einmündung.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.9c_Einm%C3%BCndung.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/e/e0/E.9c_Einm%C3%BCndung.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65571.png"
+  ]
+ },
+ {
+  "code": "E.9d",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als hoofdvaarwater ten opzichte van het vaarwater dat daarin uitmondt (idem)",
+  "betekenis": "You are on the MAIN waterway (thick line); the joining one (thin line) is a side channel whose traffic gives way.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan seen from above, your channel enters from the bottom edge: broad band from the bottom turns right (broad horizontal to the right edge); straight ahead continues narrower. Thick band ~25 % of the side, thin ~15 % (measured on the BPR drawing). Letters d–i are approximate: trace the BPR image for exact geometry.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65572.png"
+  ]
+ },
+ {
+  "code": "E.9e",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als hoofdvaarwater ten opzichte van het vaarwater dat daarin uitmondt (idem)",
+  "betekenis": "You are on the MAIN waterway (thick line); the joining one (thin line) is a side channel whose traffic gives way.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan seen from above, your channel enters from the bottom edge: mirror of d: broad band turns left, narrower continuation straight ahead. Thick band ~25 % of the side, thin ~15 % (measured on the BPR drawing). Letters d–i are approximate: trace the BPR image for exact geometry.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65573.png"
+  ]
+ },
+ {
+  "code": "E.9f",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als hoofdvaarwater ten opzichte van het vaarwater dat daarin uitmondt (idem)",
+  "betekenis": "You are on the MAIN waterway (thick line); the joining one (thin line) is a side channel whose traffic gives way.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan seen from above, your channel enters from the bottom edge: T-junction at the top: broad band from the bottom turns right, narrower branch to the left. Thick band ~25 % of the side, thin ~15 % (measured on the BPR drawing). Letters d–i are approximate: trace the BPR image for exact geometry.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65574.png"
+  ]
+ },
+ {
+  "code": "E.9g",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als hoofdvaarwater ten opzichte van het vaarwater dat daarin uitmondt (idem)",
+  "betekenis": "You are on the MAIN waterway (thick line); the joining one (thin line) is a side channel whose traffic gives way.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan seen from above, your channel enters from the bottom edge: mirror of f: broad band turns left, narrower branch to the right. Thick band ~25 % of the side, thin ~15 % (measured on the BPR drawing). Letters d–i are approximate: trace the BPR image for exact geometry.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65575.png"
+  ]
+ },
+ {
+  "code": "E.9h",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als hoofdvaarwater ten opzichte van het vaarwater dat daarin uitmondt (idem)",
+  "betekenis": "You are on the MAIN waterway (thick line); the joining one (thin line) is a side channel whose traffic gives way.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan seen from above, your channel enters from the bottom edge: crossing where the widths differ per arm (staggered); trace the BPR image. Thick band ~25 % of the side, thin ~15 % (measured on the BPR drawing). Letters d–i are approximate: trace the BPR image for exact geometry.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65576.png"
+  ]
+ },
+ {
+  "code": "E.9i",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als hoofdvaarwater ten opzichte van het vaarwater dat daarin uitmondt (idem)",
+  "betekenis": "You are on the MAIN waterway (thick line); the joining one (thin line) is a side channel whose traffic gives way.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan seen from above, your channel enters from the bottom edge: mirror of h; trace the BPR image. Thick band ~25 % of the side, thin ~15 % (measured on the BPR drawing). Letters d–i are approximate: trace the BPR image for exact geometry.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65577.png"
+  ]
+ },
+ {
+  "code": "E.10a",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als nevenvaarwater ten opzichte van het vaarwater waarin het uitmondt",
+  "betekenis": "You are on a SIDE channel (thin line) approaching a main waterway (thick line): give way to its traffic.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan, own channel from the bottom edge: crossing: thin vertical (own channel) meets a broad horizontal band going both ways.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.10a Nebenwasserstraße.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.10a_Nebenwasserstra%C3%9Fe.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/e/e3/E.10a_Nebenwasserstra%C3%9Fe.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65579.png"
+  ]
+ },
+ {
+  "code": "E.10b",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als nevenvaarwater ten opzichte van het vaarwater waarin het uitmondt (idem)",
+  "betekenis": "You are on a SIDE channel (thin line) approaching a main waterway (thick line): give way to its traffic.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan, own channel from the bottom edge: T-junction: thin vertical stem from the bottom into a broad horizontal band along the top.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.10b Nebenwasserstraße.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.10b_Nebenwasserstra%C3%9Fe.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/4/4a/E.10b_Nebenwasserstra%C3%9Fe.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65580.png"
+  ]
+ },
+ {
+  "code": "E.10c",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als nevenvaarwater ten opzichte van het vaarwater waarin het uitmondt (idem)",
+  "betekenis": "You are on a SIDE channel (thin line) approaching a main waterway (thick line): give way to its traffic.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan, own channel from the bottom edge: thin channel from the bottom joins a broad channel that bends away to the right (staggered).",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65581.png"
+  ]
+ },
+ {
+  "code": "E.10d",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als nevenvaarwater ten opzichte van het vaarwater waarin het uitmondt (idem)",
+  "betekenis": "You are on a SIDE channel (thin line) approaching a main waterway (thick line): give way to its traffic.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan, own channel from the bottom edge: mirror of c.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65582.png"
+  ]
+ },
+ {
+  "code": "E.10e",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als nevenvaarwater ten opzichte van het vaarwater waarin het uitmondt (idem)",
+  "betekenis": "You are on a SIDE channel (thin line) approaching a main waterway (thick line): give way to its traffic.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan, own channel from the bottom edge: staggered crossing, broad band crossing, thin continuation offset.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65583.png"
+  ]
+ },
+ {
+  "code": "E.10f",
+  "groep": "E",
+  "naam": "Het gevolgde vaarwater geldt als nevenvaarwater ten opzichte van het vaarwater waarin het uitmondt (idem)",
+  "betekenis": "You are on a SIDE channel (thin line) approaching a main waterway (thick line): give way to its traffic.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White junction plan, own channel from the bottom edge: mirror of e.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65584.png"
+  ]
+ },
+ {
+  "code": "E.11",
+  "groep": "E",
+  "naam": "Einde van een verbod of een gebod geldend voor één richting of einde van een beperking",
+  "betekenis": "End of a prohibition, obligation or restriction (for this direction).",
+  "vorm": "upright rectangle or square (two models, to fit the back of the sign it ends)",
+  "kleuren": {
+   "veld": "blauw",
+   "streep": "wit"
+  },
+  "symbool": "Blue field with a white diagonal stripe from top-left to bottom-right (no symbol).",
+  "varianten": [
+   "rechthoekig model",
+   "vierkant model",
+   "onderbord met de beëindigde tekens, b.v. \"A.2 – B.6\""
+  ],
+  "commons": {
+   "bestand": "File:E.11 Ende eines Verbots oder eines Gebots.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.11_Ende_eines_Verbots_oder_eines_Gebots.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/6/61/E.11_Ende_eines_Verbots_oder_eines_Gebots.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III"
+  ],
+  "bpr_afbeelding": [
+   "65585.png"
+  ]
+ },
+ {
+  "code": "E.12a",
+  "groep": "E",
+  "naam": "Voorwaarschuwing. vaste lichten: moeilijkheden vooruit, stoppen indien de voorschriften zulks vereisen.",
+  "betekenis": "Advance warning: difficulties ahead, stop if the rules require.",
+  "vorm": "two lights side by side in a white-framed housing",
+  "kleuren": {
+   "licht": "wit, vast"
+  },
+  "symbool": "Two white fixed lights side by side.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:POL Znak Żeglugowy E12a lamp1.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:POL_Znak_%C5%BBeglugowy_E12a_lamp1.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/f/f2/POL_Znak_%C5%BBeglugowy_E12a_lamp1.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "CC BY-SA 3.0",
+   "auteur": "Orem (wiki-pl: Orem, commons: Orem)"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65598.png"
+  ],
+  "rst2023": "Not used in practice; not in the RPR."
+ },
+ {
+  "code": "E.12b",
+  "groep": "E",
+  "naam": "Voorwaarschuwing. synchroon brandende isofase lichten: u kunt voorzichtig naderen",
+  "betekenis": "Advance warning: you may approach with care.",
+  "vorm": "two lights side by side",
+  "kleuren": {
+   "licht": "wit, isofase, synchroon"
+  },
+  "symbool": "Two white isophase lights side by side (drawn with two black opposite quadrants).",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:POL Znak Żeglugowy E12b lamp1.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:POL_Znak_%C5%BBeglugowy_E12b_lamp1.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/3/3d/POL_Znak_%C5%BBeglugowy_E12b_lamp1.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "CC BY-SA 3.0",
+   "auteur": "Orem (wiki-pl: Orem, commons: Orem)"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65599.png"
+  ]
+ },
+ {
+  "code": "E.12.1",
+  "groep": "E",
+  "naam": "Waarschuwing voor uitvarende of langsvarende schepen flikkerlicht",
+  "betekenis": "Warning: ships leaving or passing (e.g. at a harbour mouth).",
+  "vorm": "one light in a white-framed housing",
+  "kleuren": {
+   "licht": "geel flikkerlicht"
+  },
+  "symbool": "One yellow flashing light (drawn with black wedges).",
+  "varianten": [],
+  "commons": null,
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65586.png"
+  ],
+  "afwijking_cevni": "No CEVNI counterpart found in the Commons sets (not verified against the CEVNI text)."
+ },
+ {
+  "code": "E.13",
+  "groep": "E",
+  "naam": "Drinkwater voor schepen",
+  "betekenis": "Drinking water tap for ships.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White water tap (faucet), spout to the left.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.13 Trinkwasserzapfstelle.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.13_Trinkwasserzapfstelle.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/d/de/E.13_Trinkwasserzapfstelle.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65587.png"
+  ]
+ },
+ {
+  "code": "E.14",
+  "groep": "E",
+  "naam": "Telefoon",
+  "betekenis": "Telephone.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White telephone handset, diagonal.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.14 Fernsprechstelle.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.14_Fernsprechstelle.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/a/a7/E.14_Fernsprechstelle.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65588.png"
+  ]
+ },
+ {
+  "code": "E.15",
+  "groep": "E",
+  "naam": "Motorschepen toegestaan",
+  "betekenis": "Motor vessels permitted.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White three-bladed propeller.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.15 Fahrerlaubnis für Fahrzeuge mit Maschinenantrieb.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.15_Fahrerlaubnis_f%C3%BCr_Fahrzeuge_mit_Maschinenantrieb.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/0/0a/E.15_Fahrerlaubnis_f%C3%BCr_Fahrzeuge_mit_Maschinenantrieb.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III"
+  ],
+  "bpr_afbeelding": [
+   "65589.png"
+  ]
+ },
+ {
+  "code": "E.16",
+  "groep": "E",
+  "naam": "Kleine schepen toegestaan",
+  "betekenis": "Small ships permitted (mostly marks the end of an A.13 ban).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White word \"sport\".",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.16 Fahrerlaubnis für Sportboote.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.16_Fahrerlaubnis_f%C3%BCr_Sportboote.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/9/9f/E.16_Fahrerlaubnis_f%C3%BCr_Sportboote.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65590.png"
+  ]
+ },
+ {
+  "code": "E.17",
+  "groep": "E",
+  "naam": "Waterskiën toegestaan",
+  "betekenis": "Water skiing permitted (placed parallel to the channel with F.2a).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White water skier.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.17 RL Wasserskistrecke.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.17_RL_Wasserskistrecke.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/9/97/E.17_RL_Wasserskistrecke.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65591.png"
+  ]
+ },
+ {
+  "code": "E.18",
+  "groep": "E",
+  "naam": "Zeilschepen toegestaan",
+  "betekenis": "Sailing vessels permitted (end of A.15).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White sailboat (triangular sail, hull).",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.18 Fahrerlaubnis für Segelfahrzeuge.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.18_Fahrerlaubnis_f%C3%BCr_Segelfahrzeuge.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/7/79/E.18_Fahrerlaubnis_f%C3%BCr_Segelfahrzeuge.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III"
+  ],
+  "bpr_afbeelding": [
+   "65593.png"
+  ]
+ },
+ {
+  "code": "E.19",
+  "groep": "E",
+  "naam": "Door spierkracht voortbewogen schepen toegestaan",
+  "betekenis": "Man-powered craft permitted (end of A.16).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White rowing boat with rower.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.19 Fahrerlaubnis für Fahrzeuge, die weder mit Maschinenantrieb noch unter Segel fahren.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.19_Fahrerlaubnis_f%C3%BCr_Fahrzeuge,_die_weder_mit_Maschinenantrieb_noch_unter_Segel_fahren.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/3/33/E.19_Fahrerlaubnis_f%C3%BCr_Fahrzeuge%2C_die_weder_mit_Maschinenantrieb_noch_unter_Segel_fahren.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65594.png"
+  ]
+ },
+ {
+  "code": "E.20",
+  "groep": "E",
+  "naam": "Zeilplanken toegestaan",
+  "betekenis": "Sailboards permitted (end of A.17).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White windsurfer.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.20 Erlaubnis zum Segelsurfen.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.20_Erlaubnis_zum_Segelsurfen.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/d/dc/E.20_Erlaubnis_zum_Segelsurfen.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III"
+  ],
+  "bpr_afbeelding": [
+   "65595.png"
+  ]
+ },
+ {
+  "code": "E.21",
+  "groep": "E",
+  "naam": "Snel varen voor kleine motorschepen toegestaan",
+  "betekenis": "Zone where small motorboats may go faster than 20 km/h.",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White speedboat planing to the right with a bow wave.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:POL Znak Żeglugowy E21.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:POL_Znak_%C5%BBeglugowy_E21.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/f/f1/POL_Znak_%C5%BBeglugowy_E21.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "CC BY-SA 3.0",
+   "auteur": "Orem (wiki-pl: Orem, commons: Orem)"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65596.png"
+  ],
+  "afwijking_cevni": "German BinSchStrO uses \"E.21\" for the VHF information sign (= BPR E.23); do not mix the German file names."
+ },
+ {
+  "code": "E.22",
+  "groep": "E",
+  "naam": "Toegestaan schepen te water te laten (trailerhelling)",
+  "betekenis": "Slipway: launching and hauling out permitted.",
+  "vorm": "square, dark blue",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White boat on a trailer on a sloping slipway, waves bottom left.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:POL Znak Żeglugowy E22.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:POL_Znak_%C5%BBeglugowy_E22.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/3/31/POL_Znak_%C5%BBeglugowy_E22.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "CC BY-SA 3.0",
+   "auteur": "Orem (wiki-pl: Orem, commons: Orem)"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "257668.png"
+  ],
+  "afwijking_cevni": "German E.22 = Hochwassermarke (different sign)."
+ },
+ {
+  "code": "E.23",
+  "groep": "E",
+  "naam": "Marifoonkanaal voor nautische informatie, bijvoorbeeld: kanaal 18.",
+  "betekenis": "VHF channel for nautical information (no obligation).",
+  "vorm": "square, blue field with a thin white keyline just inside the edge (~2% of the side), white symbol",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White \"VHF\" above the channel number (e.g. 18).",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:E.21 Nautischer Informationsfunkdienst.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.21_Nautischer_Informationsfunkdienst.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/0/08/E.21_Nautischer_Informationsfunkdienst.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO",
+   "opmerking": "German BinSchStrO numbers this sign E.21; the picture is BPR E.23"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65597.png"
+  ]
+ },
+ {
+  "code": "E.24",
+  "groep": "E",
+  "naam": "Waterscooters toegestaan",
+  "betekenis": "Water scooters permitted.",
+  "vorm": "square, dark blue",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White rider on a water scooter with spray.",
+  "varianten": [],
+  "commons": {
+   "bestand": "File:Notice E.24 Water bikes permitted.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Notice_E.24_Water_bikes_permitted.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/9/92/Notice_E.24_Water_bikes_permitted.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "CC0",
+   "auteur": "Ad Verburg"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "257669.png"
+  ],
+  "afwijking_cevni": "German E.24 = Kitesurfstrecke (different sign)."
+ },
+ {
+  "code": "E.25",
+  "groep": "E",
+  "naam": "Aansluiting voor walstroom beschikbaar",
+  "betekenis": "Shore power connection available.",
+  "vorm": "square, blue",
+  "kleuren": {
+   "rand": "witte binnenlijn",
+   "veld": "blauw",
+   "symbool": "wit"
+  },
+  "symbool": "White plug/socket connector seen from the side (two pins left, cable right).",
+  "varianten": [
+   "F.3 onderbord \"400 V~\""
+  ],
+  "commons": {
+   "bestand": "File:E.25 Landstromanschluss vorhanden.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:E.25_Landstromanschluss_vorhanden.svg",
+   "svg": "https://upload.wikimedia.org/wikipedia/commons/a/a3/E.25_Landstromanschluss_vorhanden.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "licentie": "Public domain",
+   "auteur": "BinSchStrO"
+  },
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "247999.png"
+  ]
+ },
+ {
+  "code": "F.1",
+  "groep": "F",
+  "naam": "Afstandsaanduidingen: borden boven het hoofdteken, vermeldende na welke afstand het hoofdteken geldt",
+  "betekenis": "Distance plate ABOVE the main sign: the main sign applies after this many metres (km if marked).",
+  "vorm": "rectangle as wide as the main sign, height ~1/3 of its width",
+  "kleuren": {
+   "veld": "wit",
+   "rand": "zwart",
+   "tekst": "zwart"
+  },
+  "symbool": "Black number (e.g. 800) on white with a thin black border.",
+  "varianten": [
+   "voorbeeld: B.6 \"7\" met \"800\"",
+   "voorbeeld: E.4a met \"600\""
+  ],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65600.png",
+   "65601.png"
+  ]
+ },
+ {
+  "code": "F.2a",
+  "groep": "F",
+  "naam": "Richtingaanduidingen: borden naast het hoofdteken, aangevende de richting van het vaarweggedeelte waarop het hoofdteken betrekking heeft",
+  "betekenis": "Side plate next to the main sign pointing along the stretch it applies to; may carry the length (m, or \"km\").",
+  "vorm": "pointed board (pentagon/arrow), same height as the main sign",
+  "kleuren": {
+   "veld": "wit (BPR) of zwart met witte pijl (RST voorkeur)"
+  },
+  "symbool": "White board with a point on the side of the stretch; optional length, e.g. \"2 km\".",
+  "varianten": [
+   "wit puntbord (BPR)",
+   "zwart bord met witte richtingaanduiding (RST 2023 preferred)"
+  ],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65603.png",
+   "65604.png"
+  ]
+ },
+ {
+  "code": "F.2b",
+  "groep": "F",
+  "naam": "Richtingaanduidingen: lichtpijl, aangevende de richting waarvoor het hoofdteken (één of meer lichten) geldt",
+  "betekenis": "Light arrow (chevron) next to signal lights showing which direction they apply to.",
+  "vorm": "black square panel",
+  "kleuren": {
+   "veld": "zwart",
+   "pijl": "wit licht"
+  },
+  "symbool": "White chevron made of lights (pointing up, left or right) with the red/green lights beside it.",
+  "varianten": [],
+  "commons": null,
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65605.png",
+   "65606.png",
+   "65607.png"
+  ],
+  "rst2023": "Not used in the Netherlands."
+ },
+ {
+  "code": "F.3",
+  "groep": "F",
+  "naam": "Aanvullende aanduidingen: borden onder het hoofdteken, waarop een nadere verklaring of aanwijzing is vermeld",
+  "betekenis": "Explanatory plate BELOW the main sign.",
+  "vorm": "rectangle as wide as the main sign, height at most 1/3 of its length",
+  "kleuren": {
+   "veld": "wit",
+   "tekst": "zwart"
+  },
+  "symbool": "Short black text or symbol on white, e.g. \"brugbouw\", a long-blast dash, \"1,80\", \"regeling scheepvaart\", \"400 V~\"; or white numbers on black (C.1 \"220\").",
+  "varianten": [
+   "zwart op wit",
+   "wit op zwart (elektronisch)"
+  ],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65608.png",
+   "65609.png",
+   "65610.png",
+   "67702.png",
+   "65611.png",
+   "248000.png"
+  ]
+ },
+ {
+  "code": "F.4",
+  "groep": "F",
+  "naam": "Categorie aanduidingen: borden onder het hoofdteken, aangevende de categorie waarvoor het hoofdteken geldt",
+  "betekenis": "Category plate below the main sign: the sign applies only to that category (e.g. \"sport\" = small ships; propeller = motor vessels).",
+  "vorm": "rectangle below the main sign",
+  "kleuren": {
+   "veld": "wit",
+   "tekst": "zwart"
+  },
+  "symbool": "Black pictogram (e.g. propeller) or the word \"sport\".",
+  "varianten": [
+   "\"sport\"",
+   "\"met uitzondering van sport\"",
+   "pictogram"
+  ],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65612.png",
+   "65613.png"
+  ]
+ },
+ {
+  "code": "G.1a",
+  "groep": "G",
+  "naam": "Vaste bruggen: begrenzing vaargeulbreedte (A.10 / D.2)",
+  "betekenis": "Fixed bridge: A.10 pair (must) or D.2 pair (should) on the bridge fascia mark the channel width.",
+  "vorm": "pair of diamonds on the bridge",
+  "kleuren": {},
+  "symbool": "Two half-red (A.10) or half-green (D.2) diamonds at the edges of the usable span.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [
+   "6.24"
+  ],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65623.png",
+   "65624.png"
+  ]
+ },
+ {
+  "code": "G.1b",
+  "groep": "G",
+  "naam": "Vaste bruggen: verboden of aanbevolen doorvaartopening",
+  "betekenis": "Fixed bridge with several openings: A.1 board over a closed opening; one yellow diamond = recommended, two-way; two yellow diamonds = recommended, oncoming traffic forbidden.",
+  "vorm": "boards (or lights) centred above each opening",
+  "kleuren": {},
+  "symbool": "A.1 red-white-red board / one D.1a diamond / two D.1b diamonds side by side, above the middle of the span.",
+  "varianten": [
+   "borden of lichten"
+  ],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [
+   "6.25"
+  ],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65625.png",
+   "65626.png",
+   "65627.png"
+  ],
+  "rst2023": "Niet gemarkeerde brugopeningen kunnen op eigen risico worden gebruikt."
+ },
+ {
+  "code": "G.2a",
+  "groep": "G",
+  "naam": "Beweegbare bruggen in bedrijf",
+  "betekenis": "Operated movable bridge: light combinations, see TEKENS.md.",
+  "vorm": "signal lights on both sides of the opening (at least on starboard), yellow lights centred under the span",
+  "kleuren": {},
+  "symbool": "One red = doorvaart verboden; red + one yellow = gesloten brug door, tegenliggers mogelijk; red + two yellow = gesloten brug door, tegenliggers verboden; red above green = aanstonds toegestaan; green (bridge open) = toegestaan; red above flashing green = closing, only pass if you cannot stop.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [
+   "6.26"
+  ],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65628.png",
+   "65629.png",
+   "65630.png",
+   "65631.png",
+   "65632.png",
+   "65633.png"
+  ]
+ },
+ {
+  "code": "G.2b",
+  "groep": "G",
+  "naam": "Beweegbare bruggen buiten bedrijf",
+  "betekenis": "Bridge not operated: two red above each other = no passage (for ships that need the bridge open); with one or two yellow = pass under the closed bridge; two green above each other (open bridge, unmanned) = passage allowed, oncoming possible.",
+  "vorm": "lights",
+  "kleuren": {},
+  "symbool": "Two red lights vertical each side; plus 0/1/2 yellow under the span; or two green lights vertical.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [
+   "6.26"
+  ],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65634.png",
+   "65635.png",
+   "65636.png",
+   "65637.png"
+  ]
+ },
+ {
+  "code": "G.3",
+  "groep": "G",
+  "naam": "Stuwen",
+  "betekenis": "Weir: two red = weir closed; one red = no passage; one green = passage allowed; bridge over weir uses A.1 / D.1a / D.1b boards.",
+  "vorm": "lights on the weir piers, boards on the bridge",
+  "kleuren": {},
+  "symbool": "Red/green lights on the pier faces; A.1 or yellow diamonds above openings.",
+  "varianten": [],
+  "commons": null,
+  "relevant": false,
+  "artikelen": [
+   "6.27"
+  ],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "67692.png",
+   "67693.png",
+   "67694.png",
+   "67695.png",
+   "67696.png",
+   "67697.png"
+  ]
+ },
+ {
+  "code": "G.4.1a",
+  "groep": "G",
+  "naam": "Sluis in bedrijf",
+  "betekenis": "Lock operated: one red = no entry/exit; red above green = entry allowed shortly; green = entry/exit allowed.",
+  "vorm": "lights at both sides of the lock entrance (at least starboard)",
+  "kleuren": {},
+  "symbool": "One red / red over green / one green.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [
+   "6.28a"
+  ],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65638.png",
+   "65639.png",
+   "65640.png"
+  ]
+ },
+ {
+  "code": "G.4.1b",
+  "groep": "G",
+  "naam": "Sluis buiten bedrijf",
+  "betekenis": "Lock not operated: two red above each other = no entry; two green above each other = passage allowed, lock open at both ends.",
+  "vorm": "lights",
+  "kleuren": {},
+  "symbool": "Two red vertical / two green vertical.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [
+   "6.28a"
+  ],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65642.png",
+   "65643.png"
+  ]
+ },
+ {
+  "code": "G.4.2",
+  "groep": "G",
+  "naam": "Sluis met beweegbare brug (indien brug niet van aparte seingeving is voorzien)",
+  "betekenis": "Lock with a movable bridge: red over green = lock entry soon; green + two yellow under the bridge = lock and pass under closed bridge; green with open bridge = lock and bridge passage allowed.",
+  "vorm": "lights",
+  "kleuren": {},
+  "symbool": "Lights at the lock heads, yellow lights under the bridge span.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [
+   "6.28a"
+  ],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65644.png",
+   "65645.png",
+   "65646.png"
+  ]
+ },
+ {
+  "code": "G.5.1",
+  "groep": "G",
+  "naam": "Hoogteschaal",
+  "betekenis": "Clearance gauge on the (starboard) pier: read the clearance at the water line.",
+  "vorm": "vertical strip",
+  "kleuren": {
+   "veld": "afwisselend geel en zwart per meter",
+   "cijfers": "zwart op geel / geel op zwart"
+  },
+  "symbool": "Vertical scale in 1 m blocks alternating yellow and black, with the metre figure in each block and decimetre ticks on the left edge.",
+  "varianten": [
+   "voorhoogteschaal G.5.1a (with name/distance plate above)",
+   "decimeterschaal voor lage bruggen < 3 m"
+  ],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65647.png"
+  ]
+ },
+ {
+  "code": "G.5.1b",
+  "groep": "G",
+  "naam": "Referentietekens",
+  "betekenis": "Marks on the span where the gauge reading applies.",
+  "vorm": "upright rectangle",
+  "kleuren": {
+   "veld": "zwart met gele blokken"
+  },
+  "symbool": "Black vertical board with two yellow horizontal blocks (upper and lower). A.10 or D.2 boards may replace it.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65648.png",
+   "65649.png",
+   "65650.png"
+  ]
+ },
+ {
+  "code": "G.5.1c",
+  "groep": "G",
+  "naam": "Aanduiding overhoogte/onderhoogte",
+  "betekenis": "More (+) or less (–) clearance than the gauge shows at this point, in m.",
+  "vorm": "small yellow pentagon pointing down",
+  "kleuren": {
+   "veld": "geel en zwart"
+  },
+  "symbool": "Yellow plate with \"+0,40\" or \"-0,25\" above a black downward-pointing shape.",
+  "varianten": [],
+  "commons": null,
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65651.png"
+  ]
+ },
+ {
+  "code": "G.5.2",
+  "groep": "G",
+  "naam": "Hoogtebord",
+  "betekenis": "Clearance board on the span (m).",
+  "vorm": "square",
+  "kleuren": {
+   "veld": "zwart",
+   "rand": "geel",
+   "cijfers": "geel"
+  },
+  "symbool": "Black square with yellow border, yellow downward triangle at the top and the clearance (e.g. 3,75) in yellow.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "65652.png"
+  ]
+ },
+ {
+  "code": "G.5.3",
+  "groep": "G",
+  "naam": "Dieptebord",
+  "betekenis": "Depth board (m).",
+  "vorm": "square",
+  "kleuren": {
+   "veld": "zwart",
+   "rand": "geel",
+   "cijfers": "geel"
+  },
+  "symbool": "Black square with yellow border, yellow depth figure (e.g. 2,40) and a yellow upward triangle at the bottom.",
+  "varianten": [],
+  "commons": null,
+  "relevant": false,
+  "artikelen": [],
+  "cwo": [],
+  "bpr_afbeelding": [
+   "67703.png"
+  ]
+ },
+ {
+  "code": "H.3a",
+  "groep": "H",
+  "naam": "Spui- en inlaattekens: er wordt gespuid",
+  "betekenis": "Water is being discharged (spuien) at this sluice: expect current.",
+  "vorm": "three lights in a triangle, and/or a flag",
+  "kleuren": {
+   "licht": "rood",
+   "vlag": "blauw met witte tekst"
+  },
+  "symbool": "Three red lights in a triangle with the POINT UP (one light on top, two below), and/or a blue rectangular flag with the white word \"spuien\".",
+  "varianten": [
+   "lichten",
+   "vlag",
+   "beide"
+  ],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65661.png"
+  ]
+ },
+ {
+  "code": "H.3b",
+  "groep": "H",
+  "naam": "Spui- en inlaattekens: er wordt ingelaten",
+  "betekenis": "Water is being let in (inlaten): current toward the inlet, a ship can be drawn in.",
+  "vorm": "three lights in a triangle, and/or a pennant",
+  "kleuren": {
+   "licht": "rood",
+   "wimpel": "blauw met witte tekst"
+  },
+  "symbool": "Three red lights in a triangle with the POINT DOWN (two on top, one below), and/or a blue triangular pennant with the white word \"inlaten\".",
+  "varianten": [
+   "lichten",
+   "wimpel",
+   "beide"
+  ],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65662.png"
+  ]
+ },
+ {
+  "code": "H.3c",
+  "groep": "H",
+  "naam": "Er zal weldra worden gespuid/ingelaten en/of ingelaten",
+  "betekenis": "Discharge or intake will start soon.",
+  "vorm": "three lights in a horizontal row, and/or flag or pennant",
+  "kleuren": {
+   "licht": "rood"
+  },
+  "symbool": "Three red lights in a horizontal row, and/or the \"spuien\" flag or the \"inlaten\" pennant.",
+  "varianten": [],
+  "commons": null,
+  "relevant": true,
+  "artikelen": [],
+  "cwo": [
+   "Kielboot III",
+   "Roeien III"
+  ],
+  "bpr_afbeelding": [
+   "65663.png",
+   "65664.png"
+  ]
+ }
+]

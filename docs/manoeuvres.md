@@ -26,8 +26,8 @@ Daaronder kies je:
 
 - **Bekijken**: de handeling speelt vanzelf af. De stappenbalk staat in de kaart: vorige stap,
   afspelen/pauzeren, volgende stap en een schuif over de hele handeling. Volgende en vorige stap gaan
-  altijd in de richting van de handeling zelf, ook bij zeilen hijsen en mast zetten, die de
-  tijdlijn van strijken terug doorlopen. Een stap op zich laat de camera eerst naar de onderdelen gaan
+  altijd in de richting van de handeling zelf, ook bij zeilen hijsen, dat de tijdlijn van strijken
+  terug doorloopt. Een stap op zich laat de camera eerst naar de onderdelen gaan
   waar het om gaat.
 - **Oefenen**: de boot blijft staan en bij elke stap is de vraag *Wat is de volgende stap?*, met vier
   antwoorden. Het goede antwoord staat ertussen, en de drie andere zijn stappen die in de toestand van
@@ -89,11 +89,11 @@ op de werklijst.
 
 | # | Stap | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|
-| 1 | Zeilbinders af | Tuig terug in de vork van de mik, Grendelbout in | 1,2 s |
+| 1 | Zeilbinders af | — | 1,2 s |
 | 2 | Zeil losmaken | Zeilbinders af | 1,5 s |
 | 3 | Grootzeil hijsen | Zeil losmaken | 2,5 s |
 | 4 | Mik wegnemen | Grootzeil hijsen | 1,5 s |
-| 5 | Fok hijsen | Fok aanslaan | 2 s |
+| 5 | Fok hijsen | — | 2 s |
 | 6 | Afvallen | — | 1,5 s |
 
 ## Zeilen aanslaan en afslaan
@@ -101,11 +101,12 @@ op de werklijst.
 Een zeil kunnen aanslaan aan de rondhouten van het eigen schip, en het schip zeilklaar en nachtklaar
 maken (CWO Kielboot III, Handboek Opleidingen). **Afslaan** kan als de zeilen gestreken en opgebonden
 zijn: de fok van de voorstag en in de zeilzak, het grootzeil van gaffel en giek en opgeborgen; gaffel
-en giek blijven kaal in de mik liggen. **Aanslaan** is hetzelfde achterstevoren, in de volgorde van het
-Handboek: eerst het grootzeil aan gaffel en giek en de vallen erop, dan de fok: uit de zak, de val
-klaar, de halshoek vast, de leuvers van onder af aan de voorstag, en de fokkenschoten ingeschoren met
-een achtknoop. Afgeslagen kun je niet hijsen; de mast strijken kan wel, en heeft dan geen fok meer af
-te slaan.
+en giek blijven kaal in de mik liggen; de fokkenval gaat aan zijn kikker op de mastkoker. **Aanslaan**
+is een eigen handeling, vooruit, in de volgorde van het Handboek (5.3.3, zeilklaar maken): eerst de
+fok - uit de zak met de val klaar gehangen, de halshoek vast, de leuvers van onder af aan de voorstag,
+de fokkenschoten door de lij-ogen met een achtknoop - en dan het grootzeil aan gaffel en giek en de
+vallen erop. Afgeslagen kun je niet hijsen; de mast strijken kan wel, en heeft dan geen fok meer af te
+slaan.
 
 Voorwaarden, afslaan:
 - de zeilen zijn gestreken en opgebonden — anders grijs met *Eerst de zeilen strijken*
@@ -115,7 +116,7 @@ Voorwaarden, afslaan:
 | 1 | Fokkenschoten losmaken | — | 1,5 s |
 | 2 | Leuvers van de voorstag halen | — | 2 s |
 | 3 | Halshoek van de fok losmaken | Leuvers van de voorstag halen | 1 s |
-| 4 | Fok in de zeilzak | Halshoek van de fok losmaken | 1,5 s |
+| 4 | Fok in de zeilzak, fokkenval aan de kikker | Halshoek van de fok losmaken | 1,5 s |
 | 5 | Klauwval en piekenval losmaken | — | 1,5 s |
 | 6 | Grootzeil van gaffel en giek losmaken en opbergen | Klauwval en piekenval losmaken | 3 s |
 
@@ -123,12 +124,67 @@ Aanslaan:
 
 | # | Stap | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|
-| 1 | Grootzeil aan gaffel en giek binden | — | 3 s |
-| 2 | Klauwval en piekenval aanslaan | Grootzeil aan gaffel en giek binden | 1,5 s |
-| 3 | Fok uit de zeilzak, fokkenval klaar hangen | — | 1,5 s |
-| 4 | Halshoek van de fok vastmaken | Fok uit de zeilzak, fokkenval klaar hangen | 1 s |
-| 5 | Leuvers van onder af aanslaan | Halshoek van de fok vastmaken | 2 s |
-| 6 | Fokkenschoten inscheren, met een achtknoop | — | 1,5 s |
+| 1 | Fok uit de zeilzak, fokkenval klaar hangen | — | 1,5 s |
+| 2 | Halshoek van de fok vastmaken | Fok uit de zeilzak, fokkenval klaar hangen | 1 s |
+| 3 | Leuvers van onder af aanslaan | Halshoek van de fok vastmaken | 2 s |
+| 4 | Fokkenschoten door de lij-ogen, met een achtknoop | Fok uit de zeilzak, fokkenval klaar hangen | 1,5 s |
+| 5 | Grootzeil aan gaffel en giek binden | — | 3 s |
+| 6 | Klauwval en piekenval aanslaan | Grootzeil aan gaffel en giek binden | 1,5 s |
+
+## Zeilklaar en nachtklaar maken
+
+Het schip klaarmaken voor de nacht en weer zeilklaar maken (CWO Kielboot I, Handboek Opleidingen
+5.3.3). **Nachtklaar maken** kan met de mast op, de zeilen gestreken en opgedoekt en nog aangeslagen:
+de fok van de voorstag in de zeilzak, de vallen rammelvrij aan de kikkers op de mastkoker, de kraanlijn losgezet,
+het zeilkleed over zeil, giek en gaffel, de inventaris opgeruimd. Het grootzeil blijft opgedoekt op
+de mik liggen. De fokkenval gaat, los van de fok, aan de bovenste kikker aan stuurboord op de
+mastkoker; een losgemaakte val wordt nooit omhoog getrokken. Ligt de boot **voor anker**, dan komt er
+bij: de ankerbol in de mast, bij zonsondergang het toplicht aan als ankerlicht, en het wordt donker.
+Een klein schip voor anker voert overdag een zwarte bol en 's nachts een wit gewoon rondom schijnend
+licht, allebei van alle kanten zichtbaar (BPR 3.20 lid 4; kleine schepen zijn niet vrijgesteld).
+Afgemeerd aan de wal hoeft alleen het licht. Niet voor anker worden die drie stappen overgeslagen.
+
+Nachtklaar kan de boot niets anders tot ze weer zeilklaar is: elke andere handeling zegt dan *Eerst
+zeilklaar maken*. **Zeilklaar maken** is een eigen handeling, vooruit, in de volgorde van het Handboek
+(5.3.3): voor anker wordt het eerst licht en gaat dan het ankerlicht uit; dan de inventaris
+gecontroleerd, het zeilkleed eraf en droog opgevouwen, de kraanlijn doorgezet, de fok aangeslagen en
+de vallen klaar om te hijsen. De ankerbol blijft hangen zolang de boot voor anker ligt, en gaat omlaag
+als het anker op is. De mik gaat pas weg bij het hijsen; het Handboek haalt hem al bij zeilklaar weg.
+
+Voorwaarden, nachtklaar:
+- de mast staat — anders grijs met *Eerst de mast zetten*
+- de zeilen zijn gestreken en opgebonden — anders grijs met *Eerst de zeilen strijken*
+- de zeilen zijn aangeslagen — anders grijs met *Eerst de zeilen aanslaan*
+- er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
+
+| # | Stap | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|
+| 1 | Fokkenschoten losmaken | — | 1,5 s |
+| 2 | Leuvers van de voorstag halen | — | 2 s |
+| 3 | Halshoek van de fok losmaken | Leuvers van de voorstag halen | 1 s |
+| 4 | Fok in de zeilzak, fokkenval aan de kikker | Halshoek van de fok losmaken | 1,5 s |
+| 5 | Vallen rammelvrij aan de kikkers op de mastkoker vastzetten | — | 1,5 s |
+| 6 | Kraanlijn loszetten | — | 1,2 s |
+| 7 | Zeilkleed over zeil, giek en gaffel | — | 2,5 s |
+| 8 | Inventaris opruimen | — | 1,2 s |
+| 9 | Ankerbol in de mast | — | 2 s |
+| 10 | Bij zonsondergang het ankerlicht aan (toplicht) | — | 1 s |
+| 11 | Het wordt donker | Bij zonsondergang het ankerlicht aan (toplicht) | 4 s |
+
+Zeilklaar:
+
+| # | Stap | Eerst gedaan (voor Oefenen) | Duur |
+|---|---|---|---|
+| 1 | Het wordt licht | — | 4 s |
+| 2 | Ankerlicht uit | Het wordt licht | 1 s |
+| 3 | Inventaris controleren | — | 1,2 s |
+| 4 | Zeilkleed eraf, droog opvouwen en opbergen | — | 2,5 s |
+| 5 | Kraanlijn doorzetten | — | 1,2 s |
+| 6 | Fok uit de zeilzak, fokkenval klaar hangen | — | 1,5 s |
+| 7 | Halshoek van de fok vastmaken | Fok uit de zeilzak, fokkenval klaar hangen | 1 s |
+| 8 | Leuvers van onder af aanslaan | Halshoek van de fok vastmaken | 2 s |
+| 9 | Fokkenschoten door de lij-ogen, met een achtknoop | Fok uit de zeilzak, fokkenval klaar hangen | 1,5 s |
+| 10 | Vallen klaarmaken om te hijsen | — | 1,5 s |
 
 ## Roeimanoeuvres
 
@@ -279,8 +335,9 @@ haar tegen de wind in en de bakke fok duwt de boeg weg, zodat ze op zo'n 55° bl
 weinig vaart en drijft langzaam naar lij. Vaart ze halve wind, dan loeft ze eerst op tot aan de wind.
 Het Katwijkse boek laat het grootzeil helemaal vieren; hier is het half, zoals bij Meestoxopeus.
 
-Ze blijft bijliggen tot ze weer gaat varen: met **Weer varen** (dezelfde stappen achterstevoren, terug
-naar de koers van voor het bijliggen), met een koers die je zelf zet, of met een andere manoeuvre.
+Ze blijft bijliggen tot ze weer gaat varen: met **Weer varen** (een eigen handeling: de fok over naar
+lij zodat hij trekt, de helmstok recht, het grootzeil aan, en terug naar de koers van voor het
+bijliggen), met een koers die je zelf zet, of met een andere manoeuvre.
 Voor Oefenen is fout: de helmstok naar lij voordat de fok bak staat (dan draait ze de wind in).
 
 Voorwaarden:
@@ -302,10 +359,10 @@ Weer varen:
 
 | # | Stap | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|
-| 1 | Helmstok recht | — | 3 s |
-| 2 | Grootzeil aanhalen | — | 2,5 s |
-| 3 | Fok over naar lij | — | 2,5 s |
-| 4 | Afvallen naar de oude koers | — | 3 s |
+| 1 | Fok over naar lij | — | 2,5 s |
+| 2 | Helmstok recht | — | 3 s |
+| 3 | Grootzeil aanhalen | Fok over naar lij | 2,5 s |
+| 4 | Afvallen naar de oude koers | Helmstok recht | 3 s |
 
 ## Ankeren
 
@@ -411,15 +468,21 @@ Voorwaarden:
 
 | # | Stap | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|
-| 1 | Fok afslaan | Fok strijken | 2 s |
-| 2 | Tuig in de onderste haak van de mik | Zeilbinders om | 2 s |
+| 1 | Fok afslaan | — | 2 s |
+| 2 | Tuig in de onderste haak van de mik | — | 2 s |
 | 3 | Lummelbout uit | Tuig in de onderste haak van de mik | 1,8 s |
-| 4 | Grendelbout uit | Zeilbinders om | 1,5 s |
+| 4 | Grendelbout uit | — | 1,5 s |
 | 5 | Ring van de pelikaanhaak omhoog | — | 1,2 s |
 | 6 | Pelikaanhaak uit de hanekam | Ring van de pelikaanhaak omhoog | 1,8 s |
 | 7 | Mast strijken | Lummelbout uit, Grendelbout uit, Pelikaanhaak uit de hanekam, Fok afslaan | 5 s |
 
 ## Mast zetten
+
+Een eigen handeling, vooruit. De mast gaat omhoog en wordt meteen vastgezet: eerst de pelikaanhaak in
+de hanekam en de ring erover, dan de grendelbout. Daarna de giek terug aan de lummel en het tuig terug
+in de vork van de mik, en de fok weer aan de voorstag als die er bij het strijken aan zat (afgeslagen
+blijft hij in de zak). Geen van de boeken beschrijft mast zetten stap voor stap: deze volgorde is een
+eigen uitwerking, en is te toetsen.
 
 Voorwaarden:
 - geen
@@ -432,7 +495,7 @@ Voorwaarden:
 | 4 | Grendelbout in | Mast zetten | 1,5 s |
 | 5 | Lummelbout in | Mast zetten | 1,8 s |
 | 6 | Tuig terug in de vork van de mik | Lummelbout in | 2 s |
-| 7 | Fok aanslaan | Mast zetten | 2 s |
+| 7 | Fok aanslaan | Pelikaanhaak in de hanekam | 2 s |
 
 ## Reven
 

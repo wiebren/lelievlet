@@ -208,7 +208,7 @@ Bouwstenen: zie het volgende hoofdstuk.
 
 | # | Handeling | Niveau, bron | Voorwaarden | Omvang |
 |---|---|---|---|---|
-| C1 | Zeilen aanslaan, zeil- en nachtklaar — aan- en afslaan gedaan | KB III (aanslaan), KB I (klaar); [HBO] p. 6, 16 | mast staat; zeilen afgeslagen (nieuwe toestand) | M |
+| C1 | Zeilen aanslaan, zeil- en nachtklaar — gedaan | KB III (aanslaan), KB I (klaar); [HBO] p. 6, 16 | mast staat; zeilen afgeslagen (nieuwe toestand) | M |
 | C2 | Zeil- en scheepstrim | KB III; [HBO] p. 19 | zeilen op | M |
 
 Kenteren en omslaan worden niet als manoeuvre onderwezen ([KATZ] 96/90: koppen tellen, bij de boot
@@ -242,7 +242,7 @@ gijpen en stormrondje als eigen procedure, en afmeren legt zijn eigen steiger.
 |---|---|
 | Handelingen als startpaneel en kaart met focusmodus; Bekijken en Oefenen (volgende stap kiezen) | gedaan |
 | R1–R5 | gedaan |
-| Tuigage: mast zetten en strijken, zeilen aan- en afslaan, hijsen, reven, strijken | gedaan |
+| Tuigage: mast zetten en strijken, zeilen aan- en afslaan, hijsen, reven, strijken, C1 zeil- en nachtklaar (voor anker met ankerbal en ankerlicht) | gedaan |
 | Wenden: A1 overstag, A2 gijpen, A3 stormrondje, A4 opkruisen, A5 bijliggen, A9 man over boord, dwarspeiling | gedaan |
 | Afmeren: D4 sliplanding hogerwal, D5 opschieter, D6 voor top en takel en aanleggen aan lagerwal, D7 sliplanding langswal, D12 verhalen | gedaan |
 | Afvaren: D1 van hogerwal, D2 van langswal, D3 van lagerwal; kop in de wind leggen | gedaan |
@@ -250,4 +250,4 @@ gijpen en stormrondje als eigen procedure, en afmeren legt zijn eigen steiger.
 | Roeien: B1 achtje, B6 man overboord, B7 ankeren en anker op, D8 afvaren, D9–D11 aanleggen met de boeg, de zijkant en de spiegel | gedaan |
 | Commando's als tekstballon boven wie ze roept, gestapeld | gedaan |
 | Afwijkingen van de boeken (hierboven) | te beslissen |
-| A4 oploeven en afvallen als eigen manoeuvre, A11 varend hijsen, A12 loskomen van de grond, C1 zeil- en nachtklaar, C2 trim, B8 jagen, B9 slepen, B10 bomen | nog niet begonnen |
+| A4 oploeven en afvallen als eigen manoeuvre, A11 varend hijsen, A12 loskomen van de grond, C2 trim, B8 jagen, B9 slepen, B10 bomen | nog niet begonnen |

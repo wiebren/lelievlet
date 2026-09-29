@@ -1,0 +1,2130 @@
+[
+ {
+  "id": "groot_motorschip",
+  "naam": "Groot motorschip, alleenvarend",
+  "artikel": "BPR 3.08 lid 1",
+  "schip": "groot motorschip (≥20 m) of beroepsvaart",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "voorschip, lengte-as, ≥5 m (≥4 m bij lengte ≤40 m)",
+    "aantal": 1,
+    "sterkte": "krachtig"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, zoveel mogelijk in lengte-as, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "groot_motorschip_tweede_toplicht",
+  "naam": "Groot motorschip met tweede toplicht",
+  "artikel": "BPR 3.08 lid 2",
+  "schip": "groot motorschip",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "voorschip, lengte-as, ≥5 m (≥4 m bij lengte ≤40 m)",
+    "aantal": 1,
+    "sterkte": "krachtig"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, zoveel mogelijk in lengte-as, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "achterschip, hoger dan toplicht op voorschip (facultatief)",
+    "aantal": 1,
+    "sterkte": "krachtig"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "groot_motorschip_geassisteerd",
+  "naam": "Groot motorschip dat wordt geassisteerd",
+  "artikel": "BPR 3.08 lid 3",
+  "schip": "groot motorschip met assistentie",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "voorschip, lengte-as, ≥5 m (≥4 m bij lengte ≤40 m)",
+    "aantal": 1,
+    "sterkte": "krachtig"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, zoveel mogelijk in lengte-as, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "bol",
+    "kleur": "geel",
+    "aantal": 1,
+    "plaats": "voorschip, ≥5 m"
+   }
+  ],
+  "relevant": false
+ },
+ {
+  "id": "snel_schip",
+  "naam": "Snel schip",
+  "artikel": "BPR 3.08 lid 4",
+  "schip": "groot motorschip >40 km/u (1.01 A 5°)",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "voorschip, lengte-as, ≥5 m (≥4 m bij lengte ≤40 m)",
+    "aantal": 1,
+    "sterkte": "krachtig"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, zoveel mogelijk in lengte-as, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "geel",
+    "soort": "flikker",
+    "boog_graden": 360,
+    "plaats": "verticale lijn ≈1 m uit elkaar, van alle zijden zichtbaar; óók overdag (snel flikkerend, 100–150/min)",
+    "aantal": 2,
+    "sterkte": "krachtig"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "groot_zeil_en_motor",
+  "naam": "Groot schip onder zeil én motor",
+  "artikel": "BPR 3.08 lid 5; 1.01 A 15°",
+  "schip": "groot zeilschip dat motort (= motorschip)",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "voorschip, lengte-as, ≥5 m (≥4 m bij lengte ≤40 m)",
+    "aantal": 1,
+    "sterkte": "krachtig"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, zoveel mogelijk in lengte-as, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "kegel punt omlaag",
+    "kleur": "zwart",
+    "aantal": 1,
+    "plaats": "zo hoog mogelijk, waar hij het best gezien wordt"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "sleepboot",
+  "naam": "Motorschip dat sleept of assisteert",
+  "artikel": "BPR 3.09 lid 1",
+  "schip": "sleepboot aan de kop van een sleep van grote schepen",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "voorschip, lengte-as, verticaal ≈1 m uit elkaar, bovenste ≥5 m (4 m bij ≤40 m), onderste ≥1 m boven boordlichten",
+    "aantal": 2,
+    "sterkte": "krachtig"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "geel",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, lengte-as, zichtbaar voor de gesleepte lengten",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "cilinder",
+    "kleur": "geel met aan boven- en onderzijde een zwarte en een witte band (wit aan de uiteinden)",
+    "aantal": 1,
+    "plaats": "voorschip, verticaal, van alle zijden zichtbaar"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "sleepboten_niet_in_kiellinie",
+  "naam": "Meerdere slepende/assisterende motorschepen naast elkaar",
+  "artikel": "BPR 3.09 lid 2",
+  "schip": "elk der sleepboten",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "voorschip, lengte-as, verticaal ≈1 m uit elkaar",
+    "aantal": 3,
+    "sterkte": "krachtig"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "geel",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "cilinder",
+    "kleur": "geel met zwart-witte banden",
+    "aantal": 1,
+    "plaats": "voorschip"
+   }
+  ],
+  "relevant": false
+ },
+ {
+  "id": "gesleept_groot_schip",
+  "naam": "Gesleept groot schip",
+  "artikel": "BPR 3.09 lid 3",
+  "schip": "groot schip in een sleep (niet de sleper)",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "≥5 m (4 m bij ≤40 m); lengte >110 m: twee, één voorop en één achterop; bij >2 langszij alleen buitenste schepen",
+    "aantal": 1,
+    "sterkte": "helder"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "bol",
+    "kleur": "geel",
+    "aantal": 1,
+    "plaats": "van alle zijden zichtbaar"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "laatste_lengte_sleep",
+  "naam": "Laatste lengte van een sleep",
+  "artikel": "BPR 3.09 lid 4",
+  "schip": "grote schepen achteraan een sleep",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "zoals 3.09 lid 3",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, zoveel mogelijk in lengte-as, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "bol",
+    "kleur": "geel",
+    "aantal": 1,
+    "plaats": "van alle zijden zichtbaar"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "duwstel",
+  "naam": "Duwstel",
+  "artikel": "BPR 3.10 lid 1",
+  "schip": "duwboot met duwbak(ken) vóór zich",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "voorste schip (meest bakboord): gelijkzijdige driehoek, bovenste ≥5 m, onderste twee ≈1,25 m uit elkaar en ≈1,10 m lager",
+    "aantal": 3,
+    "sterkte": "krachtig"
+   },
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "elk ander schip dat van voren over de volle breedte zichtbaar is, zo mogelijk 3 m lager dan het bovenste",
+    "aantal": 1,
+    "sterkte": "krachtig"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; breedste deel, op of nabij de duwboot, ≤1 m binnen zijkant, ≥2 m hoog",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; breedste deel, op of nabij de duwboot, ≤1 m binnen zijkant, ≥2 m hoog",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "duwboot: horizontale lijn, ≈1,25 m uit elkaar",
+    "aantal": 3,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "duwstel_klein",
+  "naam": "Duwstel ≤110 m × ≤12 m",
+  "artikel": "BPR 3.10 lid 4",
+  "schip": "kort/smal duwstel: telt als één motorschip",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "voorschip, lengte-as, ≥5 m (≥4 m bij lengte ≤40 m)",
+    "aantal": 1,
+    "sterkte": "krachtig"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, zoveel mogelijk in lengte-as, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "duwstel_geassisteerd",
+  "naam": "Duwstel dat wordt geassisteerd",
+  "artikel": "BPR 3.10 lid 2",
+  "schip": "duwstel met assistentie",
+  "lichten": [
+   {
+    "kleur": "geel",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "duwboot, horizontale lijn",
+    "aantal": 3,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "bol",
+    "kleur": "geel",
+    "aantal": 1,
+    "plaats": "duwboot, ≥5 m"
+   }
+  ],
+  "relevant": false
+ },
+ {
+  "id": "gekoppeld_samenstel",
+  "naam": "Gekoppeld samenstel",
+  "artikel": "BPR 3.11 lid 1",
+  "schip": "langszij gekoppelde grote schepen, geen schip vóór het motorschip",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "voorschip van elk schip, lengte-as, ≥5 m (niet-motorschip mag i.p.v. toplicht wit helder rondom, niet hoger dan toplicht motorschip)",
+    "aantal": 2,
+    "sterkte": "krachtig"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; buitenzijde samenstel, ≥1 m lager dan laagste toplicht",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; buitenzijde samenstel, ≥1 m lager dan laagste toplicht",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip van elk schip",
+    "aantal": 2,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "groot_zeilschip",
+  "naam": "Groot zeilschip",
+  "artikel": "BPR 3.12",
+  "schip": "zeilschip ≥20 m (bv. bruine vloot)",
+  "lichten": [
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, ≤1 m binnen zijkant",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, ≤1 m binnen zijkant",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, zoveel mogelijk in lengte-as, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "rood",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "aan of nabij de top van de mast, bovenste van twee",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "groen",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "onder het rode, ≥1 m daaronder",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "klein_motorschip_a",
+  "naam": "Klein motorschip (toplicht vóór de boordlichten)",
+  "artikel": "BPR 3.13 lid 1 onder a",
+  "schip": "motorboot <20 m",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "lengte-as, op dezelfde hoogte als de boordlichten en ≥1 m vóór deze",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, lijn loodrecht op lengte-as",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, lijn loodrecht op lengte-as",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": null
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "klein_motorschip_b",
+  "naam": "Klein motorschip (toplicht ≥1 m boven boordlichten, boordlichten eventueel gecombineerd op de boeg)",
+  "artikel": "BPR 3.13 lid 1 onder b",
+  "schip": "motorboot <20 m",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "lengte-as, ≥1 m hoger dan de boordlichten",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; mag naast elkaar of in één lantaarn in de lengte-as aan/nabij de boeg",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; mag naast elkaar of in één lantaarn in de lengte-as aan/nabij de boeg",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": null
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "klein_motorschip_rondom",
+  "naam": "Klein motorschip met wit rondom i.p.v. toplicht + heklicht",
+  "artikel": "BPR 3.13 lid 1 onder b 3°",
+  "schip": "motorboot <20 m (sloep, speedboot)",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "in plaats van toplicht én heklicht; hoogte niet voorgeschreven (sterkte ook niet genoemd)",
+    "aantal": 1,
+    "sterkte": null
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; naast elkaar of in één lantaarn aan/nabij de boeg",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; naast elkaar of in één lantaarn aan/nabij de boeg",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "klein_open_motorschip_lt7m",
+  "naam": "Klein open motorschip <7 m, max 13 km/u",
+  "artikel": "BPR 3.13 lid 2",
+  "schip": "open bootje/sloepje met buitenboordmotor, <7 m, ≤13 km/u",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "van alle zijden zichtbaar (i.p.v. lid 1)",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "klein_motorschip_sleept_klein",
+  "naam": "Klein motorschip dat alleen kleine schepen sleept of langszij meevoert",
+  "artikel": "BPR 3.13 lid 3",
+  "schip": "bv. volgboot/rubberboot met vletten op sleeptouw",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "lengte-as, op dezelfde hoogte als de boordlichten en ≥1 m vóór deze",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, lijn loodrecht op lengte-as",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, lijn loodrecht op lengte-as",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": null
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "klein_schip_gesleept",
+  "naam": "Klein schip dat wordt gesleept of langszij wordt meegevoerd",
+  "artikel": "BPR 3.13 lid 4",
+  "schip": "bv. lelievlet op sleeptouw (niet: bijboot van een schip)",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "van alle zijden zichtbaar",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "klein_zeilschip_boeg_hek",
+  "naam": "Klein zeilschip: boordlichten op de boeg + heklicht",
+  "artikel": "BPR 3.13 lid 5, eerste streepje",
+  "schip": "zeilboot <20 m",
+  "lichten": [
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; naast elkaar of in één lantaarn in de lengte-as aan/nabij de boeg",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; naast elkaar of in één lantaarn in de lengte-as aan/nabij de boeg",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip",
+    "aantal": 1,
+    "sterkte": null
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "klein_zeilschip_driekleur",
+  "naam": "Klein zeilschip: driekleurenlantaarn in de top",
+  "artikel": "BPR 3.13 lid 5, tweede streepje",
+  "schip": "zeilboot <20 m (geen minimum- of maximumlengte)",
+  "lichten": [
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; driekleurenlantaarn aan/nabij de top van de mast",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; driekleurenlantaarn aan/nabij de top van de mast",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achteruit; driekleurenlantaarn aan/nabij de top van de mast",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "klein_zeilschip_lt7m",
+  "naam": "Klein zeilschip <7 m: wit rondom + tweede wit licht",
+  "artikel": "BPR 3.13 lid 5, derde streepje",
+  "schip": "zeilboot <7 m (o.a. lelievlet 5,6 m)",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "op een zodanige hoogte dat het van alle zijden zichtbaar is (schets 29: in de top)",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   },
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": null,
+    "plaats": "tweede licht, alleen tonen bij het naderen van een ander schip bij gevaar voor aanvaring, \"om de aandacht te trekken\" (schets 29: facultatief licht achterin)",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "klein_schip_spierkracht",
+  "naam": "Klein schip op spierkracht (roeiboot, kano, wrikken)",
+  "artikel": "BPR 3.13 lid 6",
+  "schip": "roeiboot/kano <20 m",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "geen plaats voorgeschreven; schets 30: op een stokje op het achterschip",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "klein_zeil_en_motor",
+  "naam": "Klein schip onder zeil én motor",
+  "artikel": "BPR 3.13 lid 7; 1.01 A 15°",
+  "schip": "zeilboot die motort (= klein motorschip)",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "lengte-as, op dezelfde hoogte als de boordlichten en ≥1 m vóór deze",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, lijn loodrecht op lengte-as",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, lijn loodrecht op lengte-as",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": null
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "kegel punt omlaag",
+    "kleur": "zwart",
+    "aantal": 1,
+    "plaats": "zo hoog mogelijk, waar hij het best gezien wordt (klein formaat toegestaan, 3.04 lid 4)"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "gevaarlijke_stoffen_1",
+  "naam": "Varend schip met brandbare stoffen (1 blauw)",
+  "artikel": "BPR 3.14 lid 1",
+  "schip": "tanker/vrachtschip ADN",
+  "lichten": [
+   {
+    "kleur": "blauw",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "bijkomend; van alle zijden zichtbaar",
+    "aantal": 1,
+    "sterkte": "≥ gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "kegel punt omlaag",
+    "kleur": "blauw",
+    "aantal": 1,
+    "plaats": "van alle zijden zichtbaar; of één voor en één achter op ≥3 m"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "gevaarlijke_stoffen_2",
+  "naam": "Varend schip met gezondheidsschadelijke stoffen (2 blauw)",
+  "artikel": "BPR 3.14 lid 2",
+  "schip": "tanker ADN",
+  "lichten": [
+   {
+    "kleur": "blauw",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "bijkomend; verticaal ≈1 m uit elkaar",
+    "aantal": 2,
+    "sterkte": "≥ gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "kegel punt omlaag",
+    "kleur": "blauw",
+    "aantal": 2,
+    "plaats": "verticaal ≈1 m; of twee voor en twee achter, onderste ≥3 m"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "gevaarlijke_stoffen_3",
+  "naam": "Varend schip met ontplofbare stoffen (3 blauw)",
+  "artikel": "BPR 3.14 lid 3",
+  "schip": "schip ADN",
+  "lichten": [
+   {
+    "kleur": "blauw",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "bijkomend; verticaal ≈1 m uit elkaar",
+    "aantal": 3,
+    "sterkte": "≥ gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "kegel punt omlaag",
+    "kleur": "blauw",
+    "aantal": 3,
+    "plaats": "verticaal ≈1 m"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "passagiersschip_klein",
+  "naam": "Varend passagiersschip <20 m",
+  "artikel": "BPR 3.15",
+  "schip": "rondvaartboot, watertaxi (>12 passagiers)",
+  "lichten": [],
+  "dagmerk": [
+   {
+    "vorm": "ruit",
+    "kleur": "geel",
+    "aantal": 1,
+    "plaats": "van alle zijden zichtbaar"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "veerpont_niet_vrijvarend",
+  "naam": "Niet-vrijvarende veerpont (kabel-/gierpont), varend of aan aanlegplaats",
+  "artikel": "BPR 3.16 lid 1; 3.22 lid 1",
+  "schip": "kabelpont, gierpont",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "≥5 m (lager toegestaan bij pont ≤15 m)",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "groen",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "≈1 m boven het witte",
+    "aantal": 1,
+    "sterkte": "helder"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "veerpont_ankerschuit",
+  "naam": "Bovenstroomse ankerschuit/drijver van een gierpont",
+  "artikel": "BPR 3.16 lid 2",
+  "schip": "drijver van een langskabel",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "≥3 m boven water",
+    "aantal": 1,
+    "sterkte": "helder"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": false
+ },
+ {
+  "id": "veerpont_vrijvarend",
+  "naam": "Vrijvarende veerpont",
+  "artikel": "BPR 3.16 lid 3",
+  "schip": "veerboot zonder kabel",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "≥5 m",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "groen",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "≈1 m boven het witte",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, zoveel mogelijk in lengte-as, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "voorrang",
+  "naam": "Schip met recht van voorrang (bij sluis/brug)",
+  "artikel": "BPR 3.17",
+  "schip": "bv. politie, veerdienst met voorrangsrecht",
+  "lichten": [],
+  "dagmerk": [
+   {
+    "vorm": "wimpel",
+    "kleur": "rood",
+    "aantal": 1,
+    "plaats": "voorschip, voldoende hoogte"
+   }
+  ],
+  "relevant": false
+ },
+ {
+  "id": "onmanoeuvreerbaar",
+  "naam": "Schip dat onmanoeuvreerbaar wordt",
+  "artikel": "BPR 3.18",
+  "schip": "elk schip; ook een klein schip (zwaaien met wit licht)",
+  "lichten": [
+   {
+    "kleur": "rood (klein schip: mag wit)",
+    "soort": "rondom",
+    "boog_graden": null,
+    "plaats": "licht waarmee heen en weer wordt gezwaaid — óf:",
+    "aantal": 1,
+    "sterkte": null
+   },
+   {
+    "kleur": "rood",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "verticaal ≈1 m uit elkaar, van alle zijden zichtbaar",
+    "aantal": 2,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "vlag (of bord), heen en weer gezwaaid",
+    "kleur": "rood",
+    "aantal": 1,
+    "plaats": "— óf:"
+   },
+   {
+    "vorm": "bol",
+    "kleur": "zwart",
+    "aantal": 2,
+    "plaats": "verticaal ≈1 m uit elkaar"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "drijvend_voorwerp_varend",
+  "naam": "Varend drijvend voorwerp / drijvende inrichting",
+  "artikel": "BPR 3.19",
+  "schip": "bv. gesleept ponton",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "voldoende aantal om de omtrek aan te duiden",
+    "aantal": 1,
+    "sterkte": "helder"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": false
+ },
+ {
+  "id": "groot_schip_gemeerd",
+  "naam": "Groot schip gemeerd aan de oever",
+  "artikel": "BPR 3.20 lid 1",
+  "schip": "binnenvaartschip aan de kant",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "aan de vaarwaterzijde, ≥3 m (of twee: voor en achter)",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "groot_schip_geankerd",
+  "naam": "Groot schip geankerd (niet aan de oever)",
+  "artikel": "BPR 3.20 lid 2",
+  "schip": "binnenvaartschip voor anker",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "voorschip, ≥4 m",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   },
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "achterschip, ≥2 m en ≥2 m lager dan het voorste",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "bol",
+    "kleur": "zwart",
+    "aantal": 1,
+    "plaats": "voorschip, van alle zijden zichtbaar"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "duwstel_geankerd",
+  "naam": "Duwstel geankerd",
+  "artikel": "BPR 3.20 lid 3",
+  "schip": "duwstel",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "op elk schip, ≥4 m (duwbakken samen max. 4)",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "bol",
+    "kleur": "zwart",
+    "aantal": 1,
+    "plaats": "op duwboot(en) en voorste buitenste bak(ken)"
+   }
+  ],
+  "relevant": false
+ },
+ {
+  "id": "klein_schip_stilliggend",
+  "naam": "Klein schip stilliggend (geankerd of gemeerd)",
+  "artikel": "BPR 3.20 lid 4",
+  "schip": "klein schip, niet de bijboot van een schip",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "waar dit het best kan worden gezien (geen hoogte voorgeschreven)",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "bol",
+    "kleur": "zwart",
+    "aantal": 1,
+    "plaats": "alleen als het NIET direct of indirect aan de oever gemeerd ligt; op een geschikte plaats, van alle zijden zichtbaar; kleiner dan 60 cm toegestaan (3.04 lid 4)"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "anker_gevaar",
+  "naam": "Schip waarvan het anker een gevaar kan zijn",
+  "artikel": "BPR 3.26 lid 1 en 3",
+  "schip": "elk stilliggend schip met uitgezet anker in/nabij vaarwater",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "tweede licht ≈1 m loodrecht onder het ligplaatslicht (3.20)",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "boei met radarreflector",
+    "kleur": "geel",
+    "aantal": 1,
+    "plaats": "boven het anker"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "veerpont_vrijvarend_aanlegplaats",
+  "naam": "Vrijvarende veerpont aan aanlegplaats, in dienst",
+  "artikel": "BPR 3.22 lid 2",
+  "schip": "veerboot",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "zoals 3.16 lid 1",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "groen",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "≈1 m boven het witte",
+    "aantal": 1,
+    "sterkte": "helder"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": false
+ },
+ {
+  "id": "drijvend_voorwerp_stil",
+  "naam": "Stilliggend drijvend voorwerp / drijvende inrichting",
+  "artikel": "BPR 3.23",
+  "schip": "steiger, ponton",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "voldoende om de omtrek aan vaarwaterzijde aan te duiden",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": false
+ },
+ {
+  "id": "netten_stilliggend",
+  "naam": "Stilliggend schip met net of uitlegger uitstaan (stromend water)",
+  "artikel": "BPR 3.24",
+  "schip": "fuikenvisser",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "bij het net/de uitlegger",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "vlag",
+    "kleur": "geel",
+    "aantal": 1,
+    "plaats": "bij het net/de uitlegger"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "werkend_schip",
+  "naam": "Drijvend werktuig in bedrijf / schip dat werken uitvoert of peilt",
+  "artikel": "BPR 3.25 lid 1 a en b",
+  "schip": "baggermolen, kraanschip, peilboot",
+  "lichten": [
+   {
+    "kleur": "groen",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "zijde waar de doorvaart vrij is: verticaal ≈1 m uit elkaar",
+    "aantal": 2,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "rood",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "zijde waar de doorvaart NIET vrij is, op hoogte van het bovenste groene",
+    "aantal": 1,
+    "sterkte": null
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "ruit",
+    "kleur": "groen",
+    "aantal": 2,
+    "plaats": "vrije zijde, verticaal ≈1 m"
+   },
+   {
+    "vorm": "bol",
+    "kleur": "rood",
+    "aantal": 1,
+    "plaats": "niet-vrije zijde, op hoogte van bovenste ruit"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "werkend_schip_golfslag",
+  "naam": "Drijvend werktuig in bedrijf, ook beschermd tegen golfslag",
+  "artikel": "BPR 3.25 lid 1 c en d",
+  "schip": "baggermolen/kraanschip",
+  "lichten": [
+   {
+    "kleur": "rood",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "vrije zijde: bovenste",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "vrije zijde: ≈1 m onder het rode",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "rood",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "niet-vrije zijde, hoogte van het rode aan de vrije zijde",
+    "aantal": 1,
+    "sterkte": null
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "bord (of vlag), bovenhelft rood onderhelft wit (of rood boven wit)",
+    "kleur": "rood/wit",
+    "aantal": 1,
+    "plaats": "vrije zijde"
+   },
+   {
+    "vorm": "bord (of vlag)",
+    "kleur": "rood",
+    "aantal": 1,
+    "plaats": "niet-vrije zijde"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "vastgevaren_gezonken",
+  "naam": "Vastgevaren of gezonken schip",
+  "artikel": "BPR 3.25 lid 2; 3.01 lid 3",
+  "schip": "schip aan de grond",
+  "lichten": [
+   {
+    "kleur": "rood",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "vrije zijde: bovenste",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "vrije zijde: ≈1 m onder het rode",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "rood",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "niet-vrije zijde",
+    "aantal": 1,
+    "sterkte": null
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "bord (of vlag) rood boven wit",
+    "kleur": "rood/wit",
+    "aantal": 1,
+    "plaats": "vrije zijde"
+   },
+   {
+    "vorm": "bord (of vlag)",
+    "kleur": "rood",
+    "aantal": 1,
+    "plaats": "niet-vrije zijde"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "handhaving_brandweer",
+  "naam": "Politie / toezicht, brandweerboot, reddingsvaartuig in actie",
+  "artikel": "BPR 3.27",
+  "schip": "KLPD/waterpolitie, RWS, brandweer, KNRM (met toestemming)",
+  "lichten": [
+   {
+    "kleur": "blauw",
+    "soort": "flikker",
+    "boog_graden": 360,
+    "plaats": "bijkomend, rondom; flikker (50–60/min) of snel flikkerend (100–150/min); mag ook overdag",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "werkzaamheden_geel",
+  "naam": "Schip dat werkzaamheden in/nabij het vaarwater uitvoert (met toestemming)",
+  "artikel": "BPR 3.28",
+  "schip": "werkboot",
+  "lichten": [
+   {
+    "kleur": "geel",
+    "soort": "flikker",
+    "boog_graden": 360,
+    "plaats": "bijkomend, rondom",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "bescherming_golfslag",
+  "naam": "Schip dat beschermd wil worden tegen hinderlijke waterbeweging",
+  "artikel": "BPR 3.29",
+  "schip": "zwaar beschadigd/werkend/niet manoeuvreerbaar schip of met vergunning (bv. wedstrijd, zwemmers)",
+  "lichten": [
+   {
+    "kleur": "rood",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "bovenste, van alle zijden zichtbaar",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "≈1 m onder het rode",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "bord (of vlag), bovenhelft rood, onderhelft wit — of twee borden rood boven wit",
+    "kleur": "rood/wit",
+    "aantal": 1,
+    "plaats": "van alle zijden zichtbaar"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "nood",
+  "naam": "Schip in nood",
+  "artikel": "BPR 3.30",
+  "schip": "elk schip",
+  "lichten": [
+   {
+    "kleur": "willekeurig",
+    "soort": "rondom",
+    "boog_graden": null,
+    "plaats": "licht waarmee in het rond wordt gezwaaid; of vuurpijlen, lichtkogels, vlammen",
+    "aantal": 1,
+    "sterkte": null
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "vlag of voorwerp waarmee in het rond wordt gezwaaid",
+    "kleur": "willekeurig",
+    "aantal": 1,
+    "plaats": "— óf vlag met bol erboven of eronder; óf rookbom"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "beperkt_manoeuvreerbaar",
+  "naam": "Beperkt manoeuvreerbaar schip (werkzaamheden, varend)",
+  "artikel": "BPR 3.34 lid 1 (lid 2/3 zijtekens)",
+  "schip": "varend werkschip",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "voorschip, lengte-as, ≥5 m (≥4 m bij lengte ≤40 m)",
+    "aantal": 1,
+    "sterkte": "krachtig"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, zoveel mogelijk in lengte-as, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "rood",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "verticaal: bovenste",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "verticaal: middelste, ≈1 m",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "rood",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "verticaal: onderste, ≈1 m",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "bol",
+    "kleur": "zwart",
+    "aantal": 1,
+    "plaats": "boven"
+   },
+   {
+    "vorm": "ruit",
+    "kleur": "zwart",
+    "aantal": 1,
+    "plaats": "midden"
+   },
+   {
+    "vorm": "bol",
+    "kleur": "zwart",
+    "aantal": 1,
+    "plaats": "onder; bij lid 2/3 ook 2 bollen (niet vrij) / 2 ruiten (vrij) aan de zijkant, ≥2 m lager"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "mijnenopruimer",
+  "naam": "Mijnenopruimingsschip",
+  "artikel": "BPR 3.35",
+  "schip": "marine",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "voorschip, lengte-as, ≥5 m (≥4 m bij lengte ≤40 m)",
+    "aantal": 1,
+    "sterkte": "krachtig"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, lijn loodrecht op lengte-as, ≥1 m lager dan toplicht, ≤1 m binnen buitenzijde",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, zoveel mogelijk in lengte-as, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "groen",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "één in de top van de voormast, één aan elke ra-nok",
+    "aantal": 3,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "bol",
+    "kleur": "zwart",
+    "aantal": 3,
+    "plaats": "op de plaatsen van de lichten"
+   }
+  ],
+  "relevant": false
+ },
+ {
+  "id": "loodsboot",
+  "naam": "Loodsboot in dienst",
+  "artikel": "BPR 3.36",
+  "schip": "loodsvaartuig",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "bovenste, aan/nabij de top van de mast op het voorschip",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "rood",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "onder het witte",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; gelijke hoogte, ≤1 m binnen zijkant",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; gelijke hoogte, ≤1 m binnen zijkant",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, zoveel mogelijk in lengte-as, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "vlag, in wit de letter L",
+    "kleur": "blauw",
+    "aantal": 1,
+    "plaats": "aan/nabij de top van de mast op het voorschip"
+   }
+  ],
+  "relevant": false
+ },
+ {
+  "id": "vissersschip",
+  "naam": "Vissersschip (vissend)",
+  "artikel": "BPR 3.37",
+  "schip": "kotter, beroepsvisser",
+  "lichten": [
+   {
+    "kleur": "groen",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "bovenste",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "≥1 m onder het groene, ≥2 m boven de boordlichten",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; ≥1 m lager dan het witte rondom",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; ≥1 m lager dan het witte rondom",
+    "aantal": 1,
+    "sterkte": "helder"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "achterschip, zoveel mogelijk in lengte-as, goed zichtbaar voor oploper",
+    "aantal": 1,
+    "sterkte": "helder of gewoon"
+   },
+   {
+    "kleur": "wit",
+    "soort": "toplicht",
+    "boog_graden": 225,
+    "plaats": "facultatief: achter en hoger dan het groene licht",
+    "aantal": 1,
+    "sterkte": "krachtig"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "kegels punten tegen elkaar (diabolo)",
+    "kleur": "zwart",
+    "aantal": 2,
+    "plaats": "verticaal, van alle zijden zichtbaar"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "duiker",
+  "naam": "Schip bij een duiker te water",
+  "artikel": "BPR 3.38",
+  "schip": "duikboot/rib",
+  "lichten": [],
+  "dagmerk": [
+   {
+    "vorm": "seinvlag A (of stijve replica); ’s nachts verlicht",
+    "kleur": "wit/blauw",
+    "aantal": 1,
+    "plaats": "van alle zijden zichtbaar"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "stuurboord_op_stuurboord",
+  "naam": "Groot schip dat stuurboord-op-stuurboord wil passeren (blauwe bord)",
+  "artikel": "BPR 6.04a lid 3 (6.05)",
+  "schip": "groot schip",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "flikker",
+    "boog_graden": 360,
+    "plaats": "aan stuurboord; rondom, flikkerlicht",
+    "aantal": 1,
+    "sterkte": "helder"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "bord met witte rand ≥5 cm",
+    "kleur": "lichtblauw",
+    "aantal": 1,
+    "plaats": "aan stuurboord, van voren en achteren zichtbaar; overdag samen met het witte flikkerlicht"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "bovenmaats_zeeschip",
+  "naam": "Bovenmaats zeegaand schip (zeehavens, hoofdstuk 10)",
+  "artikel": "BPR 10.03",
+  "schip": "zeeschip op vaarwegen tussen zee en zeehavens",
+  "lichten": [
+   {
+    "kleur": "rood",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "verticale lijn (bijkomend, COLREG-sterkte)",
+    "aantal": 3,
+    "sterkte": null
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "cilinder",
+    "kleur": "zwart",
+    "aantal": 1,
+    "plaats": "—"
+   }
+  ],
+  "relevant": false
+ },
+ {
+  "id": "lelievlet_zeilen",
+  "naam": "Lelievlet onder zeil (’s nachts)",
+  "artikel": "BPR 3.13 lid 5 (5,6 m < 7 m)",
+  "schip": "lelievlet, klein zeilschip 5,6 m",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "keuze 3: van alle zijden zichtbaar (praktisch: in/nabij de top of een hoge stok); tweede wit gewoon licht (zaklamp) tonen bij naderen van een ander schip bij gevaar voor aanvaring",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "lelievlet_zeilen_driekleur",
+  "naam": "Lelievlet onder zeil met driekleurenlantaarn of boeg-/heklicht",
+  "artikel": "BPR 3.13 lid 5 (1e/2e streepje)",
+  "schip": "lelievlet (alternatief)",
+  "lichten": [
+   {
+    "kleur": "groen",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "stuurboord; driekleurenlantaarn in de top (of combi op de boeg)",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "rood",
+    "soort": "boordlicht",
+    "boog_graden": 112.5,
+    "plaats": "bakboord; driekleurenlantaarn in de top (of combi op de boeg)",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   },
+   {
+    "kleur": "wit",
+    "soort": "heklicht",
+    "boog_graden": 135,
+    "plaats": "driekleurenlantaarn in de top (of op het achterschip)",
+    "aantal": 1,
+    "sterkte": "gewoon toegestaan"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "lelievlet_roeien",
+  "naam": "Lelievlet geroeid of gewrikt (’s nachts)",
+  "artikel": "BPR 3.13 lid 6",
+  "schip": "lelievlet op spierkracht",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "geen plaats voorgeschreven; schets 30: op het achterschip",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "lelievlet_zeil_en_motor",
+  "naam": "Lelievlet met buitenboordmotor (met of zonder zeil)",
+  "artikel": "BPR 3.13 lid 2 (of lid 1) en lid 7",
+  "schip": "lelievlet die motort = klein open motorschip <7 m",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "van alle zijden zichtbaar; lid 2 (open, <7 m, ≤13 km/u — afgeleid dat een vlet hieraan voldoet); anders volledige lichten van lid 1",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "kegel punt omlaag",
+    "kleur": "zwart",
+    "aantal": 1,
+    "plaats": "alleen met zeil op; zo hoog mogelijk (klein formaat mag)"
+   }
+  ],
+  "relevant": false
+ },
+ {
+  "id": "lelievlet_geankerd",
+  "naam": "Lelievlet voor anker (niet aan de oever)",
+  "artikel": "BPR 3.20 lid 4 (+ 3.26 lid 1 en 3 als anker gevaar vormt)",
+  "schip": "lelievlet stilliggend",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "waar dit het best kan worden gezien; geen hoogte voorgeschreven",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": [
+   {
+    "vorm": "bol",
+    "kleur": "zwart",
+    "aantal": 1,
+    "plaats": "op een geschikte plaats, van alle zijden zichtbaar (praktijk: in de voorstag/mast); kleiner dan Ø60 cm mag"
+   }
+  ],
+  "relevant": true
+ },
+ {
+  "id": "lelievlet_gemeerd",
+  "naam": "Lelievlet gemeerd aan de oever/steiger (ook langszij van een ander schip dat aan de oever ligt)",
+  "artikel": "BPR 3.20 lid 4 en 5",
+  "schip": "lelievlet stilliggend",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "waar dit het best kan worden gezien; vervalt o.a. op een veilige ligplaats, bij voldoende walverlichting of op een aangewezen ligplaats (lid 5)",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ },
+ {
+  "id": "lelievlet_gesleept",
+  "naam": "Lelievlet op sleeptouw of langszij meegevoerd",
+  "artikel": "BPR 3.13 lid 4",
+  "schip": "lelievlet gesleept",
+  "lichten": [
+   {
+    "kleur": "wit",
+    "soort": "rondom",
+    "boog_graden": 360,
+    "plaats": "van alle zijden zichtbaar",
+    "aantal": 1,
+    "sterkte": "gewoon"
+   }
+  ],
+  "dagmerk": null,
+  "relevant": true
+ }
+]

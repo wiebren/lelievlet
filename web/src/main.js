@@ -1355,6 +1355,7 @@ export function mount(ui, host, config) {
     modes?.update(dt, speed);
     turnWithHer();
     if (!followRunView(dt)) keepTrackInView(dt);
+    night?.hold(modes?.darkness() ?? null);                         // nachtklaar makes it dark itself
     night?.update(dt, speed);
     paintScheme?.update(dt);
     stepProcedureBar();

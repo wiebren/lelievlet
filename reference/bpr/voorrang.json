@@ -1,0 +1,704 @@
+[
+  {
+    "id": "S01",
+    "titel": "Verschillende boeg, kruisend",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "boeg": "stuurboordsboeg (wind van bakboord, giek SB)",
+        "koers": "aan de wind"
+      },
+      {
+        "type": "klein zeilschip",
+        "rol": "behoudt koers",
+        "boeg": "bakboordsboeg (wind van stuurboord, giek BB)",
+        "koers": "halve wind"
+      }
+    ],
+    "situatie": "Open water, kruisende koersen. Over stuurboordsboeg wijkt.",
+    "artikel": "6.17 lid 6a",
+    "niveau": "KB I"
+  },
+  {
+    "id": "S02",
+    "titel": "Verschillende boeg, lelievlet behoudt koers",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "behoudt koers",
+        "boeg": "bakboordsboeg (wind van stuurboord, giek BB)",
+        "koers": "ruime wind"
+      },
+      {
+        "type": "klein zeilschip",
+        "rol": "wijkt",
+        "boeg": "stuurboordsboeg (wind van bakboord, giek SB)",
+        "koers": "aan de wind"
+      }
+    ],
+    "situatie": "Open water, kruisende koersen. Koers (hoog/laag) doet niet ter zake, alleen de boeg.",
+    "artikel": "6.17 lid 6a",
+    "niveau": "KB I"
+  },
+  {
+    "id": "S03",
+    "titel": "Dezelfde boeg, lelievlet loefwaarts",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "boeg": "bakboordsboeg",
+        "koers": "loefwaarts"
+      },
+      {
+        "type": "klein zeilschip",
+        "rol": "behoudt koers",
+        "boeg": "bakboordsboeg",
+        "koers": "lijwaarts"
+      }
+    ],
+    "situatie": "Open water, beide wind van stuurboord, koersen convergeren. Loef wijkt voor lij.",
+    "artikel": "6.17 lid 6b",
+    "niveau": "KB I"
+  },
+  {
+    "id": "S04",
+    "titel": "Dezelfde boeg, lelievlet lijwaarts",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "behoudt koers",
+        "boeg": "stuurboordsboeg",
+        "koers": "lijwaarts, halve wind"
+      },
+      {
+        "type": "klein zeilschip",
+        "rol": "wijkt",
+        "boeg": "stuurboordsboeg",
+        "koers": "loefwaarts, voor de wind"
+      }
+    ],
+    "situatie": "Open water, beide wind van bakboord. Loef wijkt voor lij.",
+    "artikel": "6.17 lid 6b",
+    "niveau": "KB I"
+  },
+  {
+    "id": "S05",
+    "titel": "Boeg van de ander niet te bepalen",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "boeg": "stuurboordsboeg",
+        "koers": "lijwaarts"
+      },
+      {
+        "type": "klein zeilschip",
+        "rol": "behoudt koers",
+        "boeg": "onbekend (spinnaker, pal voor de wind)",
+        "koers": "loefwaarts"
+      }
+    ],
+    "situatie": "Lijwaartse lelievlet over stuurboordsboeg kan de boeg van het loefwaartse schip niet met zekerheid bepalen en wijkt.",
+    "artikel": "6.17 lid 6c",
+    "niveau": "KB I"
+  },
+  {
+    "id": "S06",
+    "titel": "Tegengestelde koersen, twee zeilschepen",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "behoudt koers",
+        "boeg": "bakboordsboeg"
+      },
+      {
+        "type": "klein zeilschip",
+        "rol": "wijkt",
+        "boeg": "stuurboordsboeg"
+      }
+    ],
+    "situatie": "Open water, recht op elkaar af. Over stuurboordsboeg wijkt; geen loef/lij-regel bij tegengestelde koersen.",
+    "artikel": "6.04 lid 6",
+    "niveau": "KB II"
+  },
+  {
+    "id": "S07",
+    "titel": "Roeiende lelievlet en zeilboot",
+    "schepen": [
+      {
+        "type": "lelievlet (klein, spierkracht)",
+        "rol": "wijkt",
+        "koers": "kruisend"
+      },
+      {
+        "type": "klein zeilschip",
+        "rol": "behoudt koers",
+        "koers": "kruisend, van bakboord van de lelievlet"
+      }
+    ],
+    "situatie": "Rangorde: spierkracht wijkt voor zeil, ongeacht de zijde.",
+    "artikel": "6.17 lid 9",
+    "niveau": "KB I; Roeien"
+  },
+  {
+    "id": "S08",
+    "titel": "Zeilende lelievlet en motorboot van stuurboord",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "behoudt koers",
+        "koers": "kruisend"
+      },
+      {
+        "type": "klein motorschip",
+        "rol": "wijkt",
+        "koers": "kruisend, van stuurboord van de lelievlet"
+      }
+    ],
+    "situatie": "Motor wijkt voor zeil. \"Van stuurboord gaat voor\" geldt alleen tussen twee motorboten of twee roeiboten.",
+    "artikel": "6.17 lid 9",
+    "niveau": "KB I"
+  },
+  {
+    "id": "S09",
+    "titel": "Roeiende lelievlet en motorboot, tegengesteld",
+    "schepen": [
+      {
+        "type": "lelievlet (klein, spierkracht)",
+        "rol": "behoudt koers",
+        "koers": "tegengesteld"
+      },
+      {
+        "type": "klein motorschip",
+        "rol": "wijkt",
+        "koers": "tegengesteld"
+      }
+    ],
+    "situatie": "Motor wijkt voor spierkracht.",
+    "artikel": "6.04 lid 8",
+    "niveau": "Roeien"
+  },
+  {
+    "id": "S10",
+    "titel": "Twee roeiboten kruisend",
+    "schepen": [
+      {
+        "type": "lelievlet (klein, spierkracht)",
+        "rol": "behoudt koers",
+        "koers": "kruisend, van stuurboord"
+      },
+      {
+        "type": "klein, spierkracht (roeiboot)",
+        "rol": "wijkt",
+        "koers": "kruisend, nadert van bakboord"
+      }
+    ],
+    "situatie": "Twee door spierkracht voortbewogen schepen: wie van bakboord nadert wijkt.",
+    "artikel": "6.17 lid 8",
+    "niveau": "Roeien"
+  },
+  {
+    "id": "S11",
+    "titel": "Twee roeiboten recht op elkaar af",
+    "schepen": [
+      {
+        "type": "lelievlet (klein, spierkracht)",
+        "rol": "wijkt",
+        "koers": "tegengesteld"
+      },
+      {
+        "type": "klein, spierkracht (roeiboot)",
+        "rol": "wijkt",
+        "koers": "tegengesteld"
+      }
+    ],
+    "situatie": "Beide uitwijken naar stuurboord, bakboord op bakboord.",
+    "artikel": "6.04 lid 9",
+    "niveau": "Roeien"
+  },
+  {
+    "id": "S12",
+    "titel": "Zeil en motor tegelijk",
+    "schepen": [
+      {
+        "type": "lelievlet (klein motorschip: zeil + motor)",
+        "rol": "wijkt",
+        "koers": "kruisend (zwarte kegel)"
+      },
+      {
+        "type": "klein zeilschip",
+        "rol": "behoudt koers",
+        "koers": "kruisend"
+      }
+    ],
+    "situatie": "Onder zeil met draaiende motor is de lelievlet een motorschip en wijkt voor een zeilschip.",
+    "artikel": "1.01 A 15°; 6.17 lid 9; 3.13 lid 7",
+    "niveau": "KB II"
+  },
+  {
+    "id": "S13",
+    "titel": "Stuurboordszijde gaat voor boeg",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "behoudt koers",
+        "boeg": "stuurboordsboeg",
+        "koers": "volgt stuurboordszijde van het kanaal"
+      },
+      {
+        "type": "klein zeilschip",
+        "rol": "wijkt",
+        "boeg": "bakboordsboeg",
+        "koers": "kruist het kanaal (opkruisen)"
+      }
+    ],
+    "situatie": "Kanaal. Wie niet de stuurboordszijde volgt wijkt, ook als hij op de boeg voorrang zou hebben.",
+    "artikel": "6.17 lid 2",
+    "niveau": "KB I"
+  },
+  {
+    "id": "S14",
+    "titel": "Tegengestelde koers, ander aan verkeerde kant",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "behoudt koers",
+        "koers": "stuurboordszijde van het vaarwater"
+      },
+      {
+        "type": "klein zeilschip",
+        "rol": "wijkt",
+        "koers": "tegengesteld, aan zijn bakboordszijde"
+      }
+    ],
+    "situatie": "Wie niet de stuurboordszijde volgt wijkt.",
+    "artikel": "6.04 lid 2",
+    "niveau": "KB II"
+  },
+  {
+    "id": "S15",
+    "titel": "Klein kruist groot",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "koers": "kruisend"
+      },
+      {
+        "type": "groot motorschip",
+        "rol": "behoudt koers",
+        "koers": "kruisend"
+      }
+    ],
+    "situatie": "Breed vaarwater, geen van beide aan de stuurboordszijde. Klein wijkt voor groot.",
+    "artikel": "6.17 lid 3",
+    "niveau": "KB I"
+  },
+  {
+    "id": "S16",
+    "titel": "Klein en groot recht op elkaar af",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "koers": "tegengesteld"
+      },
+      {
+        "type": "groot motorschip",
+        "rol": "behoudt koers",
+        "koers": "tegengesteld"
+      }
+    ],
+    "situatie": "Rivier, geen van beide aan de stuurboordszijde. Klein wijkt voor groot.",
+    "artikel": "6.04 lid 3",
+    "niveau": "KB II"
+  },
+  {
+    "id": "S17",
+    "titel": "Blauw bord",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "koers": "tegengesteld"
+      },
+      {
+        "type": "groot motorschip",
+        "rol": "behoudt koers",
+        "koers": "tegengesteld; toont lichtblauw bord + wit flikkerlicht aan stuurboord"
+      }
+    ],
+    "situatie": "Groot schip wil stuurboord op stuurboord passeren om aan zijn bakboordszijde af te meren. Klein schip verleent voorrang, bij voorkeur door aan het verlangen te voldoen.",
+    "artikel": "6.04a lid 2-4",
+    "niveau": "KB II"
+  },
+  {
+    "id": "S18",
+    "titel": "Koers en snelheid behouden - en toch ingrijpen",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "behoudt koers",
+        "boeg": "bakboordsboeg",
+        "koers": "kruisend; grijpt op het laatst in"
+      },
+      {
+        "type": "klein zeilschip",
+        "rol": "wijkt",
+        "boeg": "stuurboordsboeg",
+        "koers": "kruisend; reageert niet"
+      }
+    ],
+    "situatie": "De lelievlet behoudt koers en snelheid, maar moet zelf ingrijpen zodra aanvaring niet meer door de ander alleen kan worden voorkomen. Attentiesein of sein gevaar voor aanvaring.",
+    "artikel": "6.03 lid 4-5; 1.04; 4.02 lid 2",
+    "niveau": "KB I"
+  },
+  {
+    "id": "S19",
+    "titel": "Lelievlet loopt een zeilboot op",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "koers": "oploper (> 22°30′ achterlijker dan dwars)"
+      },
+      {
+        "type": "klein zeilschip",
+        "rol": "behoudt koers",
+        "koers": "opgelopene; werkt mee"
+      }
+    ],
+    "situatie": "Oploper houdt vrij en loopt zo mogelijk aan loef voorbij; de opgelopene werkt mee.",
+    "artikel": "6.01 lid 1b; 6.09; 6.10 lid 2-3",
+    "niveau": "KB II"
+  },
+  {
+    "id": "S20",
+    "titel": "Motorboot loopt de lelievlet op",
+    "schepen": [
+      {
+        "type": "klein motorschip",
+        "rol": "wijkt",
+        "koers": "oploper"
+      },
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "behoudt koers",
+        "koers": "opgelopene; vergemakkelijkt"
+      }
+    ],
+    "situatie": "In beginsel voorbijlopen aan bakboord van de opgelopene; elk opgelopen klein schip vergemakkelijkt het voorbijlopen.",
+    "artikel": "6.09 lid 2; 6.10 lid 1",
+    "niveau": "KB II"
+  },
+  {
+    "id": "S21",
+    "titel": "Groot schip loopt de lelievlet op",
+    "schepen": [
+      {
+        "type": "groot motorschip",
+        "rol": "wijkt",
+        "koers": "oploper"
+      },
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "behoudt koers",
+        "koers": "opgelopene; vergemakkelijkt, zo nodig vaart minderen"
+      }
+    ],
+    "situatie": "Elk opgelopen klein schip moet het voorbijlopen vergemakkelijken en zo nodig snelheid verminderen.",
+    "artikel": "6.09 lid 2",
+    "niveau": "KB II"
+  },
+  {
+    "id": "S22",
+    "titel": "Engte bezeild",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "behoudt koers",
+        "koers": "engte bezeild"
+      },
+      {
+        "type": "klein motorschip",
+        "rol": "wijkt",
+        "koers": "tegengesteld; wacht"
+      }
+    ],
+    "situatie": "Brugopening zonder stroom. Klein motorschip wacht voor klein zeilschip dat de engte heeft bezeild.",
+    "artikel": "6.07 lid 8c",
+    "niveau": "KB II"
+  },
+  {
+    "id": "S23",
+    "titel": "Engte niet bezeild",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "koers": "engte niet bezeild; wacht"
+      },
+      {
+        "type": "klein, spierkracht (roeiboot)",
+        "rol": "behoudt koers",
+        "koers": "tegengesteld"
+      }
+    ],
+    "situatie": "Zeilschip dat de engte niet bezeild heeft wacht voor elk klein schip.",
+    "artikel": "6.07 lid 8e",
+    "niveau": "KB II"
+  },
+  {
+    "id": "S24",
+    "titel": "Engte met stroom",
+    "schepen": [
+      {
+        "type": "lelievlet (klein, spierkracht)",
+        "rol": "wijkt",
+        "koers": "tegen stroom; wacht"
+      },
+      {
+        "type": "klein motorschip",
+        "rol": "behoudt koers",
+        "koers": "voor stroom"
+      }
+    ],
+    "situatie": "Waar stroom loopt wacht het schip dat tegen stroom vaart, ongeacht het type.",
+    "artikel": "6.07 lid 5",
+    "niveau": "KB II; Roeien"
+  },
+  {
+    "id": "S25",
+    "titel": "Engte, klein en groot",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "koers": "wacht"
+      },
+      {
+        "type": "groot motorschip",
+        "rol": "behoudt koers",
+        "koers": "tegengesteld"
+      }
+    ],
+    "situatie": "Zonder stroom wacht klein voor groot.",
+    "artikel": "6.07 lid 6",
+    "niveau": "KB II"
+  },
+  {
+    "id": "S26",
+    "titel": "Engte, hindernis aan stuurboord",
+    "schepen": [
+      {
+        "type": "lelievlet (klein, spierkracht)",
+        "rol": "wijkt",
+        "koers": "hindernis aan stuurboord; wacht"
+      },
+      {
+        "type": "klein, spierkracht (roeiboot)",
+        "rol": "behoudt koers",
+        "koers": "tegengesteld"
+      }
+    ],
+    "situatie": "Twee roeiboten: wie de hindernis of binnenbocht aan stuurboord heeft wacht.",
+    "artikel": "6.07 lid 8b",
+    "niveau": "Roeien"
+  },
+  {
+    "id": "S27",
+    "titel": "Haven uitvaren, groot schip",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "koers": "vaart haven uit"
+      },
+      {
+        "type": "groot motorschip",
+        "rol": "behoudt koers",
+        "koers": "op het hoofdvaarwater"
+      }
+    ],
+    "situatie": "Klein verleent bij uitvaren voorrang aan groot.",
+    "artikel": "6.16 lid 3",
+    "niveau": "KB III"
+  },
+  {
+    "id": "S28",
+    "titel": "Lateraal gemarkeerd hoofdvaarwater",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "koers": "vaart hoofdvaarwater binnen"
+      },
+      {
+        "type": "klein zeilschip",
+        "rol": "behoudt koers",
+        "koers": "volgt stuurboordszijde langs de laterale markering"
+      }
+    ],
+    "situatie": "Wie een lateraal gemarkeerd hoofdvaarwater binnenvaart, wijkt voor wie daar langs de markering de stuurboordszijde volgt.",
+    "artikel": "6.16 lid 5",
+    "niveau": "KB III"
+  },
+  {
+    "id": "S29",
+    "titel": "Teken B.9",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "koers": "komt uit de haven"
+      },
+      {
+        "type": "klein motorschip",
+        "rol": "behoudt koers",
+        "koers": "op het hoofdvaarwater"
+      }
+    ],
+    "situatie": "Bij teken B.9 verleent wie uit de haven komt voorrang aan schepen op het hoofdvaarwater.",
+    "artikel": "6.16 lid 8",
+    "niveau": "KB III"
+  },
+  {
+    "id": "S30",
+    "titel": "Veerpont",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "koers": "nadert de overzetplaats"
+      },
+      {
+        "type": "veerpont",
+        "rol": "behoudt koers",
+        "koers": "vertrekt / steekt over"
+      }
+    ],
+    "situatie": "Klein schip verleent voorrang aan een vertrekkende, kerende of overstekende veerpont.",
+    "artikel": "6.23 lid 3",
+    "niveau": "KB III"
+  },
+  {
+    "id": "S31",
+    "titel": "Keren",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "koers": "wil keren; wacht"
+      },
+      {
+        "type": "groot motorschip",
+        "rol": "behoudt koers",
+        "koers": "achteropkomend"
+      }
+    ],
+    "situatie": "Klein schip verleent bij keren voorrang aan groot. Het mag het keersein niet geven.",
+    "artikel": "6.13 lid 3; 4.02 lid 3",
+    "niveau": "KB III"
+  },
+  {
+    "id": "S32",
+    "titel": "Vertrek van de wal",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "behoudt koers",
+        "koers": "vertrekt; vraagt medewerking"
+      },
+      {
+        "type": "klein motorschip",
+        "rol": "wijkt",
+        "koers": "op enige afstand; werkt mee"
+      }
+    ],
+    "situatie": "Klein mag bij vertrek medewerking verlangen van klein, pas nadat vaststaat dat het veilig kan.",
+    "artikel": "6.14 lid 1, 4; 6.03 lid 6-7",
+    "niveau": "KB III"
+  },
+  {
+    "id": "S33",
+    "titel": "Snel schip",
+    "schepen": [
+      {
+        "type": "snel schip (groot, > 40 km/u)",
+        "rol": "wijkt",
+        "koers": "kruisend"
+      },
+      {
+        "type": "lelievlet (klein, spierkracht)",
+        "rol": "behoudt koers",
+        "koers": "kruisend"
+      }
+    ],
+    "situatie": "Een snel schip verleent altijd voorrang.",
+    "artikel": "6.02",
+    "niveau": "KB I"
+  },
+  {
+    "id": "S34",
+    "titel": "Engte zonder uitzicht",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "behoudt koers",
+        "koers": "nadert brugopening in een bocht; geeft één lange stoot"
+      }
+    ],
+    "situatie": "Is het uitzicht niet vrij, dan één lange stoot geven voor het binnenvaren van een engte.",
+    "artikel": "6.07 lid 4",
+    "niveau": "KB III"
+  },
+  {
+    "id": "S35",
+    "titel": "Slecht zicht",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "koers": "houdt stuurboordszijde, mindert vaart of gaat stilliggen"
+      },
+      {
+        "type": "groot motorschip",
+        "rol": "behoudt koers",
+        "koers": "geeft mistsein"
+      }
+    ],
+    "situatie": "Bij slecht zicht zoveel mogelijk stuurboordszijde; mistsein voor klein schip niet verplicht.",
+    "artikel": "6.30 lid 2-3; 6.33 lid 1d, 3",
+    "niveau": "KB III"
+  },
+  {
+    "id": "S36",
+    "titel": "Ankeren verboden",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "koers": "wil ankeren onder een brug / in havenmond / in veerponttraject / in een engte"
+      }
+    ],
+    "situatie": "Ligplaats nemen verboden. Waar het wel mag: zwarte bol overdag, wit rondom licht 's nachts.",
+    "artikel": "7.02 lid 1d-g; 3.20 lid 4",
+    "niveau": "KB III"
+  },
+  {
+    "id": "S37",
+    "titel": "Motorplicht op grote vaarweg",
+    "schepen": [
+      {
+        "type": "lelievlet (klein zeilschip)",
+        "rol": "wijkt",
+        "koers": "zonder motor bij het Amsterdam-Rijnkanaal"
+      }
+    ],
+    "situatie": "Op vaarwegen van bijlage 15a alleen met motor (≥ 6 km/u); roeien mag wel, stuurboordszijde, niet opkruisen.",
+    "artikel": "9.04 lid 1-4",
+    "niveau": "KB III"
+  }
+]

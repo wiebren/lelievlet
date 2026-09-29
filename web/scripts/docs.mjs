@@ -148,7 +148,9 @@ ${table(['Nr', 'Vraag', 'Zeilen', 'Roeien', 'Antwoord: onderdelen', 'Telt ook go
 /** The steps of a procedure in modes.js, from its source: key, goal, time, labels. */
 function stepsOf(name) {
   const at = modes.indexOf(`new Procedure('${name}'`);
-  let block = modes.slice(at, modes.indexOf(']);', at));
+  // it ends at its step list: `]);`, or `]), { needs … });` for a flow that carries its own needs
+  const ends = [modes.indexOf(']);', at), modes.indexOf(']), {', at)].filter((i) => i > 0);
+  let block = modes.slice(at, Math.min(...ends));
   // steps kept in an array of their own just before it (afmeren's landvasten), spread in
   const spread = block.match(/\.\.\.(\w+),/);
   if (spread) {
@@ -225,10 +227,14 @@ function manoeuvres() {
   const leaveHoger = stepsOf('Afvaren van hogerwal');
   const leaveLager = stepsOf('Afvaren van lagerwal');
   const rescue = stepsOf('Man over boord');
+  // a flow of its own, forwards: every step with what has to be done before it, for Oefenen
+  const flowRows = (list, needs) => table(['#', 'Stap', 'Eerst gedaan (voor Oefenen)', 'Duur'], list.map((s, i) => [i + 1, s.label,
+    (needs[s.key] ?? []).map((k) => list.find((x) => x.key === k)?.label).filter(Boolean).join(', ') || '—', secs(s)]));
   const bend = stepsOf('Zeilen afslaan'); const BEND_NEEDS = objectOf('BEND_NEEDS');
-  const bendRows = (list, back) => table(['#', 'Stap', 'Eerst gedaan (voor Oefenen)', 'Duur'], list.map((s, i) => [i + 1, back ? s.back : s.label,
-    (back ? list.filter((d) => (BEND_NEEDS[d.key] ?? []).includes(s.key)).map((d) => d.back) : (BEND_NEEDS[s.key] ?? []).map((k) => list.find((x) => x.key === k).label)).join(', ') || '—',
-    secs(s)]));
+  const tie = stepsOf('Zeilen aanslaan'); const TIE_NEEDS = objectOf('TIE_NEEDS');
+  const ready = stepsOf('Nachtklaar maken'); const NIGHT_NEEDS = objectOf('NIGHT_NEEDS');
+  const morning = stepsOf('Zeilklaar maken'); const MORNING_NEEDS = objectOf('MORNING_NEEDS');
+  const sailOn = stepsOf('Weer varen'); const SAIL_ON_NEEDS = objectOf('SAIL_ON_NEEDS');
   // the roeimanoeuvres: their needs are written in their own branch of planPulling
   const needsAfter = (name) => {
     const at = modes.indexOf(`new Procedure('${name}'`); const next = modes.indexOf('new Procedure(', at + 1);
@@ -251,8 +257,9 @@ function manoeuvres() {
   const turnTable = (list, needs) => table(['#', 'Stap', 'Roept', 'Eerst gedaan (voor Oefenen)', 'Duur'], list.map((s, i) => [i + 1, s.label,
     s.say ? `“${s.say}” (${WHO[s.by]})` : '—', (needs[s.key] ?? []).map((k) => list.find((x) => x.key === k)?.label).filter(Boolean).join(', ') || '—', secs(s)]));
   const OPS = opsOf();
-  const split = rig.findIndex((s) => s.key === 'ties') + 1;
-  const sails = rig.slice(0, split); const mast = rig.slice(split);
+  const sails = rig;                                             // the Tuig timeline is the sails; the mast has its own flows
+  const lower = stepsOf('Mast strijken'); const LOWER_NEEDS = objectOf('LOWER_NEEDS');
+  const raise = stepsOf('Mast zetten'); const RAISE_NEEDS = objectOf('RAISE_NEEDS');
   const byKey = Object.fromEntries(rig.map((s) => [s.key, s]));
   // a plain number of seconds, or the choice a step makes between two ("1,5 of 0,6 s")
   const secs = (s) => {
@@ -346,8 +353,8 @@ Daaronder kies je:
 
 - **Bekijken**: de handeling speelt vanzelf af. De stappenbalk staat in de kaart: vorige stap,
   afspelen/pauzeren, volgende stap en een schuif over de hele handeling. Volgende en vorige stap gaan
-  altijd in de richting van de handeling zelf, ook bij zeilen hijsen en mast zetten, die de
-  tijdlijn van strijken terug doorlopen. Een stap op zich laat de camera eerst naar de onderdelen gaan
+  altijd in de richting van de handeling zelf, ook bij zeilen hijsen, dat de tijdlijn van strijken
+  terug doorloopt. Een stap op zich laat de camera eerst naar de onderdelen gaan
   waar het om gaat.
 - **Oefenen**: de boot blijft staan en bij elke stap is de vraag *Wat is de volgende stap?*, met vier
   antwoorden. Het goede antwoord staat ertussen, en de drie andere zijn stappen die in de toestand van
@@ -402,20 +409,50 @@ ${backward(sails)}
 Een zeil kunnen aanslaan aan de rondhouten van het eigen schip, en het schip zeilklaar en nachtklaar
 maken (CWO Kielboot III, Handboek Opleidingen). **Afslaan** kan als de zeilen gestreken en opgebonden
 zijn: de fok van de voorstag en in de zeilzak, het grootzeil van gaffel en giek en opgeborgen; gaffel
-en giek blijven kaal in de mik liggen. **Aanslaan** is hetzelfde achterstevoren, in de volgorde van het
-Handboek: eerst het grootzeil aan gaffel en giek en de vallen erop, dan de fok: uit de zak, de val
-klaar, de halshoek vast, de leuvers van onder af aan de voorstag, en de fokkenschoten ingeschoren met
-een achtknoop. Afgeslagen kun je niet hijsen; de mast strijken kan wel, en heeft dan geen fok meer af
-te slaan.
+en giek blijven kaal in de mik liggen; de fokkenval gaat aan zijn kikker op de mastkoker. **Aanslaan**
+is een eigen handeling, vooruit, in de volgorde van het Handboek (5.3.3, zeilklaar maken): eerst de
+fok - uit de zak met de val klaar gehangen, de halshoek vast, de leuvers van onder af aan de voorstag,
+de fokkenschoten door de lij-ogen met een achtknoop - en dan het grootzeil aan gaffel en giek en de
+vallen erop. Afgeslagen kun je niet hijsen; de mast strijken kan wel, en heeft dan geen fok meer af te
+slaan.
 
 Voorwaarden, afslaan:
 ${pre('afslaan')}
 
-${bendRows(bend, false)}
+${flowRows(bend, BEND_NEEDS)}
 
 Aanslaan:
 
-${bendRows([...bend].reverse(), true)}
+${flowRows(tie, TIE_NEEDS)}
+
+## Zeilklaar en nachtklaar maken
+
+Het schip klaarmaken voor de nacht en weer zeilklaar maken (CWO Kielboot I, Handboek Opleidingen
+5.3.3). **Nachtklaar maken** kan met de mast op, de zeilen gestreken en opgedoekt en nog aangeslagen:
+de fok van de voorstag in de zeilzak, de vallen rammelvrij aan de kikkers op de mastkoker, de kraanlijn losgezet,
+het zeilkleed over zeil, giek en gaffel, de inventaris opgeruimd. Het grootzeil blijft opgedoekt op
+de mik liggen. De fokkenval gaat, los van de fok, aan de bovenste kikker aan stuurboord op de
+mastkoker; een losgemaakte val wordt nooit omhoog getrokken. Ligt de boot **voor anker**, dan komt er
+bij: de ankerbol in de mast, bij zonsondergang het toplicht aan als ankerlicht, en het wordt donker.
+Een klein schip voor anker voert overdag een zwarte bol en 's nachts een wit gewoon rondom schijnend
+licht, allebei van alle kanten zichtbaar (BPR 3.20 lid 4; kleine schepen zijn niet vrijgesteld).
+Afgemeerd aan de wal hoeft alleen het licht. Niet voor anker worden die drie stappen overgeslagen.
+
+Nachtklaar kan de boot niets anders tot ze weer zeilklaar is: elke andere handeling zegt dan *Eerst
+zeilklaar maken*. **Zeilklaar maken** is een eigen handeling, vooruit, in de volgorde van het Handboek
+(5.3.3): voor anker wordt het eerst licht en gaat dan het ankerlicht uit; dan de inventaris
+gecontroleerd, het zeilkleed eraf en droog opgevouwen, de kraanlijn doorgezet, de fok aangeslagen en
+de vallen klaar om te hijsen. De ankerbol blijft hangen zolang de boot voor anker ligt, en gaat omlaag
+als het anker op is. De mik gaat pas weg bij het hijsen; het Handboek haalt hem al bij zeilklaar weg.
+
+Voorwaarden, nachtklaar:
+${pre('nachtklaar')}
+
+${flowRows(ready, NIGHT_NEEDS)}
+
+Zeilklaar:
+
+${flowRows(morning, MORNING_NEEDS)}
 
 ## Roeimanoeuvres
 
@@ -478,8 +515,9 @@ haar tegen de wind in en de bakke fok duwt de boeg weg, zodat ze op zo'n 55° bl
 weinig vaart en drijft langzaam naar lij. Vaart ze halve wind, dan loeft ze eerst op tot aan de wind.
 Het Katwijkse boek laat het grootzeil helemaal vieren; hier is het half, zoals bij Meestoxopeus.
 
-Ze blijft bijliggen tot ze weer gaat varen: met **Weer varen** (dezelfde stappen achterstevoren, terug
-naar de koers van voor het bijliggen), met een koers die je zelf zet, of met een andere manoeuvre.
+Ze blijft bijliggen tot ze weer gaat varen: met **Weer varen** (een eigen handeling: de fok over naar
+lij zodat hij trekt, de helmstok recht, het grootzeil aan, en terug naar de koers van voor het
+bijliggen), met een koers die je zelf zet, of met een andere manoeuvre.
 Voor Oefenen is fout: de helmstok naar lij voordat de fok bak staat (dan draait ze de wind in).
 
 Voorwaarden:
@@ -489,7 +527,7 @@ ${heaveRows(heave, false)}
 
 Weer varen:
 
-${heaveRows([...heave].reverse(), true)}
+${flowRows(sailOn, SAIL_ON_NEEDS)}
 
 ## Ankeren
 
@@ -551,14 +589,20 @@ ${turnTable(ankerUitKaal, objectOf('ANCHOR_NEEDS'))}
 Voorwaarden:
 ${pre('mastStrijken')}
 
-${forward(mast)}
+${flowRows(lower, LOWER_NEEDS)}
 
 ## Mast zetten
+
+Een eigen handeling, vooruit. De mast gaat omhoog en wordt meteen vastgezet: eerst de pelikaanhaak in
+de hanekam en de ring erover, dan de grendelbout. Daarna de giek terug aan de lummel en het tuig terug
+in de vork van de mik, en de fok weer aan de voorstag als die er bij het strijken aan zat (afgeslagen
+blijft hij in de zak). Geen van de boeken beschrijft mast zetten stap voor stap: deze volgorde is een
+eigen uitwerking, en is te toetsen.
 
 Voorwaarden:
 ${pre('mastZetten')}
 
-${backward(mast)}
+${flowRows(raise, RAISE_NEEDS)}
 
 ## Reven
 

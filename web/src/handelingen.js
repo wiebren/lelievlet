@@ -12,8 +12,8 @@
 
 // the groups of the list, and what each operation is called in it
 const GROUPS = [
-  ['Tuigage', { mastZetten: 'Mast zetten', aanslaan: 'Zeilen aanslaan', hijsen: 'Zeilen hijsen', reven: 'Reven',
-    strijken: 'Zeilen strijken', afslaan: 'Zeilen afslaan', mastStrijken: 'Mast strijken' }],
+  ['Tuigage', { mastZetten: 'Mast zetten', zeilklaar: 'Zeilklaar maken', aanslaan: 'Zeilen aanslaan', hijsen: 'Zeilen hijsen', reven: 'Reven',
+    strijken: 'Zeilen strijken', nachtklaar: 'Nachtklaar maken', afslaan: 'Zeilen afslaan', mastStrijken: 'Mast strijken' }],
   ['Wenden', { overstag: 'Overstag', gijpen: 'Gijp', stormrondje: 'Stormrondje', opkruisen: 'Opkruisen', manOverBoord: 'Man over boord', peiling: 'Dwarspeiling', bijliggen: 'Bijliggen', weerVaren: 'Weer varen' }],
   ['Afmeren', { slipHoger: 'Sliplanding hogerwal', opschieter: 'Opschieter hogerwal',
     afmeren: 'Sliplanding langswal', topEnTakel: 'Voor top en takel langswal', aanleggenLager: 'Aanleggen aan lagerwal', verhalen: 'Verhalen' }],
@@ -26,7 +26,7 @@ const GROUPS = [
 const GROUP_MODE = { Roeien: 'roeien' };
 // and on the card of a run
 const NAMES = {
-  aanslaan: 'Zeilen aanslaan', afslaan: 'Zeilen afslaan', hijsen: 'Zeilen hijsen', strijken: 'Zeilen strijken', mastStrijken: 'Mast strijken', mastZetten: 'Mast zetten', reven: 'Reven',
+  aanslaan: 'Zeilen aanslaan', afslaan: 'Zeilen afslaan', nachtklaar: 'Nachtklaar maken', zeilklaar: 'Zeilklaar maken', hijsen: 'Zeilen hijsen', strijken: 'Zeilen strijken', mastStrijken: 'Mast strijken', mastZetten: 'Mast zetten', reven: 'Reven',
   bijliggen: 'Bijliggen', weerVaren: 'Weer varen uit bijliggen',
   overstag: 'Overstag (wenden)', gijpen: 'Gijpen', stormrondje: 'Stormrondje', opkruisen: 'Opkruisen', manOverBoord: 'Man over boord',
   slipHoger: 'Sliplanding hogerwal', peiling: 'Dwarspeiling', opschieter: 'Opschieter', afmeren: 'Sliplanding langswal',
@@ -39,6 +39,8 @@ const NAMES = {
 const ABOUT = {
   aanslaan: 'Grootzeil aan gaffel en giek, fok aan de voorstag',
   afslaan: 'Fok van de stag in de zak, grootzeil van de rondhouten',
+  nachtklaar: 'Fok in de zak, vallen weg, zeilkleed erover; voor anker de ankerbol en het ankerlicht',
+  zeilklaar: 'Zeilkleed eraf, vallen en fok aanslaan, klaar om te hijsen',
   hijsen: 'Zeilbinders af, zeil los, zeilen omhoog',
   strijken: 'Kop in de wind, zeilen omlaag en opdoeken',
   mastStrijken: 'Fok af, tuig in de mik, mast omlaag',

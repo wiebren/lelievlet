@@ -11,6 +11,7 @@
 const DOCS = 'https://github.com/wiebren/lelievlet/blob/main/docs/manoeuvres.md';
 const SECTIONS = {
   aanslaan: 'Zeilen aanslaan en afslaan', afslaan: 'Zeilen aanslaan en afslaan', hijsen: 'Zeilen hijsen',
+  nachtklaar: 'Zeilklaar en nachtklaar maken', zeilklaar: 'Zeilklaar en nachtklaar maken',
   strijken: 'Zeilen strijken', reven: 'Reven', mastStrijken: 'Mast strijken', mastZetten: 'Mast zetten',
   overstag: 'Overstag gaan (wenden)', gijpen: 'Gijpen', stormrondje: 'Stormrondje', opkruisen: 'Opkruisen',
   manOverBoord: 'Man over boord', peiling: 'Dwarspeiling', bijliggen: 'Bijliggen', weerVaren: 'Bijliggen',
