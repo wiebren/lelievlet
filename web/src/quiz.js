@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { QUIZ } from './quizdata.js';
 import { regionAt } from './regions.js';
-import { quizEntries, quizNaam } from './config.js';
+import { quizEntries, quizNaam, TYPING } from './config.js';
 
 // Oefenen: a quiz over the numbered names of the parts drawing of the class (quizdata.js). Four
 // kinds of exercise, all drawn from the same pool:
@@ -71,7 +71,7 @@ const tailOf = (naam) => (wordsOf(naam)[0] ?? '').slice(-3);
 const fold = (text) => text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
   .replace(/[^a-z0-9\- ]+/g, ' ').replace(/\s+/g, ' ').trim();
 const article = (text) => text.replace(/^(?:de|het|een|den) /, '');
-const stem = (text) => text.replace(/(?:en|s)$/, '');
+const stem = (text) => text.replace(/(?:en|s)$/, '').replace(/([bdfgklmnprst])\1$/, '$1');   // dollen -> dol
 const TYPOS_PER = 6;                   // letters per typo that is forgiven
 
 /**
@@ -79,19 +79,26 @@ const TYPOS_PER = 6;                   // letters per typo that is forgiven
  * the alternatives it names itself ("Halshoek of -broek"). A head that
  * several entries share is not enough on its own; `owners` below knows which those are.
  */
-function keysOf(naam) {
+function keysOf(naam, other = []) {
   const full = fold(naam);
   const head = full.split(/ van (?:de|het|den) | van /)[0];
+  const qualifier = full.slice(head.length);                      // " van de fok", or nothing
   const keys = [full, head];
   const alts = head.split(' of ').map((a) => a.trim()).filter(Boolean);
   for (const alt of alts) {
-    if (!alt.startsWith('-')) { keys.push(alt); continue; }
     // "-broek" carries the head of the first alternative: halshoek -> halsbroek
-    const rest = alt.slice(1);
-    for (let i = 3; i <= alts[0].length - 3; i++) keys.push(alts[0].slice(0, i) + rest);
+    const forms = alt.startsWith('-')
+      ? Array.from({ length: Math.max(alts[0].length - 5, 0) }, (_, i) => alts[0].slice(0, i + 3) + alt.slice(1))
+      : [alt];
+    for (const form of forms) keys.push(form, form + qualifier);   // Halshoek, and Halshoek van de fok
   }
+  // the name the viewer gives the part itself, where that is another (Hommerring for Mastring)
+  for (const name of other) keys.push(fold(name));
   return [...new Set(keys)];
 }
+
+/** How far a typed name is from a key: the edit distance, or that of the two without a plural. */
+const distance = (typed, key) => Math.min(levenshtein(typed, key), levenshtein(stem(typed), stem(key)));
 
 /** Edit distance where two neighbours the wrong way round cost one, like the typo they are. */
 function levenshtein(a, b) {
@@ -118,7 +125,7 @@ function close(typed, key) {
   if (typed === key) return true;
   if (stem(typed) === stem(key)) return true;
   const room = Math.floor(key.length / TYPOS_PER);
-  return room > 0 && Math.min(levenshtein(typed, key), levenshtein(stem(typed), stem(key))) <= room;
+  return room > 0 && distance(typed, key) <= room;
 }
 
 export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
@@ -151,7 +158,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
       ids: new Set([...delen, ...ook].map((p) => p.extras.id)),   // a click on any of these is right
       gebied: delen.find((p) => p.extras.gebied) ?? null,         // Boeg, Kleed: an area, not an object
       groep: delen[0].extras.groep, woorden: new Set(wordsOf(naam)), staart: tailOf(naam),
-      keys: keysOf(naam),
+      keys: keysOf(naam, [...new Set(delen.map((p) => p.extras.naam))].length === 1 && delen[0].extras.naam !== naam ? [delen[0].extras.naam] : []),
     });
   }
   if (dropped.length) {
@@ -230,7 +237,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
 
   /** The entries this user gets wrong most, worst first. */
   const wrongPool = () => eligible('gemengd')
-    .filter((e) => statsOf(e).fout > 0)
+    .filter((e) => statsOf(e).mis ?? statsOf(e).fout > 0)
     .sort((a, b) => (statsOf(b).fout - statsOf(b).goed) - (statsOf(a).fout - statsOf(a).goed));
 
   /** Which exercise a question becomes; Gemengd draws one the entry allows. */
@@ -295,6 +302,17 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   function judge(entry, typed) {
     const answer = article(fold(typed));
     if (!answer) return 'leeg';
+    // a plain name given with what it belongs to: "Achterlijk van het grootzeil" for Achterlijk
+    for (const key of entry.keys) {
+      if (!key.includes(' ') && answer.startsWith(`${key} van `) && (owners.get(key) ?? []).length < 2) return 'goed';
+    }
+    // the typos forgiven never reach past another name: what is as near, or nearer, to a name only
+    // another entry answers to is that one (Halshoek for Tophoek van het grootzeil)
+    const own = Math.min(...entry.keys.map((key) => distance(answer, key)));
+    for (const [key, list] of owners) {
+      if (!list.includes(entry) && distance(answer, key) < own) return 'fout';
+      if (!list.includes(entry) && own > 0 && distance(answer, key) === own) return 'fout';
+    }
     let shared = false;
     for (const key of entry.keys) {
       if (!close(answer, key)) continue;
@@ -340,7 +358,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   };
   const choose = () => {
     press(kindButtons, kind, 'kind'); press(lengthButtons, length, 'length'); pressLevel();
-    change((s) => { s.keuze = { kind, length, level }; });
+    change((s) => { s.keuze = { kind, length, level: rowedFor ? zeilLevel : level }; });
     refreshPanel();
   };
   for (const b of kindButtons) b.addEventListener('click', () => { kind = b.dataset.kind; choose(); });
@@ -661,6 +679,9 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   const setHint = (text) => { hint.textContent = text; hint.hidden = !text; };
 
   function ask() {
+    // what is no longer there (the sails made up after the round began) is not asked about
+    while (round.index < round.queue.length && !there(round.queue[round.index])) round.queue.splice(round.index, 1);
+    if (round.index >= round.queue.length) { showResults(); return; }
     const entry = round.queue[round.index];
     let type = typeFor(entry, round.kind);
     let lit = type === 'kies' ? partsFor(entry) : null;
@@ -678,7 +699,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
     }
     if (type === 'kies') {
       question.lit = lit.map((e, i) => ({ entry: e, colour: new THREE.Color(KIES[i].hex), letter: KIES[i].letter }));
-      vraag.textContent = `Welke is de ${entry.naam}?`;
+      vraag.textContent = `Welke kleur hoort bij: ${entry.naam}?`;
       setHint('Vier onderdelen lichten op: kies de goede kleur.');
       buildChips();
       showLit();
@@ -745,7 +766,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
     flyTo(entry.delen);
     // kies named the part in the question already: what is worth saying is which one was picked
     settle(right, right ? 'Goed!'
-      : type === 'kies' ? `Fout: dat is de ${list[i].naam}` : `Fout: dit is de ${entry.naam}`);
+      : type === 'kies' ? `Fout. Dat is: ${list[i].naam}` : `Fout. Dit is: ${entry.naam}`);
   }
 
   // ---------------------------------------------------------------- typen
@@ -761,7 +782,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
     typed.disabled = true;
     settle(verdict === 'goed', verdict === 'goed'
       ? `Goed! Zo schrijf je het: ${question.entry.naam}`
-      : `Fout: dit is de ${question.entry.naam}`);
+      : `Fout. Dit is: ${question.entry.naam}`);
   }
 
   // ---------------------------------------------------------------- aanwijzen
@@ -792,7 +813,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
     const right = entry.gebied ? regionAt(entry.gebied, hit) : entry.ids.has(part.extras.id);
     question.pending = null;
     if (!right) { select(entry.delen); flyTo(entry.delen); }
-    settle(right, right ? 'Goed!' : `Fout: dit is de ${part.extras.naam}`);
+    settle(right, right ? 'Goed!' : `Fout. Dit is: ${part.extras.naam}`);
   }
 
   // ---------------------------------------------------------------- the answer is in
@@ -806,6 +827,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
       const stats = s.per[nr] ?? (s.per[nr] = { goed: 0, fout: 0, laatst: 0 });
       stats[right ? 'goed' : 'fout']++;
       stats.laatst = Date.now();
+      stats.mis = !right;                          // the last answer: what is right again leaves Oefen je fouten
       s.totaal[right ? 'goed' : 'fout']++;
       s.totaal.beste = Math.max(s.totaal.beste, best);
     });
@@ -866,7 +888,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   // only count while this viewer has the pointer or the focus.
   window.addEventListener('keydown', (e) => {
     const from = realTarget(e);
-    if (!round || !engaged() || from.closest?.('input:not([type=checkbox]), textarea, select')) return;
+    if (!round || !engaged() || e.ctrlKey || e.metaKey || e.altKey || from.closest?.(TYPING)) return;
     if (question && !question.answered && !answers.hidden) {
       const letter = KIES.findIndex((k) => k.letter === e.key.toUpperCase());
       const index = e.key >= '1' && e.key <= String(CHOICES) ? Number(e.key) - 1
@@ -891,6 +913,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   /** The round as it stands, for a feedback report: what kind, how far, and the part asked about now. */
   const info = () => round && { soort: round.kind, vraag: `${Math.min(round.index + 1, round.queue.length)} / ${round.queue.length}`,
     goed: round.goed, fout: round.fout, fouten: round.fouten, klaar: round.done,
-    onderdeel: question?.entry && { nr: question.entry.nr, naam: question.entry.naam }, type: question?.type };
+    // the part asked about only once it is answered: Melden must not give the answer away
+    onderdeel: question?.answered ? { nr: question.entry.nr, naam: question.entry.naam } : undefined, type: question?.type };
   return { panelToggled, click, rings, active: () => Boolean(round), info };
 }

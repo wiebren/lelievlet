@@ -26,7 +26,9 @@ const demoPage = {
     const files = ['app.html', 'app.webmanifest', 'lelievlet.js', 'logo.js',
       ...['icons', 'models', 'textures'].flatMap((dir) => readdirSync(resolve(out, dir)).map((f) => `${dir}/${f}`))].sort();
     const hash = createHash('sha256');
-    for (const file of files) hash.update(file).update(readFileSync(resolve(out, file)));
+    // the build stamp (commit and time) is left out: a deploy that changes nothing else is no new app
+    const stamped = (file, data) => (file === 'lelievlet.js' ? data.toString('utf8').split(build.commit).join('').split(build.datum).join('') : data);
+    for (const file of files) hash.update(file).update(stamped(file, readFileSync(resolve(out, file))));
     const worker = readFileSync(resolve(here, 'demo/sw.js'), 'utf8');
     hash.update(worker);
     writeFileSync(resolve(out, 'sw.js'), worker.replace("'__VERSION__'", `'${hash.digest('hex').slice(0, 12)}'`)

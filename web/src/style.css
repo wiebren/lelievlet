@@ -64,6 +64,8 @@
   overscroll-behavior: none;
   font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
   color: var(--text);
+  /* what the page around the viewer sets on its text is inherited into the shadow root: back to plain */
+  text-align: start; text-transform: none; text-indent: 0; letter-spacing: normal; word-spacing: normal; white-space: normal;
   background: linear-gradient(var(--bg-top), var(--bg-bottom));
 }
 
@@ -86,7 +88,7 @@
 /* Onderdelen: opened by the search in the part card, and standing over it in the bottom right corner.
    Its list scrolls inside the panel, which stops well clear of the top. */
 #parts {
-  position: absolute; right: 16px; bottom: var(--info-clear, 16px); width: 280px; max-height: calc(100% - var(--info-clear, 16px) - 130px);   /* clear of the two icons over it */
+  position: absolute; right: 16px; bottom: var(--info-clear, 16px); width: 280px; max-height: calc(100% - var(--info-clear, 16px) - var(--column-clear, 184px));   /* clear of the icons over it */
   display: flex; flex-direction: column; z-index: 3;
   padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
   backdrop-filter: blur(8px);
@@ -139,11 +141,11 @@
 .icon-button[aria-expanded="true"], .icon-button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
 /* right hand corner: under Aanpassen, and out of sight while that panel stands in its place */
 #fullscreen-toggle { top: 70px; }
-#customize:not([hidden]) ~ #fullscreen-toggle { display: none; }
+.lv:not(.ops-on, .quiz-on) > #customize:not([hidden]) ~ #fullscreen-toggle { display: none; }
 /* Melden: under Volledig scherm, or in its place when there is none; its panel stands where Aanpassen does */
 #feedback-toggle { top: 124px; }
 #fullscreen-toggle[hidden] ~ #feedback-toggle { top: 70px; }
-#customize:not([hidden]) ~ #feedback-toggle { display: none; }
+.lv:not(.ops-on, .quiz-on) > #customize:not([hidden]) ~ #feedback-toggle { display: none; }
 #feedback {
   position: absolute; top: 70px; right: 70px; width: min(320px, calc(100cqw - 102px)); max-height: calc(100% - 90px); overflow: auto;
   padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
@@ -208,6 +210,7 @@
 #app-install-toggle { top: auto; bottom: var(--info-clear, 16px); }
 #toestand-toggle:not([hidden]) ~ #app-install-toggle { bottom: calc(var(--info-clear, 16px) + 54px); }
 .lv:has(#parts:not([hidden])) #app-install-toggle { display: none; }   /* the parts list opens in its corner */
+.lv:has(> #bpr-toggle) { --column-clear: 238px; }   /* debug.bpr adds an icon to the column */
 #toestand {
   position: absolute; right: 70px; bottom: var(--info-clear, 16px); width: 270px; max-height: calc(100% - 100px); overflow: auto;
   padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
@@ -221,6 +224,26 @@
   background: rgba(127, 127, 127, 0.1); border-radius: 8px; overflow: auto; user-select: text;
 }
 #toestand-copy { width: 100%; }
+
+/* debug.bpr: a temporary panel for looking the BPR assets over; under Melden, its panel where Melden's is */
+#bpr-toggle { top: 178px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; }
+.lv:not(.ops-on, .quiz-on) > #customize:not([hidden]) ~ #bpr-toggle { display: none; }
+#bpr-debug {
+  position: absolute; top: 70px; right: 70px; width: min(320px, calc(100cqw - 102px)); max-height: calc(100% - 90px);
+  display: flex; flex-direction: column; padding: 14px 16px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 12px; backdrop-filter: blur(8px); z-index: 6;
+}
+#bpr-debug header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+#bpr-debug h2 { margin: 0; font-size: 16px; }
+#bpr-debug .hint { margin: 0 0 8px; }
+#bpr-debug .segmented { display: flex; margin-bottom: 8px; }
+#bpr-debug .segmented button { flex: 1; padding: 4px 6px; font-size: 12px; }
+#bpr-debug .segmented button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+#bpr-debug .bpr-range { display: grid; grid-template-columns: 1fr 2fr 2.5em; gap: 6px; align-items: center; font-size: 12px; margin-bottom: 6px; }
+#bpr-debug .bpr-list { flex: 1 1 auto; min-height: 0; overflow: auto; display: grid; gap: 3px; align-content: start; }
+#bpr-debug .bpr-item { display: grid; gap: 1px; padding: 5px 8px; text-align: left; font-size: 12px; }
+#bpr-debug .bpr-item span { color: var(--muted); font-size: 11px; }
+#bpr-debug .bpr-item[aria-current="true"] { border-color: var(--accent); }
 
 /* bottom left, the one corner the control bar and the progress bar leave free: the logboek */
 #log-toggle { top: auto; right: auto; left: 16px; bottom: 16px; }
@@ -454,7 +477,7 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 }
 .callout.older::after { display: none; }       /* stacked above the newest one (main.js): no tail */
 
-#loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 16px; }
+#loading { position: absolute; inset: 0; display: grid; place-items: center; padding: 0 24px; text-align: center; color: var(--muted); font-size: 16px; pointer-events: none; }   /* the buttons stay usable under it */
 
 
 
@@ -462,6 +485,17 @@ button:hover { border-color: var(--accent); color: var(--accent); }
    for the info tile, which otherwise stands over it */
 @container (max-width: 1360px) {
   .lv.procedure-open #info { bottom: var(--procedure-top, 76px); }
+}
+/* the roeicommando card along the foot: where it would meet the part card, that stands above it -
+   above the procedure bar too, when that is lifted over the card */
+@container (max-width: 980px) {
+  .lv.cmd-open #info { bottom: calc(var(--cmd-height, 0px) + 24px) !important; }
+  .lv.cmd-open.procedure-open #info { bottom: var(--procedure-top, 76px) !important; }
+}
+/* a narrow embed: the procedure bar takes the width of the foot, so even the round search button
+   goes above it while it is there */
+@container (max-width: 640px) {
+  .lv.procedure-open #info.leeg { bottom: var(--procedure-top, 76px) !important; }
 }
 
 /* a narrow embed: the info tile takes the whole width of the foot, less the margins (with nothing

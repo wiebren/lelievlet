@@ -9,7 +9,8 @@
     "build:lib": "vite build --config vite.lib.config.js",
     "preview": "vite preview",
     "docs": "node scripts/docs.mjs",
-    "icons": "node scripts/icons.mjs"
+    "icons": "node scripts/icons.mjs",
+    "borden": "node scripts/borden.mjs"
   },
   "dependencies": {
     "three": "^0.186.0"

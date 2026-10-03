@@ -292,23 +292,26 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
     setTimeout(() => URL.revokeObjectURL(a.href), 10_000);
   }
 
-  let sending = false;
+  // the report on its way, if one is: closing the panel, or opening a new report, does not stop it -
+  // and when its answer comes, it only shows if that report is still the one in the panel
+  let sending = null;
   async function submit() {
-    if (sending) return;
+    if (sending === report) return;
     if (!url) { download(); go('verstuurd'); return; }
-    sending = true;
+    const mine = report; sending = mine;
     const button = body.querySelector('.fb-actions .primary');
     if (button) { button.disabled = true; button.textContent = 'Bezig…'; }
     try {
       const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload()) });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const { issue } = await response.json().catch(() => ({}));
+      if (report !== mine) return;                                 // sent; the panel has moved on
       report.issue = typeof issue === 'string' && issue.startsWith('https://') ? issue : null;   // where it was filed, if it says
       go('verstuurd');
     } catch (error) {
       console.warn('[lelievlet] melding versturen:', error);
-      go('mislukt');
-    } finally { sending = false; }
+      if (report === mine) go('mislukt');
+    } finally { if (sending === mine) sending = null; }
   }
 
   // ---------------------------------------------------------------- open and close

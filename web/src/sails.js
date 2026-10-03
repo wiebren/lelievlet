@@ -70,7 +70,7 @@ export function drawDigits(ctx, text, centerX, top, boxW, boxH, gap) {
   ctx.restore();
 }
 
-function paint(canvas, zeil, side, emblem, number) {
+function paint(canvas, zeil) {
   const W = canvas.width; const H = canvas.height;
   const ctx = canvas.getContext('2d');
   const X = (u) => u * W; const Y = (v) => (1 - v) * H;
@@ -115,16 +115,8 @@ function paint(canvas, zeil, side, emblem, number) {
   ctx.lineWidth = px(0.12) - 2 * stitch;
   ctx.stroke(outline);
   ctx.restore();
-
-  // artwork, mirrored for the starboard side so it reads correctly from there
-  const mirrored = (cx, draw) => {
-    ctx.save();
-    ctx.translate(cx, 0);
-    if (side === 'sb') ctx.scale(-1, 1);
-    draw();
-    ctx.restore();
-  };
-  void mirrored;            // zeilteken and zeilnummer are parts of their own, painted below
+  // zeilteken and zeilnummer are parts of their own, painted in dressSails: the cloth is the same
+  // from either side
 }
 
 /**
@@ -182,22 +174,19 @@ export async function dressSails(parts, renderer, asset, number = '000') {
       drawNearer(mesh.material, nearer);
     }
   }
-  const sails = [];
   for (const part of parts) {
     const zeil = part.extras.zeil;
     if (!zeil) continue;
-    const sides = {};
-    for (const side of ['bb', 'sb']) {
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.round(zeil.breedte_m * PX_PER_M);
-      canvas.height = Math.round(zeil.hoogte_m * PX_PER_M);
-      const texture = new THREE.CanvasTexture(canvas);
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-      sides[side] = { canvas, texture };
-    }
+    // one cloth for both sides of the sail: painted once, and the same from port and starboard
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(zeil.breedte_m * PX_PER_M);
+    canvas.height = Math.round(zeil.hoogte_m * PX_PER_M);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    paint(canvas, zeil);
     const material = (side) => new THREE.MeshStandardMaterial({
-      map: sides[side].texture, roughness: 0.9, metalness: 0,
+      map: texture, roughness: 0.9, metalness: 0,
       side: side === 'bb' ? THREE.FrontSide : THREE.BackSide,
     });
     for (const mesh of [...part.meshes]) {
@@ -208,16 +197,7 @@ export async function dressSails(parts, renderer, asset, number = '000') {
       mesh.parent.add(back);
       part.meshes.push(back);
     }
-    sails.push({ zeil, sides });
   }
-  const setNumber = (value) => {
-    for (const { zeil, sides } of sails) {
-      for (const side of ['bb', 'sb']) {
-        paint(sides[side].canvas, zeil, side, emblem, value);
-        sides[side].texture.needsUpdate = true;
-      }
-    }
-  };
   // zeilteken and zeilnummer sit on the cloth as parts of their own, so they can be picked
   const NUMMER_MM = 980;                                  // the patch holds up to four digits
   const emblemPatch = decalPatch(parts, 'grootzeil_zeilteken', 0.38, 0.38 * (emblem ? emblem.height / emblem.width : 1.42), renderer);
@@ -236,7 +216,7 @@ export async function dressSails(parts, renderer, asset, number = '000') {
     texture.needsUpdate = true;
   };
 
-  const setAll = (value) => { setNumber(value); paintNumber(value); };
-  setAll(number);
-  return { setNumber: setAll };
+  // a new number only paints its own patch again: the cloth stays as it is
+  paintNumber(number);
+  return { setNumber: paintNumber };
 }

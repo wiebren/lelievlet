@@ -434,6 +434,7 @@ Voorwaarden, ankeren zonder zeilen:
 Voorwaarden, anker op onder zeil:
 - de boot ligt voor anker — anders grijs met *Eerst ankeren*
 - er is geen ankeren of anker op bezig — anders grijs met *Eerst het ankeren afmaken*
+- de zeilen zijn aangeslagen — anders grijs met *Eerst de zeilen aanslaan*
 - grootzeil en fok zijn gestreken (opgedoekt of niet) en de mast staat — anders grijs met *Eerst grootzeil en fok strijken*
 - er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
 
@@ -1001,6 +1002,7 @@ weer langs de steiger ligt.
 Voorwaarden:
 - de boot ligt afgemeerd — anders grijs met *Eerst afmeren*
 - de wal is een langswal — anders grijs met *Alleen aan een langswal*
+- ze ligt langszij (niet met de boeg aan de steiger) — anders grijs met *Alleen langszij*
 - er is geen kop in de wind leggen bezig — anders grijs met *Eerst het draaien afmaken*
 - de zeilen zijn gestreken en opgebonden — anders grijs met *Eerst de zeilen strijken*
 - de wind komt van achteren (135° of meer van de boeg) — anders grijs met *Alleen met de wind van achteren*
@@ -1084,6 +1086,7 @@ Voorwaarden:
 - de boot ligt afgemeerd — anders grijs met *Eerst afmeren*
 - er is geen afmeren, kop in de wind leggen of verhalen half af — anders grijs met *Eerst het afmeren, draaien of verhalen afmaken*
 - de wal is een langswal — anders grijs met *Alleen van een langswal*
+- ze ligt langszij (niet met de boeg aan de steiger) — anders grijs met *Alleen langszij*
 - de wind komt van voren (minder dan 45° van de boeg) — anders grijs met *Eerst kop in de wind leggen*
 - de zeilen staan — anders grijs met *Eerst de zeilen hijsen*
 - er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
@@ -1152,6 +1155,8 @@ Voorwaarden:
 - de boot ligt afgemeerd — anders grijs met *Eerst afmeren*
 - er is geen afmeren, kop in de wind leggen of verhalen half af — anders grijs met *Eerst het afmeren, draaien of verhalen afmaken*
 - de wal is een lagerwal — anders grijs met *Alleen van een lagerwal*
+- de zeilen zijn aangeslagen — anders grijs met *Eerst de zeilen aanslaan*
+- ze ligt langszij (niet met de boeg aan de steiger) — anders grijs met *Alleen langszij*
 - grootzeil en fok zijn gestreken (opgedoekt of niet) en de mast staat — anders grijs met *Eerst grootzeil en fok strijken*
 - er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
 

@@ -39,7 +39,7 @@
 //       selectie: ['hommerring'],                    // part ids; the camera goes to them unless aanzicht or camera is given
 //       camera: { positie: [-2.1, 2.4, 4.6], doel: [2.4, 1.6, 0] },   // model space, metres; wins over aanzicht
 //     },
-//     debug: { modelnummer: true, quiztabellen: true, toestand: true },
+//     debug: { modelnummer: true, quiztabellen: true, toestand: true, bpr: true },
 //   })
 //
 // The Aanpassen values REPLACE the viewer's own defaults for this instance; what the user saved in
@@ -54,7 +54,7 @@ export const DEFAULTS = {
   toestand: {},
   namen: { onderdelen: {}, stappen: {}, commandos: {}, quiz: {} },
   quiz: { weg: [], erbij: [], niveau: 3 },
-  debug: { modelnummer: false, quiztabellen: false, toestand: false },
+  debug: { modelnummer: false, quiztabellen: false, toestand: false, bpr: false },
 };
 
 const isPlain = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -74,12 +74,19 @@ export function merge(base, over) {
  */
 export function resolveConfig(given = {}) {
   const config = merge(DEFAULTS, given);
-  if (given.debug === true) config.debug = Object.fromEntries(Object.keys(DEFAULTS.debug).map((key) => [key, true]));
-  if (given.debug === false) config.debug = { ...DEFAULTS.debug };
+  // debug: true switches every aid on but the BPR gallery (a work in progress, and heavy); anything
+  // that is no object (null, 0, 'ja') counts as on or off by what it is worth
+  if (given.debug !== undefined && (given.debug === null || typeof given.debug !== 'object')) {
+    config.debug = Object.fromEntries(Object.keys(DEFAULTS.debug).map((key) => [key, Boolean(given.debug) && key !== 'bpr']));
+  }
+  if (given.feedback === true || given.feedback === null) config.feedback = { ...DEFAULTS.feedback };   // true: the default receiver
   const unknown = Object.keys(given).filter((key) => !(key in DEFAULTS));
   if (unknown.length) console.warn(`[lelievlet] onbekende instelling(en): ${unknown.join(', ')}`);
   return config;
 }
+
+/** What keeps a key to itself: a field the user types in (here, or on the page around the viewer). */
+export const TYPING = 'input:not([type=checkbox]), textarea, select, [contenteditable]:not([contenteditable="false"])';
 
 /** Whether any debug aid is on: the handle is only handed out then. */
 export const debugOn = (config) => Object.values(config?.debug ?? {}).some(Boolean);

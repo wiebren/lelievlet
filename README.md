@@ -93,7 +93,7 @@ aanraken, wat er ook met zijn code zou gebeuren.
 ```html
 <iframe src='https://wiebren.github.io/lelievlet/embed.html#{"aanpassen":{"zeilnummer":"442"},"quiz":{"niveau":2}}'
         style="width:100%; height:600px; border:0"
-        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
         allow="fullscreen" title="3D-model van de lelievlet"></iframe>
 ```
 
@@ -108,7 +108,7 @@ aanraken, wat er ook met zijn code zou gebeuren.
   iframe is van een andere site, dus het krijgt de herkomst van wiebren.github.io en niet die van
   jouw pagina; het is nodig voor de opgeslagen instellingen en scores. `allow-popups` en
   `allow-popups-to-escape-sandbox` laten de bronnen onder *Over dit model* in een gewoon tabblad
-  openen.
+  openen. `allow-downloads` is nodig voor *Opslaan als bestand* bij Melden, als versturen niet lukt.
 - **`allow="fullscreen"`** laat de knop voor volledig scherm werken; zonder werkt de rest gewoon.
 - **Wat niet kan:** wat `create()` teruggeeft (`ready`, `get()`, `set()`, `destroy()`, hieronder)
   bestaat alleen voor het `<script>`-insluiten. Een iframe bedien je alleen via het adres.

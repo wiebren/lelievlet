@@ -10,6 +10,8 @@
 // While a run is on the viewer is in focus mode (.lv.ops-on): only the boat and the card, like a
 // round of Oefenen in the quiz, whose card this one looks like.
 
+import { TYPING } from './config.js';
+
 // the groups of the list, and what each operation is called in it
 const GROUPS = [
   ['Tuigage', { mastZetten: 'Mast zetten', zeilklaar: 'Zeilklaar maken', aanslaan: 'Zeilen aanslaan', hijsen: 'Zeilen hijsen', reven: 'Reven',
@@ -382,7 +384,7 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
 
   // 1-4 pick an answer, Enter goes on - only while this viewer has the pointer or the focus
   window.addEventListener('keydown', (e) => {
-    if (!current || !engaged() || realTarget(e).closest?.('input:not([type=checkbox]), textarea, select')) return;
+    if (!current || !engaged() || e.ctrlKey || e.metaKey || e.altKey || realTarget(e).closest?.(TYPING)) return;
     if (current.mode === 'oefenen' && !current.answered && e.key >= '1' && e.key <= '4') {
       answers.children[Number(e.key) - 1]?.click(); e.preventDefault(); return;
     }

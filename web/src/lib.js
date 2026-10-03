@@ -12,6 +12,7 @@ export { packConfig, unpackConfig };   // a configuration after the # of an addr
 // and two viewers on one page know nothing of each other.
 
 let devHandle = false;      // window.vlet goes to the first viewer only, and only in the dev server
+const live = new WeakMap();  // element -> the viewer running in it: a second create() there replaces it
 
 /**
  * create(element, config) -> { ready, destroy, config, fullscreen, get, set }
@@ -31,6 +32,7 @@ export function create(element, config = {}) {
     throw new TypeError('[lelievlet] create(element, config): het eerste argument is geen element');
   }
   const resolved = resolveConfig(config);
+  live.get(element)?.destroy();              // still running there (a page that ran its set-up twice): that one stops
 
   // a second create() on the same element (after destroy()) reuses the shadow root it already has
   const ui = element.shadowRoot ?? element.attachShadow({ mode: 'open' });
@@ -44,6 +46,7 @@ export function create(element, config = {}) {
   const viewer = mount(ui, element, resolved);
   const handle = { ready: viewer.ready, destroy: viewer.destroy, config: resolved, fullscreen: viewer.fullscreen,
                    get: viewer.get, set: viewer.set };
+  live.set(element, viewer);
   if (debugOn(resolved)) handle.debugHandle = viewer.debug;
   if (import.meta.env.DEV && !devHandle) {   // handy in the console and for the automated checks
     devHandle = true;

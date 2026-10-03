@@ -167,7 +167,10 @@ export function setOpacity(meshes, alpha) {
   for (const m of meshes) {
     m.visible = alpha > 0.02;
     // a painted decal (zeilteken, zeilnummer) must stay transparent or its patch shows as a block
-    m.material.transparent = alpha < 0.999 || m.material.userData.keepTransparent === true;
+    const transparent = alpha < 0.999 || m.material.userData.keepTransparent === true;
+    // three bakes "opaque" into the shader it picks: changing the flag alone keeps alpha at 1, so the
+    // fade would show solid and then go - the material is told, once per change, not per frame
+    if (m.material.transparent !== transparent) { m.material.transparent = transparent; m.material.needsUpdate = true; }
     m.material.opacity = alpha;
   }
 }
@@ -512,7 +515,7 @@ export function makeCourseArrow() {
   const s = new THREE.Shape();
   s.moveTo(0, -0.11); s.lineTo(0.95, -0.11); s.lineTo(0.95, -0.30); s.lineTo(1.55, 0);
   s.lineTo(0.95, 0.30); s.lineTo(0.95, 0.11); s.lineTo(0, 0.11); s.closePath();
-  const material = new THREE.MeshBasicMaterial({ color: 0x1f9d55, transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false });
+  const material = new THREE.MeshBasicMaterial({ color: 0x1f9d55, transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false, forceSinglePass: true });
   const arrow = new THREE.Mesh(new THREE.ShapeGeometry(s), material);
   arrow.rotation.x = -Math.PI / 2;                 // lay it flat: shape y -> model -z
   const group = new THREE.Group();
@@ -527,7 +530,7 @@ export function makeWindArrow() {
   s.moveTo(0, -0.14); s.lineTo(1.15, -0.14); s.lineTo(1.15, -0.38); s.lineTo(1.9, 0);
   s.lineTo(1.15, 0.38); s.lineTo(1.15, 0.14); s.lineTo(0, 0.14); s.closePath();
   const material = new THREE.MeshBasicMaterial({
-    color: 0x1769c4, transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false,
+    color: 0x1769c4, transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false, forceSinglePass: true,
   });
   const arrow = new THREE.Mesh(new THREE.ShapeGeometry(s), material);
   arrow.rotation.x = -Math.PI / 2;                // lay it flat: shape y -> model -z
@@ -579,7 +582,8 @@ export function makeWater(level, hullMeshes) {
     new THREE.ShapeGeometry(surface, 64),
     new THREE.MeshStandardMaterial({
       color: 0x5f93b5, transparent: true, opacity: 0.32, roughness: 0.25, metalness: 0,
-      side: THREE.DoubleSide, depthWrite: false,
+      // flat: one pass from either side, not the two three gives a transparent double-sided material
+      side: THREE.DoubleSide, depthWrite: false, forceSinglePass: true,
     }),
   );
   water.rotation.x = -Math.PI / 2;

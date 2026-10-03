@@ -26,11 +26,20 @@ self.addEventListener('activate', (event) => {
 });
 
 // only what the app needs is answered from here, an icon of the boat itself before the default one;
-// anything else goes to the network as it would
+// anything else goes to the network as it would. And only for the app: the demo and embed pages on
+// the same site take the network, so they never get a script older than their own page.
+const APP = inScope('app.html');
+const bare = (href) => href.split(/[?#]/)[0];
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url); url.search = ''; url.hash = '';
   if (!FILES.some((file) => inScope(file) === url.href)) return;
-  event.respondWith((async () => (await (await caches.open(OWN_ICONS)).match(url.href))
-    ?? (await (await caches.open(CACHE)).match(url.href)) ?? fetch(event.request))());
+  event.respondWith((async () => {
+    const client = event.clientId ? await self.clients.get(event.clientId) : null;
+    // the app page itself, or anything it asks for; a request without a page (the manifest) counts as the app's
+    const forApp = event.request.mode === 'navigate' ? url.href === APP : client ? bare(client.url) === APP : true;
+    if (!forApp) return fetch(event.request);
+    return (await (await caches.open(OWN_ICONS)).match(url.href))
+      ?? (await (await caches.open(CACHE)).match(url.href)) ?? fetch(event.request);
+  })());
 });

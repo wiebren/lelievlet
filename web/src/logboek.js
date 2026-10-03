@@ -58,7 +58,12 @@ export function initLogboek(ui, { opslaan = true } = {}) {
   const note = (key) => {
     if (!(key in ENTRIES) || have.has(key)) return;
     have.add(key);
-    if (opslaan) try { localStorage.setItem(STORE, JSON.stringify({ v: 1, entries: [...have] })); } catch { /* it works without */ }
+    if (opslaan) try {
+      // another tab, or another viewer on the page, may have written since: join, do not overwrite
+      const stored = JSON.parse(localStorage.getItem(STORE) ?? 'null')?.entries;
+      for (const k of Array.isArray(stored) ? stored : []) if (k in ENTRIES) have.add(k);
+      localStorage.setItem(STORE, JSON.stringify({ v: 1, entries: [...have] }));
+    } catch { /* it works without */ }
     show();
   };
   return { note };

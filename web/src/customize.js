@@ -42,7 +42,8 @@ export const DEFAULTS = {
 function baseOf(config) {
   const given = config?.aanpassen ?? {};
   const base = structuredClone(DEFAULTS);
-  for (const key of FIELDS) if (given[key] !== undefined) base[key] = given[key];
+  // as text whatever the page gave (a number for the zeilnummer is easy to pass), and no longer than the field allows
+  for (const key of FIELDS) if (given[key] !== undefined && given[key] !== null) base[key] = String(given[key]).slice(0, key === 'zeilnummer' ? 4 : 24);
   for (const [zone] of ZONES) if (given.kleuren?.[zone] !== undefined) base.kleuren[zone] = given.kleuren[zone];
   return base;
 }
