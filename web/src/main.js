@@ -285,9 +285,6 @@ export function mount(ui, host, config) {
       $('loading').hidden = true;
       resize();
       controls.update();
-      // the shaders compiled off the main thread where the browser can, before the first picture needs them
-      try { await renderer.compileAsync(scene, camera); } catch { /* compiled as it draws, then */ }
-      if (destroyed) return;
       renderer.render(scene, camera);
       settle();
     } catch (error) { failed(error); }
