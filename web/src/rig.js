@@ -92,6 +92,14 @@ export class RopeLine {
   /** path: array of Vector3; resampled by length to the resolution of the tube, unless it
    *  already has exactly that many points (a tackle: long straights and tight turns) */
   set(path) {
+    // a rope at rest is handed the very same path every frame: then there is nothing to lay again
+    const n3 = path.length * 3; let same = this.last?.length === n3;
+    for (let i = 0; same && i < path.length; i++) {
+      const p = path[i]; same = p.x === this.last[i * 3] && p.y === this.last[i * 3 + 1] && p.z === this.last[i * 3 + 2];
+    }
+    if (same) return undefined;
+    if (this.last?.length !== n3) this.last = new Float64Array(n3);
+    for (let i = 0; i < path.length; i++) { this.last[i * 3] = path[i].x; this.last[i * 3 + 1] = path[i].y; this.last[i * 3 + 2] = path[i].z; }
     if (path.length === this.n) return this.lay(path);
     const lengths = [0];
     for (let i = 1; i < path.length; i++) lengths.push(lengths[i - 1] + path[i].distanceTo(path[i - 1]));

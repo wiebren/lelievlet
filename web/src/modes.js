@@ -4362,27 +4362,35 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     }));
     mesh.frustumCulled = false; mesh.renderOrder = 2;               // over the water, which is drawn first
     world.add(mesh);
-    return { mesh, points: [], owner: null };
+    return { mesh, points: [], smooth: [], owner: null };
   })();
-  const clearTrack = () => { track.points = []; track.owner = null; track.mesh.geometry.setDrawRange(0, 0); };
-  const drawTrack = () => {
-    // drawn smoothed, each point with two either side: behind her middle the wake slides sideways as she
-    // swings quickly through the wind, and that is no line anyone would draw
-    const raw = track.points; const pos = track.mesh.geometry.attributes.position;
-    const pts = raw.map((q, i) => {
-      const from = Math.max(i - 2, 0); const to = Math.min(i + 2, raw.length - 1); const out = new THREE.Vector3();
-      for (let j = from; j <= to; j++) out.add(raw[j]);
-      return i === 0 || i === raw.length - 1 ? q : out.divideScalar(to - from + 1);   // the ends stay where they are
-    });
-    for (let i = 0; i < pts.length; i++) {
-      const a = pts[Math.max(i - 1, 0)]; const b = pts[Math.min(i + 1, pts.length - 1)];
+  const clearTrack = () => { track.points = []; track.smooth = []; track.owner = null; track.mesh.geometry.setDrawRange(0, 0); };
+  /**
+   * Drawn smoothed, each point with two either side: behind her middle the wake slides sideways as she
+   * swings quickly through the wind, and that is no line anyone would draw. Only what a change from
+   * point `from` on can move is worked out again and sent to the GPU: the smoothing of the two points
+   * before it, and the edge of the ribbon one further.
+   */
+  const drawTrack = (from = 0) => {
+    const raw = track.points; const n = raw.length; const pos = track.mesh.geometry.attributes.position;
+    const smooth = track.smooth;
+    const start = Math.max(0, Math.min(from, n) - 3);
+    for (let i = start; i < n; i++) {
+      const out = smooth[i] ??= new THREE.Vector3();
+      if (i === 0 || i === n - 1) { out.copy(raw[i]); continue; }   // the ends stay where they are
+      const lo = Math.max(i - 2, 0); const hi = Math.min(i + 2, n - 1);
+      out.set(0, 0, 0); for (let j = lo; j <= hi; j++) out.add(raw[j]); out.divideScalar(hi - lo + 1);
+    }
+    smooth.length = n;
+    for (let i = start; i < n; i++) {
+      const a = smooth[Math.max(i - 1, 0)]; const b = smooth[Math.min(i + 1, n - 1)];
       const dx = b.x - a.x; const dz = b.z - a.z; const len = Math.hypot(dx, dz) || 1;
       const nx = -dz / len * TRACK_HALF; const nz = dx / len * TRACK_HALF;
-      pos.setXYZ(2 * i, pts[i].x + nx, pts[i].y, pts[i].z + nz);
-      pos.setXYZ(2 * i + 1, pts[i].x - nx, pts[i].y, pts[i].z - nz);
+      pos.setXYZ(2 * i, smooth[i].x + nx, smooth[i].y, smooth[i].z + nz);
+      pos.setXYZ(2 * i + 1, smooth[i].x - nx, smooth[i].y, smooth[i].z - nz);
     }
-    pos.needsUpdate = true;
-    track.mesh.geometry.setDrawRange(0, Math.max(pts.length - 1, 0) * 6);
+    if (n > start) { pos.addUpdateRange(start * 6, (n - start) * 6); pos.needsUpdate = true; }
+    track.mesh.geometry.setDrawRange(0, Math.max(n - 1, 0) * 6);
   };
   /** Per frame: a point more where the boat has gone on far enough, while a manoeuvre has her. */
   const stepTrack = () => {
@@ -4400,10 +4408,11 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     if (cut && owner === tacking && last) dock.p.set(last.pivot.x, dock.p.y, last.pivot.z);
     // drawn from the middle of her achterdek, towards where her wake starts
     const wake = fwdOf(dock.heading, tmp1).multiplyScalar(TRACK_FROM - PIVOT.x).add(dock.p).setY(tuig.waterlijn_m + 0.005);
-    if (last && last.distanceTo(wake) < TRACK_STEP) { if (cut) drawTrack(); return; }
-    if (track.points.length >= TRACK_MAX) track.points.shift();
+    if (last && last.distanceTo(wake) < TRACK_STEP) { if (cut) drawTrack(track.points.length); return; }
+    const full = track.points.length >= TRACK_MAX;                  // full: every point moves up one, all of it again
+    if (full) track.points.shift();
     track.points.push(Object.assign(wake.clone(), { t: at, pivot: dock.p.clone() }));
-    drawTrack();
+    drawTrack(full ? 0 : track.points.length - 1);
   };
 
 

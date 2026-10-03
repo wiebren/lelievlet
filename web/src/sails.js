@@ -158,8 +158,9 @@ function decalPatch(parts, id, widthM, heightM, renderer) {
 }
 
 /** asset(path): where the textures are fetched from; see assets.js. */
-export async function dressSails(parts, renderer, asset, number = '000') {
-  const emblem = await loadImage(asset('textures/zeilteken.png')).catch(() => null);
+export async function dressSails(parts, renderer, asset, number = '000', emblemLoad = null) {
+  // fetched while the model was still coming in, when the caller started it then
+  const emblem = await (emblemLoad ?? loadImage(asset('textures/zeilteken.png')).catch(() => null));
   // What lies on the cloth is a millimetre or two off it and meshed on a grid of its own, and the
   // belly has kinks where it is pinned along the spars: bent, the layers dip through the cloth in
   // triangles, by more than any polygonOffset covers. Every layer has a face of its own on either

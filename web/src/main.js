@@ -16,6 +16,7 @@ import { initLocator } from './locator.js';
 import { initFullscreen } from './fullscreen.js';
 import { initFeedback } from './feedback.js';
 import { initBprDebug } from './bpr/debug.js';
+import { useTrees, buildTrees } from './bvh.js';
 import { makeAsset } from './assets.js';
 import { naamVan, merge, unpack, TYPING } from './config.js';
 import { addEdges } from './edges.js';
@@ -165,6 +166,9 @@ export function mount(ui, host, config) {
   const ready = new Promise((resolve, reject) => { settle = resolve; stumble = reject; });
 
   const loader = new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);      // the model is meshopt-packed
+  useTrees();                                                       // raycasts through a tree where there is one (bvh.js)
+  // the zeilteken comes in beside the model, not after it
+  const emblemLoad = loadImage(asset('textures/zeilteken.png')).catch(() => null);
   // The model failed to come in, or building the viewer on it threw: say so where it was loading,
   // and let `ready` know - a viewer that waits for ever helps nobody, and Melden is still there.
   const failed = (error) => {
@@ -187,6 +191,9 @@ export function mount(ui, host, config) {
         m.geometry.setAttribute('normal', out);
       });
       scene.add(root);
+      // the trees first: what is laid on the hull while loading already probes through them
+      const t0 = performance.now(); const trees = buildTrees(root);
+      if (import.meta.env.DEV) console.info(`[lelievlet] ${trees} raycast-bomen in ${Math.round(performance.now() - t0)} ms`);
       root.traverse((node) => {
         const ex = node.userData;
         if (ex?.titel) groups.set(ex.groep, { title: ex.titel, node, parts: [] });
@@ -207,7 +214,7 @@ export function mount(ui, host, config) {
       root.traverse((node) => { if (node.userData?.groep === 'romp' && node.userData?.id) hullBox.expandByObject(node); });
 
       // Aanpassen: zeilnummer, naam en plaats op het boeisel, kleuren per verfzone
-      const sails = await dressSails(parts, renderer, asset);
+      const sails = await dressSails(parts, renderer, asset, '000', emblemLoad);
       if (destroyed) return;
       const outerSkin = (id) => parts.find((p) => p.extras.id === id).meshes.find((m) => m.material.name === 'boeisel');
       const hullText = new HullText({ sb: outerSkin('boeisel_sb'), bb: outerSkin('boeisel_bb') }, renderer, root);
@@ -278,6 +285,9 @@ export function mount(ui, host, config) {
       $('loading').hidden = true;
       resize();
       controls.update();
+      // the shaders compiled off the main thread where the browser can, before the first picture needs them
+      try { await renderer.compileAsync(scene, camera); } catch { /* compiled as it draws, then */ }
+      if (destroyed) return;
       renderer.render(scene, camera);
       settle();
     } catch (error) { failed(error); }
@@ -1045,9 +1055,10 @@ export function mount(ui, host, config) {
 
     // it stays while it runs or stands still half way, while its own popover is open - so a finished
     // procedure can be scrubbed back through - and while it is hovered or has the focus
-    const panel = $('ops-panel');                         // in sight: its section shown, and the Oefenen popover open
+    // in sight: its section shown, and the Oefenen popover open - read from their state, not the layout
+    const panelOpen = !$('learn-panel').hidden && !$('ops-panel').hidden;
     const now = performance.now();
-    if (!p.resting || panel.offsetParent !== null || procBar.matches(':hover, :focus-within')) procWoke = now;
+    if (!p.resting || panelOpen || procBar.matches(':hover, :focus-within')) procWoke = now;
     const show = wrap.classList.contains('ops-on') || now - procWoke < REST_MS;   // in the card of a run it stays
     procBar.classList.toggle('faded', !show);
     wrap.classList.toggle('procedure-open', show);
@@ -1106,8 +1117,11 @@ export function mount(ui, host, config) {
   // The part card stands in the corner; what else lives there - the debug buttons, the list of
   // Onderdelen that its search opens - goes above it, as high as the card reaches (--info-clear).
   const infoCard = $('info');
-  let infoClear = -1;
+  let infoClear = -1; let cornerAt = -Infinity;
   function placeCorner() {
+    const now = performance.now();
+    if (now - cornerAt < CORNER_MS) return;                         // two layout reads: a few times a second is enough
+    cornerAt = now;
     const shown = infoCard.offsetParent !== null;                    // not taken away by a focus mode
     const clear = shown ? Math.round(wrap.getBoundingClientRect().bottom - infoCard.getBoundingClientRect().top) + 8 : 16;
     if (clear === infoClear) return;
@@ -1159,7 +1173,8 @@ export function mount(ui, host, config) {
         b.el.style.left = `${x}px`; b.el.style.top = `${y - lift}px`;
         b.el.classList.toggle('older', i > 0);                      // only the newest points at the speaker
         b.el.style.opacity = now > b.until ? '0' : String(BUBBLES.fade[Math.min(i, BUBBLES.fade.length - 1)]);
-        lift += b.el.offsetHeight + BUBBLES.gap + (i === 0 ? BUBBLES.tail : 0);
+        b.height ??= b.el.offsetHeight;                              // measured once: its text does not change
+        lift += b.height + BUBBLES.gap + (i === 0 ? BUBBLES.tail : 0);
       });
     }
   }
@@ -1667,7 +1682,8 @@ const STEP_FLIGHT_MS = 1400;           // the camera goes to a step at half the 
 const SAMPLES = [[0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
 const MARGIN = 1.6;                    // room left around the part
 const FLIGHT_MS = 700;
-const HOVER_MS = 40;                   // at most this often a raycast for what the pointer is over
+const HOVER_MS = 40;
+const CORNER_MS = 150;                 // how often the bottom right corner is measured again                   // at most this often a raycast for what the pointer is over
 const SEARCH_MS = 250;                 // the search for a direction never holds up a click for long
 const XRAY_BELOW = 3;                  // fewer sample points in view than this: show the part through the boat
 const REST_MS = 2500;                  // how long a procedure that is done stays in view
