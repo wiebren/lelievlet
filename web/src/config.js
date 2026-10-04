@@ -110,3 +110,4 @@ export function quizEntries(config, standard) {
 const KEY = [...'lelievlet'].map((c) => c.charCodeAt(0));
 const mix = (b, i) => b ^ KEY[i % KEY.length] ^ ((i * 29 + 7) & 0xff);
 export const unpack = (s) => new TextDecoder().decode(Uint8Array.from(atob(s), (c, i) => mix(c.charCodeAt(0), i)));
+export const pack = (t) => btoa(String.fromCharCode(...new TextEncoder().encode(t).map(mix)));

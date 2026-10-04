@@ -18,7 +18,7 @@ import { initFeedback } from './feedback.js';
 import { initBprDebug } from './bpr/debug.js';
 import { useTrees, buildTrees } from './bvh.js';
 import { makeAsset } from './assets.js';
-import { naamVan, merge, unpack, TYPING } from './config.js';
+import { naamVan, merge, unpack, pack, TYPING } from './config.js';
 import { addEdges } from './edges.js';
 import { packConfig } from './pack.js';
 
@@ -153,6 +153,7 @@ export function mount(ui, host, config) {
   let selected = [];           // several at once: one row of the parts list can stand for four dollen
   let modes = null;
   let paintScheme = null;      // the older paint scheme; see initPaint in customize.js
+  let boat = null;             // what the user made of the boat (initCustomize), for a report
   let regions = null;
   let quiz = null;
   let handelingen = null;     // a run of an operation, in its own focus mode
@@ -255,6 +256,7 @@ export function mount(ui, host, config) {
       showIcon(); touch.addEventListener('change', showIcon, { signal });
       installIcon.addEventListener('click', installApp, { signal });
       // after initCustomize: it has laid the user's colours on, which is what the paint fades back to
+      boat = aanpassen;
       paintScheme = initPaint({ zoneMaterials, sailMaterials: collectSailMaterials(parts), config: aanpassen, note: logboek.note });
       paintScheme.setNumber(aanpassen.zeilnummer);
 
@@ -1589,6 +1591,14 @@ export function mount(ui, host, config) {
     } catch { return null; }
   })();
 
+  /** The rest of the boat's state, kept short and packed: what a report needs and a reader need not. */
+  function extra() {
+    const m = modes; if (!m) return undefined;
+    const on = { bs: m.bowsprit?.on, sp: m.chill?.on, sl: m.tow?.on, bi: m.island?.on, av: m.lostAnchor?.on,
+                 zb: m.boardDrop?.on, sv: m.leechFlag?.on, mo: m.mob?.on, nz: night?.on };
+    return pack(JSON.stringify({ on: Object.keys(on).filter((k) => on[k]), log: logboek.entries }));
+  }
+
   /**
    * For Melden (feedback.js): the picture as it is now, and everything the viewer knows about where
    * it is. The canvas is drawn again and read at once - its buffer is not kept between frames - and
@@ -1617,6 +1627,10 @@ export function mount(ui, host, config) {
       pagina: location.origin + location.pathname,           // not the query or the #: those may hold anything
       geladen: loaded,
       toestand: get(),
+      // what toestand cannot say: what the handelingen left her with, and the boat as the user made it
+      boot: modes?.situation(),
+      aanpassen: boat ? Object.fromEntries(['zeilnummer', 'naam', 'plaats', 'bakskleur', 'kleuren'].map((k) => [k, boat[k]])) : undefined,
+      extra: extra(),
       // the step numbered the way the bar numbers it: without the steps skipped this time
       procedure: p && { naam: p.name, stap: p.label, index: p.index, stappen: p.steps.filter((st) => !st.skipped).length,
                         stapNr: p.steps.filter((st) => !st.skipped).indexOf(p.steps[p.index]) + 1 || undefined,

@@ -66,5 +66,5 @@ export function initLogboek(ui, { opslaan = true } = {}) {
     } catch { /* it works without */ }
     show();
   };
-  return { note };
+  return { note, get entries() { return [...have]; } };
 }

@@ -3763,9 +3763,13 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const valHarp = (() => {
     const meshes = meshesOf(['harpje_fokkenval']);
     if (!meshes.length) return null;
-    const box = new THREE.Box3();
-    for (const m of meshes) { m.geometry.computeBoundingBox(); box.union(m.geometry.boundingBox); }
-    const home = box.getCenter(new THREE.Vector3()); home.y = box.max.y;      // where the val is made fast to it
+    // where the val is made fast to it: the top of the kous, where the fokkenval of the model ends. Not
+    // the middle of its box - the harpje leans with the stay, and that lies beside the kous
+    const home = new THREE.Vector3(0, -Infinity, 0); const p = new THREE.Vector3();
+    for (const m of meshes) {
+      const pos = m.geometry.attributes.position;
+      for (let i = 0; i < pos.count; i++) if (p.fromBufferAttribute(pos, i).y > home.y) home.copy(p);
+    }
     const rope = new RopeLine(2, 0.003, byId.get('fokkenval').meshes[0].material);
     rope.mesh.visible = false;
     joinPart(rope.mesh, 'fokkenval');
@@ -6048,7 +6052,12 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     roeien: state.rowing, commando: { ...state.commando },
     zwaard: state.midzwaard,
   });
-  return { update, state, click, reveal, helm: helmControl,
+  /** What the handelingen have left the boat with, beyond what apply() takes: for a report (Melden). */
+  const situation = () => ({
+    tuig: rigNow(), aangeslagen: sailsBent(), nachtklaar: nightOn(), bijliggen: heaveOn(),
+    anker: atAnchor(), afgemeerd: dock.moored ? dock.kind ?? true : false,
+  });
+  return { update, state, click, reveal, helm: helmControl, situation,
            /** Where a run is looked at from now (main.js): 'vogel', 'dichtbij', 'boven' or 'schipper'. */
            lookFrom: (v) => { lookingFrom = v; }, procedure, procedureControl, apply, current, run, darkness,
            closePopover: () => openPopover(null), placePopover: () => { if (opened) place(opened); },
