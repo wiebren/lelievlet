@@ -45,7 +45,7 @@ HINGE_PLATE = (120.0, 25.0, 3.0)                         # strap hinge: long, wi
 KNUCKLE_R = 5.0
 HINGE_U = (150.0, 425.0)                                 # the two straps, by u of their aft edge
 HASP = (70.0, 70.0, 250.0)                               # closing plate inboard: long, high, w of its foot
-HASP_TONGUE = (100.0, 30.0, 45.0)                        # hasp: long, wide, how far it reaches onto the lid
+HASP_TONGUE = (30.0, 45.0)                               # hasp: wide, how far it reaches onto the lid
 
 # -- becket in each end board: a bight of 10 mm rope through two holes, hanging down the board
 # with a stopper knot inside. It stands only 20 mm proud of the board: the voorschot is 32 mm in
@@ -178,7 +178,8 @@ def _lid():
 def _beslag():
     """Hinges and hasp. Each strap hinge is two flat straps - one down the bakboord face, one along
     the top of the lid - and the knuckle in the corner between them, tangent to both. The chest is
-    closed on the inboard side by a plate with a staple; its hasp lies back on the open lid."""
+    closed on the inboard side by a plate with a staple. The hasp is a strap on the lid bent down
+    over its edge to the underside of the lid, no further: nothing stands out past the chest."""
     top = HEIGHT + BOARD
     reach, wide, thick = HINGE_PLATE
     _, av, aw = hinge_axis()
@@ -192,8 +193,9 @@ def _beslag():
     fixed.append(board((mid - hu / 2, -thick, hz), (mid + hu / 2, 0.0, hz + hh)))
     fixed.append(board((mid - 10.0, -thick - 8.0, hz + hh / 2 - 5.0),                # the staple
                        (mid + 10.0, -thick, hz + hh / 2 + 5.0)))
-    tv, tu, onto = HASP_TONGUE
-    moving.append(board((mid - tu / 2, onto - tv, top), (mid + tu / 2, onto, top + thick)))
+    tu, onto = HASP_TONGUE
+    moving.append(board((mid - tu / 2, -thick, top), (mid + tu / 2, onto, top + thick)))            # on the lid
+    moving.append(board((mid - tu / 2, -thick, HEIGHT), (mid + tu / 2, 0.0, top)))                  # down its edge
     return fixed, moving
 
 

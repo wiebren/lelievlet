@@ -636,11 +636,11 @@
   "handles": [],
   "afmetingen_mm": [
    610,
-   443,
-   125
+   400,
+   114
   ],
-  "triangles": 200,
-  "vertices": 600
+  "triangles": 212,
+  "vertices": 636
  },
  {
   "id": "bakskist_handvatten",
