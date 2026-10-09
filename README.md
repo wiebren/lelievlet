@@ -36,7 +36,7 @@ Oefenen ernaar vraagt, en welke handelingen de boot kan doen met hun voorwaarden
 worden gemaakt uit de bronnen van de viewer zelf; na een wijziging aan het model, de quizvragen of de
 handelingen draai je in `web/`:
 
-    pnpm docs
+    pnpm run docs
 
 ## De viewer draaien
 

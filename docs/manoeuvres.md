@@ -4,7 +4,7 @@ Naslag voor wie de viewer gebruikt of controleert: wat de boot kan doen, wanneer
 en in welke stappen. Wat er nog bij komt, met CWO-niveau en bronnen, staat in de werklijst
 `docs/handelingen.md`.
 
-Dit bestand wordt gemaakt door `web/scripts/docs.mjs` (`pnpm docs` in `web/`); de stappen, de
+Dit bestand wordt gemaakt door `web/scripts/docs.mjs` (`pnpm run docs` in `web/`); de stappen, de
 voorwaarden en wat er eerst gedaan moet zijn komen rechtstreeks uit `web/src/modes.js`. Pas het niet
 met de hand aan: verander de bron en draai het script opnieuw. Een insluitende pagina kan de namen
 van stappen veranderen (`namen.stappen`); hier staan de standaardnamen.
@@ -220,7 +220,8 @@ stoppen af, strijken, lopen, op). Wie roept staat erbij; de haakvoor zit voorin.
 
 Aanleggen legt een eigen kant, recht voor haar (boeg, zijkant) of langs haar stuurboordkant
 (spiegel); of het een hogerwal, lagerwal of langswal is volgt uit de wind. Met het kruisje breekt de
-manoeuvre af: de kant verdwijnt weer en ze roeit verder zoals ze begon.
+manoeuvre af: de kant verdwijnt weer en ze roeit verder zoals ze begon. Een andere modus kiezen breekt
+elke manoeuvre die nog bezig is af zoals het kruisje dat doet, en heft bijliggen op.
 
 ### Achtje roeien
 
@@ -435,6 +436,7 @@ Voorwaarden, anker op onder zeil:
 - de boot ligt voor anker — anders grijs met *Eerst ankeren*
 - er is geen ankeren of anker op bezig — anders grijs met *Eerst het ankeren afmaken*
 - de zeilen zijn aangeslagen — anders grijs met *Eerst de zeilen aanslaan*
+- de mast staat — anders grijs met *Eerst de mast zetten*
 - grootzeil en fok zijn gestreken (opgedoekt of niet) en de mast staat — anders grijs met *Eerst grootzeil en fok strijken*
 - er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
 
@@ -966,12 +968,20 @@ hogerwal), dan draait ze om haar boeg als de wind verzet wordt. De windschuif bl
 de wind op de boot: van kop in de wind tot halve wind draait ze mee, tot ze langs de steiger ligt;
 verder draait ze niet, anders zou ze erdoorheen gaan, en gaat alleen de wind verder rond. Onderweg komt
 de boeg wat van de steiger af, zodat haar zijkant vrij blijft. De zeilen staan los en waaien mee.
-Laat je de windschuif los bij halve wind, ruime wind of voor de wind, dan wordt ze langszij vastgemaakt:
+Laat je de windschuif los terwijl de wind niet meer van de steiger af komt (geen hogerwal meer), of bij
+halve wind, ruime wind of voor de wind, dan drukt de wind haar tegen de steiger: ze draait verder rond
+tot ze erlangs ligt en wordt langszij vastgemaakt:
 steekt ze voorbij het eind van de steiger (na een opschieter ligt ze aan de kop ervan), dan schuift ze
 eerst langs de steiger tot ze er helemaal naast ligt en gaat het voorlandvast naar een eigen bolder;
 dan de stootwillen uit en na elkaar het achterlandvast, de achterspring en de voorspring. Vanaf dan is
-het een langswal. Andersom, van langszij terug naar met de boeg aan de steiger, gebeurt niet. Afvaren van langswal kan alleen met de wind van voren. Komt de wind van
-achteren, dan eerst kop in de wind leggen. Andere windrichtingen komen later.
+het een langswal. Andersom, van langszij terug naar met de boeg aan de steiger, gebeurt niet.
+
+Ligt ze langszij, dan volgt het soort wal de wind: verzet je de wind, dan wordt het een langswal (de
+wind langs de steiger, tot 45° ervan af), een hogerwal (de wind van de steiger af) of een lagerwal (de
+wind naar de steiger toe). Afvaren van langswal kan met de wind van voren, en ook langszij aan een
+hogerwal: na het afduwen valt ze dan van de wind af. Komt de wind van achteren, dan eerst kop in de
+wind leggen; waait hij naar de steiger toe, dan is het afvaren van lagerwal. Afvaren van hogerwal is
+voor als ze met de boeg aan de steiger ligt.
 
 Afgemeerd gaan de zeilen alleen omhoog als ze vrij van de wal waaien: kop in de wind, of aan de wind
 of halve wind met de wind over de steiger, zodat ze boven het water uitstaan. Gestreken ligt de fok
@@ -1085,9 +1095,9 @@ aan na de fok bak. Afvaren gaat alleen vooruit.
 Voorwaarden:
 - de boot ligt afgemeerd — anders grijs met *Eerst afmeren*
 - er is geen afmeren, kop in de wind leggen of verhalen half af — anders grijs met *Eerst het afmeren, draaien of verhalen afmaken*
-- de wal is een langswal — anders grijs met *Alleen van een langswal*
+- de wal is een langswal of een hogerwal — anders grijs met *Alleen van een langswal of hogerwal*
 - ze ligt langszij (niet met de boeg aan de steiger) — anders grijs met *Alleen langszij*
-- de wind komt van voren (minder dan 45° van de boeg) — anders grijs met *Eerst kop in de wind leggen*
+- de wind komt van voren (minder dan 45° van de boeg); aan een hogerwal hoeft dat niet — anders grijs met *Eerst kop in de wind leggen*
 - de zeilen staan — anders grijs met *Eerst de zeilen hijsen*
 - er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
 
@@ -1122,7 +1132,8 @@ Voor Oefenen: deinzen pas na het afzetten, wegzeilen pas na de fok bak. Alleen v
 Voorwaarden:
 - de boot ligt afgemeerd — anders grijs met *Eerst afmeren*
 - er is geen afmeren, kop in de wind leggen of verhalen half af — anders grijs met *Eerst het afmeren, draaien of verhalen afmaken*
-- de boot ligt met de boeg aan een hogerwal, op het voorlandvast — anders grijs met *Alleen van een hogerwal*
+- de wal is een hogerwal — anders grijs met *Alleen van een hogerwal*
+- de boot ligt met de boeg aan de steiger, op het voorlandvast (langszij gaat het met Van langswal) — anders grijs met *Alleen met de kop naar de steiger (langszij: Van langswal)*
 - de wind komt van voren (minder dan halve wind) — anders grijs met *Eerst kop in de wind*
 - de zeilen staan — anders grijs met *Eerst de zeilen hijsen*
 - er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
@@ -1157,6 +1168,7 @@ Voorwaarden:
 - de wal is een lagerwal — anders grijs met *Alleen van een lagerwal*
 - de zeilen zijn aangeslagen — anders grijs met *Eerst de zeilen aanslaan*
 - ze ligt langszij (niet met de boeg aan de steiger) — anders grijs met *Alleen langszij*
+- de mast staat — anders grijs met *Eerst de mast zetten*
 - grootzeil en fok zijn gestreken (opgedoekt of niet) en de mast staat — anders grijs met *Eerst grootzeil en fok strijken*
 - er wordt niet gereefd — anders grijs met *Eerst het reven afmaken*
 

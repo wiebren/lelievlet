@@ -1107,8 +1107,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     if (!berthing) return;
     const bow = dock.moored ? bowOnNow() : null;
     if (bow) {                                                      // on her voorlandvast the sheets are loose: the sails go with the wind
+      // - not struck: the giek lies in the mik and the fok bundled on its stay, whatever the wind does
       const r = THREE.MathUtils.radToDeg(bow.rel); const s = Math.sign(r) || 1;
-      tackTrim.luff = 1; tackTrim.flap = 1; tackTrim.boom = r; tackTrim.jib = r * 0.4; tackTrim.belly = s * 0.2;
+      tackTrim.luff = 1; tackTrim.flap = 1; tackTrim.boom = r * (1 - smoothstep(strike.mik)); tackTrim.jib = r * 0.4 * (1 - smoothstep(jibDown)); tackTrim.belly = s * 0.2;
     }
     const v = berthing.values;
     const fresh = moved(berthing);                                  // only as its steps go: a click may put one in afterwards
@@ -1562,7 +1563,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   let pulling = null;
   const ROW = { eight: 3.4, sharp: 1.8, spiegelOff: 4, spiegelTurn: 2.2, mob: { a: 9, r: 3, b: 4, abeam: 1.0, short: 0.6, man: 1.2 } };
   /** Where a kant faces `out` (from the kant to the water): hogerwal with the wind off it, lagerwal onto it, langswal along. */
-  const kindFor = (out) => { const k = windFrom().dot(out); return k < -0.7 ? 'hogerwal' : k > 0.7 ? 'lagerwal' : 'langswal'; };
+  const kindOf = (k) => (k < -0.7 ? 'hogerwal' : k > 0.7 ? 'lagerwal' : 'langswal');   // k: the wind's way from, along out
+  const kindFor = (out) => kindOf(windFrom().dot(out));
   /** A new world, the boat where she is: for a manoeuvre that lays its own kant, or needs none. */
   const newWorld = () => { layWal(null); dock.windAtLaying = now.windAngle; dock.p.copy(PIVOT); frameWorld(); clearTrack(); };
   const nearestBolder = (p) => dock.bolders.reduce((a, b) => (b.distanceTo(p) < a.distanceTo(p) ? b : a)).clone();
@@ -1676,7 +1678,14 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
         step('keer', sec('keer'), 'Achteruit rond: bakboord strijkt, stuurboord haalt op', ['riem_bb', 'riem_sb'], null, 'Op riemen, bakboord strijkt, stuurboord haalt op… gelijk!'),
         step('weg', sec('weg'), 'Wegroeien', ['riem_bb', 'riem_sb'], null, 'Op riemen, beide boorden haalt op… gelijk!'),
       ]);
-      pulling.skipped = new Set([...(dock.headOn === 'boeg' ? [] : ['keer']), ...(dock.headOn ? ['willen'] : [])]);
+      // only the lines that are out are let go: bow on the voorlandvast, by the spiegel the achterlandvast
+      const out = (k) => dock.lineAt[k] > 0.5; const los = pulling.steps.find((s) => s.key === 'los');
+      pulling.linesOut = Object.keys(dock.lineAt).filter(out);
+      const only = !out('achter') ? ['De haakvoor maakt de voorlandvast los', 'voorlandvast', 'Los… voor!']
+        : !out('voor') ? ['De roerganger maakt de achterlandvast los', 'achterlandvast', 'Los… achter!'] : null;
+      if (only) Object.assign(los, { label: stap(only[0]), back: stap(only[0]), focus: [only[1]], say: only[2] });
+      // bow on, rowed in or sailed in, she backs off and turns round; her stootwillen were never out
+      pulling.skipped = new Set([...(dock.headOn === 'boeg' || bowOn ? [] : ['keer']), ...(dock.headOn || bowOn ? ['willen'] : [])]);
       orders = { op: 'op', dollen: 'op', richten: 'op', los: 'op', zet: 'op', willen: 'op', toe: 'toe', keer: ['strijk', 'haal'], weg: 'slag' };
       needs = { zet: ['los'], weg: ['toe'] };
     } else if (kind === 'boeg') {
@@ -1759,8 +1768,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     if (!pulling) return;
     const v = pulling.values; const kind = pulling.kind;
     if (kind === 'afvaren') {
-      const on = 1 - smoothstep(v.los);
-      for (const k of Object.keys(dock.lineAt)) dock.lineAt[k] = on;
+      const on = 1 - smoothstep(v.los);                               // only the lines she lay on: no others put out to let go
+      for (const k of Object.keys(dock.lineAt)) dock.lineAt[k] = pulling.linesOut.includes(k) ? on : 0;
       if (!dock.headOn && dock.side) for (const w of stootwillen) if (w.side === (dock.side === 'sb' ? 1 : -1) && !w.sea) w.want = v.willen >= 0.5 ? 0 : 1;
     } else if (kind === 'boeg') {
       dock.lineAt.voor = smoothstep(v.stap); dock.pin.voor = pulling.bolder;
@@ -1802,7 +1811,12 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const followOrders = () => {
     const p = shown; const orders = p?.orders;
     if (!orders || state.mode !== 'roeien' || !driving(p)) return;
-    const key = p.lead > 0 && p.t <= p.lead + 1e-6 ? 'aanloop' : p.current?.key;
+    // a step's commando only once that step is under way: waiting at its start (Oefenen, before an
+    // answer) the one before it still stands - before the first, whatever the riemen were doing
+    const c = p.current; let key;
+    if (p.lead > 0 && p.t <= p.lead + 1e-6) key = 'aanloop';
+    else if (c && p.t > c.begin + 1e-6) key = c.key;
+    else key = p.steps.slice(0, p.steps.indexOf(c)).filter((x) => !p.isSkipped(x)).at(-1)?.key ?? 'aanloop';
     const o = orders[key] ?? orders.aanloop; if (!o) return;
     const [bb, sb] = typeof o === 'string' ? [o, o] : o;
     if (`${bb}/${sb}` === ordersSet && state.commando.bb === bb && state.commando.sb === sb) return;
@@ -4171,20 +4185,28 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // made fast alongside: slid along the steiger where she would stick out past its end, the
   // stootwillen out, the lines one by one. Alongside she is not turned back.
   const SWING_LIMIT = deg(90);
+  const PRESS_SECONDS = 2;                                          // pressed against the steiger: round alongside in this time
   let sliderHeld = false;                                           // the wind slider being dragged: not yet let go
   const bowOnNow = () => (berthing && !driving(berthing) && !driving(turning) ? berthing.way.bowOn : null);
   const swingBowOn = (dt) => {
     const b = bowOnNow(); dock.speed = 0;
     b.swing ??= wrapPi(now.windAngle);                              // come to rest: from the wind she has
     b.swing += wrapPi(deg(state.course) - b.swing) * (1 - Math.exp(-dt * 4.5));   // eased in, as the slider's is
-    const off = Math.sign(b.swing) * SWING_LIMIT * Math.min(Math.abs(b.swing) / deg(HALVE_WIND), 1);
+    const reach = Math.min(Math.abs(b.swing) / deg(HALVE_WIND), 1);   // how far round the wind has her
+    // pressed against the steiger, she goes on round until she lies along it
+    if (b.pressed !== undefined) b.pressed = Math.min(1, b.pressed + dt / PRESS_SECONDS);
+    const off = Math.sign(b.swing) * SWING_LIMIT * (reach + (1 - reach) * smoothstep(b.pressed ?? 0));
     const heading = b.berth + off; b.rel = b.swing;
     const bowAt = dock.eyes.sb.voor.x - PIVOT.x;
     const eye = b.eye.clone().addScaledVector(b.n, BOW_GAP * (Math.cos(off) - 1) + (HALF_BEAM + FENDER_GAP) * Math.abs(Math.sin(off)));
     dock.p.copy(eye).addScaledVector(fwdOf(heading, tmp1), -bowAt);
     dock.windAtLaying = heading + b.swing; now.windAngle = b.swing; dock.mooredWind = b.swing;
-    // let go halve wind or further, and come to rest there: alongside
-    if (!sliderHeld && Math.abs(wrapPi(deg(state.course) - b.swing)) < deg(0.5) && Math.abs(state.course) >= HALVE_WIND) madeFastAlongside(heading);
+    // let go where the wind no longer comes off the steiger (or at halve wind or further), it presses
+    // her against it: round alongside, and made fast there
+    const offWal = kindOf(fwdOf(dock.windAtLaying, tmp1).dot(edge().n)) === 'hogerwal';
+    const settled = !sliderHeld && Math.abs(wrapPi(deg(state.course) - b.swing)) < deg(0.5);
+    if (b.pressed === undefined && settled && (!offWal || Math.abs(state.course) >= HALVE_WIND)) b.pressed = 0;
+    if (b.pressed !== undefined && (b.pressed >= 1 || reach >= 1)) madeFastAlongside(heading);
   };
   /** From bow on to alongside the steiger, where she swung to: a langswal now, as far as she is concerned. */
   const madeFastAlongside = (heading) => {
@@ -4226,7 +4248,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       for (const k of Object.keys(dock.lineAt)) dock.lineAt[k] = v[k];
       if (m.pinVoor) dock.pin.voor = m.pinVoor;                     // aan hogerwal: the bolder by her bow
       if (m.bowOn && driving(berthing)) {                           // gone back into it: where it leaves her, not where she swung
-        m.bowOn.swing = null; dock.mooredWind = m.wind;
+        m.bowOn.swing = null; m.bowOn.pressed = undefined; dock.mooredWind = m.wind;
         if (m.k >= 1) m.path(1, dock.p);
       }
       if (m.k >= 1 && m.haul) {
@@ -4297,6 +4319,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
         courseFromWind();
       }
       dock.windAtLaying = dock.restHeading + now.windAngle; dock.mooredWind = now.windAngle;
+      // and with it what kind of wal she lies at: the wind it was laid for is not the wind there is now
+      if (dock.steiger) dock.kind = kindOf(fwdOf(dock.windAtLaying, tmp0).dot(edge().n));
     }
     else if (!waiting()) {
       dock.p.addScaledVector(fwdOf(dock.heading, tmp1), dock.speed * dt);
@@ -5444,7 +5468,18 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       return;
     }
     const c = state.commando[side];
-    if (c === 'slag' || c === 'strijk') { phase[side] = (phase[side] + by) % ROUND; return; }
+    if (c === 'slag' || c === 'strijk') {
+      // both boorden on the same stroke row in time: one out of step (after a turn, one boord
+      // strijkt and the other haalt op) closes on the other, a little quicker or slower each stroke
+      const other = side === 'bb' ? 'sb' : 'bb';
+      let close = 0;
+      if (state.commando[other] === c && !single[other]) {
+        const gap = ((((phase[other] - phase[side]) % ROUND) + 1.5 * ROUND) % ROUND) - ROUND / 2;   // the other is this far ahead
+        close = clamp(gap / 2, -0.3 * by, 0.3 * by);
+      }
+      phase[side] = (phase[side] + by + close) % ROUND;
+      return;
+    }
     const want = READY_PHASE[c];
     if (want === undefined) return;
     const gap = (((want - phase[side]) % ROUND) + ROUND) % ROUND;
@@ -5480,6 +5515,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const atWalDone = [() => !driving(berthing) && !driving(turning) && !driving(hauling) && !driving(pulling), 'Eerst het afmeren, draaien of verhalen afmaken'];
   // made fast with the boeg or the spiegel to the kant (a rowing aanleg): nothing to sail off sideways from
   const notHeadOn = [() => !dock.headOn, 'Alleen langszij'];
+  const besideWal = [() => !bowOnNow() && Boolean(dock.side) && !dock.headOn, 'Alleen langszij'];
+  const bowToWal = [() => Boolean(bowOnNow()) || dock.headOn === 'boeg', 'Alleen met de kop naar de steiger (langszij: Van langswal)'];
   const OPS = {
     hijsen: { rig: 'op', done: sailsUp, needs: [[mastUp, 'Eerst de mast zetten'], [sailsBent, 'Eerst de zeilen aanslaan'], notReefing, atWalDone,
       [() => !dock.moored || hoistAlongside(), 'Afgemeerd alleen kop in de wind, of met de wind over de steiger']] },
@@ -5518,9 +5555,11 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     kopInDeWind: { done: () => false, needs: [[() => dock.moored, 'Eerst afmeren'], [walConditions.langswal, 'Alleen aan een langswal'], notHeadOn, [() => !driving(turning), 'Eerst het draaien afmaken'],
       [sailsStruck, 'Eerst de zeilen strijken'], [windFromBehind, 'Alleen met de wind van achteren']] },
     verhalen: { done: () => false, needs: [[() => dock.moored, 'Eerst afmeren'], atWalDone,
-      [() => !bowOnNow() && Boolean(dock.side) && !dock.headOn, 'Alleen langszij'], [sailsStruck, 'Eerst de zeilen strijken']] },
-    afvaren: { done: () => false, needs: [[() => dock.moored, 'Eerst afmeren'], atWalDone, [walConditions.langswal, 'Alleen van een langswal'], notHeadOn,
-      [() => Math.abs(state.course) < CLOSE_HAULED, 'Eerst kop in de wind leggen'], [sailsUp, 'Eerst de zeilen hijsen'], notReefing] },
+      besideWal, [sailsStruck, 'Eerst de zeilen strijken']] },
+    // van langswal, and the same way off a hogerwal she lies beside: pushed off, she falls off away from the wind
+    afvaren: { done: () => false, needs: [[() => dock.moored, 'Eerst afmeren'], atWalDone,
+      [() => walConditions.langswal() || walConditions.hogerwal(), 'Alleen van een langswal of hogerwal'], besideWal,
+      [() => Math.abs(state.course) < CLOSE_HAULED || walConditions.hogerwal(), 'Eerst kop in de wind leggen'], [sailsUp, 'Eerst de zeilen hijsen'], notReefing] },
     afmeren: { done: () => dock.moored, needs: [[sailsUp, 'Eerst de zeilen hijsen'], [anchorUp, 'Eerst het anker op'],
       [() => state.course !== 0, 'Eerst een koers varen, niet kop in de wind'], notReefing,
       [() => !tackOn(), 'Eerst de wending of gijp afmaken']] },
@@ -5537,9 +5576,10 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       [() => state.course !== 0, 'Eerst een koers varen, niet kop in de wind'], notReefing,
       [() => !tackOn(), 'Eerst de wending of gijp afmaken']] },
     afvarenHoger: { done: () => false, needs: [[() => dock.moored, 'Eerst afmeren'], atWalDone, [walConditions.hogerwal, 'Alleen van een hogerwal'],
+      bowToWal,
       [() => Math.abs(state.course) < HALVE_WIND, 'Eerst kop in de wind'], [sailsUp, 'Eerst de zeilen hijsen'], notReefing] },
     afvarenLager: { done: () => false, needs: [[() => dock.moored, 'Eerst afmeren'], atWalDone, [walConditions.lagerwal, 'Alleen van een lagerwal'], [sailsBent, 'Eerst de zeilen aanslaan'], notHeadOn,
-      [sailsDown, 'Eerst grootzeil en fok strijken'], notReefing] },
+      [mastUp, 'Eerst de mast zetten'], [sailsDown, 'Eerst grootzeil en fok strijken'], notReefing] },
     manOverBoord: { done: () => false, needs: [[sailsUp, 'Eerst de zeilen hijsen'], [anchorUp, 'Eerst het anker op'],
       [() => !dock.moored && !dock.mooring, 'Eerst losgooien'], [() => state.course !== 0, 'Eerst een koers varen, niet kop in de wind'], notReefing,
       [() => !tackOn(), 'Eerst de wending of gijp afmaken']] },
@@ -5550,7 +5590,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       [() => state.course !== 0, 'Eerst een koers varen, niet kop in de wind'], notReefing, [() => !tackOn(), 'Eerst de wending of gijp afmaken']] },
     ankerenKaal: { done: atAnchor, needs: [[sailsAllDown, 'Eerst de zeilen omlaag'], [() => !dock.moored && !dock.mooring, 'Eerst losgooien']] },
     ankerOpZeil: { done: () => !atAnchor(), needs: [[atAnchor, 'Eerst ankeren'], [() => !anchorDriven(), 'Eerst het ankeren afmaken'], [sailsBent, 'Eerst de zeilen aanslaan'],
-      [sailsDown, 'Eerst grootzeil en fok strijken'], notReefing] },
+      [mastUp, 'Eerst de mast zetten'], [sailsDown, 'Eerst grootzeil en fok strijken'], notReefing] },
     ankerOpKaal: { done: () => !atAnchor(), needs: [[atAnchor, 'Eerst ankeren'], [() => !anchorDriven(), 'Eerst het ankeren afmaken'],
       [sailsAllDown, 'Eerst de zeilen omlaag']] },
     topEnTakel: { done: () => dock.moored, needs: [[sailsUp, 'Eerst de zeilen hijsen'], [anchorUp, 'Eerst het anker op'],
@@ -5797,13 +5837,24 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     if (anchorGear.lost && out) return;                             // there is nothing on the end of it to let go
     anchorGear.want = out ? 1 : 0;
   };
+  const modeListeners = [];                                        // told before the mode changes (onModeChange)
   const setMode = (mode) => {
+    // another mode stops what is going on: a manoeuvre under way is called off as with the cross of
+    // its card, back to where it set out, and its card closes
+    const changed = mode !== state.mode;
+    if (changed) {
+      for (const fn of modeListeners) fn(mode);
+      if (!run.finished) run.abandon();
+    }
     state.mode = mode;
     for (const d of dollen) d.byHand = undefined;                   // a new mode puts dollen, riemen and mik where they belong in it
     for (const oar of [...Object.values(rowOars), scullOar]) oar.byHand = undefined;
     mikPose.byHand = undefined;
     if (mode !== 'zeilen') weighAnchor(false);                      // at anchor there is no rowing
+    if (mode !== 'zeilen' && heaveOn()) { dropHeave(); helm.target = 0; }   // nor lying hove to: the helmstok back amidships
     if (mode === 'roeien') bench.want = false;                     // the doft is needed to row from
+    // made fast, the riemen stay where they lie until afvaren takes them up
+    if (changed && mode === 'roeien' && dock.moored) setCommando('beide', 'geroeid');
     trimBoard();
     for (const b of modeButtons) b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
     for (const g of modeGlyphs) g.toggleAttribute('hidden', g.dataset.mode !== mode);   // the icon shows the mode
@@ -6059,6 +6110,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     anker: atAnchor(), afgemeerd: dock.moored ? dock.kind ?? true : false,
   });
   return { update, state, click, reveal, helm: helmControl, situation,
+           /** `fn(mode)` is called when the mode is about to change, before a manoeuvre under way is called off. */
+           onModeChange: (fn) => { modeListeners.push(fn); },
            /** Where a run is looked at from now (main.js): 'vogel', 'dichtbij', 'boven' or 'schipper'. */
            lookFrom: (v) => { lookingFrom = v; }, procedure, procedureControl, apply, current, run, darkness,
            closePopover: () => openPopover(null), placePopover: () => { if (opened) place(opened); },

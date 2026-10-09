@@ -275,6 +275,7 @@ export function mount(ui, host, config) {
                         rowing: () => ['roeien', 'wrikken'].includes(modes?.state.mode) });   // Oefenen
       handelingen = initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedure, dismissProcedure,
         runView: { get: () => runViewChosen, set: chooseRunView }, setCovered, opslaan, signal, engaged, realTarget, onDestroy });
+      modes.onModeChange(() => handelingen.callOff());
       closePanel.set('learn', () => modes.closePopover());    // a round or a run takes the whole screen
       initLearn();
       loaded = true;

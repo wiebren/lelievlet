@@ -1,7 +1,7 @@
 // Writes the reference documents for the viewer, in Dutch, from what the viewer itself uses:
 //   docs/onderdelen.md   every part of the model, its other names and where Oefenen asks about it
 //   docs/manoeuvres.md   every operation: its preconditions and its steps
-// Run from web/ with `pnpm docs` after the model, the quiz list or the operations change. The
+// Run from web/ with `pnpm run docs` after the model, the quiz list or the operations change. The
 // tables come from lelievlet.parts.json, src/quizdata.js and src/modes.js, so they stay in step.
 
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -101,7 +101,7 @@ function onderdelen() {
 Naslag voor wie de viewer gebruikt of controleert: elk onderdeel dat het 3D-model heeft, de andere
 namen die de lesstof ervoor gebruikt, en of en hoe **Oefenen** ernaar vraagt.
 
-Dit bestand wordt gemaakt door \`web/scripts/docs.mjs\` (\`pnpm docs\` in \`web/\`) uit
+Dit bestand wordt gemaakt door \`web/scripts/docs.mjs\` (\`pnpm run docs\` in \`web/\`) uit
 \`web/public/models/lelievlet.parts.json\` (het model) en \`web/src/quizdata.js\` (de vragen). Pas
 het niet met de hand aan: verander de bron en draai het script opnieuw.
 
@@ -301,12 +301,14 @@ function manoeuvres() {
     'Eerst aanleggen': 'de boot ligt aan de kant', 'Eerst dwars op de wind roeien': 'ze roeit dwars op de wind (45° tot 135°)',
     'Eerst een koers varen, niet kop in de wind': 'de boot vaart een koers (niet kop in de wind)',
     'Eerst afmeren': 'de boot ligt afgemeerd', 'Alleen van een langswal': 'de wal is een langswal', 'Alleen aan een langswal': 'de wal is een langswal', 'Alleen langszij': 'ze ligt langszij (niet met de boeg aan de steiger)',
-    'Eerst kop in de wind leggen': 'de wind komt van voren (minder dan 45° van de boeg)',
+    'Eerst kop in de wind leggen': 'de wind komt van voren (minder dan 45° van de boeg); aan een hogerwal hoeft dat niet',
+    'Alleen van een langswal of hogerwal': 'de wal is een langswal of een hogerwal',
+    'Alleen met de kop naar de steiger (langszij: Van langswal)': 'de boot ligt met de boeg aan de steiger, op het voorlandvast (langszij gaat het met Van langswal)',
     'Eerst het draaien afmaken': 'er is geen kop in de wind leggen bezig',
     'Eerst het afmeren, draaien of verhalen afmaken': 'er is geen afmeren, kop in de wind leggen of verhalen half af',
     'Afgemeerd alleen kop in de wind, of met de wind over de steiger': 'niet afgemeerd, of afgemeerd kop in de wind, of aan de wind of halve wind met de wind over de steiger',
     'Alleen met de wind van achteren': 'de wind komt van achteren (135° of meer van de boeg)',
-    'Alleen van een hogerwal': 'de boot ligt met de boeg aan een hogerwal, op het voorlandvast',
+    'Alleen van een hogerwal': 'de wal is een hogerwal',
     'Alleen van een lagerwal': 'de wal is een lagerwal', 'Eerst kop in de wind': 'de wind komt van voren (minder dan halve wind)',
     'Eerst grootzeil en fok strijken': 'grootzeil en fok zijn gestreken (opgedoekt of niet) en de mast staat',
     'Eerst halve wind, ruime of voor de wind gaan varen': 'de boot vaart halve wind, ruime wind of voor de wind (70° of meer van de wind)',
@@ -331,7 +333,7 @@ Naslag voor wie de viewer gebruikt of controleert: wat de boot kan doen, wanneer
 en in welke stappen. Wat er nog bij komt, met CWO-niveau en bronnen, staat in de werklijst
 \`docs/handelingen.md\`.
 
-Dit bestand wordt gemaakt door \`web/scripts/docs.mjs\` (\`pnpm docs\` in \`web/\`); de stappen, de
+Dit bestand wordt gemaakt door \`web/scripts/docs.mjs\` (\`pnpm run docs\` in \`web/\`); de stappen, de
 voorwaarden en wat er eerst gedaan moet zijn komen rechtstreeks uit \`web/src/modes.js\`. Pas het niet
 met de hand aan: verander de bron en draai het script opnieuw. Een insluitende pagina kan de namen
 van stappen veranderen (\`namen.stappen\`); hier staan de standaardnamen.
@@ -488,7 +490,8 @@ stoppen af, strijken, lopen, op). Wie roept staat erbij; de haakvoor zit voorin.
 
 Aanleggen legt een eigen kant, recht voor haar (boeg, zijkant) of langs haar stuurboordkant
 (spiegel); of het een hogerwal, lagerwal of langswal is volgt uit de wind. Met het kruisje breekt de
-manoeuvre af: de kant verdwijnt weer en ze roeit verder zoals ze begon.
+manoeuvre af: de kant verdwijnt weer en ze roeit verder zoals ze begon. Een andere modus kiezen breekt
+elke manoeuvre die nog bezig is af zoals het kruisje dat doet, en heft bijliggen op.
 
 ${ROWS.map(([name, list, needs]) => `### ${name}
 
@@ -917,12 +920,20 @@ hogerwal), dan draait ze om haar boeg als de wind verzet wordt. De windschuif bl
 de wind op de boot: van kop in de wind tot halve wind draait ze mee, tot ze langs de steiger ligt;
 verder draait ze niet, anders zou ze erdoorheen gaan, en gaat alleen de wind verder rond. Onderweg komt
 de boeg wat van de steiger af, zodat haar zijkant vrij blijft. De zeilen staan los en waaien mee.
-Laat je de windschuif los bij halve wind, ruime wind of voor de wind, dan wordt ze langszij vastgemaakt:
+Laat je de windschuif los terwijl de wind niet meer van de steiger af komt (geen hogerwal meer), of bij
+halve wind, ruime wind of voor de wind, dan drukt de wind haar tegen de steiger: ze draait verder rond
+tot ze erlangs ligt en wordt langszij vastgemaakt:
 steekt ze voorbij het eind van de steiger (na een opschieter ligt ze aan de kop ervan), dan schuift ze
 eerst langs de steiger tot ze er helemaal naast ligt en gaat het voorlandvast naar een eigen bolder;
 dan de stootwillen uit en na elkaar het achterlandvast, de achterspring en de voorspring. Vanaf dan is
-het een langswal. Andersom, van langszij terug naar met de boeg aan de steiger, gebeurt niet. Afvaren van langswal kan alleen met de wind van voren. Komt de wind van
-achteren, dan eerst kop in de wind leggen. Andere windrichtingen komen later.
+het een langswal. Andersom, van langszij terug naar met de boeg aan de steiger, gebeurt niet.
+
+Ligt ze langszij, dan volgt het soort wal de wind: verzet je de wind, dan wordt het een langswal (de
+wind langs de steiger, tot 45° ervan af), een hogerwal (de wind van de steiger af) of een lagerwal (de
+wind naar de steiger toe). Afvaren van langswal kan met de wind van voren, en ook langszij aan een
+hogerwal: na het afduwen valt ze dan van de wind af. Komt de wind van achteren, dan eerst kop in de
+wind leggen; waait hij naar de steiger toe, dan is het afvaren van lagerwal. Afvaren van hogerwal is
+voor als ze met de boeg aan de steiger ligt.
 
 Afgemeerd gaan de zeilen alleen omhoog als ze vrij van de wal waaien: kop in de wind, of aan de wind
 of halve wind met de wind over de steiger, zodat ze boven het water uitstaan. Gestreken ligt de fok

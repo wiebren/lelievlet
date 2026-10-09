@@ -3,7 +3,7 @@
 Naslag voor wie de viewer gebruikt of controleert: elk onderdeel dat het 3D-model heeft, de andere
 namen die de lesstof ervoor gebruikt, en of en hoe **Oefenen** ernaar vraagt.
 
-Dit bestand wordt gemaakt door `web/scripts/docs.mjs` (`pnpm docs` in `web/`) uit
+Dit bestand wordt gemaakt door `web/scripts/docs.mjs` (`pnpm run docs` in `web/`) uit
 `web/public/models/lelievlet.parts.json` (het model) en `web/src/quizdata.js` (de vragen). Pas
 het niet met de hand aan: verander de bron en draai het script opnieuw.
 
