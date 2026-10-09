@@ -445,8 +445,9 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   handelingen, alleen in Zeilen) of **Onderdelen** (de quiz) - en toont daaronder het startpaneel
   daarvan; het opent op wat het laatst gekozen is.
   Rechtsboven zit het **tandwiel** voor Aanpassen, met onderaan dat paneel de snelheid van de
-  animaties (met de sneltoetsen voor de camera). **Over dit model**, dat midden in beeld opengaat,
-  is een link op het eerste scherm van **Melden** (zonder Melden: onderaan het tandwielpaneel).
+  animaties (met de sneltoetsen voor de camera). **Over dit model** en **Updates** (per datum wat er
+  veranderd is, uit `web/src/updates.js`), die midden in beeld opengaan, zijn links op het eerste
+  scherm van **Melden** (zonder Melden: onderaan het tandwielpaneel).
   Rechtsonder staat de **onderdelenkaart**: met niets geselecteerd is
   dat alleen een ronde zoekknop, met een onderdeel geselecteerd de kaart met groep en naam en
   rechtsboven daarin dezelfde zoekknop. Die opent de doorzoekbare **Onderdelen**-lijst boven de

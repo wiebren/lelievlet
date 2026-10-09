@@ -68,7 +68,8 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     <label class="speed"><span>Snelheid</span>
       <input id="speed" type="range" min="0.25" max="2" step="0.05" value="1" aria-label="Snelheid van de animaties"></label>
     <p class="hint">Pijltjes: verplaatsen · Shift + pijltjes: draaien · + / −: zoomen · Scrollen: inzoomen op de muisaanwijzer</p>
-    <p class="about-link" hidden><button id="about-open" type="button" class="link-button">Over dit model</button></p>
+    <p class="about-link" hidden><button id="about-open" type="button" class="link-button">Over dit model</button> ·
+      <button id="updates-open" type="button" class="link-button">Updates</button></p>
   </aside>
 
   <!-- Volledig scherm, onder het tandwiel; het staat na het Aanpassen-paneel zodat de stylesheet
@@ -338,6 +339,15 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
 
     <h3>Broncode</h3>
     <p><a href="https://github.com/wiebren/lelievlet" target="_blank" rel="noreferrer">github.com/wiebren/lelievlet</a></p>
+  </aside>
+
+  <!-- Updates: per date what changed (updates.js), opened from Melden as Over dit model is -->
+  <aside id="updates" hidden>
+    <header>
+      <h2>Updates</h2>
+      <button id="updates-close" type="button" class="link-button" aria-label="Sluiten">Sluiten</button>
+    </header>
+    <div id="updates-list"></div>
   </aside>
 
   <!-- debug.toestand: where the viewer is, as the configuration to start there -->

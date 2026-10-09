@@ -21,6 +21,7 @@ import { makeAsset } from './assets.js';
 import { naamVan, merge, unpack, pack, TYPING } from './config.js';
 import { addEdges } from './edges.js';
 import { packConfig } from './pack.js';
+import { UPDATES } from './updates.js';
 
 // One viewer, from end to end. Nothing here runs at import time: `mount` is called once per
 // embedded viewer with the shadow root it owns, so two of them on one page share no state at all.
@@ -74,8 +75,9 @@ export function mount(ui, host, config) {
   // Volledig scherm works from the first frame: it needs nothing of the model
   const fullscreen = initFullscreen({ ui, host, config, signal, engaged, realTarget, onDestroy, asApp: runsAsApp() });
   // Melden: from the first frame too - a model that will not load is worth a report as well
-  const feedback = initFeedback({ ui, config, signal, engaged, snapshot: () => snapshot(), about: () => openPanel.get('about')(),
-    closeOthers: () => { if (!$('customize').hidden) $('customize-close').click(); closePanel.get('about')?.(); closePanel.get('parts')?.(); } });
+  const feedback = initFeedback({ ui, config, signal, engaged, snapshot: () => snapshot(),
+    about: () => openPanel.get('about')(), updates: () => openPanel.get('updates')(),
+    closeOthers: () => { if (!$('customize').hidden) $('customize-close').click(); closePanel.get('about')?.(); closePanel.get('updates')?.(); closePanel.get('parts')?.(); } });
 
   // panels behind a button: the parts list (the search in the part card), and Over dit model, which
   // has no button of its own but a link on the first screen of Melden - or, with no Melden, at the
@@ -83,7 +85,7 @@ export function mount(ui, host, config) {
   const closePanel = new Map();                  // panel id -> close it
   const openPanel = new Map();                   // panel id -> open it
   for (const [button, panel, onToggle] of [['parts-toggle', 'parts', partsPanelToggled],
-                                           [null, 'about'], ['toestand-toggle', 'toestand', (open) => toestandToggled(open)],
+                                           [null, 'about'], [null, 'updates'], ['toestand-toggle', 'toestand', (open) => toestandToggled(open)],
                                            ['log-toggle', 'logboek']]) {
     const toggle = button && $(button);
     const aside = $(panel);
@@ -105,6 +107,15 @@ export function mount(ui, host, config) {
   // Over dit model: from the foot of Aanpassen, which makes way for it; it stands in the middle
   $('about-open').parentElement.hidden = config.feedback !== false;
   $('about-open').addEventListener('click', () => { $('customize-close').click(); openPanel.get('about')(); });
+  $('updates-open').addEventListener('click', () => { $('customize-close').click(); openPanel.get('updates')(); });
+  $('updates-close').addEventListener('click', () => closePanel.get('updates')());
+  // Updates: per date, the newest first
+  const dag = new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' });
+  $('updates-list').replaceChildren(...UPDATES.flatMap(({ datum, punten }) => {
+    const list = document.createElement('ul');
+    list.append(...punten.map((punt) => Object.assign(document.createElement('li'), { textContent: punt })));
+    return [Object.assign(document.createElement('h3'), { textContent: dag.format(new Date(`${datum}T12:00:00`)) }), list];
+  }));
   $('toestand-close').addEventListener('click', () => closePanel.get('toestand')());
   $('parts-close').addEventListener('click', () => closePanel.get('parts')());
   $('log-close').addEventListener('click', () => closePanel.get('logboek')());

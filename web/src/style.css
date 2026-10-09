@@ -188,10 +188,11 @@
 #feedback .fb-actions button:disabled { opacity: 0.4; cursor: default; }
 #feedback .fb-about { margin: 12px 0 0; text-align: center; }
 #feedback .fb-about button { color: var(--accent); }
+#feedback .fb-about .sep { margin: 0 6px; color: var(--muted); }
 #feedback .fb-back { display: block; margin-top: 10px; font-size: 12px; }
 
-/* Over dit model: opened from the foot of Aanpassen, it stands in the middle of the viewer */
-#about {
+/* Over dit model and Updates: opened from Melden, they stand in the middle of the viewer */
+#about, #updates {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   width: min(420px, calc(100cqw - 32px)); max-height: calc(100% - 64px); overflow: auto;
   padding: 16px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
@@ -199,11 +200,13 @@
 }
 #customize .about-link { margin: 12px 0 0; text-align: center; }
 #customize .about-link button { color: var(--accent); }
-#about header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
-#about h2 { margin: 0; font-size: 16px; }
-#about h3 { margin: 14px 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+#about header, #updates header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+#about h2, #updates h2 { margin: 0; font-size: 16px; }
+#about h3, #updates h3 { margin: 14px 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 #about p { margin: 0; font-size: 13px; color: var(--muted); }
 #about a { color: var(--accent); }
+#updates ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.4; }
+#updates li { margin-bottom: 4px; }
 .links { list-style: none; margin: 0; padding: 0; font-size: 13px; }
 .links li { margin-bottom: 7px; color: var(--muted); line-height: 1.35; }
 
