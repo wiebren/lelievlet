@@ -7,7 +7,7 @@ import * as THREE from 'three';
 // Texture space: u runs from the luff aft to the leech, v runs up. The mesh faces port, so the
 // port texture is drawn as-is and the starboard one (seen from behind) gets its artwork mirrored.
 
-const CLOTH = '#ece7d8';
+export const CLOTH = '#ece7d8';
 const PX_PER_M = 620;
 
 export function loadImage(url) {
@@ -158,7 +158,7 @@ function decalPatch(parts, id, widthM, heightM, renderer) {
 }
 
 /** asset(path): where the textures are fetched from; see assets.js. */
-export async function dressSails(parts, renderer, asset, number = '000', emblemLoad = null) {
+export async function dressSails(parts, renderer, asset, start = '000', emblemLoad = null) {
   // fetched while the model was still coming in, when the caller started it then
   const emblem = await (emblemLoad ?? loadImage(asset('textures/zeilteken.png')).catch(() => null));
   // What lies on the cloth is a millimetre or two off it and meshed on a grid of its own, and the
@@ -203,21 +203,38 @@ export async function dressSails(parts, renderer, asset, number = '000', emblemL
   const NUMMER_MM = 980;                                  // the patch holds up to four digits
   const emblemPatch = decalPatch(parts, 'grootzeil_zeilteken', 0.38, 0.38 * (emblem ? emblem.height / emblem.width : 1.42), renderer);
   const numberPatch = decalPatch(parts, 'grootzeil_zeilnummer', NUMMER_MM / 1000, 0.30, renderer);
-  if (emblemPatch && emblem) {
-    emblemPatch.ctx.drawImage(emblem, 0, 0, emblemPatch.canvas.width, emblemPatch.canvas.height);
-    emblemPatch.texture.needsUpdate = true;
-  }
+  // black on a light sail, white on a dark one: the emblem is black on transparent, and is filled
+  // with the ink over its own shape
+  let ink = '#111'; let number = start;
+  const paintEmblem = () => {
+    if (!emblemPatch || !emblem) return;
+    const { canvas, ctx, texture } = emblemPatch;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(emblem, 0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = 'source-in';
+    ctx.fillStyle = ink; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = 'source-over';
+    texture.needsUpdate = true;
+  };
   const paintNumber = (value) => {
+    number = value;
     if (!numberPatch) return;
     const { canvas, ctx, texture } = numberPatch;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#111';
+    ctx.fillStyle = ink;
     const mm = canvas.width / NUMMER_MM;
     drawDigits(ctx, value, canvas.width / 2, 0, 200 * mm, 300 * mm, 60 * mm);
     texture.needsUpdate = true;
   };
 
+  const setInk = (white) => {
+    const want = white ? '#f4f4f2' : '#111';
+    if (want === ink) return;
+    ink = want; paintEmblem(); paintNumber(number);
+  };
+
   // a new number only paints its own patch again: the cloth stays as it is
-  paintNumber(number);
-  return { setNumber: paintNumber };
+  paintEmblem(); paintNumber(number);
+  return { setNumber: paintNumber, setInk };
 }

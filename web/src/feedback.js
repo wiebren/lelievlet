@@ -39,9 +39,10 @@ const MIN_TEXT = 10;                      // characters: "werkt niet" alone is n
  * ui, wrap, config, signal, engaged: as mount() has them.
  * snapshot(): { screenshot, gegevens } - the picture as a data URL (or null) and the state as data.
  * closeOthers(): puts away the panels that stand where this one does.
+ * about(): opens Over dit model, linked from the first screen.
  * Returns { close }.
  */
-export function initFeedback({ ui, config, signal, engaged, snapshot, closeOthers }) {
+export function initFeedback({ ui, config, signal, engaged, snapshot, closeOthers, about }) {
   const $ = (id) => ui.getElementById(id);
   const button = $('feedback-toggle'); const panel = $('feedback'); const body = $('feedback-body');
   if (config.feedback === false) { button.hidden = true; return { close: () => {} }; }
@@ -85,6 +86,8 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
     start: () => [
       text('Dit is een bètaversie. Zie je iets dat niet klopt? Laat het ons weten, dan kunnen we het verbeteren.', 'fb-lead'),
       row(choice('Start', () => go('zichtbaar'), true)),
+      about && el('p', { className: 'fb-about' }, el('button', { type: 'button', className: 'link-button', textContent: 'Over dit model',
+                                                              onclick: () => { close(); about(); } })),
     ],
 
     zichtbaar: () => {

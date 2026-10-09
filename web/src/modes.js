@@ -4865,6 +4865,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
         c.userData.of.updateMatrix();
         c.matrix.multiplyMatrices(kluiver.S, mirrored ? tmpM.multiplyMatrices(MIRROR_Z, c.userData.of.matrix) : c.userData.of.matrix);
         c.visible = c.userData.of.visible;
+        c.material.color.copy(c.userData.of.material.color);         // the colour the fok has now
       }
       kluiver.clewNow.copy(clewNow); if (mirrored) kluiver.clewNow.z = -kluiver.clewNow.z;
       kluiver.clewNow.applyMatrix4(kluiver.S);

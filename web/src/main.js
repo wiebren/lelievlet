@@ -74,11 +74,12 @@ export function mount(ui, host, config) {
   // Volledig scherm works from the first frame: it needs nothing of the model
   const fullscreen = initFullscreen({ ui, host, config, signal, engaged, realTarget, onDestroy, asApp: runsAsApp() });
   // Melden: from the first frame too - a model that will not load is worth a report as well
-  const feedback = initFeedback({ ui, config, signal, engaged, snapshot: () => snapshot(),
+  const feedback = initFeedback({ ui, config, signal, engaged, snapshot: () => snapshot(), about: () => openPanel.get('about')(),
     closeOthers: () => { if (!$('customize').hidden) $('customize-close').click(); closePanel.get('about')?.(); closePanel.get('parts')?.(); } });
 
   // panels behind a button: the parts list (the search in the part card), and Over dit model, which
-  // has no button of its own but a link at the foot of Aanpassen. Oefenen is a popover of the column.
+  // has no button of its own but a link on the first screen of Melden - or, with no Melden, at the
+  // foot of Aanpassen. Oefenen is a popover of the column.
   const closePanel = new Map();                  // panel id -> close it
   const openPanel = new Map();                   // panel id -> open it
   for (const [button, panel, onToggle] of [['parts-toggle', 'parts', partsPanelToggled],
@@ -102,6 +103,7 @@ export function mount(ui, host, config) {
   $('parts-toggle').addEventListener('click', () => { if (!$('parts').hidden) { feedback.close(); if (!$('customize').hidden) $('customize-close').click(); } });
   $('about-close').addEventListener('click', () => closePanel.get('about')());
   // Over dit model: from the foot of Aanpassen, which makes way for it; it stands in the middle
+  $('about-open').parentElement.hidden = config.feedback !== false;
   $('about-open').addEventListener('click', () => { $('customize-close').click(); openPanel.get('about')(); });
   $('toestand-close').addEventListener('click', () => closePanel.get('toestand')());
   $('parts-close').addEventListener('click', () => closePanel.get('parts')());
@@ -220,18 +222,18 @@ export function mount(ui, host, config) {
       const outerSkin = (id) => parts.find((p) => p.extras.id === id).meshes.find((m) => m.material.name === 'boeisel');
       const hullText = new HullText({ sb: outerSkin('boeisel_sb'), bb: outerSkin('boeisel_bb') }, renderer, root);
       const LETTERING = { naam: { x: 4.6, height: 0.10 }, plaats: { x: 0.78, height: 0.075 } };   // voordek / achterdek
-      const zoneMaterials = collectZoneMaterials(parts);
+      const zoneMaterials = collectZoneMaterials(parts); const sailMaterials = collectSailMaterials(parts);
       const aanpassen = initCustomize(ui, config, {
-        zoneMaterials,
+        zoneMaterials, sailMaterials,
         setSailNumber: (text) => { sails.setNumber(text); sailNumber = text; followNumber(); paintScheme?.setNumber(text); },
         setHullText: (key, text, color) => hullText.set(key, text, LETTERING[key].x, LETTERING[key].height, color),
+        setSailInk: (white) => sails.setInk(white),
       });
       // Installeer als app: to the app page on our own site, taking what the user made of the boat with
-      // it, where the page shows how to install it. Not offered inside the installed app itself.
-      const installItem = $('app-install');
-      installItem.hidden = !config.installeren || runsAsApp();
+      // it, where the page shows how to install it: an icon in the bottom right-hand corner. Not
+      // offered inside the installed app itself.
       const installApp = async () => {
-        const own = Object.fromEntries(['zeilnummer', 'naam', 'naamKleur', 'plaats', 'plaatsKleur', 'bakskleur', 'kleuren'].map((k) => [k, aanpassen[k]]));
+        const own = Object.fromEntries(['zeilnummer', 'naam', 'naamKleur', 'plaats', 'plaatsKleur', 'bakskleur', 'zeilkleur', 'kleuren'].map((k) => [k, aanpassen[k]]));
         // the app page sits beside the script, wherever the page has its models (`assets`) from
         const page = makeAsset(null)('app.html');
         // in its own tab, not in this page's place, unless this page is the viewer's own and not framed.
@@ -247,17 +249,12 @@ export function mount(ui, host, config) {
         else if (tab) tab.location.href = url;
         else window.open(url, '_blank', 'noopener');
       };
-      installItem.addEventListener('click', installApp, { signal });
-      // on a phone or tablet it is also an icon in the bottom right-hand corner: that is where an app
-      // is wanted, and the settings panel is a long way round
       const installIcon = $('app-install-toggle');
-      const touch = matchMedia('(pointer: coarse)');
-      const showIcon = () => { installIcon.hidden = !config.installeren || runsAsApp() || !touch.matches; };
-      showIcon(); touch.addEventListener('change', showIcon, { signal });
+      installIcon.hidden = !config.installeren || runsAsApp();
       installIcon.addEventListener('click', installApp, { signal });
       // after initCustomize: it has laid the user's colours on, which is what the paint fades back to
       boat = aanpassen;
-      paintScheme = initPaint({ zoneMaterials, sailMaterials: collectSailMaterials(parts), config: aanpassen, note: logboek.note });
+      paintScheme = initPaint({ zoneMaterials, sailMaterials, config: aanpassen, note: logboek.note, setSailInk: sails.setInk });
       paintScheme.setNumber(aanpassen.zeilnummer);
 
       modes = initModes({ parts, tuig: root.getObjectByName('lelievlet').userData.tuig, scene,
@@ -1629,7 +1626,7 @@ export function mount(ui, host, config) {
       toestand: get(),
       // what toestand cannot say: what the handelingen left her with, and the boat as the user made it
       boot: modes?.situation(),
-      aanpassen: boat ? Object.fromEntries(['zeilnummer', 'naam', 'plaats', 'bakskleur', 'kleuren'].map((k) => [k, boat[k]])) : undefined,
+      aanpassen: boat ? Object.fromEntries(['zeilnummer', 'naam', 'plaats', 'bakskleur', 'zeilkleur', 'kleuren'].map((k) => [k, boat[k]])) : undefined,
       extra: extra(),
       // the step numbered the way the bar numbers it: without the steps skipped this time
       procedure: p && { naam: p.name, stap: p.label, index: p.index, stappen: p.steps.filter((st) => !st.skipped).length,

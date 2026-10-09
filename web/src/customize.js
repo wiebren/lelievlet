@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { unpack } from './config.js';
+import { CLOTH as SAILCLOTH } from './sails.js';
 
-// "Aanpassen": sail number, name, home port and the paint scheme. Saved in the browser, unless the
+// "Aanpassen": sail number, name, home port, the paint scheme and the colour of the sails. Saved in the browser, unless the
 // embedder switched that off. Paint zones are glTF material names written by pipeline/parts.py.
 //
 // Three layers, each beating the one under it: the viewer's own defaults, the defaults the page
@@ -25,6 +26,23 @@ export const ZONES = [
 
 const FIELDS = ['zeilnummer', 'naam', 'naamKleur', 'plaats', 'plaatsKleur', 'bakskleur'];
 
+// The colour of the sails, from 0 to 100: bright white, the off-white the cloth is painted in (10, the
+// default), then sand, a red-brown taan and a very dark brown. The cloth is tinted, not painted over,
+// so tape and corner patches keep their own shade; the first stop lifts the cloth to pure white.
+// demo/logo.js has the same stops for the app icon.
+const BRIGHT = ((c) => new THREE.Color(1 / c.r, 1 / c.g, 1 / c.b))(new THREE.Color(SAILCLOTH));
+const ZEILKLEUR = [[0, BRIGHT], [10, '#ffffff'], [30, '#ecd2b0'], [58, '#b45a37'], [100, '#3b2418']]
+  .map(([at, tint]) => [at, new THREE.Color(tint)]);
+const sailTint = (k) => {
+  const i = Math.max(1, ZEILKLEUR.findIndex(([at]) => at >= k));
+  const [a, from] = ZEILKLEUR[i - 1]; const [b, to] = ZEILKLEUR[i];
+  return from.clone().lerp(to, (k - a) / (b - a));
+};
+const sailColor = (material, k) => material.userData.untinted.clone().multiply(sailTint(k));
+const INK_WHITE = 50;               // from here on the zeilteken and the number are white
+/** 0 to 100, from whatever the page or the browser had; null when it is no number at all. */
+const zeilkleur = (v) => (v === '' || v === null || !Number.isFinite(Number(v)) ? null : Math.round(Math.min(100, Math.max(0, Number(v)))));
+
 export const DEFAULTS = {
   zeilnummer: '000',
   naam: 'Lelievlet',
@@ -32,6 +50,7 @@ export const DEFAULTS = {
   plaats: 'Zwolle',
   plaatsKleur: '#0b0b0b',
   bakskleur: '#c8102e',
+  zeilkleur: 10,
   kleuren: {
     romp: '#0a0a0b', berghout: '#0a0a0b', boeisel: '#f5c20d', dolboord: '#0a0a0b',
     voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
@@ -45,6 +64,7 @@ function baseOf(config) {
   // as text whatever the page gave (a number for the zeilnummer is easy to pass), and no longer than the field allows
   for (const key of FIELDS) if (given[key] !== undefined && given[key] !== null) base[key] = String(given[key]).slice(0, key === 'zeilnummer' ? 4 : 24);
   for (const [zone] of ZONES) if (given.kleuren?.[zone] !== undefined) base.kleuren[zone] = given.kleuren[zone];
+  if (zeilkleur(given.zeilkleur) !== null) base.zeilkleur = zeilkleur(given.zeilkleur);
   return base;
 }
 
@@ -56,6 +76,7 @@ function load(base, opslaan) {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}') ?? {};
     for (const key of FIELDS) if (typeof saved[key] === 'string') config[key] = saved[key];
     for (const [zone] of ZONES) if (typeof saved.kleuren?.[zone] === 'string') config.kleuren[zone] = saved.kleuren[zone];
+    if (typeof saved.zeilkleur === 'number' && zeilkleur(saved.zeilkleur) !== null) config.zeilkleur = zeilkleur(saved.zeilkleur);
   } catch { /* nothing saved, no storage, or something else under the key: the base */ }
   return config;
 }
@@ -72,6 +93,7 @@ function save(config, base, opslaan) {
   for (const [zone] of ZONES) {
     if (!same(config.kleuren[zone], base.kleuren[zone], true)) (own.kleuren ??= {})[zone] = config.kleuren[zone];
   }
+  if (config.zeilkleur !== base.zeilkleur) own.zeilkleur = config.zeilkleur;
   try {
     if (Object.keys(own).length) localStorage.setItem(STORAGE_KEY, JSON.stringify(own));
     else localStorage.removeItem(STORAGE_KEY);
@@ -95,7 +117,8 @@ export function initCustomizePanel(ui, { signal, engaged } = {}) {
 
 /**
  * targets: {
- *   zoneMaterials: Map<zone, Material[]>, setSailNumber(text), setHullText(key, text, color)
+ *   zoneMaterials: Map<zone, Material[]>, sailMaterials: Material[] (collectSailMaterials),
+ *   setSailNumber(text), setHullText(key, text, color), setSailInk(white)
  * }
  */
 export function initCustomize(ui, appConfig, targets) {
@@ -115,6 +138,15 @@ export function initCustomize(ui, appConfig, targets) {
     plaatsKleur: () => targets.setHullText('plaats', config.plaats, config.plaatsKleur),
     bakskleur: (v) => applyZone('bakskleur', v), // accents: beslag and the painted bands
   };
+  const applySails = () => {
+    for (const m of targets.sailMaterials) m.color.copy(sailColor(m, config.zeilkleur));
+    targets.setSailInk(config.zeilkleur >= INK_WHITE);
+  };
+  // the sails: a slider over the colours it goes through
+  const sailSlider = ui.getElementById('cfg-zeilkleur');
+  const shade = (tint) => `#${new THREE.Color(SAILCLOTH).multiply(tint).getHexString()}`;   // the cloth as it comes out
+  sailSlider.style.setProperty('--track', `linear-gradient(to right, ${ZEILKLEUR.map(([at, tint]) => `${shade(tint)} ${at}%`).join(', ')})`);
+  sailSlider.addEventListener('input', () => { config.zeilkleur = Number(sailSlider.value); applySails(); save(config, base, opslaan); });
 
   // text fields, their lettering colours, and the bakskleur
   for (const key of FIELDS) {
@@ -141,6 +173,8 @@ export function initCustomize(ui, appConfig, targets) {
       ui.getElementById(`cfg-kleur-${zone}`).value = config.kleuren[zone];
       applyZone(zone, config.kleuren[zone]);
     }
+    sailSlider.value = config.zeilkleur;
+    applySails();
   };
 
   // back to where this viewer started, which is the page's own defaults if it gave any
@@ -188,6 +222,7 @@ const CLOTH = '#b7895a';
  * The cloth of grootzeil and fok with the cotton tape and corner patches along their edges.
  * Left out: the zeillatten (wood), the zeilteken and zeilnummer patches (artwork on a canvas of
  * their own), rope, and everything outside the sails - spinnaker and flags are parts elsewhere.
+ * Each keeps the colour it came with, untinted, for white sails.
  */
 export function collectSailMaterials(parts) {
   const materials = new Set();
@@ -198,6 +233,7 @@ export function collectSailMaterials(parts) {
     if (id.endsWith('_zeilteken') || id.endsWith('_zeilnummer')) continue;
     for (const mesh of part.meshes) {
       if (!mesh.material || mesh.material.name.startsWith('touw')) continue;
+      mesh.material.userData.untinted ??= mesh.material.color.clone();
       materials.add(mesh.material);
     }
   }
@@ -210,13 +246,13 @@ export function collectSailMaterials(parts) {
  * config:        the object initCustomize returned; it is read at the moment the scheme goes off,
  *                so whatever the user has picked by then is what comes back
  * note:          logboek.note, called once when the scheme is fully on
+ * setSailInk:    white or black zeilteken and number, switched halfway through the fade
  */
-export function initPaint({ zoneMaterials, sailMaterials, config, note }) {
-  // Sail cloth carries the painted canvas as its map and starts untinted; that starting colour is
-  // taken here, before anything touches it, and is what the cloth fades back to.
+export function initPaint({ zoneMaterials, sailMaterials, config, note, setSailInk }) {
+  // sail cloth fades back to the colour the user has given the sails
   const tracked = [
     ...[...zoneMaterials].flatMap(([zone, ms]) => ms.map((material) => ({ material, zone }))),
-    ...sailMaterials.map((material) => ({ material, zone: null, own: material.color.clone() })),
+    ...sailMaterials.map((material) => ({ material, zone: null })),
   ];
 
   const userColor = (zone) => (zone === 'bakskleur' ? config.bakskleur : config.kleuren[zone]);
@@ -225,6 +261,7 @@ export function initPaint({ zoneMaterials, sailMaterials, config, note }) {
   let on = false;
   let t = 1;                        // progress of the running fade; 1 is settled, nothing to do
   let announced = false;
+  let ink = null;                   // the zeilteken and number once the fade is halfway; null when set
 
   const setNumber = (text) => {
     const want = String(text).trim() === NUMBER;
@@ -234,14 +271,16 @@ export function initPaint({ zoneMaterials, sailMaterials, config, note }) {
       from.set(entry.material, entry.material.color.clone());
       to.set(entry.material, on
         ? new THREE.Color(entry.zone ? SCHEME[entry.zone] : CLOTH)
-        : (entry.zone ? new THREE.Color(userColor(entry.zone)) : entry.own.clone()));
+        : (entry.zone ? new THREE.Color(userColor(entry.zone)) : sailColor(entry.material, config.zeilkleur)));
     }
+    ink = on ? false : config.zeilkleur >= INK_WHITE;
     t = 0;
   };
 
   const update = (dt) => {
     if (t >= 1) return;
     t = Math.min(1, t + dt / FADE);
+    if (ink !== null && t >= 0.5) { setSailInk?.(ink); ink = null; }
     const k = t * t * (3 - 2 * t);                 // eased: the paint creeps in and settles
     for (const entry of tracked) {
       entry.material.color.copy(from.get(entry.material)).lerp(to.get(entry.material), k);

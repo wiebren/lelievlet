@@ -40,10 +40,24 @@ const EMBLEM = { x: 1.865, y: 3.18, w: 0.77, h: 1.1 };
 const NUMBER = { x: 2.2, y: 2.08, size: 0.85, width: 2.0 };          // m: its baseline, and the most it may take across
 
 const DEFAULT = { romp: '#0a0a0b', boeisel: '#f5c20d', berghout: '#0a0a0b', zeilnummer: '000' };
+// the colour of the sails, 0 to 100: the same stops as ZEILKLEUR in src/customize.js, where 0 lifts
+// the off-white cloth to pure white and 10 is the cloth as it is painted
+const ZEILKLEUR = [[0, 'bright'], [10, '#ffffff'], [30, '#ecd2b0'], [58, '#b45a37'], [100, '#3b2418']];
+const mix = (a, b, t) => `#${[0, 2, 4].map((i) => Math.round(parseInt(a.slice(1 + i, 3 + i), 16) * (1 - t) + parseInt(b.slice(1 + i, 3 + i), 16) * t)
+  .toString(16).padStart(2, '0')).join('')}`;
+/** The cloth (`base`) as the slider at `k` has it. */
+const sailCloth = (base, k) => {
+  const i = Math.max(1, ZEILKLEUR.findIndex(([at]) => at >= k));
+  const [a, from] = ZEILKLEUR[i - 1]; const [b, to] = ZEILKLEUR[i];
+  const shade = (tint) => (tint === 'bright' ? '#ffffff' : tinted(base, tint));
+  return mix(shade(from), shade(to), (k - a) / (b - a));
+};
+const tinted = (hex, tint) => `#${[0, 2, 4].map((i) => Math.round((parseInt(hex.slice(1 + i, 3 + i), 16) * parseInt(tint.slice(1 + i, 3 + i), 16)) / 255)
+  .toString(16).padStart(2, '0')).join('')}`;
 const SEA = '#1d4e79';
 
 /**
- * The logo as SVG text, `size` pixels square. `boat`: the Aanpassen values ({ kleuren, zeilnummer });
+ * The logo as SVG text, `size` pixels square. `boat`: the Aanpassen values ({ kleuren, zeilnummer, zeilkleur });
  * what is missing is the viewer's default. `emblem`: the zeilteken as a URL the SVG
  * can use - a data: URL where the SVG is drawn as an image, which may load nothing from outside.
  * `maskable` leaves the margin a launcher may cut a circle or a squircle out of.
@@ -65,7 +79,8 @@ export function logoSvg({ look = 'kleur', boat = {}, emblem = null, size = 512, 
     const pts = []; for (let x = -2; x <= 8; x += 0.1) pts.push([x, y + amp * Math.sin((x / 6.5) * 2 * Math.PI * 3)]);
     return pts;
   };
-  const ink = white ? SEA : '#111';
+  const zeilkleur = Math.min(100, Math.max(0, Number(boat.zeilkleur ?? 10) || 0));
+  const ink = white ? SEA : zeilkleur >= 50 ? '#f4f4f2' : '#111';           // white on a dark sail, as in the viewer
   const out = [];
   out.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`);
   out.push('<defs><filter id="ink" color-interpolation-filters="sRGB">',
@@ -73,7 +88,7 @@ export function logoSvg({ look = 'kleur', boat = {}, emblem = null, size = 512, 
     '<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe0ee"/><stop offset="1" stop-color="#f5f8fb"/></linearGradient></defs>');
   out.push(`<rect width="${size}" height="${size}" fill="${white ? SEA : 'url(#sky)'}"/>`);
   // sails first, the spars over their edges
-  const cloth = white ? '#fff' : '#f4f1e8'; const seam = white ? 'none' : '#cdc6b6';
+  const cloth = white ? '#fff' : sailCloth('#f4f1e8', zeilkleur); const seam = white ? 'none' : sailCloth('#cdc6b6', Math.max(10, zeilkleur));
   for (const s of [FOK, MAIN]) out.push(`<path d="${path(s)}" fill="${cloth}" stroke="${seam}" stroke-width="${L(0.025).toFixed(1)}" stroke-linejoin="round"/>`);
   out.push(spar(GIEK, 0.075), spar(GAFFEL, 0.075), spar(MAST, 0.1));
   // the hull above the water: black, the boeisel band, and the berghout along the sheer

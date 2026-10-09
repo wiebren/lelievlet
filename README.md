@@ -121,13 +121,13 @@ De viewer is ook een app die je kunt installeren (een PWA): `https://wiebren.git
 Hij opent dan in een eigen venster met een eigen icoon, en werkt ook zonder internet, op het water of
 op de steiger.
 
-- **Vanuit elke viewer:** *Installeer als app* onderaan het tandwielpaneel gaat naar de app-pagina en
-  neemt het zeilnummer, de naam, de plaats en de kleuren mee. Op een telefoon of tablet (een
-  aanraakscherm) staat daarvoor ook een icoon rechtsonder, een telefoon met een pijl omlaag. De
+- **Vanuit elke viewer:** het icoon rechtsonder, een telefoon met een pijl omlaag (*Installeer als
+  app*), gaat naar de app-pagina en neemt het zeilnummer, de naam, de plaats, de kleuren en de zeilen
+  mee. De
   app-pagina laat zien hoe je installeert: in Chrome en Edge met één knop, in Safari op iPhone en iPad
   via *Deel › Zet op beginscherm*, in Safari op de Mac via *Archief › Voeg toe aan Dock*, op Android via
   het menu. Firefox op de computer installeert geen apps. In een ingesloten viewer opent de app-pagina in een nieuw tabblad; `installeren: false`
-  haalt de regel en het icoon weg. In de geïnstalleerde app zelf staan ze er niet.
+  haalt het icoon weg. In de geïnstalleerde app zelf staat het er niet.
 - **De configuratie** komt na de `#` mee, ingepakt (`#v1.…`, zie *Insluiten als iframe*; gewone JSON
   mag ook), en blijft daar in het adres staan: de geïnstalleerde app start met dat adres. Op een iPhone of iPad heeft de app eigen
   opslag, los van Safari, en vindt ze daar de eerste keer niets; zo start ze toch met de eigen boot. De
@@ -143,7 +143,7 @@ op de steiger.
 
 - **Het icoon** is de eigen boot: de lelievlet in zijaanzicht, in de kleuren en met het zeilnummer
   die de app meekreeg, plus wat er in de app nog is aangepast. De app-pagina tekent het bij de start
-  (`web/demo/logo.js`), en opnieuw zodra in de app de kleuren of het zeilnummer veranderen; de service
+  (`web/demo/logo.js`), en opnieuw zodra in de app de kleuren, de zeilen of het zeilnummer veranderen; de service
   worker geeft het in plaats van het standaardicoon. Het manifest dat de pagina uitgeeft, bevat de
   getekende iconen zelf, als data. Android maakt het icoon op het startscherm uit de iconen van het
   manifest, en die haalt het buiten de pagina om op; zonder dit kreeg het het standaardicoon, zonder
@@ -204,13 +204,14 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 |---|---|---|---|
 | `assets` | string | naast het script | Map waarin `models/` en `textures/` staan, bijvoorbeeld `'https://cdn.example/vlet/'`. Zonder sluitende `/` wordt die toegevoegd; een relatief pad wordt tegen de pagina opgelost. |
 | `volledigScherm` | boolean | `true` | Knop voor volledig scherm, rechtsboven onder het tandwiel, en de sneltoets `f`. `false` haalt de knop weg, laat de `f` met rust en maakt `handle.fullscreen()` een lege huls. |
-| `installeren` | boolean | `true` | *Installeer als app* onderaan het tandwielpaneel: opent de app-pagina op wiebren.github.io met de eigen Aanpassen-waarden, en legt daar uit hoe je installeert. Op een aanraakscherm ook als icoon rechtsonder. `false` haalt beide weg. In de geïnstalleerde app zelf staan ze er nooit. |
+| `installeren` | boolean | `true` | *Installeer als app*, het icoon rechtsonder: opent de app-pagina op wiebren.github.io met de eigen Aanpassen-waarden, en legt daar uit hoe je installeert. `false` haalt het weg. In de geïnstalleerde app zelf staat het er nooit. |
 | `aanpassen.zeilnummer` | string | `'000'` | Zeilnummer op het grootzeil (max. 4 tekens). |
 | `aanpassen.naam` | string | `'Lelievlet'` | Naam op het boeisel, ter hoogte van het voordek. |
 | `aanpassen.plaats` | string | `'Zwolle'` | Plaats op het boeisel, ter hoogte van het achterdek. |
 | `aanpassen.naamKleur` | hexkleur | `'#0b0b0b'` | Kleur van de belettering van de naam. |
 | `aanpassen.plaatsKleur` | hexkleur | `'#0b0b0b'` | Kleur van de belettering van de plaats. |
 | `aanpassen.bakskleur` | hexkleur | `'#c8102e'` | Accentkleur: beslag, roerkop, hanekam, mastbanden en de geschilderde banden. |
+| `aanpassen.zeilkleur` | 0–100 | `10` | Kleur van de zeilen: `0` helder wit, `10` het gebroken wit van het model, dan via zand en roodbruin naar `100` heel donker bruin. Vanaf `50` zijn zeilteken en zeilnummer wit. |
 | `aanpassen.kleuren.<zone>` | hexkleur | zie hieronder | Kleur per verfzone: `romp` `#0a0a0b`, `berghout` `#0a0a0b`, `boeisel` `#f5c20d`, `dolboord` `#0a0a0b`, `voordek` `#8f9499`, `achterdek` `#8f9499`, `kuip` `#8f9499`, `zwaardkast` `#8f9499`. |
 | `aanpassen.opslaan` | boolean | `true` | `false`: de viewer leest en schrijft geen `localStorage` (Aanpassen, de score en keuzes van Oefenen, de vinkjes bij Manoeuvres); elke bezoeker begint bij jouw waarden. |
 | `toestand.modus` | `'zeilen'` \| `'roeien'` \| `'wrikken'` | `'zeilen'` | De modus waarin de viewer opent. |
@@ -377,7 +378,8 @@ pagina geen `assets` op te geven.
 
 De tandwielknop opent het menu (`web/src/customize.js`): zeilnummer, naam en plaats (belettering die
 als decals op het boeisel wordt geprojecteerd ter hoogte van voordek / achterdek, aan beide zijden —
-`web/src/hulltext.js`), een bakskleur en één kleur per verfzone. De bakskleur (materiaal `bakskleur`)
+`web/src/hulltext.js`), de kleur van de zeilen (een schuif van wit via roodbruin naar donkerbruin), een bakskleur en één kleur per verfzone (twee per
+regel, zodat het paneel ook op een telefoon kort blijft). De bakskleur (materiaal `bakskleur`)
 accentueert roerkop, voorplecht, hanekam, de metalen mastbanden (lummelband, hommerring,
 masttopring), het giekbeslag aan beide einden van de giek, en geschilderde banden van 5 cm: 5 cm
 vanaf de uiteinden van de doften en het helmhout, en net voorbij de handgreep van elke riem. De
@@ -443,8 +445,9 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   handelingen, alleen in Zeilen) of **Onderdelen** (de quiz) - en toont daaronder het startpaneel
   daarvan; het opent op wat het laatst gekozen is.
   Rechtsboven zit het **tandwiel** voor Aanpassen, met onderaan dat paneel de snelheid van de
-  animaties (met de sneltoetsen voor de camera) en de link **Over dit model**, dat midden in beeld
-  opengaat. Rechtsonder staat de **onderdelenkaart**: met niets geselecteerd is
+  animaties (met de sneltoetsen voor de camera). **Over dit model**, dat midden in beeld opengaat,
+  is een link op het eerste scherm van **Melden** (zonder Melden: onderaan het tandwielpaneel).
+  Rechtsonder staat de **onderdelenkaart**: met niets geselecteerd is
   dat alleen een ronde zoekknop, met een onderdeel geselecteerd de kaart met groep en naam en
   rechtsboven daarin dezelfde zoekknop. Die opent de doorzoekbare **Onderdelen**-lijst boven de
   kaart; elke groepskop daarin heeft een oog dat de hele groep in het model verbergt of weer toont,

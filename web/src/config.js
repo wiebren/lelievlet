@@ -12,6 +12,7 @@
 //       zeilnummer: '442', naam: 'Fluessen', plaats: 'Zwolle',
 //       naamKleur: '#0b0b0b', plaatsKleur: '#0b0b0b',       // the lettering on the boeisel
 //       bakskleur: '#c8141f',                               // beslag and the painted bands
+//       zeilkleur: 40,                                      // the sails: 0 bright white, 10 the model's own, .. 100 very dark brown
 //       kleuren: { romp: '#111111', berghout: '#0a0a0b', boeisel: '#e6d85a', dolboord: '#0a0a0b',
 //                  voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499' },
 //       opslaan: true,                                      // false: never read or write localStorage

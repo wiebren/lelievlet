@@ -58,15 +58,17 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
       </div>
     </div>
     <h3>Kleuren</h3>
-    <label class="color-row"><input id="cfg-bakskleur" type="color"><span>Bakskleur</span></label>
-    <div id="zone-colors"></div>
+    <label class="sail-row"><span>Zeilen</span>
+      <input id="cfg-zeilkleur" type="range" min="0" max="100" step="1" aria-label="Kleur van de zeilen, van wit tot donkerbruin"></label>
+    <div id="zone-colors">
+      <label class="color-row"><input id="cfg-bakskleur" type="color"><span>Bakskleur</span></label>
+    </div>
     <button id="customize-reset" type="button">Standaardwaarden</button>
     <h3>Animatie</h3>
     <label class="speed"><span>Snelheid</span>
       <input id="speed" type="range" min="0.25" max="2" step="0.05" value="1" aria-label="Snelheid van de animaties"></label>
     <p class="hint">Pijltjes: verplaatsen · Shift + pijltjes: draaien · + / −: zoomen · Scrollen: inzoomen op de muisaanwijzer</p>
-    <p class="about-link"><button id="app-install" type="button" class="link-button" hidden>Installeer als app</button></p>
-    <p class="about-link"><button id="about-open" type="button" class="link-button">Over dit model</button></p>
+    <p class="about-link" hidden><button id="about-open" type="button" class="link-button">Over dit model</button></p>
   </aside>
 
   <!-- Volledig scherm, onder het tandwiel; het staat na het Aanpassen-paneel zodat de stylesheet
@@ -346,7 +348,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     </svg>
   </button>
 
-  <!-- on a phone or tablet, not installed: the app one tap away -->
+  <!-- not installed: the app one tap away -->
   <button id="app-install-toggle" class="icon-button" type="button" aria-label="Installeer als app" title="Installeer als app" hidden>
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <rect x="6.5" y="2.5" width="11" height="19" rx="2"/>
