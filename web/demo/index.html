@@ -26,6 +26,7 @@
       thuis.</p>
     <div class="buttons">
       <a class="button primary" href="app.html">Open de app</a>
+      <a class="button" href="#telefoon">Op je telefoon</a>
       <a class="button" href="handleiding/">Handleiding</a>
       <a class="button" href="insluiten.html">Op je eigen site</a>
     </div>
@@ -45,8 +46,31 @@
         <span>Kies de koers ten opzichte van de wind en zie de zeilen meegaan, of geef roeicommando's.</span></a>
       <a class="card" href="handleiding/aanpassen.html"><b>Je eigen boot</b>
         <span>Zeilnummer, naam, thuishaven, kleuren en de kleur van de zeilen, zoals jullie boot eruitziet.</span></a>
-      <a class="card" href="handleiding/aanpassen.html#app"><b>Als app</b>
+      <a class="card" href="#telefoon"><b>Als app</b>
         <span>Installeer de viewer op je telefoon, tablet of computer. Hij werkt dan ook zonder internet.</span></a>
+    </div>
+
+    <h2 id="telefoon">Op je telefoon</h2>
+    <div class="install">
+      <div>
+        <p>Zet de viewer als app op je telefoon of tablet. Hij werkt dan ook zonder internet, op het water of
+          op de steiger, en het icoon op je beginscherm is jullie eigen boot.</p>
+        <ol class="steps">
+          <li><b>Eerst je boot.</b> Open in de viewer hierboven het tandwiel (<i>Aanpassen</i>) en zet het
+            <b>zeilnummer</b>, de naam, de plaats en de <b>kleuren</b> zoals jullie boot eruitziet, en de kleur van
+            de zeilen. Het icoon van de app verandert mee. Doe dit vóór het installeren: een iPhone houdt het icoon
+            waarmee je de app hebt toegevoegd.</li>
+          <li><b>Dan installeren.</b> Tik op <i>Installeer als app</i>, het icoon met de telefoon en de pijl rechtsonder
+            in de viewer. Er opent een pagina met jouw boot die uitlegt hoe het op jouw telefoon gaat: op een iPhone
+            of iPad via het deelsymbool en <i>Zet op beginscherm</i>, op Android via het menu en <i>App installeren</i>.</li>
+          <li><b>Klaar.</b> Open de app vanaf je beginscherm. Komt er een nieuwe versie, dan biedt de app
+            <i>Bijwerken</i> aan, en onder <i>Updates</i> lees je wat er nieuw is.</li>
+        </ol>
+      </div>
+      <figure class="app-icon">
+        <div id="icoon" role="img" aria-label="Het icoon van de app met jouw boot"></div>
+        <figcaption>Zo wordt het icoon van je app</figcaption>
+      </figure>
     </div>
 
     <h2>Het model</h2>
@@ -81,7 +105,27 @@
 
   <script type="module">
     import Lelievlet from './lelievlet.js';
-    Lelievlet.create(document.getElementById('vlet'), { installeren: false });
+    import { logoSvg } from './logo.js';
+    Lelievlet.create(document.getElementById('vlet'));
+
+    // the app's icon as it would be drawn now: the boat as Aanpassen above has it (the viewer keeps that
+    // in the browser), with the zeilteken - looked at again every second, so it follows the edits
+    const AANPASSEN = 'lelievlet.aanpassen.v1';
+    const icon = document.getElementById('icoon');
+    const asDataUrl = (blob) => new Promise((done) => { const r = new FileReader(); r.onload = () => done(r.result); r.readAsDataURL(blob); });
+    const emblem = await fetch('textures/zeilteken.png').then((r) => r.blob()).then(asDataUrl).catch(() => null);
+    let drawnFor = null;
+    const draw = () => {
+      let saved = '';
+      try { saved = localStorage.getItem(AANPASSEN) ?? ''; } catch { /* no storage: the default boat */ }
+      if (saved === drawnFor) return;
+      drawnFor = saved;
+      let boat = {};
+      try { boat = JSON.parse(saved || '{}') ?? {}; } catch { /* something else under the key */ }
+      icon.innerHTML = logoSvg({ look: 'kleur', boat, emblem, size: 512 });
+    };
+    draw();
+    setInterval(draw, 1000);
   </script>
 </body>
 </html>
