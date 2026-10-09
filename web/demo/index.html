@@ -3,116 +3,85 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lelievlet 3D — insluiten in je eigen pagina</title>
-  <style>
-    :root { color-scheme: light; }
-    body {
-      margin: 0 auto; padding: 32px 20px 64px; max-width: 900px;
-      font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; color: #16222e; background: #fff;
-    }
-    h1 { font-size: 28px; margin: 0 0 6px; }
-    h2 { font-size: 19px; margin: 36px 0 8px; }
-    p { margin: 0 0 12px; }
-    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13.5px; }
-    pre {
-      margin: 0 0 16px; padding: 12px 14px; overflow: auto;
-      background: #f2f5f8; border: 1px solid rgba(22, 34, 46, 0.12); border-radius: 10px;
-    }
-    a { color: #0b5cad; }
-    .caption { margin: 0 0 8px; color: #5b6b7a; font-size: 14px; }
-    /* de viewer vult het element waarin hij staat: dat element moet dus een hoogte krijgen */
-    .viewer { width: 100%; border: 1px solid rgba(22, 34, 46, 0.14); border-radius: 12px; overflow: hidden; }
-    #groot { height: 560px; }
-    #klein { height: 420px; max-width: 380px; }
-    .rij { display: flex; flex-wrap: wrap; gap: 20px; align-items: start; }
-    .rij > div { flex: 1 1 320px; }
-  </style>
+  <title>Lelievlet 3D</title>
+  <meta name="description" content="Interactief 3D-model van de lelievlet van Scouting Nederland: onderdelen leren, manoeuvres bekijken en oefenen.">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="stylesheet" href="site.css">
 </head>
 <body>
-  <h1>De lelievlet in je eigen pagina</h1>
-  <p>Het 3D-model van de lelievlet is een kleine bibliotheek. Je zet een element op je pagina, geeft
-    het een hoogte, en laat de bibliotheek er een viewer in bouwen. De viewer staat in een eigen
-    shadow DOM: jouw stijlen raken hem niet en zijn stijlen raken jouw pagina niet.</p>
+  <header class="site-head">
+    <nav>
+      <a class="brand" href="./"><img src="icons/icon-192.png" alt="">Lelievlet 3D</a>
+      <a href="./" aria-current="page">Home</a>
+      <a href="handleiding/">Handleiding</a>
+      <a href="insluiten.html">Op je eigen site</a>
+      <a href="app.html">Open de app</a>
+    </nav>
+  </header>
 
-  <pre><code>&lt;div id="vlet" style="height:600px"&gt;&lt;/div&gt;
-&lt;script type="module"&gt;
-  import Lelievlet from 'https://wiebren.github.io/lelievlet/lelievlet.js';
-  Lelievlet.create(document.getElementById('vlet'), {
-    aanpassen: { zeilnummer: '442', naam: 'Fluessen', plaats: 'Zwolle' },
-    namen: { onderdelen: { hommerring: 'Mastring' } },
-    quiz: { niveau: 2 },
-  });
-&lt;/script&gt;</code></pre>
-
-  <p>Alles in de configuratie is optioneel. Wat je weglaat blijft zoals de viewer het zelf heeft.
-    De volledige lijst met instellingen staat in de
-    <a href="https://github.com/wiebren/lelievlet#insluiten-in-een-webpagina">README</a>.</p>
-
-  <h2>Of in een iframe</h2>
-  <p>Heeft je site ingelogde gebruikers, zet de viewer dan in een iframe: hij draait dan op deze site
-    en kan niets van jouw pagina zien of aanraken. De configuratie komt na de <code>#</code>, als JSON.
-    Wat <code>create()</code> teruggeeft kun je dan niet gebruiken; meer in de
-    <a href="https://github.com/wiebren/lelievlet#insluiten-als-iframe">README</a>.</p>
-
-  <pre><code>&lt;iframe src='https://wiebren.github.io/lelievlet/embed.html#{"aanpassen":{"zeilnummer":"442"},"quiz":{"niveau":2}}'
-        style="width:100%; height:600px; border:0"
-        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
-        allow="fullscreen" title="3D-model van de lelievlet"&gt;&lt;/iframe&gt;</code></pre>
-
-  <h2>Twee viewers op één pagina</h2>
-  <p class="caption">Ze weten niets van elkaar: een keuze in de ene verandert niets in de andere.
-    De linker is de standaardviewer; de rechter heeft andere kleuren, een ander zeilnummer, een
-    hernoemd onderdeel, Oefenen op CWO I en de debug-hulpjes aan, en begint van boven gezien in Roeien
-    met vier riemen.</p>
-
-  <div class="rij">
-    <div>
-      <div id="groot" class="viewer"></div>
+  <main>
+    <h1>De lelievlet in 3D</h1>
+    <p class="lead">Een interactief 3D-model van de lelievlet van Scouting Nederland. Om de onderdelen te
+      leren, te zien hoe de manoeuvres gaan en ze zelf stap voor stap te oefenen: aan wal, in de les of
+      thuis.</p>
+    <div class="buttons">
+      <a class="button primary" href="app.html">Open de app</a>
+      <a class="button" href="handleiding/">Handleiding</a>
+      <a class="button" href="insluiten.html">Op je eigen site</a>
     </div>
-    <div>
-      <div id="klein" class="viewer"></div>
+
+    <div id="vlet" class="viewer" style="margin-top: 22px"></div>
+    <p class="caption">Draai de boot met de muis of een vinger, klik op een onderdeel om te zien hoe het heet.</p>
+
+    <h2>Wat kun je ermee?</h2>
+    <div class="cards">
+      <a class="card" href="handleiding/onderdelen.html"><b>Onderdelen bekijken</b>
+        <span>Alle onderdelen van romp, tuig en beslag, met hun naam. Zoeken, verbergen, van dichtbij bekijken.</span></a>
+      <a class="card" href="handleiding/quiz.html"><b>Onderdelen oefenen</b>
+        <span>Een quiz op het niveau van CWO Roeien en Zeilen I, II en III: aanwijzen, benoemen, kiezen of typen.</span></a>
+      <a class="card" href="handleiding/manoeuvres.html"><b>Manoeuvres</b>
+        <span>Overstag, gijpen, afmeren, afvaren, ankeren, man over boord, roeien en meer: bekijken of stap voor stap oefenen.</span></a>
+      <a class="card" href="handleiding/boot.html"><b>Zeilen en roeien</b>
+        <span>Kies de koers ten opzichte van de wind en zie de zeilen meegaan, of geef roeicommando's.</span></a>
+      <a class="card" href="handleiding/aanpassen.html"><b>Je eigen boot</b>
+        <span>Zeilnummer, naam, thuishaven, kleuren en de kleur van de zeilen, zoals jullie boot eruitziet.</span></a>
+      <a class="card" href="handleiding/aanpassen.html#app"><b>Als app</b>
+        <span>Installeer de viewer op je telefoon, tablet of computer. Hij werkt dan ook zonder internet.</span></a>
     </div>
-  </div>
 
-  <h2>Wat de viewer teruggeeft</h2>
-  <pre><code>const vlet = Lelievlet.create(element, { … });
-await vlet.ready;     // het model is geladen en het eerste beeld staat er
-vlet.config;          // de configuratie zoals hij geldt, met alle standaardwaarden ingevuld
-vlet.destroy();       // stopt de viewer, geeft het WebGL-geheugen terug en maakt het element leeg
-vlet.fullscreen();    // volledig scherm aan/uit (alleen vanuit een klik of toets van de gebruiker)
-vlet.get();           // de toestand waarin de viewer nu staat
-vlet.set({ modus: 'roeien', commando: 'slag' });   // naar een andere toestand, geanimeerd</code></pre>
+    <h2>Het model</h2>
+    <p>De vorm van de boot komt uit het officiële 3D-model (CAD) van de lelievlet van Scouting Nederland,
+      team Lelieschepen. Namen en maten zijn gecontroleerd aan de hand van het Vlettenboek (deel 8 van het
+      LSZW <i>Vademecum voor het waterwerk</i>, <i>De Lelievlet</i>) en de klassenvoorschriften. De stappen van
+      de manoeuvres komen uit het CWO-zeilinstructieboek en de CWO-eisen, aangevuld met wat instructeurs
+      ons laten weten.</p>
+    <p>Voor instructeurs is er naslag die rechtstreeks uit de viewer wordt gemaakt: alle
+      <a href="https://github.com/wiebren/lelievlet/blob/main/docs/onderdelen.md">onderdelen</a>, met hun andere namen en op welk
+      niveau de quiz ernaar vraagt, en alle
+      <a href="https://github.com/wiebren/lelievlet/blob/main/docs/manoeuvres.md">manoeuvres</a>, met hun voorwaarden en stappen.</p>
 
-  <p>Waar de viewer begint, geef je mee als <code>toestand</code>, met dezelfde sleutels:</p>
-  <pre><code>Lelievlet.create(element, {
-  toestand: { modus: 'zeilen', koers: -135, reven: 1, aanzicht: 'zij', selectie: 'hommerring' },
-});</code></pre>
+    <h2>Bronnen</h2>
+    <ul>
+      <li><a href="https://www.scouting.nl/bestuur/accommodatie-vloot-en-materiaal/lelieboten">3D-model van de lelievlet</a> — Scouting Nederland, team Lelieschepen</li>
+      <li><a href="https://lszw.scouting.nl/images/lelievlet.pdf">Vademecum voor het waterwerk deel 8: De Lelievlet</a> — het Vlettenboek, 8e druk 1988</li>
+      <li><a href="https://lszw.scouting.nl/images/LSZW-2025/PDF-files/KLASSENVOORSCHRIFTEN_Lelievlet_v2.pdf">Klassenvoorschriften Nationale Lelievlet Klasse v2.0</a> — geldig vanaf 1 mei 2025</li>
+      <li><a href="https://katwijksezeeverkenners.nl/wp-content/uploads/2015/07/cwo_zeil_instructieboek_katwijkse_zeeverkenners.pdf">CWO zeilinstructieboek</a> — Katwijkse Zeeverkenners</li>
+      <li><a href="https://activiteitenbank.scouting.nl/uploads/Benamingen_vlet.pdf">Benamingen vlet</a> — Activiteitenbank Scouting Nederland</li>
+      <li><a href="https://nl.scoutwiki.org/Lelievlet">Lelievlet</a> — ScoutWiki, met het zeilteken</li>
+    </ul>
+
+    <h2>Meedoen</h2>
+    <p>Zie je iets dat niet klopt, of mis je iets? Gebruik <b>Melden</b> in het menu onder de <b>i</b> rechtsboven in de viewer: je melding komt, als je wilt met een schermafbeelding, bij ons binnen. Zo zijn al
+      verbeteringen van groepen en van de Zeilschool van Scouting Nederland in de viewer gekomen. Wat er
+      veranderd is, staat onder <b>Updates</b> in hetzelfde menu.</p>
+    <p>De broncode staat op <a href="https://github.com/wiebren/lelievlet">github.com/wiebren/lelievlet</a>.
+      Wil je de viewer op de site van je eigen groep, met jullie boot en jullie namen? Lees
+      <a href="insluiten.html">Op je eigen site</a>.</p>
+  </main>
 
   <script type="module">
     import Lelievlet from './lelievlet.js';
-
-    // links: alles standaard
-    const groot = Lelievlet.create(document.getElementById('groot'));
-
-    // rechts: een andere boot, andere namen, Oefenen op CWO I en de debug-tabellen aan
-    const klein = Lelievlet.create(document.getElementById('klein'), {
-      aanpassen: {
-        zeilnummer: '442', naam: 'Fluessen', plaats: 'Sneek',
-        bakskleur: '#1d4fa3',
-        kleuren: { romp: '#14472c', boeisel: '#e8e2cf', berghout: '#14472c' },
-        opslaan: false,                     // deze viewer onthoudt niets in de browser
-      },
-      namen: {
-        onderdelen: { hommerring: 'Mastring', kraanlijn: 'Kraanlijn' },
-        commandos: { stopaf: 'Houden' },
-      },
-      quiz: { niveau: 1 },
-      toestand: { modus: 'roeien', roeien: 'vier', aanzicht: 'boven' },
-      debug: true,
-    });
-
-    // handig bij het bekijken van deze pagina in de console
-    window.demo = { groot, klein };
+    Lelievlet.create(document.getElementById('vlet'), { installeren: false });
   </script>
 </body>
 </html>

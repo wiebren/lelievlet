@@ -186,9 +186,13 @@
 #feedback .fb-actions { display: flex; gap: 8px; margin-top: 10px; }
 #feedback .fb-actions button { flex: 1; padding: 8px 12px; }
 #feedback .fb-actions button:disabled { opacity: 0.4; cursor: default; }
-#feedback .fb-about { margin: 12px 0 0; text-align: center; }
-#feedback .fb-about button { color: var(--accent); }
-#feedback .fb-about .sep { margin: 0 6px; color: var(--muted); }
+/* the first screen: a menu of rows, as the kinds of report are; a link that leaves the viewer says so */
+#feedback .fb-kinds a {
+  display: grid; gap: 2px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: #fff; color: var(--text); text-decoration: none;
+}
+#feedback .fb-kinds a:hover { border-color: var(--accent); color: var(--accent); }
+#feedback .fb-kinds a span { font-size: 12px; color: var(--muted); }
 #feedback .fb-back { display: block; margin-top: 10px; font-size: 12px; }
 
 /* Over dit model and Updates: opened from Melden, they stand in the middle of the viewer */
@@ -198,14 +202,14 @@
   padding: 16px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
   backdrop-filter: blur(8px); box-shadow: 0 8px 32px rgba(22, 34, 46, 0.25); z-index: 7;
 }
-#customize .about-link { margin: 12px 0 0; text-align: center; }
-#customize .about-link button { color: var(--accent); }
 #about header, #updates header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
 #about h2, #updates h2 { margin: 0; font-size: 16px; }
 #about h3, #updates h3 { margin: 14px 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 #about p { margin: 0; font-size: 13px; color: var(--muted); }
 #about a { color: var(--accent); }
 #updates ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.4; }
+#updates h3 .nieuw { margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: var(--accent); color: #fff;
+  font-size: 10px; letter-spacing: 0.04em; vertical-align: 1px; }
 #updates li { margin-bottom: 4px; }
 .links { list-style: none; margin: 0; padding: 0; font-size: 13px; }
 .links li { margin-bottom: 7px; color: var(--muted); line-height: 1.35; }
@@ -327,7 +331,7 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 #controls .icon-button { position: relative; top: auto; right: auto; left: auto; }
 /* Oefenen: what to practise, then that one's start panel under it */
 #learn-panel { width: 312px; max-width: calc(100cqw - 88px); }
-#learn-panel > .caption { display: block; margin: 0 0 4px; text-align: left; }
+#learn-panel .popover-head { margin: 0 0 4px; }
 #learn-panel #learn-kind { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
 #learn-panel .ops { width: auto; }
 /* Roeicommando: the four commando's the whole boat gets at once, then the two boorden side by side */
@@ -335,6 +339,10 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 .popover .beide { margin-bottom: 10px; }
 .popover .beide + .boorden { border-top: 1px solid var(--line); padding-top: 8px; }
 .popover .caption { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); text-align: center; }
+/* the first line of a popover: what it is, and Sluiten, as every panel has it */
+.popover .popover-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.popover .popover-head .caption { text-align: left; }
+.popover .popover-close { font-size: 13px; }
 .popover .spoken { margin: 2px 0 8px; max-width: 330px; font-style: italic; text-align: center; }
 #customize .speed { display: grid; gap: 4px; font-size: 13px; }
 #customize .speed input { width: 100%; accent-color: var(--accent); }
@@ -369,6 +377,8 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 /* Boot: the mode, the wind and the riemen, each under a caption */
 #boat-panel .caption { display: flex; align-items: center; gap: 6px; margin: 10px 0 4px; text-align: left; }
 #boat-panel > .caption:first-child { margin-top: 0; }
+#boat-panel .popover-head { margin-bottom: 4px; }
+#boat-panel .popover-head .caption { margin: 0; }
 #boat-panel .caption svg { color: var(--accent); }
 .popover .choices.row { flex-direction: row; flex-wrap: wrap; }
 .popover .choices { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
@@ -458,7 +468,6 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   background: repeating-linear-gradient(135deg, var(--muted) 0 2px, transparent 2px 4px); }
 #procedure .ticks .band { top: 1px; width: auto; height: 4px; border-radius: 2px; background: var(--accent); opacity: 0.4; transition: left 0.2s, width 0.2s; }
 #procedure .step::before { content: '\203A'; margin-right: 5px; color: var(--muted); }
-#procedure.terug .step::before { content: '\2039'; }
 
 #info {
   position: absolute; right: 16px; bottom: 16px; z-index: 2; min-width: 240px; max-width: 340px; padding: 12px 48px 12px 16px;

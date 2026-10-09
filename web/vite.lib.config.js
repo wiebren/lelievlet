@@ -11,16 +11,18 @@ const here = dirname(fileURLToPath(import.meta.url));
 // page needs nothing else, and public/ (models/, textures/) is copied next to the script - which is
 // where the viewer looks for it when the page passes no `assets`.
 
-/** The demo page is what dist-lib is published as: it becomes the index of the site. Beside it
- *  embed.html, the viewer on its own for an <iframe> on another site, and app.html, the viewer as
- *  an installable app, with its manifest, icons and service worker. */
+/** The project's own pages are what dist-lib is published as: the home page as the index of the
+ *  site, insluiten.html on putting the viewer on another site, and the handleiding with its
+ *  screenshots. Beside them embed.html, the viewer on its own for an <iframe> on another site, and
+ *  app.html, the viewer as an installable app, with its manifest, icons and service worker. */
 const demoPage = {
   name: 'lelievlet-demo-page',
   closeBundle() {
     const out = resolve(here, 'dist-lib');
     mkdirSync(out, { recursive: true });
-    for (const file of ['index.html', 'embed.html', 'app.html', 'app.webmanifest', 'logo.js']) copyFileSync(resolve(here, 'demo', file), resolve(out, file));
-    cpSync(resolve(here, 'demo/icons'), resolve(out, 'icons'), { recursive: true });
+    for (const file of ['index.html', 'insluiten.html', 'site.css', 'embed.html', 'app.html', 'app.webmanifest', 'logo.js']) copyFileSync(resolve(here, 'demo', file), resolve(out, file));
+    // the handleiding and its screenshots; the icons
+    for (const dir of ['icons', 'img', 'handleiding']) cpSync(resolve(here, 'demo', dir), resolve(out, dir), { recursive: true });
     // the service worker keeps what the app needs; its version is a hash of all of that, so any
     // change - the model, the script, the page - makes another sw.js, and the app takes it in
     const files = ['app.html', 'app.webmanifest', 'lelievlet.js', 'logo.js',

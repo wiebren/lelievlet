@@ -261,12 +261,14 @@ de smalle indeling komt van container queries op `.lv` in plaats van media queri
 ### Bouwen en publiceren
 
     cd web
-    pnpm build:lib        # -> web/dist-lib/ : lelievlet.js, lelievlet.iife.js, models/, textures/, index.html
+    pnpm build:lib        # -> web/dist-lib/ : lelievlet.js, lelievlet.iife.js, models/, textures/, en de site
     pnpm build            # -> web/dist/    : de ontwikkelpagina als losse site
 
 `pnpm build:lib` bundelt three mee (er is niets externs nodig), zet `models/` en `textures/` naast
-het script en kopieert `web/demo/index.html` als `index.html` erbij — dat is de pagina die
-gepubliceerd wordt. De workflow `.github/workflows/pages.yml` doet dit bij elke push naar `main` en
+het script en kopieert de site uit `web/demo/` erbij: de homepagina (`index.html`), *Op je eigen
+site* (`insluiten.html`), de handleiding (`handleiding/`, met de screenshots in `img/handleiding/`),
+de gedeelde opmaak (`site.css`), en `app.html` en `embed.html`. De viewer linkt naar de homepagina
+en de handleiding vanuit het i-menu. Verandert de app zichtbaar, maak de screenshots dan opnieuw. De workflow `.github/workflows/pages.yml` doet dit bij elke push naar `main` en
 zet `web/dist-lib` op GitHub Pages. Omdat de bestanden naast het script staan, hoeft een insluitende
 pagina geen `assets` op te geven.
 
@@ -445,9 +447,15 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   handelingen, alleen in Zeilen) of **Onderdelen** (de quiz) - en toont daaronder het startpaneel
   daarvan; het opent op wat het laatst gekozen is.
   Rechtsboven zit het **tandwiel** voor Aanpassen, met onderaan dat paneel de snelheid van de
-  animaties (met de sneltoetsen voor de camera). **Over dit model** en **Updates** (per datum wat er
-  veranderd is, uit `web/src/updates.js`), die midden in beeld opengaan, zijn links op het eerste
-  scherm van **Melden** (zonder Melden: onderaan het tandwielpaneel).
+  animaties (met de sneltoetsen voor de camera). Daaronder het rondje met de **i**: een menu met
+  **Melden**, de **Handleiding** en de **Homepagina** (op wiebren.github.io/lelievlet, in een nieuw
+  tabblad), **Updates** (per datum wat er veranderd is, uit `web/src/updates.js`) en **Over dit
+  model**; die laatste twee gaan midden in beeld open. Updates gaat ook vanzelf open als er een datum
+  bij is gekomen sinds de laatste keer dat deze gebruiker keek (`lelievlet.updates.v1` in localStorage,
+  met de nieuwste gezien datum): in de geïnstalleerde app voor iedereen, op het web voor wie iets in
+  Aanpassen heeft opgeslagen. Wie dat niet heeft, begint bij de huidige stand. Wat nieuw is, staat
+  er met *Nieuw* bij. Met `aanpassen.opslaan: false` gebeurt dit niet. Met `feedback: false` blijft het menu, zonder
+  Melden. Boot en Oefenen hebben, net als de andere panelen, rechtsboven *Sluiten*.
   Rechtsonder staat de **onderdelenkaart**: met niets geselecteerd is
   dat alleen een ronde zoekknop, met een onderdeel geselecteerd de kaart met groep en naam en
   rechtsboven daarin dezelfde zoekknop. Die opent de doorzoekbare **Onderdelen**-lijst boven de

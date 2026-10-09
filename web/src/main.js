@@ -5,7 +5,7 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { dressSails, loadImage } from './sails.js';
 import { HullText } from './hulltext.js';
-import { initCustomize, initCustomizePanel, collectZoneMaterials, initPaint, collectSailMaterials } from './customize.js';
+import { initCustomize, initCustomizePanel, collectZoneMaterials, initPaint, collectSailMaterials, STORAGE_KEY as AANPASSEN_KEY } from './customize.js';
 import { initModes } from './modes.js';
 import { initRegions } from './regions.js';
 import { initQuiz } from './quiz.js';
@@ -79,13 +79,13 @@ export function mount(ui, host, config) {
     about: () => openPanel.get('about')(), updates: () => openPanel.get('updates')(),
     closeOthers: () => { if (!$('customize').hidden) $('customize-close').click(); closePanel.get('about')?.(); closePanel.get('updates')?.(); closePanel.get('parts')?.(); } });
 
-  // panels behind a button: the parts list (the search in the part card), and Over dit model, which
-  // has no button of its own but a link on the first screen of Melden - or, with no Melden, at the
-  // foot of Aanpassen. Oefenen is a popover of the column.
+  // panels behind a button: the parts list (the search in the part card), and Over dit model and
+  // Updates, which have no button of their own but are in the menu under the "i". Oefenen is a
+  // popover of the column.
   const closePanel = new Map();                  // panel id -> close it
   const openPanel = new Map();                   // panel id -> open it
   for (const [button, panel, onToggle] of [['parts-toggle', 'parts', partsPanelToggled],
-                                           [null, 'about'], [null, 'updates'], ['toestand-toggle', 'toestand', (open) => toestandToggled(open)],
+                                           [null, 'about'], [null, 'updates', (open) => open && showUpdates()], ['toestand-toggle', 'toestand', (open) => toestandToggled(open)],
                                            ['log-toggle', 'logboek']]) {
     const toggle = button && $(button);
     const aside = $(panel);
@@ -104,18 +104,46 @@ export function mount(ui, host, config) {
   $('customize-toggle').addEventListener('click', () => { if (!$('customize').hidden) { feedback.close(); closePanel.get('parts')(); } });
   $('parts-toggle').addEventListener('click', () => { if (!$('parts').hidden) { feedback.close(); if (!$('customize').hidden) $('customize-close').click(); } });
   $('about-close').addEventListener('click', () => closePanel.get('about')());
-  // Over dit model: from the foot of Aanpassen, which makes way for it; it stands in the middle
-  $('about-open').parentElement.hidden = config.feedback !== false;
-  $('about-open').addEventListener('click', () => { $('customize-close').click(); openPanel.get('about')(); });
-  $('updates-open').addEventListener('click', () => { $('customize-close').click(); openPanel.get('updates')(); });
   $('updates-close').addEventListener('click', () => closePanel.get('updates')());
-  // Updates: per date, the newest first
+  // Updates: per date, the newest first. The browser keeps the newest date this user has seen; what came
+  // after it is marked Nieuw, and once the panel is open all of it counts as seen
+  const UPDATES_KEY = 'lelievlet.updates.v1';
+  const seenUpdates = () => {
+    if (!opslaan) return null;
+    try { return JSON.parse(localStorage.getItem(UPDATES_KEY) ?? 'null')?.gezien ?? null; } catch { return null; }
+  };
+  const markUpdatesSeen = () => {
+    if (!opslaan || !UPDATES.length) return;
+    try { localStorage.setItem(UPDATES_KEY, JSON.stringify({ gezien: UPDATES[0].datum })); } catch { /* private mode */ }
+  };
   const dag = new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' });
-  $('updates-list').replaceChildren(...UPDATES.flatMap(({ datum, punten }) => {
-    const list = document.createElement('ul');
-    list.append(...punten.map((punt) => Object.assign(document.createElement('li'), { textContent: punt })));
-    return [Object.assign(document.createElement('h3'), { textContent: dag.format(new Date(`${datum}T12:00:00`)) }), list];
-  }));
+  function showUpdates() {
+    const seen = seenUpdates();
+    // never seen any: only the newest is news to them
+    const isNew = (datum, i) => opslaan && (seen ? datum > seen : i === 0);
+    $('updates-list').replaceChildren(...UPDATES.flatMap(({ datum, punten }, i) => {
+      const list = document.createElement('ul');
+      list.append(...punten.map((punt) => Object.assign(document.createElement('li'), { textContent: punt })));
+      const head = Object.assign(document.createElement('h3'), { textContent: dag.format(new Date(`${datum}T12:00:00`)) });
+      if (isNew(datum, i)) head.append(Object.assign(document.createElement('span'), { className: 'nieuw', textContent: 'Nieuw' }));
+      return [head, list];
+    }));
+    markUpdatesSeen();
+  }
+  /**
+   * Opened by itself once the boat is in, when there is news since the last look: in the installed app
+   * for everyone, on the web for whoever has made the boat their own in Aanpassen - they have been here
+   * before. Anyone else starts from here: what there is now counts as seen.
+   */
+  const newsOnArrival = () => {
+    if (!opslaan || !UPDATES.length) return;
+    const seen = seenUpdates();
+    if (seen && seen >= UPDATES[0].datum) return;
+    let own = false;
+    try { own = Object.keys(JSON.parse(localStorage.getItem(AANPASSEN_KEY) ?? '{}') ?? {}).length > 0; } catch { /* nothing saved */ }
+    if (runsAsApp() || own) openPanel.get('updates')();
+    else if (!seen) markUpdatesSeen();
+  };
   $('toestand-close').addEventListener('click', () => closePanel.get('toestand')());
   $('parts-close').addEventListener('click', () => closePanel.get('parts')());
   $('log-close').addEventListener('click', () => closePanel.get('logboek')());
@@ -298,6 +326,7 @@ export function mount(ui, host, config) {
       controls.update();
       renderer.render(scene, camera);
       settle();
+      newsOnArrival();
     } catch (error) { failed(error); }
   }, undefined, failed);
 
@@ -1046,7 +1075,6 @@ export function mount(ui, host, config) {
     if (!procDragging) procTime.value = String(p.t);
     const on = p.steps[p.index];                          // the band marks that step, not how far it has come
     if (on) { procBand.style.left = `${(on.begin / p.total) * 100}%`; procBand.style.width = `${((on.end - on.begin) / p.total) * 100}%`; }
-    procBar.classList.toggle('terug', p.backwards);
     // the step the label is about, and named the way the procedure is going (Fok strijken, Fok hijsen)
     // counted without the skipped steps: those are not done here at all
     const live = p.steps.filter((s) => !s.skipped); const at = live.indexOf(p.steps[p.index]);
@@ -1644,7 +1672,7 @@ export function mount(ui, host, config) {
       procedure: p && { naam: p.name, stap: p.label, index: p.index, stappen: p.steps.filter((st) => !st.skipped).length,
                         stapNr: p.steps.filter((st) => !st.skipped).indexOf(p.steps[p.index]) + 1 || undefined,
                         t: Math.round(p.t * 100) / 100, totaal: Math.round(p.total * 100) / 100,
-                        speelt: p.playing, terug: p.backwards },
+                        speelt: p.playing },
       handeling: handelingen?.info() ?? undefined,
       quiz: quiz?.info() ?? undefined,
       beeld: runView(),

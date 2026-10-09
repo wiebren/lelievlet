@@ -68,8 +68,6 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     <label class="speed"><span>Snelheid</span>
       <input id="speed" type="range" min="0.25" max="2" step="0.05" value="1" aria-label="Snelheid van de animaties"></label>
     <p class="hint">Pijltjes: verplaatsen · Shift + pijltjes: draaien · + / −: zoomen · Scrollen: inzoomen op de muisaanwijzer</p>
-    <p class="about-link" hidden><button id="about-open" type="button" class="link-button">Over dit model</button> ·
-      <button id="updates-open" type="button" class="link-button">Updates</button></p>
   </aside>
 
   <!-- Volledig scherm, onder het tandwiel; het staat na het Aanpassen-paneel zodat de stylesheet
@@ -88,16 +86,16 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
   </button>
 
   <!-- Melden, onder Volledig scherm: wat er niet klopt, met de toestand van de viewer (feedback.js) -->
-  <button id="feedback-toggle" class="icon-button" type="button" aria-label="Melden" title="Iets melden dat niet klopt" aria-expanded="false" aria-controls="feedback">
+  <button id="feedback-toggle" class="icon-button" type="button" aria-label="Info en melden" title="Info, handleiding en melden" aria-expanded="false" aria-controls="feedback">
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M20.5 12a8.5 8.5 0 0 1-12.4 7.5L3.5 20.5l1.1-4.3A8.5 8.5 0 1 1 20.5 12z"/>
-      <path d="M12 7.6v5"/><path d="M12 16.1v.1"/>
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M12 11v5.5"/><path d="M12 7.6v.1"/>
     </svg>
   </button>
 
   <aside id="feedback" hidden>
     <header>
-      <h2>Melden</h2>
+      <h2 id="feedback-title">Lelievlet 3D</h2>
       <button id="feedback-close" type="button" class="link-button" aria-label="Sluiten">Sluiten</button>
     </header>
     <div id="feedback-body"></div>
@@ -128,7 +126,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
       <span class="badge" id="reef-count" aria-hidden="true" hidden>0</span>
     </button>
     <div id="boat-panel" class="popover" role="group" aria-label="Boot" hidden>
-      <span class="caption">Modus</span>
+      <div class="popover-head"><span class="caption">Modus</span><button type="button" class="link-button popover-close" aria-label="Sluiten">Sluiten</button></div>
       <div id="mode-panel">
         <div class="choices row">
         <button type="button" data-mode="zeilen" aria-pressed="true">Zeilen</button>
@@ -176,7 +174,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     </svg>
     </button>
     <div id="learn-panel" class="popover" role="group" aria-label="Oefenen" hidden>
-      <span class="caption">Oefenen</span>
+      <div class="popover-head"><span class="caption">Oefenen</span><button type="button" class="link-button popover-close" aria-label="Sluiten">Sluiten</button></div>
       <div class="choices row" id="learn-kind">
         <button type="button" data-learn="manoeuvres" id="learn-manoeuvres" aria-pressed="true">Manoeuvres</button>
         <button type="button" data-learn="onderdelen" aria-pressed="false">Onderdelen</button>

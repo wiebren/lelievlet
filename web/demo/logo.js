@@ -79,7 +79,9 @@ export function logoSvg({ look = 'kleur', boat = {}, emblem = null, size = 512, 
     const pts = []; for (let x = -2; x <= 8; x += 0.1) pts.push([x, y + amp * Math.sin((x / 6.5) * 2 * Math.PI * 3)]);
     return pts;
   };
-  const zeilkleur = Math.min(100, Math.max(0, Number(boat.zeilkleur ?? 10) || 0));
+  // as the viewer takes it: a number 0 to 100, and what is no number the default, 10
+  const given = boat.zeilkleur === '' || boat.zeilkleur === null ? NaN : Number(boat.zeilkleur);
+  const zeilkleur = Number.isFinite(given) ? Math.min(100, Math.max(0, Math.round(given))) : 10;
   const ink = white ? SEA : zeilkleur >= 50 ? '#f4f4f2' : '#111';           // white on a dark sail, as in the viewer
   const out = [];
   out.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`);

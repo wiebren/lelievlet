@@ -288,7 +288,7 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
     const p = modes.procedure();
     // it counts as the whole manoeuvre only when it starts at its first step: struck halfway and then
     // hoisted from there is a part of it, and earns no tick
-    const fromStart = Boolean(p) && (p.backwards ? p.t >= p.total - 1e-6 : p.t <= 1e-6);
+    const fromStart = Boolean(p) && p.t <= 1e-6;
     current = { op, mode: how, total: p?.steps.filter((s) => !s.skipped).length ?? 0, fromStart, goed: 0, fout: 0, wrong: [], question: null, answered: false, done: false };
     name.textContent = op === 'reven' ? `${NAMES[op]} · ${n === 0 ? 'rif eruit' : `${n} ${n === 1 ? 'slag' : 'slagen'}`}` : NAMES[op];
     big.hidden = true; card.classList.remove('results');
@@ -305,8 +305,8 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
     }
   }
 
-  /** Steps done so far, the way the run goes. */
-  const doneSteps = (p) => { const live = p.steps.filter((s) => !s.skipped); return p.backwards ? live.filter((s) => s.begin >= p.t - 1e-6).length : live.filter((s) => s.end <= p.t + 1e-6).length; };
+  /** Steps done so far. */
+  const doneSteps = (p) => p.steps.filter((s) => !s.skipped && s.end <= p.t + 1e-6).length;
 
   /** Every few frames: the count and the bar, and the buttons that wait for a step to finish. */
   function follow() {

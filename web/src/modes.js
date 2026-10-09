@@ -1380,12 +1380,10 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       rigging.skipped = new Set(); rigging.seek(0); rigging.goal = rigging.commanded = 0; return;
     }
     rigging.seek(rigFrom); rigging.goal = rigging.commanded = rigging.t;
-    const g = v.groot;
-    strike.ties = Math.min(strike.ties, 1 - clamp(g / 0.15, 0, 1)); strike.furl = Math.min(strike.furl, 1 - clamp((g - 0.1) / 0.2, 0, 1));
-    strike.main = Math.min(strike.main, 1 - clamp((g - 0.25) / 0.6, 0, 1)); strike.mik = Math.min(strike.mik, 1 - clamp((g - 0.85) / 0.15, 0, 1));
-    strike.schoot = Math.min(strike.schoot, 1 - clamp(g / 0.1, 0, 1)); strike.dirk = Math.min(strike.dirk, 1 - clamp((g - 0.85) / 0.15, 0, 1));
-    strike.voor = Math.min(strike.voor, 1 - clamp((g - 0.8) / 0.2, 0, 1));   // the piek set up last
-    strike.jib = Math.min(strike.jib, 1 - v.fok);
+    // the one step Grootzeil hijsen runs through hijsen's own steps, in hijsen's order; the fok its own step
+    const g = v.groot; const part = (a, b) => clamp((g - a) / (b - a), 0, 1);
+    layHoist({ kop: 0, schoot: part(0, 0.1), bandjes: part(0.1, 0.25), schuin: part(0.25, 0.35), op: part(0.35, 0.8), klauw: 0,
+               piek: part(0.85, 1), fok: v.fok, opschieten: 0, afvallen: 0 }, { ...strike });
   };
 
   // -- man over boord (zeilinstructieboek § 5.11, pp. 83-84): "Man overboord!" is called, "Zwem!"
@@ -3288,9 +3286,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     { key: 'afvallen', to: 1, seconds: 1.5, label: stap('Afvallen'), back: stap('Kop in de wind'), focus: ['helmstok', 'grootzeil', 'fok'] },
   ]), { needs: HOIST_NEEDS });
   let hoisting = null;                                              // hijsen, while it has the sails
-  /** The sails as hijsen has them now, from where they lay when it began. */
-  const layHoist = () => {
-    const v = hoisting.values; const f = hoisting.from;
+  /** The sails as hijsen's steps `v` have them, from where they lay (`f`): hijsen itself, and hoisting on the way. */
+  const layHoist = (v = hoisting.values, f = hoisting.from) => {
     strike.head = (f.head + (1 - f.head) * v.kop) * (1 - v.afvallen);
     strike.schoot = Math.min(f.schoot, 1 - v.schoot);
     strike.ties = Math.min(f.ties, 1 - clamp(v.bandjes * 2, 0, 1)); strike.furl = Math.min(f.furl, 1 - clamp(v.bandjes * 2 - 1, 0, 1));
@@ -3541,6 +3538,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     if (strike.ties < 1e-3 && strike.furl < 1e-3) skip.push('bandjes');
     if (strike.jib < 1e-3) skip.push('fok');
     hoisting.skipped = new Set(skip);
+    // for Oefenen: a step skipped is done already, nothing waits for it
+    hoisting.needs = Object.fromEntries(Object.entries(HOIST_NEEDS).map(([k, ks]) => [k, ks.filter((x) => !skip.includes(x))]));
     rigging.pause(); rigging.goal = rigging.commanded = rigging.t;
     shown = hoisting;
     if (play) hoisting.command(hoisting.total);
@@ -3565,8 +3564,6 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     // chosen where the sails are up, at the start of the timeline: halfway it would change what has
     // been done already (struck alongside, then hoisted after casting off, she would bear away at once)
     if (rigging.t < 1e-6) rigging.skipped = new Set(lyingStill() ? MOORED_SKIPS : []);
-    // hoisted lying still - at anchor, made fast - she does not bear away at the end either
-    else if (RIG_AT[rig] < rigging.t && lyingStill()) for (const k of MOORED_SKIPS) rigging.skipped.add(k);
     rigging.command(RIG_AT[rig]); shown = sailFlow;
   };
   const throat = new THREE.Vector3(3.4568, 3.9816, 0);             // klauwhoek of the sail, where the gaffel meets the mast
@@ -4272,8 +4269,10 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     b.swing ??= wrapPi(now.windAngle);                              // come to rest: from the wind she has
     b.swing += wrapPi(deg(state.course) - b.swing) * (1 - Math.exp(-dt * 4.5));   // eased in, as the slider's is
     const reach = Math.min(Math.abs(b.swing) / deg(HALVE_WIND), 1);   // how far round the wind has her
-    // pressed against the steiger, she goes on round until she lies along it
-    if (b.pressed !== undefined) b.pressed = Math.min(1, b.pressed + dt / PRESS_SECONDS);
+    // pressed against the steiger, she goes on round until she lies along it; the wind put back off
+    // the steiger, or the slider taken hold of again, she comes back the way she went
+    if (b.pressed !== undefined) b.pressed = clamp(b.pressed + (b.pressing ? 1 : -1) * dt / PRESS_SECONDS, 0, 1);
+    if (b.pressed === 0 && !b.pressing) b.pressed = undefined;
     const off = Math.sign(b.swing) * SWING_LIMIT * (reach + (1 - reach) * smoothstep(b.pressed ?? 0));
     const heading = b.berth + off; b.rel = b.swing;
     const bowAt = dock.eyes.sb.voor.x - PIVOT.x;
@@ -4284,8 +4283,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     // her against it: round alongside, and made fast there
     const offWal = kindOf(fwdOf(dock.windAtLaying, tmp1).dot(edge().n)) === 'hogerwal';
     const settled = !sliderHeld && Math.abs(wrapPi(deg(state.course) - b.swing)) < deg(0.5);
-    if (b.pressed === undefined && settled && (!offWal || Math.abs(state.course) >= HALVE_WIND)) b.pressed = 0;
-    if (b.pressed !== undefined && (b.pressed >= 1 || reach >= 1)) madeFastAlongside(heading);
+    b.pressing = settled && (!offWal || Math.abs(state.course) >= HALVE_WIND);
+    if (b.pressing) b.pressed ??= 0;
+    if (b.pressing && (b.pressed >= 1 || reach >= 1)) madeFastAlongside(heading);
   };
   /** From bow on to alongside the steiger, where she swung to: a langswal now, as far as she is concerned. */
   const madeFastAlongside = (heading) => {
@@ -4327,7 +4327,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       for (const k of Object.keys(dock.lineAt)) dock.lineAt[k] = v[k];
       if (m.pinVoor) dock.pin.voor = m.pinVoor;                     // aan hogerwal: the bolder by her bow
       if (m.bowOn && driving(berthing)) {                           // gone back into it: where it leaves her, not where she swung
-        m.bowOn.swing = null; m.bowOn.pressed = undefined; dock.mooredWind = m.wind;
+        m.bowOn.swing = null; m.bowOn.pressed = undefined; m.bowOn.pressing = false; dock.mooredWind = m.wind;
         if (m.k >= 1) m.path(1, dock.p);
       }
       if (m.k >= 1 && m.haul) {
@@ -5369,6 +5369,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   for (const control of popovers) {
     control.button.addEventListener('click', () => openPopover(opened === control ? null : control));
   }
+  for (const b of all('.popover-close')) b.addEventListener('click', () => openPopover(null));   // Sluiten, as every panel has it
   // a press outside the bar closes the popover; the event is retargeted to the host on its way out
   // of the shadow root, so what it really started on has to be read from its composed path
   document.addEventListener('pointerdown', (e) => {
@@ -5576,12 +5577,14 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // before it can be started, each with the reason shown when it is not. What is not listed does
   // not matter: the mast only needs the sails struck and bound - where the anchor or the midzwaard
   // went on the way there is neither here nor there. `done` says the boat is already that way.
+  // hijsen under way has the sails somewhere between: neither up nor struck, whatever the timeline says
+  const hoistOn = () => Boolean(hoisting) && (hoisting.playing || hoisting.t < hoisting.total - 1e-6);
   const sailsUp = () => rigging.t <= 1e-6 && !rigging.playing;
-  const sailsStruck = () => strike.ties > 0.999 && !(rigging.playing && rigging.goal < RIG_AT.gestreken - 1e-6);
+  const sailsStruck = () => strike.ties > 0.999 && !(rigging.playing && rigging.goal < RIG_AT.gestreken - 1e-6) && !hoistOn();
   const mastUp = () => Object.keys(MASTED).every((k) => strike[k] < 1e-6) && !masting.playing;
   // both sails down, made up or not, the mast up: as aanleggen aan lagerwal leaves them, or struck
-  const sailsDown = () => rigging.t >= rigging.after('main') - 1e-6 && mastUp() && !rigging.playing;
-  const sailsAllDown = () => rigging.t >= rigging.after('main') - 1e-6 && !rigging.playing;   // the mast may be down too
+  const sailsDown = () => rigging.t >= rigging.after('main') - 1e-6 && mastUp() && !rigging.playing && !hoistOn();
+  const sailsAllDown = () => rigging.t >= rigging.after('main') - 1e-6 && !rigging.playing && !hoistOn();   // the mast may be down too
   const notReefing = [() => !reefing?.playing, 'Eerst het reven afmaken'];
   const anchorUp = () => !anchorGear || anchorGear.lost || anchorGear.u < 0.5;
   const closeHauled = () => state.course !== 0 && Math.abs(state.course) < RUIME_WIND;  // aan de wind or halve wind, not ruime wind
@@ -5704,7 +5707,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     relevant('wind', windShown());                                  // nothing to trim with the sails down, unless she lies made fast
   };
   /** The tuig as the boat has it now, rather than as it was last asked for. */
-  const rigNow = () => (!mastUp() ? 'mast' : sailsUp() ? 'op' : rigging.t >= RIG_AT.gestreken - 1e-6 ? 'gestreken' : state.rig);
+  const rigNow = () => (!mastUp() ? 'mast' : sailsUp() ? 'op' : !hoistOn() && rigging.t >= RIG_AT.gestreken - 1e-6 ? 'gestreken' : state.rig);
 
   // -- a run of an operation, for handelingen.js: watched (it plays by itself, stepped and scrubbed
   // as ever) or practised: then it stands still and every next step is a question - the right one
@@ -5860,15 +5863,12 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       rigging.pause(); rigging.goal = rigging.t; rigging.commanded = RIG_AT[rig]; rigging.aim(RIG_AT[rig]);
       return true;
     },
-    /** The way the operation goes through its timeline: +1 forwards, -1 back (hijsen, mast zetten). */
-    get direction() { return senseOf(shown); },
     /** The next step and three others that could be done now, shuffled; null at the end. */
     question() {
       if (!shown) return null;
-      const d = this.direction;
-      const next = shown.upcoming(d);
+      const next = shown.upcoming(1);
       if (!next) return null;
-      const answer = d > 0 ? next.step.label : next.step.back;
+      const answer = next.step.label;
       const proc = shown.procedure ?? shown;                        // a flow asks its whole timeline
       // the steps of this operation first; now and then one of the other flow, which is possible too
       // an undo that only says "weer" or "niet meer" of another option is the same move twice: left out
@@ -5891,17 +5891,15 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       // operation further on fill up - wrong, because what has to come before them is not done yet
       if (others.length < 3) {
         const ahead = shown.steps.filter((s) => !shown.isSkipped(s) && s !== next.step
-          && (d > 0 ? s.begin >= next.step.end - 1e-6 : s.end <= next.step.begin + 1e-6)).map((s) => (d > 0 ? s.label : s.back));
+          && s.begin >= next.step.end - 1e-6).map((s) => s.label);
         for (const l of shuffled(ahead)) if (others.length < 3 && l !== answer && !others.some((o) => plain(o) === plain(l))) others.push(l);
       }
       return { answer, options: shuffled([answer, ...others]) };
     },
-    /** Whether it has come to its end, the way it goes. */
-    // at the end of its timeline, or with no step left to do that way (only skipped ones, or a tail)
+    /** Whether it has come to its end: the end of its timeline, or no step left to do (only skipped ones, or a tail). */
     get finished() {
       if (!shown) return true;
-      const d = this.direction;
-      return (d > 0 ? shown.t >= shown.total - 1e-6 : shown.t <= 1e-6) || (!shown.playing && !shown.upcoming(d));
+      return shown.t >= shown.total - 1e-6 || (!shown.playing && !shown.upcoming(1));
     },
   };
 
@@ -6081,33 +6079,28 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       helm.held = false;
     },
   };
-  /**
-   * The way an operation goes along its timeline: +1, or -1 for hijsen and mast zetten, which run
-   * the Tuig timeline back. Stepping forward and back is in the operation's own sense.
-   */
-  const senseOf = (proc) => proc?.sense ?? 1;
   /** For the progress bar: the procedure last set going, as plain data, and the handles to steer it. */
   const procedure = () => (shown && {
     name: shown.name, t: shown.t, total: shown.total, playing: shown.playing, resting: shown.resting, stepping: shown.stepping,
-    label: shown.label, index: shown.index, backwards: senseOf(shown) < 0, oneWay: Boolean(shown.oneWay),
-    heading: Math.sign(shown.direction) * senseOf(shown),                // which way, in the operation's sense, it is going
+    label: shown.label, index: shown.index, oneWay: Boolean(shown.oneWay),
+    heading: Math.sign(shown.direction),                              // which way it is going: +1 on, -1 back
     steps: shown.steps.map((s) => ({ label: s.label, back: s.back, begin: s.begin, end: s.end, skipped: Boolean(shown.isSkipped?.(s)) })),
   });
   const procedureControl = {
-    // `direction` is in the operation's own sense: +1 its next step, -1 back to the one before
+    // `direction`: +1 the next step, -1 back to the one before
     play: () => shown?.play(), pause: () => shown?.pause(), scrub: (t) => shown?.scrub(t),
     /** One step on (+1) or back (-1), after `delay` seconds. */
-    step: (direction, delay) => shown?.step(direction * senseOf(shown), delay),
+    step: (direction, delay) => shown?.step(direction, delay),
     /** The parts the step one step on or back is about: where the camera looks while it plays. */
-    focus: (direction) => (shown?.upcoming(direction * senseOf(shown))?.step.focus ?? [])
+    focus: (direction) => (shown?.upcoming(direction)?.step.focus ?? [])
       .map((id) => parts.find((p) => p.extras.id === id)).filter(Boolean),
     /** Where that step is looked at from, when it says so itself: { positie, doel, kant } in model space. */
-    camera: (direction) => shown?.upcoming(direction * senseOf(shown))?.step.camera ?? shown?.view ?? null,
+    camera: (direction) => shown?.upcoming(direction)?.step.camera ?? shown?.view ?? null,
     /** Where the whole of it is looked at from, when it says so (the manoeuvres at the wal). */
     view: () => shown?.view ?? null,
     /** Calls `fn` with the boat posed at the start, half way and the end of that step: where it will be. */
     across: (direction, fn) => {
-      const next = shown?.upcoming(direction * senseOf(shown));
+      const next = shown?.upcoming(direction);
       if (!next) return;
       const at = shown.steps.indexOf(next.step);                    // the step it is framed like: the nearest one with that key
       const like = next.step.like && shown.steps.filter((s) => s.key === next.step.like)

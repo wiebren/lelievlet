@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Op je eigen site — Lelievlet 3D</title>
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="stylesheet" href="site.css">
+  <style>
+    #groot { height: 520px; }
+    #klein { height: 420px; max-width: 380px; }
+    .rij { display: flex; flex-wrap: wrap; gap: 20px; align-items: start; }
+    .rij > div { flex: 1 1 320px; }
+  </style>
+</head>
+<body>
+  <header class="site-head">
+    <nav>
+      <a class="brand" href="./"><img src="icons/icon-192.png" alt="">Lelievlet 3D</a>
+      <a href="./">Home</a>
+      <a href="handleiding/">Handleiding</a>
+      <a href="insluiten.html" aria-current="page">Op je eigen site</a>
+      <a href="app.html">Open de app</a>
+    </nav>
+  </header>
+
+  <main class="narrow">
+    <h1>De lelievlet op je eigen site</h1>
+    <p class="lead">Zet de viewer op de site van je groep, met jullie boot, jullie namen voor de onderdelen en
+      de quiz op jullie niveau. Het kan op twee manieren: als script in je pagina, of in een iframe.</p>
+
+    <h2>Als script in je pagina</h2>
+    <p>Het 3D-model is een kleine bibliotheek. Je zet een element op je pagina, geeft het een hoogte, en laat
+      de bibliotheek er een viewer in bouwen. De viewer staat in een eigen shadow DOM: jouw stijlen raken hem
+      niet en zijn stijlen raken jouw pagina niet.</p>
+    <pre><code>&lt;div id="vlet" style="height:600px"&gt;&lt;/div&gt;
+&lt;script type="module"&gt;
+  import Lelievlet from 'https://wiebren.github.io/lelievlet/lelievlet.js';
+  Lelievlet.create(document.getElementById('vlet'), {
+    aanpassen: { zeilnummer: '442', naam: 'Fluessen', plaats: 'Zwolle' },
+    namen: { onderdelen: { hommerring: 'Mastring' } },
+    quiz: { niveau: 2 },
+  });
+&lt;/script&gt;</code></pre>
+    <p>Het element moet een hoogte hebben (<code>height</code>, <code>aspect-ratio</code>, of een grid- of
+      flexcel met een hoogte): een <code>&lt;div&gt;</code> zonder hoogte blijft 0 pixels hoog. Werk je zonder
+      modules, dan zet <code>lelievlet.iife.js</code> een global <code>Lelievlet</code>.</p>
+
+    <h2>Of in een iframe</h2>
+    <p>Heeft je site ingelogde gebruikers, zet de viewer dan in een iframe: hij draait dan op deze site en
+      kan niets van jouw pagina zien of aanraken. De configuratie komt na de <code>#</code>, als JSON.</p>
+    <pre><code>&lt;iframe src='https://wiebren.github.io/lelievlet/embed.html#{"aanpassen":{"zeilnummer":"442"},"quiz":{"niveau":2}}'
+        style="width:100%; height:600px; border:0"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
+        allow="fullscreen" title="3D-model van de lelievlet"&gt;&lt;/iframe&gt;</code></pre>
+
+    <h2>De belangrijkste instellingen</h2>
+    <p>Alles is optioneel; wat je weglaat, blijft zoals de viewer het zelf heeft. De volledige lijst staat in de
+      <a href="https://github.com/wiebren/lelievlet#configuratie">README</a>.</p>
+    <table>
+      <tr><th>Instelling</th><th>Wat</th></tr>
+      <tr><td><code>aanpassen.zeilnummer</code>, <code>naam</code>, <code>plaats</code></td><td>Het zeilnummer op het grootzeil, de naam en de thuishaven op het boeisel.</td></tr>
+      <tr><td><code>aanpassen.kleuren</code>, <code>bakskleur</code></td><td>De kleuren per verfzone (romp, berghout, boeisel, dolboord, voordek, achterdek, kuip, zwaardkast) en de accentkleur.</td></tr>
+      <tr><td><code>aanpassen.zeilkleur</code></td><td>De zeilen: <code>0</code> helder wit, <code>10</code> het gebroken wit van het model, tot <code>100</code> heel donker bruin.</td></tr>
+      <tr><td><code>aanpassen.opslaan</code></td><td><code>false</code>: de viewer onthoudt niets in de browser van de bezoeker.</td></tr>
+      <tr><td><code>namen.onderdelen</code>, <code>namen.stappen</code>, <code>namen.commandos</code></td><td>Jullie eigen namen voor onderdelen, stappen van manoeuvres en roeicommando's.</td></tr>
+      <tr><td><code>quiz.niveau</code>, <code>quiz.weg</code>, <code>quiz.erbij</code></td><td>Op welk niveau de quiz opent, en welke vragen eruit of erbij moeten.</td></tr>
+      <tr><td><code>toestand</code></td><td>Waar de viewer begint: modus, koers, tuig, riemen, aanzicht, een geselecteerd onderdeel of een precies camerastandpunt.</td></tr>
+      <tr><td><code>volledigScherm</code>, <code>installeren</code></td><td>De knoppen voor volledig scherm en installeren als app; <code>false</code> haalt ze weg.</td></tr>
+      <tr><td><code>feedback</code></td><td>Waar een melding naartoe gaat (<code>{ url }</code>); <code>false</code> haalt Melden uit het i-menu.</td></tr>
+    </table>
+
+    <h2>Twee viewers op één pagina</h2>
+    <p class="caption">Ze weten niets van elkaar: een keuze in de ene verandert niets in de andere. De linker is de
+      standaardviewer; de rechter heeft andere kleuren, een ander zeilnummer, een hernoemd onderdeel, Oefenen op
+      CWO I, en begint van boven gezien in Roeien met vier riemen.</p>
+    <div class="rij">
+      <div><div id="groot" class="viewer"></div></div>
+      <div><div id="klein" class="viewer"></div></div>
+    </div>
+
+    <h2>Wat de viewer teruggeeft</h2>
+    <pre><code>const vlet = Lelievlet.create(element, { … });
+await vlet.ready;     // het model is geladen en het eerste beeld staat er
+vlet.config;          // de configuratie zoals hij geldt, met alle standaardwaarden ingevuld
+vlet.destroy();       // stopt de viewer, geeft het WebGL-geheugen terug en maakt het element leeg
+vlet.fullscreen();    // volledig scherm aan/uit (alleen vanuit een klik of toets van de gebruiker)
+vlet.get();           // de toestand waarin de viewer nu staat
+vlet.set({ modus: 'roeien', commando: 'slag' });   // naar een andere toestand, geanimeerd</code></pre>
+    <p>Waar de viewer begint, geef je mee als <code>toestand</code>, met dezelfde sleutels:</p>
+    <pre><code>Lelievlet.create(element, {
+  toestand: { modus: 'zeilen', koers: -135, reven: 1, aanzicht: 'zij', selectie: 'hommerring' },
+});</code></pre>
+
+    <h2>Als app</h2>
+    <p>De viewer is ook een app die je kunt installeren: <a href="app.html">app.html</a>. Vanuit een ingesloten
+      viewer neemt het icoon <i>Installeer als app</i> rechtsonder de boot van jouw pagina mee. Zie
+      <a href="handleiding/aanpassen.html#app">de handleiding</a>.</p>
+  </main>
+
+  <script type="module">
+    import Lelievlet from './lelievlet.js';
+
+    // links: alles standaard
+    const groot = Lelievlet.create(document.getElementById('groot'));
+
+    // rechts: een andere boot, andere namen, Oefenen op CWO I
+    const klein = Lelievlet.create(document.getElementById('klein'), {
+      aanpassen: {
+        zeilnummer: '442', naam: 'Fluessen', plaats: 'Sneek',
+        bakskleur: '#1d4fa3',
+        kleuren: { romp: '#14472c', boeisel: '#e8e2cf', berghout: '#14472c' },
+        opslaan: false,                     // deze viewer onthoudt niets in de browser
+      },
+      namen: {
+        onderdelen: { hommerring: 'Mastring', kraanlijn: 'Kraanlijn' },
+        commandos: { stopaf: 'Houden' },
+      },
+      quiz: { niveau: 1 },
+      toestand: { modus: 'roeien', roeien: 'vier', aanzicht: 'boven' },
+    });
+
+    // handig bij het bekijken van deze pagina in de console
+    window.demo = { groot, klein };
+  </script>
+</body>
+</html>

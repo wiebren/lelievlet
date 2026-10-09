@@ -4,7 +4,10 @@
 export const UPDATES = [
   { datum: '2026-10-09', punten: [
     'Aanpassen: een schuif voor de kleur van de zeilen, van helder wit tot heel donker bruin. Het menu is korter op een telefoon.',
-    'Over dit model en Updates staan onder Melden; Installeer als app is het icoon rechtsonder.',
+    'Nieuw: een handleiding met plaatjes, en een homepagina over het project en hoe je de viewer op je eigen site zet. Beide in het menu onder de i.',
+    'Het menu onder de i: melden, de handleiding, de homepagina, Updates en Over dit model. Installeer als app is het icoon rechtsonder.',
+    'Updates opent vanzelf als er iets nieuws is sinds je vorige bezoek.',
+    'Boot en Oefenen hebben een knop Sluiten, zoals de andere panelen.',
     'Zeilen strijken in de volgorde van het boek en de Zeilschool: kraanlijn aantrekken, voorstrijk en grootschoot vast, en de mik pas als laatste.',
     'Zeilen hijsen heeft een eigen volgorde, die van het zeilinstructieboek.',
     'Langszij volgt het soort wal de wind: draai je de wind, dan kies je de manier van afvaren die erbij hoort.',

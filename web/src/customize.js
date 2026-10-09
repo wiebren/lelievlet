@@ -11,7 +11,7 @@ import { CLOTH as SAILCLOTH } from './sails.js';
 // visitor who once changed something else - and two viewers on one site do not hand each other
 // their colours.
 
-const STORAGE_KEY = 'lelievlet.aanpassen.v1';
+export const STORAGE_KEY = 'lelievlet.aanpassen.v1';
 
 export const ZONES = [
   ['romp', 'Romp'],

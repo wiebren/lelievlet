@@ -1,7 +1,10 @@
-// Melden: the round button under Volledig scherm. It asks, one screen at a time, what is wrong -
+// The round "i" under Volledig scherm: a menu - Melden, the handleiding, Updates, Over dit model and
+// the homepage - of which Melden is the one that stays in this panel.
+//
+// Melden asks, one screen at a time, what is wrong -
 // and whether it can be seen - before it asks for words, and sends a report with everything the
 // viewer knows about where it is (main.js, snapshot): the toestand, what runs, the device, the
-// build, and a picture of the boat. The picture is taken when the button is pressed, so it shows
+// build, and a picture of the boat. The picture is taken when the menu is opened, so it shows
 // what the user saw; the panel is no part of it (it is not in the canvas).
 //
 // Where the report goes is `feedback.url` in the configuration: it is POSTed there as JSON. Without
@@ -34,18 +37,19 @@ const CATEGORIES = [
   { key: 'verzoek', naam: 'Iets ontbreekt', uitleg: 'Iets wat bij een bestaand onderdeel nog niet af is' },
 ];
 const MIN_TEXT = 10;                      // characters: "werkt niet" alone is no report
+const SITE = 'https://wiebren.github.io/lelievlet/';   // the project's own pages: home and handleiding
 
 /**
  * ui, wrap, config, signal, engaged: as mount() has them.
  * snapshot(): { screenshot, gegevens } - the picture as a data URL (or null) and the state as data.
  * closeOthers(): puts away the panels that stand where this one does.
- * about(), updates(): open Over dit model and Updates, linked from the first screen.
+ * about(), updates(): open Over dit model and Updates, from the menu.
  * Returns { close }.
  */
 export function initFeedback({ ui, config, signal, engaged, snapshot, closeOthers, about, updates }) {
   const $ = (id) => ui.getElementById(id);
-  const button = $('feedback-toggle'); const panel = $('feedback'); const body = $('feedback-body');
-  if (config.feedback === false) { button.hidden = true; return { close: () => {} }; }
+  const button = $('feedback-toggle'); const panel = $('feedback'); const body = $('feedback-body'); const title = $('feedback-title');
+  const melden = config.feedback !== false;                         // false: the menu without Melden
   const url = config.feedback?.url ?? null;
 
   let report = null;                       // what is being put together; null while closed
@@ -83,14 +87,17 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
 
   // ---------------------------------------------------------------- the screens
   const SCREENS = {
-    start: () => [
-      text('Dit is een bètaversie. Zie je iets dat niet klopt? Laat het ons weten, dan kunnen we het verbeteren.', 'fb-lead'),
-      row(choice('Start', () => go('zichtbaar'), true)),
-      el('p', { className: 'fb-about' },
-        el('button', { type: 'button', className: 'link-button', textContent: 'Over dit model', onclick: () => { close(); about(); } }),
-        el('span', { className: 'sep', textContent: '·' }),
-        el('button', { type: 'button', className: 'link-button', textContent: 'Updates', onclick: () => { close(); updates(); } })),
-    ],
+    // the menu: what stays in the viewer is a button, what goes to the site a link (↗)
+    start: () => {
+      const item = (naam, uitleg, fn) => el('button', { type: 'button', onclick: fn }, el('b', { textContent: naam }), el('span', { textContent: uitleg }));
+      const away = (naam, uitleg, href) => el('a', { href, target: '_blank', rel: 'noreferrer' }, el('b', { textContent: `${naam} ↗` }), el('span', { textContent: uitleg }));
+      return [el('div', { className: 'fb-kinds' },
+        melden && item('Melden', 'Iets gezien dat niet klopt? Dit is een bètaversie: laat het ons weten.', () => go('zichtbaar')),
+        away('Handleiding', 'Hoe de viewer werkt, stap voor stap', `${SITE}handleiding/`),
+        item('Updates', 'Wat er veranderd is', () => { close(); updates(); }),
+        item('Over dit model', 'Waar het model vandaan komt, de bronnen', () => { close(); about(); }),
+        away('Homepagina', 'Over het project, en de viewer op je eigen site', SITE))];
+    },
 
     zichtbaar: () => {
       const retake = el('button', { type: 'button', className: 'link-button', textContent: 'Opnieuw vastleggen' });
@@ -273,6 +280,7 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
     const back = el('button', { type: 'button', className: 'link-button fb-back', textContent: '‹ Terug' });
     back.addEventListener('click', () => { trail.pop(); show(trail.at(-1) ?? 'start', false); });
     const final = ['verstuurd', 'nogmaals'].includes(name);
+    title.textContent = name === 'start' ? 'Lelievlet 3D' : 'Melden';
     body.replaceChildren(...SCREENS[name]().filter(Boolean), trail.length > 1 && !final ? back : '');
     body.scrollTop = 0;
   }
@@ -323,7 +331,7 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
   function open() {
     closeOthers();
     report = {}; trail = [];
-    capture();                                  // before anything else moves: what the user saw
+    if (melden) capture();                      // before anything else moves: what the user saw
     panel.hidden = false; button.setAttribute('aria-expanded', 'true');
     show('start');
   }
