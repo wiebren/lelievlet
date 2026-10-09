@@ -78,9 +78,9 @@ Voorwaarden die de werklijst gebruikt:
 | Roeien: ankeren / anker op | modus roeien; ankeren: niet afgemeerd; anker op: voor anker |
 | Anker uit / op, midzwaard, riemen en dollen, roeicommando's, sturen | (zonder voorwaarden in het menu) |
 
-Bekende verbetering: [KATZ] 70/64 en [HBO] p. 6 geven hijsen een eigen volgorde (grootschoot en
-zeilbandjes los; gaffel op ±45°, beide vallen samen; klauwval vast; piek stellen met een plooi van
-nok naar hals; fok als laatste; vallen opschieten). Nu is hijsen strijken achteruit.
+Hijsen heeft sinds 2026-10-09 de eigen volgorde van [KATZ] 70/64 en [HBO] p. 6 (grootschoot en
+zeilbandjes los; gaffel schuin, beide vallen samen; klauwval vast; piek stellen met een plooi van
+nok naar hals; fok als laatste; vallen opschieten).
 
 ## Nog te beslissen: commando's
 
@@ -133,8 +133,8 @@ boeken het onderling oneens zijn, staat dat erbij; daar volgt de viewer er één
 | 4 | Man over boord (zeilen) | Geen *Man dwars!* en *Man vast!* | [HBO] p. 13 | Toevoegen |
 | 5 | Aanleggen aan lagerwal | Laatste stap: op het laatste moment van de kant af sturen, een kwartslag, langszij | [KATZ] 88/82 en Meestoxopeus: eindigen met "Alles in orde maken om aan te kunnen leggen" | De stap houden (het komt van ons, niet uit het boek), of het boek volgen |
 | 6 | Reven | Grootschoot verhangen en schootring terug vóór de vallen doorgezet worden; begint met *Kop in de wind* | [KATZ] 72/66: klauwval vast, piekenval stellen, en het hoefijzer als laatste; geen *kop in de wind* in de lijst | De volgorde van het boek nemen |
-| 7 | Hijsen | Strijken achteruit | [KATZ] 70/64 en [HBO] p. 6: een eigen volgorde (grootschoot los, gaffel op ±45°, klauwval vóór piek, fok als laatste, vallen opschieten) | Een eigen hijsvolgorde bouwen (al bekend) |
-| 8 | Strijken | De mik vóór grootzeil strijken | [KATZ]: de mik na grootzeil strijken | Al bekend; de volgorde van het boek nemen |
+| 7 | Hijsen | Strijken achteruit | [KATZ] 70/64 en [HBO] p. 6: een eigen volgorde (grootschoot los, gaffel op ±45°, klauwval vóór piek, fok als laatste, vallen opschieten) | Gedaan (2026-10-09): een eigen flow in de volgorde van het boek |
+| 8 | Strijken | De mik vóór grootzeil strijken | [KATZ]: de mik na grootzeil strijken; de Zeilschool van Scouting Nederland (melding #8): eerst kraanlijn, voorstrijk en grootschoot vast | Gedaan (2026-10-09): de volgorde van het boek, met de stappen van de Zeilschool |
 | 9 | Sliplanding | *Grootzeil aan* altijd | [KATZ] 85/79: alleen "als je te vroeg stilligt" | Houden (zo toont hij wat het boek bedoelt), of alleen als ze te vroeg stil ligt |
 | 10 | Anker op onder zeil (Oefenen) | *Anker binnenhalen* mag na *Anker los* | [KATZ] 95/89: pas na *Rustige koers wegvaren* | `ANCHOR_NEEDS.binnen` op `['weg']` zetten |
 | 11 | Kop in de wind leggen, verhalen, ankeren en anker op zonder zeilen | Eigen stappen en roepen | Geen boek beschrijft deze manoeuvres ([KATZ] 83/77 zegt alleen "zonodig ... verhaalt") | Houden als eigen uitwerking; zo in de docs zetten |

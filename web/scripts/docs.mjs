@@ -257,7 +257,8 @@ function manoeuvres() {
   const turnTable = (list, needs) => table(['#', 'Stap', 'Roept', 'Eerst gedaan (voor Oefenen)', 'Duur'], list.map((s, i) => [i + 1, s.label,
     s.say ? `“${s.say}” (${WHO[s.by]})` : '—', (needs[s.key] ?? []).map((k) => list.find((x) => x.key === k)?.label).filter(Boolean).join(', ') || '—', secs(s)]));
   const OPS = opsOf();
-  const sails = rig;                                             // the Tuig timeline is the sails; the mast has its own flows
+  const sails = rig;                                             // the Tuig timeline is strijken; hijsen and the mast have flows of their own
+  const hoist = stepsOf('Zeilen hijsen'); const HOIST_NEEDS = objectOf('HOIST_NEEDS');
   const lower = stepsOf('Mast strijken'); const LOWER_NEEDS = objectOf('LOWER_NEEDS');
   const raise = stepsOf('Mast zetten'); const RAISE_NEEDS = objectOf('RAISE_NEEDS');
   const byKey = Object.fromEntries(rig.map((s) => [s.key, s]));
@@ -276,13 +277,9 @@ function manoeuvres() {
     return `${shown.replace(/\./g, ',')} s`;
   };
 
-  // forwards: a step needs the steps it names done; backwards: undoing a step needs every step that
-  // needed it undone first
+  // a step needs the steps it names done
   const forward = (list) => table(['#', 'Stap', 'Eerst gedaan (voor Oefenen)', 'Duur'],
     list.map((s, i) => [i + 1, s.label, (NEEDS[s.key] ?? []).map((k) => byKey[k].label).join(', ') || '—', secs(s)]));
-  const backward = (list) => table(['#', 'Stap', 'Eerst gedaan (voor Oefenen)', 'Duur'],
-    [...list].reverse().map((s, i) => [i + 1, s.back,
-      rig.filter((d) => (NEEDS[d.key] ?? []).includes(s.key)).map((d) => d.back).join(', ') || '—', secs(s)]));
   const reefId = (s) => (s.key === 'turns' ? 'turns' : `${s.key}>${s.to === '0' ? 0 : 1}`);
   const reefLabel = Object.fromEntries(reef.map((s) => [reefId(s), s.label]));
   const reefTable = table(['#', 'Stap', 'Eerst gedaan (voor Oefenen)', 'Duur'], reef.map((s, i) => [i + 1,
@@ -355,8 +352,7 @@ Daaronder kies je:
 
 - **Bekijken**: de handeling speelt vanzelf af. De stappenbalk staat in de kaart: vorige stap,
   afspelen/pauzeren, volgende stap en een schuif over de hele handeling. Volgende en vorige stap gaan
-  altijd in de richting van de handeling zelf, ook bij zeilen hijsen, dat de tijdlijn van strijken
-  terug doorloopt. Een stap op zich laat de camera eerst naar de onderdelen gaan
+  altijd in de richting van de handeling zelf. Een stap op zich laat de camera eerst naar de onderdelen gaan
   waar het om gaat.
 - **Oefenen**: de boot blijft staan en bij elke stap is de vraag *Wat is de volgende stap?*, met vier
   antwoorden. Het goede antwoord staat ertussen, en de drie andere zijn stappen die in de toestand van
@@ -389,8 +385,11 @@ afgemeerd of voor anker, dan valt *Kop in de wind* weg, en bij hijsen *Afvallen*
 wind en gaat nergens heen. De stap blijft op de voortgangsbalk staan, gearceerd, en wordt
 overgeslagen; in Oefenen komt hij niet voor, ook niet als fout antwoord.
 
-Het boek zet de mik ná het strijken van het grootzeil; hier gaat de mik eerst, zodat giek en gaffel in
-de vork zakken. Bij hijsen klopt de volgorde wel: het grootzeil omhoog, dan de mik eruit.
+De volgorde is die van het boek (§ 5.2.2, p. 65), aangevuld door de Zeilschool van Scouting Nederland:
+de kraanlijn houdt de giek op hoogte, een voorstrijk laat de piek wat zakken zodat er geen druk meer
+in het zeil staat, en de grootschoot wordt met twee slipsteken vastgezet zodat de giek niet meer
+zwaait. Dan pas komt het grootzeil omlaag en wordt het opgedoekt. De mik gaat er als laatste in: staat
+hij er al, dan vouwt het zakkende zeil eroverheen en scheurt het, en loopt er iemand tegenaan.
 
 ${forward(sails)}
 
@@ -399,12 +398,15 @@ ${forward(sails)}
 Voorwaarden:
 ${pre('hijsen')}
 
-Hijsen is strijken in omgekeerde volgorde. Het zeilinstructieboek geeft hijsen een eigen volgorde
-(grootschoot en zeilbandjes los; gaffel op ±45°, beide vallen samen; klauwval vast; piek stellen met
-een plooi van nok naar hals; fok als laatste; vallen opschieten — [KATZ] p. 64, [HBO] p. 6); dat staat
-op de werklijst.
+Hijsen is een eigen handeling, vooruit, in de volgorde van het zeilinstructieboek (§ 5.2.1, p. 64;
+[HBO] p. 6): kop in de wind; de grootschoot los, zodat het zeil vrij kan draaien als het wind vangt; de
+zeilbandjes los; de gaffel schuin omhoog; beide vallen samen hijsen, en de mik eruit als de giek vrij
+komt; de klauwval vastzetten terwijl een ander de piekenval vasthoudt; de gaffel stellen met de
+piekenval - een vouw van klauw naar tophoek - en vastzetten; dan pas de fok, die klappert en haar van
+de wind af zou draaien; de vallen opschieten. Varend valt ze daarna af. Wat al los of op is, wordt
+overgeslagen.
 
-${backward(sails)}
+${flowRows(hoist, HOIST_NEEDS)}
 
 ## Zeilen aanslaan en afslaan
 

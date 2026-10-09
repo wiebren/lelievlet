@@ -786,7 +786,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       step('vieren', seconds('vieren'), 'Ankerlijn langzaam vieren', ['anker', 'ankerketting', 'ankerlijn'], ANCHOR_VIEW),
       step('lengte', seconds('lengte'), 'De lijn 5 à 6 maal de diepte laten vieren', ['anker', 'ankerketting', 'ankerlijn'], ANCHOR_VIEW),
       step('controle', 2, 'Met een achtergrondpeiling controleren of het anker houdt', ['anker', 'ankerketting', 'ankerlijn']),
-      step('groot', 3, 'Grootzeil strijken', ['grootzeil', 'gaffel', 'mik'], null, 'Grootzeil strijken!'),
+      step('groot', 3, 'Grootzeil strijken', ['grootzeil', 'gaffel', 'giek'], null, 'Grootzeil strijken!'),
     ]);
     else if (dir === 'in') anchoring = new Procedure('Ankeren zonder zeilen', vals('klaar zwaard zakken vieren lengte controle'), [
       step('klaar', 2, 'Anker klaarleggen', ['anker', 'ankerketting', 'ankerlijn'], ANCHOR_VIEW),
@@ -990,7 +990,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       berthing = new Procedure('Aanleggen aan lagerwal', { hoog: 0, groot: 0, afvallen: 0, fok: 0, willen: 0, afsturen: 0,
         voor: 0, achter: 0, aspring: 0, vspring: 0 }, [
         ...(slip.marks.hoog[1] > slip.marks.hoog[0] ? [step('hoog', seconds('hoog'), 'Aan de wind gaan zeilen', ['grootzeil', 'fok'])] : []),
-        step('groot', seconds('groot'), 'Grootzeil strijken', ['grootzeil', 'gaffel', 'mik'], null, 'Grootzeil strijken!'),
+        step('groot', seconds('groot'), 'Grootzeil strijken', ['grootzeil', 'gaffel', 'giek'], null, 'Grootzeil strijken!'),
         step('afvallen', seconds('afvallen'), 'Afvallen tot voor de wind', ['helmstok', 'roerblad']),
         step('fok', seconds('fok'), 'Fok strijken', ['fok', 'fokkenval', 'voorstag'], null, 'Fok strijken!'),
         step('willen', seconds('willen'), 'Stootwillen buitenboord', ['stootwillen'], null, 'Stootwillen buitenboord!'),
@@ -1013,7 +1013,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     } else {
       berthing = new Procedure('Voor top en takel', { hoog: 0, groot: 0, willen: 0, fok: 0, afvallen: 0, takel: 0, achter: 0, voor: 0, aspring: 0, vspring: 0 }, [
         ...(slip.marks.hoog[1] > slip.marks.hoog[0] ? [step('hoog', seconds('hoog'), 'Oploeven tot aan de wind', ['grootzeil', 'fok'])] : []),
-        step('groot', seconds('groot'), 'Grootzeil strijken', ['grootzeil', 'gaffel', 'mik'], null, 'Grootzeil strijken!'),
+        step('groot', seconds('groot'), 'Grootzeil strijken', ['grootzeil', 'gaffel', 'giek'], null, 'Grootzeil strijken!'),
         step('willen', seconds('willen'), 'Stootwillen uit', ['stootwillen'], null, 'Stootwillen uit!'),
         step('fok', seconds('fok'), 'Fok strijken', ['fok', 'fokkenval', 'voorstag'], null, 'Fok strijken!'),
         step('afvallen', seconds('afvallen'), 'Afvallen tot voor de wind', ['helmstok', 'roerblad']),
@@ -1109,7 +1109,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     if (bow) {                                                      // on her voorlandvast the sheets are loose: the sails go with the wind
       // - not struck: the giek lies in the mik and the fok bundled on its stay, whatever the wind does
       const r = THREE.MathUtils.radToDeg(bow.rel); const s = Math.sign(r) || 1;
-      tackTrim.luff = 1; tackTrim.flap = 1; tackTrim.boom = r * (1 - smoothstep(strike.mik)); tackTrim.jib = r * 0.4 * (1 - smoothstep(jibDown)); tackTrim.belly = s * 0.2;
+      tackTrim.luff = 1; tackTrim.flap = 1; tackTrim.boom = r * (1 - smoothstep(strike.mik)) * (1 - smoothstep(strike.schoot)); tackTrim.jib = r * 0.4 * (1 - smoothstep(jibDown)); tackTrim.belly = s * 0.2;
     }
     const v = berthing.values;
     const fresh = moved(berthing);                                  // only as its steps go: a click may put one in afterwards
@@ -1152,16 +1152,18 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     tackTrim.belly = s * (1 - 0.8 * loose);
   };
   /**
-   * Voor top en takel strikes the sails on the way in: the giek into the mik and the grootzeil down
-   * on it, as Zeilen strijken does, then the fok. Once both are down the rig's own timeline has them
-   * where they are - struck, not yet made up - and Zeilen strijken goes on from there.
+   * Voor top en takel strikes the sails on the way in: the giek held and the grootschoot fast, a
+   * voorstrijk and the grootzeil down, as Zeilen strijken does, then the fok. Once both are down the
+   * rig's own timeline has them where they are - struck, not yet made up, the mik not yet set - and
+   * Zeilen strijken goes on from there.
    */
   const strikeOnTheWay = (v) => {
     const down = v.groot >= 1 && v.fok >= 1;
     rigging.skipped = new Set(MOORED_SKIPS);                        // alongside: no heading up, no anchor, no midzwaard
     rigging.playing = false; rigging.seek(down ? rigging.after('main') : 0); rigging.goal = rigging.commanded = rigging.t;
     if (down) return;
-    strike.mik = clamp(v.groot / 0.3, 0, 1); strike.main = clamp((v.groot - 0.3) / 0.7, 0, 1); strike.jib = v.fok;
+    strike.dirk = strike.schoot = clamp(v.groot / 0.15, 0, 1); strike.voor = clamp(v.groot / 0.3, 0, 1);
+    strike.main = clamp((v.groot - 0.3) / 0.7, 0, 1); strike.jib = v.fok;
   };
   /** A procedure is shown - its track drawn - from when it is set up (playing, or waiting at its start to
    *  be practised) until TURN_TAIL seconds after its last step. */
@@ -1381,6 +1383,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const g = v.groot;
     strike.ties = Math.min(strike.ties, 1 - clamp(g / 0.15, 0, 1)); strike.furl = Math.min(strike.furl, 1 - clamp((g - 0.1) / 0.2, 0, 1));
     strike.main = Math.min(strike.main, 1 - clamp((g - 0.25) / 0.6, 0, 1)); strike.mik = Math.min(strike.mik, 1 - clamp((g - 0.85) / 0.15, 0, 1));
+    strike.schoot = Math.min(strike.schoot, 1 - clamp(g / 0.1, 0, 1)); strike.dirk = Math.min(strike.dirk, 1 - clamp((g - 0.85) / 0.15, 0, 1));
+    strike.voor = Math.min(strike.voor, 1 - clamp((g - 0.8) / 0.2, 0, 1));   // the piek set up last
     strike.jib = Math.min(strike.jib, 1 - v.fok);
   };
 
@@ -3222,11 +3226,14 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     shut: deg(tuig.bakskist.open_graden), open: 0, want: 0 } : null;      // modelled open, shown shut until something asks for it
   foldParts('bakskist', ['bakskist_deksel', 'bakskist_beslag', 'bakskist_handvatten']);      // one part to name; the lid still swings
 
-  // -- zeilen strijken (zeilinstructieboek § 5.2, pp. 64-65), lying still or under way: head to wind,
-  // fok down and bundled on its stay, mik set, grootzeil down with giek and gaffel into the fork of
-  // the mik, sail rolled up between them, three zeilbinders round the lot. Hoisting is the same list
-  // backwards. No anchor in it: that is a manoeuvre of its own (§ 5.13, the anchoring further on). Like reven, every
-  // step is one value run to its goal.
+  // -- zeilen strijken (zeilinstructieboek § 5.2.2, p. 65, and the Zeilschool of Scouting Nederland),
+  // lying still or under way: head to wind, fok down and bundled on its stay; the kraanlijn (dirk)
+  // holds the giek up, a voorstrijk lets the piek down a little so there is no pressure in the sail,
+  // the grootschoot is made fast with two slipsteken so the giek stays put; then the grootzeil comes
+  // down and is made up on the giek, and only then is the mik set and the giek laid in it - set
+  // first, the sail coming down folds over it and tears - and three zeilbinders go round the lot.
+  // Hijsen is a flow of its own, further on. No anchor in it: that is a manoeuvre of its own (§ 5.13,
+  // the anchoring further on). Like reven, every step is one value run to its goal.
   // One timeline for the rig: sails struck is its first half, mast down the whole of it. "Zeilen op",
   // "Zeilen gestreken" and "Mast gestreken" are three moments on it. It is shown and steered as two
   // flows, Zeilen and Mast, each a stretch of it: the mast only comes down once the sails are.
@@ -3239,12 +3246,16 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const GRENDEL_VIEW = { positie: [3.311, 1.412, 1.178], doel: [3.741, 0.209, -0.218] };
   const HOOK_VIEW = { positie: [6.089, 1.645, 0.334], doel: [5.446, 1.14, 0.014] };
   const MAST_VIEW = { positie: [8.198, 3.069, 8.201], doel: [2.464, 0.967, -0.817] };
-  const rigging = new Procedure('Tuig', { head: 0, anchor: 0, zwaard: 0, jib: 0, mik: 0, main: 0, furl: 0, ties: 0 }, [
+  // slant: the gaffel set up schuin while it is down, as hijsen does it; not a step of strijken
+  const rigging = new Procedure('Tuig', { head: 0, anchor: 0, zwaard: 0, jib: 0, dirk: 0, voor: 0, schoot: 0, main: 0, furl: 0, mik: 0, ties: 0, slant: 0 }, [
     { key: 'head', to: 1, seconds: 1.5, label: stap('Kop in de wind'), back: stap('Afvallen'), focus: ['mast', 'grootzeil', 'fok'] },
     { key: 'jib', to: 1, seconds: 2, label: stap('Fok strijken'), back: stap('Fok hijsen'), focus: ['fok', 'fokkenval', 'voorstag'] },
-    { key: 'mik', to: 1, seconds: 1.5, label: stap('Mik zetten'), back: stap('Mik wegnemen'), focus: ['mik', 'giek'] },
+    { key: 'dirk', to: 1, seconds: 1.2, label: stap('Kraanlijn aantrekken, de giek op hoogte'), back: stap('Kraanlijn vieren'), focus: ['kraanlijn', 'giek'] },
+    { key: 'voor', to: 1, seconds: 1.5, label: stap('Voorstrijk: de piek wat laten zakken'), back: stap('Piek weer op'), focus: ['piekenval', 'gaffel', 'grootzeil'] },
+    { key: 'schoot', to: 1, seconds: 1.5, label: stap('Grootschoot strak, vast met twee slipsteken'), back: stap('Grootschoot los'), focus: ['grootschoot', 'giek'] },
     { key: 'main', to: 1, seconds: 2.5, label: stap('Grootzeil strijken'), back: stap('Grootzeil hijsen'), focus: ['grootzeil', 'gaffel', 'giek'] },
     { key: 'furl', to: 1, seconds: 1.5, label: stap('Zeil opdoeken'), back: stap('Zeil losmaken'), focus: ['gaffel', 'giek'], camera: FURL_VIEW },
+    { key: 'mik', to: 1, seconds: 1.5, label: stap('Mik zetten, de giek erin'), back: stap('Mik wegnemen'), focus: ['mik', 'giek'] },
     { key: 'ties', to: 1, seconds: 1.2, label: stap('Zeilbinders om'), back: stap('Zeilbinders af'), focus: ['gaffel', 'giek'], camera: TIES_VIEW },
   ]);
   // what the rig is doing, as the drawing reads it: the sails from their timeline, the mast from its own
@@ -3252,6 +3263,44 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const strike = rigging.values;
   const RIG_AT = { op: 0, gestreken: rigging.total };
   const sailFlow = new Stretch(rigging, 'Zeilen', RIG_AT.op, RIG_AT.gestreken);
+  // -- zeilen hijsen (zeilinstructieboek § 5.2.1, p. 64), a flow of its own, forwards from the sails as
+  // they lie: head to wind; the grootschoot loose, so the sail can swing free if it catches the wind;
+  // the zeilbandjes off; the gaffel set up schuin; both vallen hoisted together, the mik out as the
+  // giek comes clear of it; the klauwval made fast while another holds the piekenval; the gaffel set
+  // with the piekenval - a fold from klauw to tophoek - and made fast; then the fok, last, as it
+  // flaps and would turn her off the wind; the vallen coiled. Under way she bears away at the end.
+  // While it runs it has the sails: it lays them from where they lay (`from`) each frame, and once
+  // it is through it hands them back to the timeline above, at "Zeilen op".
+  const HOIST = { kop: 0, schoot: 0, bandjes: 0, schuin: 0, op: 0, klauw: 0, piek: 0, fok: 0, opschieten: 0, afvallen: 0 };
+  // for Oefenen: the grootschoot loose before the bandjes, those off and the gaffel schuin before the vallen
+  // go up, the klauwval fast before the piek is set, the grootzeil up before the fok, and the fok before she bears away
+  const HOIST_NEEDS = { bandjes: ['schoot'], op: ['bandjes', 'schuin'], klauw: ['op'], piek: ['klauw'], fok: ['op'], afvallen: ['fok'] };
+  const hijsen = () => Object.assign(new Procedure('Zeilen hijsen', HOIST, [
+    { key: 'kop', to: 1, seconds: 1.5, label: stap('Kop in de wind'), back: stap('Afvallen'), focus: ['mast', 'grootzeil', 'fok'] },
+    { key: 'schoot', to: 1, seconds: 1.2, label: stap('Grootschoot los'), back: stap('Grootschoot vast'), focus: ['grootschoot', 'giek'] },
+    { key: 'bandjes', to: 1, seconds: 1.5, label: stap('Zeilbandjes los'), back: stap('Zeilbandjes om'), focus: ['gaffel', 'giek'], camera: TIES_VIEW },
+    { key: 'schuin', to: 1, seconds: 1.5, label: stap('Gaffel schuin omhoog zetten'), back: stap('Gaffel neerleggen'), focus: ['gaffel', 'piekenval'] },
+    { key: 'op', to: 1, seconds: 3, label: stap('Beide vallen hijsen, de mik eruit'), back: stap('Grootzeil strijken'), focus: ['grootzeil', 'klauwval', 'piekenval', 'mik'] },
+    { key: 'klauw', to: 1, seconds: 1.2, label: stap('Klauwval vastzetten'), back: stap('Klauwval los'), focus: ['klauwval', 'klauw'] },
+    { key: 'piek', to: 1, seconds: 1.5, label: stap('Gaffel stellen met de piekenval, en vastzetten'), back: stap('Piek laten zakken'), focus: ['piekenval', 'gaffel', 'grootzeil'] },
+    { key: 'fok', to: 1, seconds: 2, label: stap('Fok hijsen'), back: stap('Fok strijken'), focus: ['fok', 'fokkenval', 'voorstag'] },
+    { key: 'opschieten', to: 1, seconds: 1.2, label: stap('Vallen opschieten'), back: stap('Vallen losgooien'), focus: ['fokkenval', 'klauwval', 'piekenval'] },
+    { key: 'afvallen', to: 1, seconds: 1.5, label: stap('Afvallen'), back: stap('Kop in de wind'), focus: ['helmstok', 'grootzeil', 'fok'] },
+  ]), { needs: HOIST_NEEDS });
+  let hoisting = null;                                              // hijsen, while it has the sails
+  /** The sails as hijsen has them now, from where they lay when it began. */
+  const layHoist = () => {
+    const v = hoisting.values; const f = hoisting.from;
+    strike.head = (f.head + (1 - f.head) * v.kop) * (1 - v.afvallen);
+    strike.schoot = Math.min(f.schoot, 1 - v.schoot);
+    strike.ties = Math.min(f.ties, 1 - clamp(v.bandjes * 2, 0, 1)); strike.furl = Math.min(f.furl, 1 - clamp(v.bandjes * 2 - 1, 0, 1));
+    strike.slant = v.schuin * (1 - v.opschieten);
+    strike.main = Math.min(f.main, 1 - v.op);
+    strike.mik = Math.min(f.mik, 1 - clamp((v.op - 0.5) / 0.3, 0, 1));   // out once the giek is up clear of it
+    strike.voor = Math.max(f.voor, clamp(v.op * 4, 0, 1)) * (1 - v.piek);   // the piek lags going up, and is set last
+    strike.jib = Math.min(f.jib, 1 - v.fok);
+    strike.dirk = Math.min(f.dirk, 1 - v.opschieten);
+  };
   // -- mast strijken and mast zetten: each a flow of its own, done forwards from where the mast is,
   // sharing the state they leave (`masted`, 0 standing .. 1 down). Strijken: the fok off its stay, the
   // tuig down into the lower hook of the mik, the lummelbout out, the grendelbout out, the ring of the
@@ -3479,20 +3528,50 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // The step is skipped, not left out: the timeline keeps its shape
   const MOORED_SKIPS = ['head'];
   const lyingStill = () => dock.moored || atAnchor();
+  /** Zeilen hijsen, its own flow from where the sails lie; `play` false has it wait at its start, to be practised. */
+  const planHoist = (play = true) => {
+    topping.want = 0;
+    hoisting = hijsen(); hoisting.from = pick(strike, rigging.start); hoisting.rigFrom = rigging.t;
+    // what does not apply to the boat as she is: lying still she does not head up or bear away, and
+    // what is loose or up already is not done again
+    const skip = [];
+    if (lyingStill() || strike.head > 0.99) skip.push('kop');
+    if (lyingStill()) skip.push('afvallen');
+    if (strike.schoot < 1e-3) skip.push('schoot');
+    if (strike.ties < 1e-3 && strike.furl < 1e-3) skip.push('bandjes');
+    if (strike.jib < 1e-3) skip.push('fok');
+    hoisting.skipped = new Set(skip);
+    rigging.pause(); rigging.goal = rigging.commanded = rigging.t;
+    shown = hoisting;
+    if (play) hoisting.command(hoisting.total);
+    else { hoisting.commanded = hoisting.total; hoisting.aim(hoisting.total); }
+  };
+  /** Per frame: while hijsen is under way (or scrubbed back into) it lays the sails; through, the timeline has them, up. */
+  const followHoist = () => {
+    if (!hoisting) return;
+    if (shown !== hoisting) { hoisting = null; return; }            // something else now: the sails are where the timeline has them
+    if (hoisting.playing || hoisting.t < hoisting.total - 1e-6) {
+      if (hoisting.handed) { rigging.seek(hoisting.rigFrom); rigging.goal = rigging.commanded = rigging.t; hoisting.handed = false; }
+      layHoist();
+    } else if (!hoisting.handed) {
+      rigging.skipped = new Set(lyingStill() ? MOORED_SKIPS : []);
+      rigging.seek(RIG_AT.op); rigging.goal = rigging.commanded = rigging.t; rigging.playing = false;
+      hoisting.handed = true;
+    }
+  };
   const planStrike = (rig) => {
     topping.want = 0;
+    if (RIG_AT[rig] < rigging.t - 1e-6) { planHoist(); return; }  // up from where they lie: hijsen, a flow of its own
     // chosen where the sails are up, at the start of the timeline: halfway it would change what has
     // been done already (struck alongside, then hoisted after casting off, she would bear away at once)
     if (rigging.t < 1e-6) rigging.skipped = new Set(lyingStill() ? MOORED_SKIPS : []);
     // hoisted lying still - at anchor, made fast - she does not bear away at the end either
     else if (RIG_AT[rig] < rigging.t && lyingStill()) for (const k of MOORED_SKIPS) rigging.skipped.add(k);
-    // hijsen runs back along the timeline of strijken: that is its way forward, whatever a step back in
-    // it does to the timeline
-    sailFlow.sense = Math.sign(RIG_AT[rig] - rigging.t) || sailFlow.sense || 1;
     rigging.command(RIG_AT[rig]); shown = sailFlow;
   };
   const throat = new THREE.Vector3(3.4568, 3.9816, 0);             // klauwhoek of the sail, where the gaffel meets the mast
   const GAFFEL_RISE = Math.atan2(0.7512, 0.66);                     // how steeply the gaffel stands when the sail is set
+  const VOORSTRIJK = 0.35;                                          // how much of that the piek comes down in a voorstrijk
   const STOWED_Y = boomPivot.y + 0.19;                              // the gaffel's throat when it lies on the rolled sail
   const qTilt = new THREE.Quaternion(); const qGaff = new THREE.Quaternion(); const throatTo = new THREE.Vector3();
   const clothMeshes = mainMeshes.filter((m) => m.geometry.attributes._bolling);
@@ -4607,7 +4686,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const side = Math.sign(state.course) || 1;                      // +1: wind over starboard, sails to port
     const course = Math.min(Math.abs(state.course), RUN);
     const loevert = smoothstep(clamp((Math.abs(state.course) - DOWNWIND) / (RUN - DOWNWIND), 0, 1));
-    rigging.tick(step); masting.tick(step); Object.assign(strike, pick(masting.values, MASTED)); bending.tick(step);
+    rigging.tick(step); hoisting?.tick(step); followHoist(); masting.tick(step); Object.assign(strike, pick(masting.values, MASTED)); bending.tick(step);
     if (rigNext && !rigging.playing && !masting.playing) { const next = rigNext; rigNext = null; next(); } readying.tick(step); reefing?.tick(step); bowsprit?.proc.tick(step); layBowsprit();
     if (anchorGear) {
       // the anchor goes out and in by hand, or as an anchoring manoeuvre has it (layAnchoring)
@@ -4699,10 +4778,11 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const upwind = 1 - headUp;                                      // head to wind: everything amidships and shaking
     chase('flutter', sailing ? Math.max(headUp, tackTrim.luff) : 0, dt, 2.2);
     // the giek wanders a little while the sail shakes, and more when it hangs in the kraanlijn - but not while it lies in the mik
-    const loose = Math.max(1 - smoothstep(strike.main), topping.hoist * topping.hoist);
+    // - not with the grootschoot made fast for striking: then it stays put
+    const loose = Math.max((1 - smoothstep(strike.main)) * (1 - smoothstep(strike.schoot)), topping.hoist * topping.hoist);
     // with the mik set the giek lies in it, amidships, whatever the wind: heading up (skipped alongside) is not what puts it there
     const inMik = 1 - smoothstep(strike.mik);
-    chase('boom', sailing ? (tackTrim.boom ?? side * interp(BOOM, course) * upwind * inMik) + (1.6 + 2.4 * topping.hoist) * loose * now.flutter * Math.sin(1.9 * now.t) : 0, dt);
+    chase('boom', sailing ? (tackTrim.boom ?? side * interp(BOOM, course) * upwind * inMik * (1 - smoothstep(strike.schoot))) + (1.6 + 2.4 * topping.hoist) * loose * now.flutter * Math.sin(1.9 * now.t) : 0, dt);
     // struck, the fok lies bundled on its stay, amidships: the wind has nothing to take hold of
     const jibUp = 1 - smoothstep(jibDown);
     chase('jib', (sailing ? tackTrim.jib ?? THREE.MathUtils.lerp(jibFor(side, course), side * FOK_TE_LOEVERT, loevert) * upwind : FOK_CAD) * jibUp, dt);
@@ -4809,7 +4889,10 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const lowered = smoothstep(strike.main);
     const gaffelDrop = THREE.MathUtils.lerp(sailDrop, throat.y - STOWED_Y, lowered);
     gaffStrike.reefDrop = sailDrop; gaffStrike.drop = gaffelDrop - sailDrop;
-    gaffStrike.tilt = GAFFEL_RISE * smoothstep(clamp(strike.main * 1.6 - 0.6, 0, 1));
+    // it turns towards level as it comes down - unless set up schuin to be hoisted - and a voorstrijk
+    // lets the piek down part of the way while the klauw stays where it is
+    const level = smoothstep(clamp(strike.main * 1.6 - 0.6, 0, 1)) * (1 - smoothstep(strike.slant));
+    gaffStrike.tilt = GAFFEL_RISE * Math.max(level, VOORSTRIJK * smoothstep(strike.voor));
     qTilt.setFromAxisAngle(ATHWART, gaffStrike.tilt);
     qGaff.setFromAxisAngle(UP, boomAngle).multiply(qTilt);
     rotatedPoint(throat, mastPivot, UP, boomAngle, throatTo).y -= gaffelDrop;
@@ -4818,7 +4901,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     for (const m of lacing) { m.scale.y = Math.max((LUFF - gaffelDrop) / LUFF, 0.02); m.position.y += reefInfo.onderlijk_m * (1 - m.scale.y); }
 
     qYaw.setFromAxisAngle(UP, boomTurn);
-    qYaw.multiply(qTilt.setFromAxisAngle(ATHWART, -deg(1.1) * lowered));   // the nok lifted into the fork of the mik
+    qYaw.multiply(qTilt.setFromAxisAngle(ATHWART, -deg(1.1) * smoothstep(strike.mik)));   // the nok lifted into the fork of the mik
     axisNow.copy(boomAxis).applyQuaternion(qYaw);
     const aft = 0.03 * smoothstep(reef.pull);
     pivotRotate(boomStill, boomPivot, UP, boomTurn);
@@ -4987,7 +5070,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       for (let i = 0; i <= 20; i++) {                                 // the slack span
         const k = i / 20; const hang = Math.sin(Math.PI * k);
         const p = new THREE.Vector3().lerpVectors(wervelNow, sheaveNow, k).addScaledVector(tmp, (1 - k) * 0 + k * r);
-        p.y -= (0.30 * (1 - lowered) + 0.22 * smoothstep(night.kraanlijn)) * hang;   // loszetten for the night: it sags
+        // aangetrokken to strike it is taut; loszetten for the night it sags
+        p.y -= (0.30 * (1 - Math.max(lowered, smoothstep(strike.dirk))) + 0.22 * smoothstep(night.kraanlijn)) * hang;
         // to port of the sail the whole way: from the nok it runs inside the sail's triangle and crosses
         // the gaffel a hand's breadth aft of the mast, so it is held off the plane of the sail, and
         // further out where the belly comes towards it; only at either end does it come back to the line
@@ -5628,7 +5712,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // follows from what each step needs done before it; `undo` of a step done already is a wrong
   // answer of the same kind (the fok up again, before the mik is set).
   const STEP_NEEDS = {                                              // the rig: what has to have happened first
-    main: ['mik'], furl: ['main'], ties: ['furl'],
+    main: ['dirk', 'voor', 'schoot'], furl: ['main'], mik: ['main'], ties: ['furl', 'mik'],
   };
   const TACK_NEEDS = { ree: ['klaar'], houden: ['bak'], over: ['bak'] };   // the rest can be done at any moment: only not now
   const GYBE_NEEDS = { afvallen: ['klaar'], tegen: ['gijp'], vieren: ['gijp'], bij: ['tegen'] };
@@ -5653,7 +5737,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const stepId = (s) => (s.key === 'turns' ? 'turns' : `${s.key}>${s.to > s.from ? 1 : 0}`);
   const needsOf = (proc, s) => (proc === reefing ? REEF_NEEDS[stepId(s)] ?? [] : proc === tacking ? (tacking.kind === 'gijp' ? GYBE_NEEDS : TACK_NEEDS)[s.key] ?? []
     : proc === berthing ? berthing.needs[s.key] ?? [] : proc === leaving ? leaving.needs[s.key] ?? []
-    : proc === turning ? turning.needs[s.key] ?? [] : proc === rescuing ? rescuing.needs[s.key] ?? [] : proc === sighting ? sighting.needs[s.key] ?? [] : proc === anchoring ? anchoring.needs[s.key] ?? [] : proc === beating ? beating.needs[s.key] ?? [] : proc === hauling ? hauling.needs[s.key] ?? [] : proc === bending || proc === readying || proc === heaving || proc === masting ? proc.needs[s.key] ?? [] : proc === pulling ? pulling.needs[s.key] ?? [] : STEP_NEEDS[s.key] ?? []);
+    : proc === turning ? turning.needs[s.key] ?? [] : proc === rescuing ? rescuing.needs[s.key] ?? [] : proc === sighting ? sighting.needs[s.key] ?? [] : proc === anchoring ? anchoring.needs[s.key] ?? [] : proc === beating ? beating.needs[s.key] ?? [] : proc === hauling ? hauling.needs[s.key] ?? [] : proc === bending || proc === readying || proc === heaving || proc === masting || proc === hoisting ? proc.needs[s.key] ?? [] : proc === pulling ? pulling.needs[s.key] ?? [] : STEP_NEEDS[s.key] ?? []);
   const holds = (proc, id, doneSet) => doneSet.some((d) => (proc === reefing ? stepId(d) : d.key) === id);
   const shuffled = (list) => { const l = [...list]; for (let i = l.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [l[i], l[j]] = [l[j], l[i]]; } return l; };
   /** Every step that could be done now in the state the boat is in: the plausible answers. */
@@ -5769,6 +5853,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       if (op === 'verhalen') { planHauling(play); return true; }
       if (op === 'mastStrijken') { state.rig = 'mast'; planMast(1, play); return true; }
       if (op === 'mastZetten') { state.rig = 'gestreken'; planMast(-1, play); return true; }
+      if (op === 'hijsen') { state.rig = 'op'; relevant('wind', windShown()); planHoist(play); return true; }
       const rig = OPS[op].rig;
       if (play) { setRig(rig); return true; }
       setRig(rig);
@@ -6068,6 +6153,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
         setRig(rig);
         if (direct) {
           rigNext = null;
+          if (hoisting) { hoisting = null; shown = sailFlow; }          // there at once: not hoisted step by step
           rigging.seek(RIG_AT[rig] ?? RIG_AT.gestreken); rigging.playing = false; rigging.goal = rigging.commanded = rigging.t;
           masting = (rig === 'mast' ? mastStrijken : mastZetten)(pick(strike, MASTED));
           masting.seek(masting.total); masting.playing = false; masting.goal = masting.commanded = masting.total;

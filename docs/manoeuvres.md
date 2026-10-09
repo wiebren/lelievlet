@@ -26,8 +26,7 @@ Daaronder kies je:
 
 - **Bekijken**: de handeling speelt vanzelf af. De stappenbalk staat in de kaart: vorige stap,
   afspelen/pauzeren, volgende stap en een schuif over de hele handeling. Volgende en vorige stap gaan
-  altijd in de richting van de handeling zelf, ook bij zeilen hijsen, dat de tijdlijn van strijken
-  terug doorloopt. Een stap op zich laat de camera eerst naar de onderdelen gaan
+  altijd in de richting van de handeling zelf. Een stap op zich laat de camera eerst naar de onderdelen gaan
   waar het om gaat.
 - **Oefenen**: de boot blijft staan en bij elke stap is de vraag *Wat is de volgende stap?*, met vier
   antwoorden. Het goede antwoord staat ertussen, en de drie andere zijn stappen die in de toestand van
@@ -61,17 +60,23 @@ afgemeerd of voor anker, dan valt *Kop in de wind* weg, en bij hijsen *Afvallen*
 wind en gaat nergens heen. De stap blijft op de voortgangsbalk staan, gearceerd, en wordt
 overgeslagen; in Oefenen komt hij niet voor, ook niet als fout antwoord.
 
-Het boek zet de mik ná het strijken van het grootzeil; hier gaat de mik eerst, zodat giek en gaffel in
-de vork zakken. Bij hijsen klopt de volgorde wel: het grootzeil omhoog, dan de mik eruit.
+De volgorde is die van het boek (§ 5.2.2, p. 65), aangevuld door de Zeilschool van Scouting Nederland:
+de kraanlijn houdt de giek op hoogte, een voorstrijk laat de piek wat zakken zodat er geen druk meer
+in het zeil staat, en de grootschoot wordt met twee slipsteken vastgezet zodat de giek niet meer
+zwaait. Dan pas komt het grootzeil omlaag en wordt het opgedoekt. De mik gaat er als laatste in: staat
+hij er al, dan vouwt het zakkende zeil eroverheen en scheurt het, en loopt er iemand tegenaan.
 
 | # | Stap | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|
 | 1 | Kop in de wind | — | 1,5 s |
 | 2 | Fok strijken | — | 2 s |
-| 3 | Mik zetten | — | 1,5 s |
-| 4 | Grootzeil strijken | Mik zetten | 2,5 s |
-| 5 | Zeil opdoeken | Grootzeil strijken | 1,5 s |
-| 6 | Zeilbinders om | Zeil opdoeken | 1,2 s |
+| 3 | Kraanlijn aantrekken, de giek op hoogte | — | 1,2 s |
+| 4 | Voorstrijk: de piek wat laten zakken | — | 1,5 s |
+| 5 | Grootschoot strak, vast met twee slipsteken | — | 1,5 s |
+| 6 | Grootzeil strijken | Kraanlijn aantrekken, de giek op hoogte, Voorstrijk: de piek wat laten zakken, Grootschoot strak, vast met twee slipsteken | 2,5 s |
+| 7 | Zeil opdoeken | Grootzeil strijken | 1,5 s |
+| 8 | Mik zetten, de giek erin | Grootzeil strijken | 1,5 s |
+| 9 | Zeilbinders om | Zeil opdoeken, Mik zetten, de giek erin | 1,2 s |
 
 ## Zeilen hijsen
 
@@ -82,19 +87,26 @@ Voorwaarden:
 - er is geen afmeren, kop in de wind leggen of verhalen half af — anders grijs met *Eerst het afmeren, draaien of verhalen afmaken*
 - niet afgemeerd, of afgemeerd kop in de wind, of aan de wind of halve wind met de wind over de steiger — anders grijs met *Afgemeerd alleen kop in de wind, of met de wind over de steiger*
 
-Hijsen is strijken in omgekeerde volgorde. Het zeilinstructieboek geeft hijsen een eigen volgorde
-(grootschoot en zeilbandjes los; gaffel op ±45°, beide vallen samen; klauwval vast; piek stellen met
-een plooi van nok naar hals; fok als laatste; vallen opschieten — [KATZ] p. 64, [HBO] p. 6); dat staat
-op de werklijst.
+Hijsen is een eigen handeling, vooruit, in de volgorde van het zeilinstructieboek (§ 5.2.1, p. 64;
+[HBO] p. 6): kop in de wind; de grootschoot los, zodat het zeil vrij kan draaien als het wind vangt; de
+zeilbandjes los; de gaffel schuin omhoog; beide vallen samen hijsen, en de mik eruit als de giek vrij
+komt; de klauwval vastzetten terwijl een ander de piekenval vasthoudt; de gaffel stellen met de
+piekenval - een vouw van klauw naar tophoek - en vastzetten; dan pas de fok, die klappert en haar van
+de wind af zou draaien; de vallen opschieten. Varend valt ze daarna af. Wat al los of op is, wordt
+overgeslagen.
 
 | # | Stap | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|
-| 1 | Zeilbinders af | — | 1,2 s |
-| 2 | Zeil losmaken | Zeilbinders af | 1,5 s |
-| 3 | Grootzeil hijsen | Zeil losmaken | 2,5 s |
-| 4 | Mik wegnemen | Grootzeil hijsen | 1,5 s |
-| 5 | Fok hijsen | — | 2 s |
-| 6 | Afvallen | — | 1,5 s |
+| 1 | Kop in de wind | — | 1,5 s |
+| 2 | Grootschoot los | — | 1,2 s |
+| 3 | Zeilbandjes los | Grootschoot los | 1,5 s |
+| 4 | Gaffel schuin omhoog zetten | — | 1,5 s |
+| 5 | Beide vallen hijsen, de mik eruit | Zeilbandjes los, Gaffel schuin omhoog zetten | 3 s |
+| 6 | Klauwval vastzetten | Beide vallen hijsen, de mik eruit | 1,2 s |
+| 7 | Gaffel stellen met de piekenval, en vastzetten | Klauwval vastzetten | 1,5 s |
+| 8 | Fok hijsen | Beide vallen hijsen, de mik eruit | 2 s |
+| 9 | Vallen opschieten | — | 1,2 s |
+| 10 | Afvallen | Fok hijsen | 1,5 s |
 
 ## Zeilen aanslaan en afslaan
 
