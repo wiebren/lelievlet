@@ -207,8 +207,7 @@
 #parts .zoek-kaart-sluit { position: absolute; top: 4px; right: 6px; border: 0; background: none; font-size: 18px; line-height: 1; padding: 4px; color: var(--muted); }
 #parts .zoek-kaart-sluit:hover { color: var(--accent); }
 #parts .zoek-nacht { color: var(--accent); font-size: 12.5px; padding: 0; }
-/* a sign CWO does not ask about: there to look up, a little faded, and said so on its card */
-#parts .zoek-item.niet-cwo img { opacity: 0.6; }
+/* a sign CWO does not ask about: there to look up like any other, and said so on its card */
 #parts .zoek-kaart p.niet-cwo { color: var(--muted); font-size: 12px; font-style: italic; }
 
 .icon-button {

@@ -85,7 +85,8 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
   let shown = null;                                              // { key, object }
   let cameFrom = null;                                           // the view before the first one was put out
   let dark = false; let t = 0;
-  let helmHeld = false;                                          // the view is at the helm, for Op het water
+  let helmHeld = false;
+  const downwind = new THREE.Vector3(); const quat = new THREE.Quaternion(); const quat2 = new THREE.Quaternion();                                          // the view is at the helm, for Op het water
   const cards = [];                                              // every card's close, to let go from anywhere
   const resets = [];                                             // every tab back to how it opened the first time
   const entries = [];                                            // every sign, mark and signal, for the quiz (tekenquiz.js)
@@ -472,6 +473,12 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
       if (!shown) return;
       t += dt;
       shown.object.userData.update?.(t, dark ? 1 : 0, camera);
+      // a flag flies the way the wind arrow points (downwind, at the boat), told in the flag's own frame
+      const arrow = windArrow();
+      if (shown.object.userData.wind && arrow) {
+        downwind.set(1, 0, 0).applyQuaternion(arrow.getWorldQuaternion(quat)).applyQuaternion(shown.object.getWorldQuaternion(quat2).invert()).setY(0);
+        if (downwind.lengthSq() > 1e-6) shown.object.userData.wind(downwind.normalize());
+      }
     },
     release,
     /** What is out on the water now, for a report: { wat, id }. */

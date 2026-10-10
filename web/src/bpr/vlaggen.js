@@ -503,13 +503,17 @@ function staf(g, x, height) {
   const knob = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 8), M.staf); knob.position.set(x, height + 0.03, 0); g.add(knob);
 }
 
-/** Designs hoisted one above the other at the top of a staff at x. */
+/**
+ * Designs hoisted one above the other at the top of a staff at x. They hang from a vane on the staff:
+ * turned round it, they fly the way the wind blows (userData.wind).
+ */
 function hijs(g, designs, ctx, x = 0) {
   staf(g, x, STAF);
+  const vane = new THREE.Group(); vane.position.x = x; g.add(vane); ctx.vanes.push(vane);
   let y = STAF - 0.05;
   designs.forEach((o, i) => {
     const h = HOOGTE[o.vorm] ?? HOOGTE.vlag;
-    const c = doek(o, h, ctx.waves, ctx.phase + i * 1.3); c.position.set(x + STAF_R + 0.005, y, 0); g.add(c);
+    const c = doek(o, h, ctx.waves, ctx.phase + i * 1.3); c.position.set(STAF_R + 0.005, y, 0); vane.add(c);
     y -= h + 0.12;
   });
 }
@@ -537,7 +541,7 @@ function stokMetVlag(g, hand, o, ctx) {
 export function makeVlag(v) {
   const g = new THREE.Group(); g.name = v.id;
   const phase = ([...v.id].reduce((s, ch) => s + ch.charCodeAt(0), 0) * 0.37) % (2 * Math.PI);
-  const ctx = { waves: [], anims: [], lamps: [], phase };
+  const ctx = { waves: [], anims: [], lamps: [], vanes: [], phase };
   let height = STAF + 0.2;
   if (v.vlaggen) {
     const designs = v.vlaggen.map((id) => BY_ID.get(id).ontwerp);
@@ -565,9 +569,10 @@ export function makeVlag(v) {
       }
       case 'bol': {
         staf(g, 0, STAF);
-        const h = 0.7; const c = doek(o, h, ctx.waves, phase); c.position.set(STAF_R + 0.005, STAF - 0.05, 0); g.add(c);
+        const vane = new THREE.Group(); g.add(vane); ctx.vanes.push(vane);   // the flag and the ball under it go with the wind
+        const h = 0.7; const c = doek(o, h, ctx.waves, phase); c.position.set(STAF_R + 0.005, STAF - 0.05, 0); vane.add(c);
         const r = 0.25; const ball = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 16), M.bol);
-        ball.position.set(STAF_R + r, STAF - 0.05 - h - 0.15 - r, 0); g.add(ball);
+        ball.position.set(STAF_R + r, STAF - 0.05 - h - 0.15 - r, 0); vane.add(ball);
         break;
       }
       case 'werktuig': {                           // a working pontoon, a yard on its mast, a board under each end
@@ -598,6 +603,9 @@ export function makeVlag(v) {
   }
   g.userData = {
     height,
+    // what flies from a staff turns to fly downwind: `down`, the way the wind blows, in this group's own frame
+    // (a flag swung by hand, or a board, does not). Absent when there is nothing to turn.
+    wind: ctx.vanes.length ? (down) => { const a = Math.atan2(-down.z, down.x); for (const v of ctx.vanes) v.rotation.y = a; } : undefined,
     update(t, night) {
       for (const wave of ctx.waves) wave(t);
       for (const anim of ctx.anims) anim(t);
