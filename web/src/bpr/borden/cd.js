@@ -21,8 +21,8 @@ function ruitBord(x, fill, stroke, sw, extra = '') {
   return `${extra}<polygon points="${pts}" fill="${fill === 'none' ? 'none' : fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="miter"/>`;
 }
 
-/** A white arrow pointing right on D.3a: broad shaft, head with bevelled, swept-back barbs (65515). */
-const witPijl = () => vlak([[100, 259], [608, 259], [592, 176], [618, 170], [792, 300], [618, 430], [592, 424], [608, 341], [100, 341]], WIT);
+/** A white arrow pointing right on D.3a: broad shaft, head with bevelled, swept-back barbs (65515); D.3b stands it up. */
+export const witPijl = () => vlak([[100, 259], [608, 259], [592, 176], [618, 170], [792, 300], [618, 430], [592, 424], [608, 341], [100, 341]], WIT);
 
 export default {
   // C.1: depth limited; the plain sign and the one with the depth in cm above the triangle (BPR: 220)

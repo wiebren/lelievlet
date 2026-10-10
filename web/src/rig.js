@@ -1010,6 +1010,8 @@ const NIGHT = {
   sun: 0.08, sunColor: 0x9fb4d8, hemi: 0.06, env: 0.05,
   water: 0x0e1a2e, waterOpacity: 0.6, top: '#0b1530', bottom: '#1a2a4a',
 };
+// darker still, held only from outside (Zoeken, a ship's lights): no moon to speak of, only the lights are seen
+const DEEP = { sun: 0.004, hemi: 0.003, env: 0.002, water: 0x03060c, top: '#020409', bottom: '#050a14' };
 
 const smoothstep = (t) => t * t * (3 - 2 * t);
 const clamp = THREE.MathUtils.clamp;
@@ -1042,21 +1044,23 @@ export function initNight({ scene, sun, hemi, wrap, water, toplicht, slowest = 0
   let wasSlow = null;
   let idle = 0;
   let told = false;
-  let held = null;        // how dark something else has it, 0..1; null: the night keeps its own time
+  let held = null;        // how dark something else has it, 0..2 (past 1: deep night); null: the night keeps its own time
+  let deep = 0;           // 0..1 from night to deep night, only while held past 1
 
   const mix = (c, s) => c.now.copy(c.from).lerp(c.to, s);
 
+  const deeper = { water: new THREE.Color(DEEP.water), top: new THREE.Color(DEEP.top), bottom: new THREE.Color(DEEP.bottom) };
   const apply = () => {
-    const s = smoothstep(k);
-    sun.intensity = lerp(day.sun, NIGHT.sun, s);
+    const s = smoothstep(k); const d = smoothstep(deep);
+    sun.intensity = lerp(lerp(day.sun, NIGHT.sun, s), DEEP.sun, d);
     sun.color.copy(mix(sunColour, s));
-    if (hemi) hemi.intensity = lerp(day.hemi, NIGHT.hemi, s);
-    scene.environmentIntensity = lerp(day.env, NIGHT.env, s);
+    if (hemi) hemi.intensity = lerp(lerp(day.hemi, NIGHT.hemi, s), DEEP.hemi, d);
+    scene.environmentIntensity = lerp(lerp(day.env, NIGHT.env, s), DEEP.env, d);
     // inline on the wrapper, so the gradient of the sheet follows without a rule of its own
-    wrap.style.setProperty('--bg-top', mix(sky.top, s).getStyle());
-    wrap.style.setProperty('--bg-bottom', mix(sky.bottom, s).getStyle());
+    wrap.style.setProperty('--bg-top', mix(sky.top, s).lerp(deeper.top, d).getStyle());
+    wrap.style.setProperty('--bg-bottom', mix(sky.bottom, s).lerp(deeper.bottom, d).getStyle());
     if (water) {
-      water.material.color.copy(mix(waterColour, s));
+      water.material.color.copy(mix(waterColour, s)).lerp(deeper.water, d);
       water.material.opacity = lerp(day.waterOpacity, NIGHT.waterOpacity, s);
     }
     if (held === null) toplicht?.set(s);                          // held, the lamp is lit by whoever holds it
@@ -1068,11 +1072,12 @@ export function initNight({ scene, sun, hemi, wrap, water, toplicht, slowest = 0
   const set = (want) => { forced = !!want; on = !!want; if (!want) idle = 0; };
 
   /** Darkness from outside - a run of nachtklaar maken - `k` 0..1, or null to hand it back. */
-  const hold = (want) => { held = want; if (want !== null) { on = false; forced = null; idle = 0; } };
+  const hold = (want) => { held = want; if (want !== null) { on = false; forced = null; idle = 0; } else if (deep) { deep = 0; apply(); } };
 
   const update = (dt, speed) => {
     if (held !== null) {
-      if (Math.abs(held - k) > 1e-4) { k = held; apply(); }
+      const want = Math.min(held, 1); const wantDeep = clamp(held - 1, 0, 1);
+      if (Math.abs(want - k) > 1e-4 || Math.abs(wantDeep - deep) > 1e-4) { k = want; deep = wantDeep; apply(); }
       return k;
     }
     const slow = speed <= slowest + 1e-6;

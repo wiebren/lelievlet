@@ -145,14 +145,41 @@
 #parts-list .part:disabled:hover { color: var(--muted); }
 
 /* Zoeken: tabs over the panes, one shown at a time; each pane a column whose list scrolls */
-/* on every tab but Onderdelen the panel keeps its full height: filtering on a colour or a shape changes
+/* on every page but Onderdelen the panel keeps its full height: filtering on a colour or a shape changes
    how long the list is, and the chips over it would otherwise jump up and down with it */
-#parts:has(#zoek-borden:not([hidden])), #parts:has(#zoek-markeringen:not([hidden])), #parts:has(#zoek-seinen:not([hidden])), #parts:has(#zoek-vlaggen:not([hidden])) {
+#parts:not(:has(#zoek-onderdelen:not([hidden]))) {
   height: calc(100% - var(--info-clear, 16px) - var(--column-clear, 184px));
 }
-#parts .zoek-tabs { display: flex; margin-bottom: 10px; }
-#parts .zoek-tabs button { flex: 1 1 auto; padding: 4px 3px; font-size: 12.5px; }
-#parts .zoek-tabs button[aria-selected="true"] { background: #fff; color: var(--accent); box-shadow: 0 1px 2px rgba(22, 34, 46, 0.18); }
+/* the start page: a tile per kind, two to a row; typing, the results take their place */
+#parts header h2 { flex: 1; }
+#parts .zoek-terug { font-size: 22px; line-height: 1; padding: 0 8px 0 0; color: var(--accent); }
+#parts .zoek-tegels { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+#parts .zoek-tegels[hidden] { display: none; }
+#parts .zoek-tegel {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 4px 10px; border-radius: 12px;
+  border: 1px solid var(--line); background: #fff; color: var(--text); font-size: 13px;
+}
+#parts .zoek-tegel svg { color: var(--accent); }
+#parts .zoek-tegel:hover { border-color: var(--accent); }
+#parts #zoek-resultaten section { margin-bottom: 10px; }
+#parts #zoek-resultaten h3 { margin: 4px 0; font-size: 12px; font-weight: 600; color: var(--muted); }
+#parts .zoek-hit {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 4px 6px; border: 0; border-radius: 8px;
+  background: none; color: var(--text); font-size: 13.5px; text-align: left;
+}
+#parts .zoek-hit:hover { background: rgba(11, 92, 173, 0.07); }
+#parts .zoek-zoekrij { display: flex; gap: 6px; align-items: center; }
+#parts .zoek-zoekrij .zoek-veld { flex: 1; min-width: 0; }
+#parts .zoek-zoekrij .zoek-cwo { flex: none; font-weight: 600; padding: 6px 12px; min-height: 32px; }
+#parts .zoek-hit img { width: 36px; height: 30px; object-fit: contain; flex: none; }
+#parts .zoek-meer { color: var(--accent); font-size: 12.5px; padding: 2px 6px; }
+/* Geluiden: a row each, the pattern drawn after its time beside the name; on the card a button to hear it */
+#parts .zoek-item.geluid { flex-direction: row; justify-content: flex-start; gap: 10px; padding: 6px 8px; text-align: left; grid-column: 1 / -1; }
+#parts .zoek-item.geluid img { width: auto; height: 22px; max-width: 55%; object-fit: contain; object-position: left; }
+#parts .zoek-item.geluid span { white-space: normal; font-size: 12.5px; }
+#parts .zoek-kaart .geluid-plaat { display: block; max-width: 100%; height: 30px; margin: 4px 0 8px; }
+#parts .zoek-speel { display: inline-flex; align-items: center; gap: 6px; margin: 2px 0 6px; padding: 5px 12px; }
+#parts .zoek-hit img.geluid { width: auto; max-width: 70px; height: 16px; }
 #parts .zoek-pane { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
 #parts .zoek-pane[hidden] { display: none; }
 #parts .zoek-veld {
@@ -164,13 +191,13 @@
 #parts .zoek-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
 #parts .zoek-chips.sub { margin-top: 5px; }
 #parts .zoek-chips[hidden] { display: none; }
-#parts .zoek-chips .chip {
+#parts .zoek-chips .chip, #parts .zoek-zoekrij .chip {
   display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 12.5px;
   border: 1px solid var(--line); background: #fff; color: var(--text);
 }
 #parts .zoek-chips.sub .chip { font-size: 12px; padding: 2px 8px; background: rgba(22, 34, 46, 0.04); }
-#parts .zoek-chips .chip:hover { border-color: var(--accent); }
-#parts .zoek-chips .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+#parts .zoek-chips .chip:hover, #parts .zoek-zoekrij .chip:hover { border-color: var(--accent); }
+#parts .zoek-chips .chip[aria-pressed="true"], #parts .zoek-zoekrij .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
 #parts .zoek-chips .dot { width: 11px; height: 11px; border-radius: 50%; border: 1px solid rgba(22, 34, 46, 0.3); flex: none; }
 #parts .zoek-scroll { flex: 1 1 auto; min-height: 0; overflow: auto; margin: 8px -6px 0; padding: 0 6px; touch-action: pan-y; overscroll-behavior: contain; }
 #parts .zoek-lijst section { margin-bottom: 8px; }
@@ -190,6 +217,15 @@
 #parts .zoek-grid:has(.sein) { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
 #parts .zoek-item.sein img { width: 100%; height: 76px; }
 #parts .zoek-item.sein span { white-space: normal; text-align: center; }
+/* a ship's lights: the night picture, wider than high */
+#parts .zoek-item.licht img { width: 80px; height: 60px; border-radius: 6px; }
+#parts .zoek-item.licht span { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-align: center; }
+#parts .zoek-zijden { display: flex; flex-wrap: wrap; border-radius: 12px; margin: 4px 0 6px; }
+#parts .zoek-zijden button { flex: 1 1 45%; padding: 3px 4px; font-size: 12px; }
+#parts .zoek-chips[hidden] { display: none; }
+/* the slider from day to night, its two ends named */
+#parts .zoek-dagnacht { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+#parts .zoek-dagnacht input { flex: 1; accent-color: var(--accent); }
 /* a flag: its name under it, on two lines at most */
 #parts .zoek-item.vlag img { width: 64px; height: 50px; }
 #parts .zoek-item.vlag span { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-align: center; }
@@ -244,6 +280,16 @@
   border: 1px solid var(--line); background: #fff; color: var(--text); resize: vertical;
 }
 #feedback .fb-field textarea:focus, #feedback .fb-field input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+#feedback .fb-boten { display: grid; gap: 6px; margin-bottom: 10px; }
+#feedback .fb-boot { display: grid; grid-template-columns: 5.5em minmax(0, 1fr) 40px 28px; gap: 6px; align-items: center; }
+#feedback .fb-boot.fb-kop { font-size: 12px; color: var(--muted); }
+#feedback .fb-boot input[type="text"] {
+  width: 100%; min-width: 0; font: inherit; font-size: 14px; padding: 6px 8px; border-radius: 8px;
+  border: 1px solid var(--line); background: #fff; color: var(--text);
+}
+#feedback .fb-boot input[type="color"] { width: 40px; height: 32px; padding: 2px; border-radius: 8px; border: 1px solid var(--line); background: #fff; }
+#feedback .fb-boot input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+#feedback .fb-boot .link-button { font-size: 18px; line-height: 1; color: var(--muted); }
 #feedback .fb-check { display: flex; gap: 8px; align-items: center; font-size: 13px; cursor: pointer; }
 #feedback .fb-kinds { display: grid; gap: 6px; }
 #feedback .fb-where {
@@ -295,7 +341,6 @@
 #app-install-toggle { top: auto; bottom: var(--info-clear, 16px); }
 #toestand-toggle:not([hidden]) ~ #app-install-toggle { bottom: calc(var(--info-clear, 16px) + 54px); }
 .lv:has(#parts:not([hidden])) #app-install-toggle { display: none; }   /* the parts list opens in its corner */
-.lv:has(> #bpr-toggle) { --column-clear: 238px; }   /* debug.bpr adds an icon to the column */
 #toestand {
   position: absolute; right: 70px; bottom: var(--info-clear, 16px); width: 270px; max-height: calc(100% - 100px); overflow: auto;
   padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
@@ -310,25 +355,6 @@
 }
 #toestand-copy { width: 100%; }
 
-/* debug.bpr: a temporary panel for looking the BPR assets over; under Melden, its panel where Melden's is */
-#bpr-toggle { top: 178px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; }
-.lv:not(.ops-on, .quiz-on) > #customize:not([hidden]) ~ #bpr-toggle { display: none; }
-#bpr-debug {
-  position: absolute; top: 70px; right: 70px; width: min(320px, calc(100cqw - 102px)); max-height: calc(100% - 90px);
-  display: flex; flex-direction: column; padding: 14px 16px; background: var(--panel); border: 1px solid var(--line);
-  border-radius: 12px; backdrop-filter: blur(8px); z-index: 6;
-}
-#bpr-debug header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
-#bpr-debug h2 { margin: 0; font-size: 16px; }
-#bpr-debug .hint { margin: 0 0 8px; }
-#bpr-debug .segmented { display: flex; margin-bottom: 8px; }
-#bpr-debug .segmented button { flex: 1; padding: 4px 6px; font-size: 12px; }
-#bpr-debug .segmented button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
-#bpr-debug .bpr-range { display: grid; grid-template-columns: 1fr 2fr 2.5em; gap: 6px; align-items: center; font-size: 12px; margin-bottom: 6px; }
-#bpr-debug .bpr-list { flex: 1 1 auto; min-height: 0; overflow: auto; display: grid; gap: 3px; align-content: start; }
-#bpr-debug .bpr-item { display: grid; gap: 1px; padding: 5px 8px; text-align: left; font-size: 12px; }
-#bpr-debug .bpr-item span { color: var(--muted); font-size: 11px; }
-#bpr-debug .bpr-item[aria-current="true"] { border-color: var(--accent); }
 
 /* bottom left, the one corner the control bar and the progress bar leave free: the logboek */
 #log-toggle { top: auto; right: auto; left: 16px; bottom: 16px; }
@@ -388,6 +414,29 @@
 }
 .sail-row input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 #customize-reset { margin-top: 14px; width: 100%; }
+/* Bekend or Eigen: a group's known colours, or the user's own */
+#cfg-modus { display: flex; margin: 2px 0 10px; }
+#cfg-modus button { flex: 1; }
+#cfg-zoek {
+  width: 100%; font: inherit; font-size: 15px; padding: 5px 8px; border-radius: 8px;
+  border: 1px solid var(--line); background: #fff; color: var(--text);
+}
+#cfg-groepen { display: grid; gap: 6px; margin-top: 8px; }
+.groep { border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; background: rgba(255, 255, 255, 0.6); }
+.groep[aria-current="true"] { border-color: var(--accent); }
+.groep-kop { display: flex; align-items: center; gap: 8px; width: 100%; border: 0; background: none; padding: 2px 0; text-align: left; }
+.groep-kop b { display: block; font-size: 14px; }
+.groep-kop span { display: block; font-size: 12px; color: var(--muted); }
+.groep-kop .groep-kleuren { display: flex; flex: none; margin-left: auto; border-radius: 4px; overflow: hidden; border: 1px solid var(--line); }
+.groep-kleuren i { display: block; width: 10px; height: 18px; }
+.groep-boten { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.groep-boten button {
+  display: inline-flex; align-items: center; gap: 5px;
+  border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; background: #fff; font-size: 12px;
+}
+.groep-boten i { display: block; width: 10px; height: 10px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25); }
+.groep-boten button[aria-current="true"] { border-color: var(--accent); color: var(--accent); }
+#cfg-melden { margin-top: 12px; width: 100%; }
 
 .hint { margin: 10px 0 0; color: var(--muted); font-size: 12px; }
 
@@ -467,51 +516,30 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 .popover .choices button { border: 0; border-radius: 999px; padding: 5px 14px; background: none; white-space: nowrap; }
 .popover .choices button[aria-pressed="true"] { background: var(--accent); color: #fff; }
 
-/* Koers: a slim bar with the names of the courses floating above it, in the room kept for them at the
-   top of its section of the Boot panel */
-#wind-panel { position: relative; width: min(680px, calc(100cqw - 124px)); padding-top: 80px; }
-#course { display: block; width: 100%; margin: 2px 0 0; accent-color: var(--accent); }
-#wind-panel .ticks { position: relative; height: 7px; margin: 0 8px; }
-#wind-panel .ticks span { position: absolute; top: 0; width: 1px; height: 6px; background: var(--muted); }
-#course-markers {
-  position: absolute; left: 26px; right: 26px; top: 0; height: 80px;
-}
+/* Koers: the windroos - the boat in the middle, bow up, the wind dragged round her on the ring, the
+   names of the courses round it at their own angle, the sector before the bow where no sail draws shaded */
+#wind-panel { width: min(310px, calc(100cqw - 64px)); }
+#windroos { position: relative; aspect-ratio: 1.4; margin: 0 auto 38px; touch-action: none; cursor: grab; }
+#windroos:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+#windroos svg { position: absolute; left: 50%; top: 50%; height: 64%; aspect-ratio: 1; transform: translate(-50%, -50%); overflow: visible; }
+#windroos .ring { fill: rgba(22, 34, 46, 0.03); stroke: var(--line); stroke-width: 1.5; }
+#windroos .gap { fill: rgba(11, 92, 173, 0.08); }
+#windroos-ticks line { stroke: var(--muted); stroke-width: 1.2; }
+#windroos .boot { fill: #fff; stroke: var(--text); stroke-width: 1.4; }
+#windroos .pijl { stroke: var(--accent); stroke-width: 3; stroke-linecap: round; }
+#windroos .pijlkop { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+#windroos .greep { fill: var(--accent); stroke: #fff; stroke-width: 2.5; }
+#course-markers { position: absolute; inset: 0; pointer-events: none; }
 #course-markers button {
-  position: absolute; bottom: 8px; transform: translateX(-50%); padding: 3px 6px; font-size: 12px; white-space: nowrap;
+  position: absolute; transform: translate(-50%, -50%); pointer-events: auto; padding: 2px 6px; font-size: 11.5px; line-height: 1.2; white-space: nowrap;
   background: var(--panel); backdrop-filter: blur(8px);
 }
-/* kop in de wind: dead centre, a row up, between the two captions */
-#course-markers button.upper { bottom: 35px; }
-/* aan de wind, either side of the gap: a little towards the middle, clear of halve wind */
-#course-markers button.near-right { transform: translateX(calc(-50% - 8px)); }
-#course-markers button.near-left { transform: translateX(calc(-50% + 8px)); }
-/* voor de wind, at the ends of the slider: a row up, clear of ruime wind, and drawn in so it stays
-   inside the panel; fok te loevert below it */
-#course-markers button.end-right { bottom: 35px; transform: translateX(calc(-100% + 20px)); }
-#course-markers button.end-left { bottom: 35px; transform: translateX(-20px); }
 #course-markers button .sub { display: block; font-size: 0.85em; color: var(--muted); }
-#course-markers .caption {
-  position: absolute; bottom: 40px; transform: translateX(-50%); font-size: 11px; letter-spacing: 0.06em;
-  text-transform: uppercase; color: var(--muted); white-space: nowrap;
-}
 #course-markers button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
-/* a narrow viewer: the names are set smaller and spread over three rows, so that neighbours in a
-   row are 135 degrees of course apart */
-@container (max-width: 900px) {
-  #course-markers { height: 136px; }
-  #wind-panel { padding-top: 136px; }
-  #course-markers button { font-size: 10.5px; padding: 2px 4px; }
-  #course-markers button.r1 { bottom: 32px; }
-  #course-markers button.r2 { bottom: 56px; }
-  #course-markers button.upper { bottom: 80px; }
-  #course-markers .caption { bottom: 108px; font-size: 10px; }
-  #course-markers button.near-right { transform: translateX(calc(-50% + 15px)); }
-  #course-markers button.near-left { transform: translateX(calc(-50% - 15px)); }
-  #course-markers button.end-right, #course-markers button.end-left { bottom: 8px; }   /* ruime wind is a row up here */
+#course-markers .caption {
+  position: absolute; bottom: -34px; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted);
 }
-@container (max-width: 350px) {
-  #course-markers .caption { font-size: 8.5px; letter-spacing: 0.03em; }
-}
+#course-markers .caption.links { left: 0; } #course-markers .caption.rechts { right: 0; }
 
 /* The progress bar of the running procedure, at the foot of the viewer in the middle. main.js sets
    --procedure-top to how far it reaches up, which is where the info tile steps over it. */
@@ -618,11 +646,8 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   #info { right: 16px; left: 16px; min-width: 0; }
 }
 
-/* a very narrow embed: the five tabs of Zoeken and the three of Oefenen go onto two lines rather than
-   running out of their panel */
+/* a very narrow embed: the three choices of Oefenen go onto two lines rather than running out of their panel */
 @container (max-width: 380px) {
-  #parts .zoek-tabs { flex-wrap: wrap; border-radius: 12px; }
-  #parts .zoek-tabs button { flex: 1 1 30%; }
   #learn-panel #learn-kind { flex-wrap: wrap; }
 }
 
@@ -638,10 +663,11 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   .lv .popover, .lv #learn-panel { left: 0; width: calc(100cqw - 32px); max-width: none; }
   .lv .popover .ops { width: auto; }
   #customize, #feedback { left: 16px; right: 16px; width: auto; }
+  #customize { z-index: 6; }                       /* over the column of controls it now reaches across */
   /* as wide as the embed allows, over the part card */
   #parts { width: auto; left: 16px; }
   /* a sign or mark picked: the panel down to its card, so what is out on the water is seen over it */
-  #parts.gekozen .zoek-tabs, #parts.gekozen .zoek-pane:not([hidden]) > :not(.zoek-scroll),
+  #parts.gekozen .zoek-pane:not([hidden]) > :not(.zoek-scroll),
   #parts.gekozen .zoek-lijst, #parts.gekozen .zoek-scroll > .hint { display: none; }
   #parts.gekozen { max-height: 45%; height: auto !important; }
   #parts.gekozen .zoek-scroll { margin-top: 0; }
@@ -734,6 +760,8 @@ button.primary:disabled:hover { background: var(--accent); }
 .focus-card .head .stop.klaar:hover { background: var(--quiz-goed); color: #fff; filter: brightness(1.1); }
 .focus-card .big { margin-top: 6px; font-size: 40px; font-weight: 700; line-height: 1.1; color: var(--accent); }
 .focus-card .vraag { margin: 6px 0 0; font-size: 19px; font-weight: 600; }
+.focus-card .doel { margin: 6px 0 0; font-size: 13px; line-height: 1.35; }
+.focus-card .uitleg { margin: 8px 0 0; font-size: 13px; line-height: 1.35; color: var(--muted); }
 .focus-card.results .vraag { margin-top: 0; font-size: 16px; }
 .focus-card .hint { margin: 2px 0 0; }
 .focus-card .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }

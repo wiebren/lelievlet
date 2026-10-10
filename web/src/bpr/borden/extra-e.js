@@ -1,5 +1,6 @@
-// Signs of BPR bijlage 7 group E that CWO does not ask about, drawn after the BPR's own drawings
+// Signs of BPR bijlage 7 group E beyond those of tekens.js, drawn after the BPR's own drawings
 // (reference/bpr/tekens/bpr_img) like e.js, each with what the viewer needs to list and explain it.
+// Most are not asked about in CWO; the few the Katwijk CWO book teaches say cwo: true.
 // See kader.js for the conventions every group follows.
 import { svg, aanwijzing, tekst, WIT, BLAUW } from './kader.js';
 import { glad } from './symbolen.js';
@@ -243,7 +244,7 @@ export const EXTRA = [
     betekenis: 'Aan de kant van de vaarweg waar dit bord staat, mag je spudpalen gebruiken. Een spudpaal is een paal die een schip in de bodem zet om stil te liggen.' },
   { code: 'E.7.1', naam: 'Meren om een auto aan of van boord te zetten', kleur: 'blauw', groep: 'Met een teken',
     betekenis: 'Hier mag je meren, maar alleen om meteen een auto aan boord of van boord te zetten.' },
-  { code: 'E.8', naam: 'Plaats om te keren', kleur: 'blauw', groep: 'Met een teken',
+  { code: 'E.8', naam: 'Plaats om te keren', kleur: 'blauw', groep: 'Met een teken', cwo: true,
     betekenis: 'Hier kunnen schepen keren. Je mag hier geen ligplaats nemen.',
     lelievlet: 'Keert hier een groot schip, dan mag het van jou medewerking vragen: geef het de ruimte.' },
   { code: 'E.13', naam: 'Drinkwater', kleur: 'blauw', groep: 'Met een teken',
@@ -253,7 +254,7 @@ export const EXTRA = [
   { code: 'E.17', naam: 'Waterskiën toegestaan', kleur: 'blauw', groep: 'Met een teken',
     betekenis: 'Hier mag je overdag waterskiën. In de boot die trekt, moet een uitkijk van minstens 15 jaar meevaren.',
     lelievlet: 'Let goed op snelle boten met waterskiërs, en zwem hier niet: dat is verboden.' },
-  { code: 'E.21', naam: 'Snel varen toegestaan', kleur: 'blauw', groep: 'Met een teken',
+  { code: 'E.21', naam: 'Snel varen toegestaan', kleur: 'blauw', groep: 'Met een teken', cwo: true,
     betekenis: 'Hier mogen snelle motorboten harder varen dan 20 kilometer per uur. Buiten zo’n gebied mag dat niet.',
     lelievlet: 'Pas op voor snelle boten en hun hoge golven, en zwem hier niet: dat is verboden.' },
   { code: 'E.22', naam: 'Trailerhelling', kleur: 'blauw', groep: 'Met een teken',

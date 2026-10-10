@@ -28,6 +28,30 @@ tekeningen) zitten er niet bij; de indexen zeggen waar ze te halen zijn. Zonder 
 de eerste twee pipeline-stappen (het extraheren en tessellateren van de CAD-bodies) niet uit te voeren;
 al het overige werkt vanuit het gebouwde model.
 
+## Licentie
+
+De software (de viewer in `web/` en de model-pipeline in `pipeline/`) valt onder de
+[PolyForm Noncommercial License 1.0.0](LICENSE). Je mag de code gebruiken, aanpassen en doorgeven
+voor alles wat niet commercieel is: als particulier, en als scoutinggroep, school, vereniging of
+andere organisatie zonder winstoogmerk. Wie de code doorgeeft, geeft de licentie en de regel
+`Required Notice:` bovenaan `LICENSE` mee.
+
+De rest valt onder [CC BY-NC-SA 4.0](LICENSE-content) (Naamsvermelding-NietCommercieel-GelijkDelen):
+het gebouwde model (`web/public/models/`), de site, de handleiding en de schermafbeeldingen
+(`web/demo/`), de naslag in `docs/` en de eigen notities in `reference/`. Delen en bewerken mag, niet
+commercieel, met naamsvermelding, en een bewerking deel je onder dezelfde licentie.
+
+Wat van anderen is, valt niet onder deze licenties:
+
+- Het ontwerp van de lelievlet en het CAD-model waar de geometrie van `lelievlet.glb` uit komt, zijn
+  van Scouting Nederland. De licentie geldt voor wat dit project eraan heeft toegevoegd.
+- Het embleem en het zeilteken (`web/public/textures/embleem.png`, `zeilteken.png`) zijn het
+  klassenteken van Scouting Nederland.
+- De bronnen die `reference/` beschrijft (het Vlettenboek, de CWO-lesboeken, foto's en tekeningen)
+  houden hun eigen voorwaarden; de notities verwijzen ernaar en citeren eruit.
+- De teksten van het BPR zijn wetgeving en daarmee vrij (Auteurswet artikel 11).
+- three.js en three-mesh-bvh houden hun eigen licentie (MIT).
+
 ## Naslag voor instructeurs
 
 `docs/onderdelen.md` en `docs/manoeuvres.md` zijn bedoeld om de viewer mee te gebruiken en te
@@ -398,21 +422,37 @@ haar `config.aanpassen`, dan krijgt ook een bezoeker die ooit iets anders aanpas
 "Standaardwaarden" zet alles terug naar waar deze viewer begon, dus naar de waarden
 van de pagina als die er zijn. Alle tekst naar de gebruiker toe is Nederlands.
 
+Bovenin het paneel kiest de gebruiker **Bekend** of **Eigen** (welke van de twee het laatst open stond,
+staat onder `lelievlet.aanpassen.modus`). **Eigen** zijn de velden en kleurkiezers hierboven, met
+*Standaardwaarden*. **Bekend** zoekt in de bekende groepen (`web/src/groepen.js`: per groep de plaats,
+de kleuren per zone, bakskleur, zeilkleur, de letterkleuren en de boten met zeilnummer, naam en eventueel
+een eigen bakskleur) op groep, plaats, zeilnummer of bootnaam, en toont er 30 tegelijk. Een groep kiezen
+geeft haar kleuren en plaats, een boot ook haar zeilnummer, naam en bakskleur; wat er nu op staat, is
+gemarkeerd. Daaronder opent **Kleuren van je groep melden** een melding in het paneel van Melden
+(`web/src/feedback.js`): kloppen de kleuren (zo niet, dan eerst naar Eigen), naam en plaats van de groep,
+per boot zeilnummer, naam en bakskleur, wat er verder anders is, en versturen, met de waarden van
+Aanpassen erbij. Een gemelde groep komt na controle met de hand in `groepen.js`. Met `feedback: false`
+is die knop er niet.
+
 ## Modi en animatie
 
 `web/src/modes.js` schakelt tussen Zeilen, Roeien en Wrikken en trimt in Zeilen de zeilen voor een
 koers ten opzichte van de wind. De bediening is een kolom iconen linksboven - **Boot**, dan
 **Oefenen**, en in Roeien **Roeicommando** - en elk icoon opent zijn bediening in een popover ernaast: één tegelijk, weer te sluiten met hetzelfde icoon, een ander icoon,
 Escape of een klik ernaast. **Boot** bundelt de modus (Zeilen, Roeien, Wrikken), de koers ten
-opzichte van de wind en het aantal riemen; het icoon tekent de modus, en in het paneel staat bij
-*Wind* de wolk met pijl gedraaid naar waar de wind vandaan komt. Wind staat er alleen in Zeilen met
+opzichte van de wind en het aantal riemen; het icoon tekent de modus. Wind staat er alleen in Zeilen met
 de zeilen op en Riemen alleen in Roeien; een keuze in het paneel laat het open, zodat je daarna nog
-iets anders kunt zetten. De koersschuif is gespiegeld: precies in het midden ligt de boot met de kop in de
-wind (koers 0, zoals voor anker: giek en fok midscheeps, en de zeilen vangen niets en klapperen zacht -
+iets anders kunt zetten. De koers kies je op de **windroos**: de boot in het midden met de boeg naar
+boven, en de wind die je rond haar sleept (of met de pijltjes in stappen van 5° draait), met de namen
+van de koersen als knoppen rond de ring. Recht van voren ligt de boot met de kop in de wind (koers 0,
+zoals voor anker: giek en fok midscheeps, en de zeilen vangen niets en klapperen zacht -
 `Bend.flutter`, golven die van het voorlijk naar achteren lopen, met het bollinggewicht als omhullende
-zodat het doek stil blijft waar het vastzit), aan weerszijden daarvan begint aan de wind (elke boeg zijn eigen knop), naar rechts
-komt de wind over stuurboord, naar links over bakboord, dus door het midden gaan is overstag gaan; beide uiteinden lopen door tot voor de wind, dat altijd met de fok te loevert wordt gevaren: het label heeft dat als grijze tweede regel. De labels zijn zichtbaar zolang
-het windpaneel open staat. De boot blijft liggen; een windpijl draait eromheen.
+zodat het doek stil blijft waar het vastzit); het vlak vóór de boeg is gekleurd, en wie daarin sleept,
+komt op kop in de wind of aan de wind (elke boeg zijn eigen knop). Rechts komt de wind over stuurboord,
+links over bakboord, dus langs de boeg naar de andere kant is overstag gaan; onderaan staat voor de wind
+één keer, dat altijd met de fok te loevert wordt gevaren (het label heeft dat als grijze tweede regel),
+en voorbij de spiegel gaat de wind niet ongemerkt naar de andere kant. De boot blijft liggen; een
+windpijl op het water draait eromheen.
 Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een animatie.
 
 - Gaffel, grootzeil, hun rijglijn en beslag draaien om de (exact verticale) mast. De giek draait op
@@ -446,7 +486,10 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   **Oefenen** en in Roeien **Roeicommando**. Oefenen kiest eerst wat je oefent - **Manoeuvres** (de
   handelingen, alleen in Zeilen), **Onderdelen** (de quiz) of **Verkeerstekens** (de quiz op borden,
   tonnen en seinen, `web/src/bpr/tekenquiz.js`, alleen wat CWO vraagt, de score in
-  `lelievlet.verkeerstekens.v1`) - en toont daaronder het startpaneel daarvan; het opent op wat het
+  `lelievlet.verkeerstekens.v1`; de foute antwoorden komen eerst uit de tekens die erop lijken maar
+  iets anders betekenen, `LOOKALIKES`, dan uit de eigen groep, en bij het begin van een ronde zet
+  `closePanels` in `main.js` de boot met `modes.sailFree()` vrij op open water: geen steiger, lijnen of
+  anker, in Zeilen op een koers) - en toont daaronder het startpaneel daarvan; het opent op wat het
   laatst gekozen is. Op een telefoon gaan de menu's van de kolom er over de hele breedte onder open.
   Rechtsboven zit het **tandwiel** voor Aanpassen, met onderaan dat paneel de snelheid van de
   animaties (met de sneltoetsen voor de camera). Daaronder het rondje met de **i**: een menu met
@@ -456,17 +499,33 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   bij is gekomen sinds de laatste keer dat deze gebruiker keek (`lelievlet.updates.v1` in localStorage,
   met de nieuwste gezien datum): in de geïnstalleerde app voor iedereen, op het web voor wie iets in
   Aanpassen heeft opgeslagen. Wie dat niet heeft, begint bij de huidige stand. Wat nieuw is, staat
-  er met *Nieuw* bij. Met `aanpassen.opslaan: false` gebeurt dit niet. Met `feedback: false` blijft het menu, zonder
-  Melden. Boot en Oefenen hebben, net als de andere panelen, rechtsboven *Sluiten*.
+  er met *Nieuw* bij; een tweede update op dezelfde dag (`nr: 2`) telt als nieuw voor wie de eerste al
+  zag. Met `aanpassen.opslaan: false` gebeurt dit niet. Met `feedback: false` blijft het menu, zonder
+  Melden (en zonder *Kleuren van je groep melden* in Aanpassen). Boot en Oefenen hebben, net als de andere panelen, rechtsboven *Sluiten*.
   Rechtsonder staat de **onderdelenkaart**: met niets geselecteerd is
   dat alleen een ronde zoekknop, met een onderdeel geselecteerd de kaart met groep en naam en
-  rechtsboven daarin dezelfde zoekknop. Die opent **Zoeken** boven de kaart, met de tabbladen
+  rechtsboven daarin dezelfde zoekknop. Die opent **Zoeken** boven de kaart (`web/src/bpr/zoeken.js`).
+  Het opent op een startpagina met één zoekveld over alles (per soort de eerste zes treffers en een link
+  naar de rest) en een tegel per soort; een tegel opent de eigen pagina van die soort, met *‹* terug:
   **Onderdelen** (de doorzoekbare lijst; elke groepskop daarin heeft een oog dat de hele groep in het
   model verbergt of weer toont, en *Alles tonen* / *Alles verbergen* doen dat voor alle groepen
-  tegelijk), **Borden**, **Markeringen**, **Seinen** en **Vlaggen** (`web/src/bpr/zoeken.js`). Wat daar
+  tegelijk), **Borden**, **Markeringen**, **Seinen**, **Lichten** en **Dagmerken** (de schepen van BPR
+  hoofdstuk 3, `bpr/schepen.js` met de uitleg in `bpr/lichtuitleg.js`), **Vlaggen** en
+  **Geluidsseinen** (BPR bijlage 6, `bpr/geluiden.js`, te beluisteren via `bpr/hoorn.js`). Naast het
+  zoekveld van elke pagina behalve Onderdelen staat de chip **CWO**: aan laat hij alleen zien wat
+  `cwo` heeft, op alle pagina's tegelijk (`cwoOnly` in `zoeken.js`, één keuze voor alle pagina's, die
+  blijft staan als het paneel dichtgaat). Bij CWO hoort wat op een officiële lijst van CWO staat
+  (Kielboot, tot en met V) of wat het CWO-zeilinstructieboek van de Katwijkse Zeeverkenners leert; de
+  quiz Verkeerstekens vraagt alleen daarnaar. Wat daar
   gekozen wordt, krijgt een kaartje met de betekenis en staat bij de boot op het water - een bord of ton
-  ernaast, een brug, sluis of veerpont vooruit; sluiten zet het paneel terug zoals het opende, het
-  tabblad uitgezonderd. Elk paneel gaat ook dicht met een tik ernaast (niet een melding in wording,
+  ernaast, een brug, sluis of veerpont vooruit, een schip ver vooruit met op het kaartje het aanzicht
+  (van voren, stuurboord, bakboord, achteren) en een schuif van dag naar nacht. Wat een lelievlet zelf
+  voert, staat op de boot zelf: bij een klein zeilschip korter dan 7 m, een klein schip voor anker en een
+  gemeerde lelievlet haar toplicht, de zaklamp en de ankerbol, met tuig en anker zoals het hoort, en een
+  vlag die ze zelf mag voeren aan de loefwant; wordt de mast gestreken, dan gaan de vlaggen mee weg.
+  Een geluidssein komt niet op het water, en het zwijgt zodra zijn kaartje dichtgaat (`hoorn.stop()` in
+  `release`). Sluiten zet het
+  paneel terug op de startpagina. Elk paneel gaat ook dicht met een tik ernaast (niet een melding in wording,
   niet de kaart van een ronde). Wat verder in die hoek staat (de debugknoppen) schuift mee omhoog met de hoogte van de
   kaart (`--info-clear`). De bediening van de boot zelf zit achter de kolom iconen linksboven.
 - Onder het tandwiel zit **Volledig scherm** (de vier hoekhaken, naar binnen gekeerd zodra het aan
@@ -580,6 +639,9 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   strijken", "Eerst de mast zetten", "Eerst de zeilen hijsen", "Eerst het reven afmaken") of wat er
   al zo is ("De mast staat al"). Wat niet genoemd is, doet er niet toe: de mast wil alleen gestreken
   en opgebonden zeilen — waar het anker of het midzwaard intussen is, maakt niet uit.
+  Bovenaan de kaart staat het doel van de handeling in één zin (`DOEL` in `web/src/handelingen.js`); een
+  stap kan een `tip` hebben, die bij bekijken onder de stap staat zolang hij loopt en bij oefenen na
+  het antwoord, en een fout antwoord dat leerlingen vaak kiezen een uitleg waarom het fout is.
   Daaronder twee knoppen: **Bekijken** speelt de handeling af, en de stappenbalk (vorige, afspelen,
   volgende, de schuif) staat dan in de kaart; **Oefenen** laat de boot staan en vraagt bij elke stap
   "Wat is de volgende stap?" met vier antwoorden: de goede en drie die in de toestand van de boot
@@ -598,7 +660,9 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   haar oude koers.
   Bovenin de kaart kies je het beeld (`main.js`, onthouden in `lelievlet.beeld.v1`):
   - **Vogelvlucht** (standaard): van schuin boven, zoals elke manoeuvre het zelf aangeeft; de camera
-    draait mee met de boot en houdt het spoor in beeld.
+    draait mee met de boot en houdt het spoor in beeld. Bij de manoeuvres onder zeil blijft hij op dat
+    ene beeld en vliegt hij niet per stap naar de onderdelen (`steadyView` in `modes.js`); bij de kleine
+    handelingen (reven, de vallen, lijnen) wel.
   - **Dichtbij**: bij elke stap naar de onderdelen waar het om gaat.
   - **Bovenaf**: recht van boven en stil boven het water, met de wind van boven. De boot vaart door
     het beeld en het beeld groeit mee met haar spoor.
@@ -795,7 +859,9 @@ de namen van de roeilijst van 40 (`roeien: true` in `quizdata.js`; welke dat zij
 `reference/book/ROEIEN.md`), die geen niveaus kent — de roeiboeken eisen ze allemaal. **Zeilen**
 heeft daaronder een **Niveau** (I / II / III): niveau L vraagt alles met `niveau <= L`, een entry
 zonder niveau telt als III, en `zeilen: false` (de Riem) laat een roei-naam bij Zeilen weg. Zeilen
-onthoudt zijn niveau als je even naar Roeien wisselt. De keuze werkt meteen: het aantal vragen op de
+onthoudt zijn niveau als je even naar Roeien wisselt. De niveaus zijn die van CWO; Scouting Nederland
+werkt sinds 1 januari 2026 met de Watersport Academy, en de overstap staat in
+[issue #14](https://github.com/wiebren/lelievlet/issues/14). De keuze werkt meteen: het aantal vragen op de
 Start-knop loopt mee (voor de volgende ronde, niet halverwege een lopende). De ronde eindigt in een resultatenkaart met het percentage, de beste reeks
 en de namen die fout gingen, met **Nog een ronde**, **Andere oefening** (terug naar het startpaneel)
 en **Oefen je fouten**, die een ronde van niets dan de entries die deze

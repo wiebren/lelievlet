@@ -60,7 +60,8 @@ export function pijl(x1, y1, x2, y2, width, head, fill = ZWART) {
 
 /**
  * A signal light as the BPR draws it: a round lamp in a black housing with a white rim. `kind`:
- * 'vast' (plain disc), 'flikker' (a disc with black wedges), 'isofase' (two opposite quadrants black).
+ * 'vast' (plain disc), 'flikker' (a disc with black wedges), 'isofase' (the top and bottom quadrants
+ * black, between the diagonals, as in D.3c and E.12b).
  */
 export function lamp(cx, cy, r, colour, kind = 'vast') {
   let s = `<circle cx="${cx}" cy="${cy}" r="${r * 1.25}" fill="${ZWART}" stroke="${WIT}" stroke-width="${r * 0.08}"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="${colour}"/>`;
@@ -69,7 +70,7 @@ export function lamp(cx, cy, r, colour, kind = 'vast') {
     return `<path d="M${cx},${cy} L${p(a0)} A${r},${r} 0 0 1 ${p(a1)} Z" fill="${ZWART}"/>`;
   };
   if (kind === 'flikker') for (let i = 0; i < 4; i++) s += wedge((i * Math.PI) / 2 + 0.3, (i * Math.PI) / 2 + 0.9);
-  if (kind === 'isofase') s += wedge(0, Math.PI / 2) + wedge(Math.PI, 1.5 * Math.PI);
+  if (kind === 'isofase') s += wedge(-0.75 * Math.PI, -0.25 * Math.PI) + wedge(0.25 * Math.PI, 0.75 * Math.PI);
   return s;
 }
 

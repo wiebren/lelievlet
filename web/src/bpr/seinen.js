@@ -7,13 +7,15 @@ import { makeBoard, makeSign } from './tekens.js';
 import { CONFIGS, makeShip } from './schepen.js';
 import { character } from './lichtkarakter.js';
 
-// Seinen: the lights (and boards) at bridges, locks and spuisluizen, BPR bijlage 7 G and H. Not one
-// sign each but the states of one installation: a bridge in operation shows one red, red and yellow,
-// red over green... Each state is listed on its own, with what it means (BPR art. 6.26, 6.28a, the
-// notes to G.1 and H.3), a picture after the BPR's own scenes (borden/fgh.js), and a model: the
-// bridge, lock or spuisluis seen from the water, its lamps lit as in that state.
+// Seinen: the lights (and boards) at bridges, weirs, locks and spuisluizen, BPR bijlage 7 G and H. Not
+// one sign each but the states of one installation: a bridge in operation shows one red, red and yellow,
+// red over green... Each state is listed on its own, with what it means (BPR art. 6.25 to 6.28a, the
+// notes to G, G.1 and H.3), a picture after the BPR's own scenes (borden/fgh.js), and a model: the
+// bridge, weir, lock or spuisluis seen from the water, its lamps lit as in that state. CWO unless cwo: false.
 
 // lamps: top down, the same on both sides of the opening; 'flikker' flashes. geel: lamps over the opening.
+// borden: the sign over (or, A.10 and D.2, either side of) the opening of a fixed bridge; licht: shown as
+// the lights the BPR allows in its place (bijlage 7 G: A.1 red, D.1 yellow fixed lights).
 const SEINEN_LIJST = [
   ['Beweegbare brug in bedrijf', 'G.2a', [
     { id: 'brug-rood', naam: 'Eén rood licht', bouw: 'brug', lampen: [['rood']],
@@ -65,15 +67,38 @@ const SEINEN_LIJST = [
   ]],
   ['Vaste brug', 'G.1', [
     { id: 'vast-a10', naam: 'Rood-witte ruiten', bouw: 'vast', borden: 'A.10', code: 'G.1a',
-      betekenis: 'Buiten de twee ruiten varen is verboden. Het rode deel zit aan de kant waar je niet mag komen.' },
+      betekenis: 'Je mag alleen tussen de twee rood-witte ruiten door varen; daarbuiten is varen verboden. De rode helften wijzen naar buiten.' },
     { id: 'vast-d2', naam: 'Groen-witte ruiten', bouw: 'vast', borden: 'D.2', code: 'G.1a',
-      betekenis: 'Je wordt aangeraden tussen de twee ruiten door te varen. Het groene deel wijst naar het vaarwater.' },
+      betekenis: 'Je vaart het best tussen de twee groen-witte ruiten door. De groene helften wijzen naar de doorvaart.' },
     { id: 'vast-a1', naam: 'Rood-wit-rood bord', bouw: 'vast', borden: 'A.1', code: 'G.1b',
       betekenis: 'Door deze opening varen is verboden. Een opening zonder tekens mag je op eigen risico gebruiken.' },
     { id: 'vast-d1a', naam: 'Eén gele ruit', bouw: 'vast', borden: 'D.1a', code: 'G.1b',
       betekenis: 'Aanbevolen doorvaartopening. Er kan verkeer van de andere kant komen.' },
     { id: 'vast-d1b', naam: 'Twee gele ruiten', bouw: 'vast', borden: 'D.1b', code: 'G.1b',
       betekenis: 'Aanbevolen doorvaartopening, alleen in jouw richting: van de andere kant mag hier niemand door.' },
+    { id: 'vast-a1-licht', naam: 'Rood licht', bouw: 'vast', borden: 'A.1', licht: true, code: 'G.1b',
+      betekenis: 'Door deze opening varen is verboden. Een of twee rode lichten boven de opening zeggen hetzelfde als het rood-wit-rode bord (A.1).' },
+    { id: 'vast-d1a-licht', naam: 'Eén geel licht', bouw: 'vast', borden: 'D.1a', licht: true, code: 'G.1b',
+      betekenis: 'Aanbevolen doorvaartopening; er kan verkeer van de andere kant komen. Het gele licht zegt hetzelfde als de gele ruit (D.1a).' },
+    { id: 'vast-d1b-licht', naam: 'Twee gele lichten', bouw: 'vast', borden: 'D.1b', licht: true, code: 'G.1b',
+      betekenis: 'Aanbevolen doorvaartopening, alleen in jouw richting: van de andere kant mag hier niemand door. De twee gele lichten zeggen hetzelfde als de twee gele ruiten (D.1b).' },
+    { id: 'vast-orientatie', naam: 'Oriëntatielicht', bouw: 'vast', borden: 'D.1a', licht: true, code: 'D.1', cwo: false,
+      betekenis: 'Een vaste brug met maar één doorvaartopening kan midden boven die opening een geel licht hebben. Het laat vooral ’s nachts zien waar je onder de brug door moet.' },
+  ]],
+  ['Stuw', 'G.3', [
+    { id: 'stuw-2rood', naam: 'Twee rode lichten boven elkaar', bouw: 'stuw', lampen: [['rood'], ['rood']], cwo: false,
+      betekenis: 'De stuw is gesloten: doorvaren is verboden.',
+      lelievlet: 'Blijf ruim weg van een stuw: de stroming kan een boot zonder motor ernaartoe trekken.' },
+    { id: 'stuw-rood', naam: 'Eén rood licht', bouw: 'stuw', lampen: [['rood']], cwo: false,
+      betekenis: 'Doorvaren is verboden.' },
+    { id: 'stuw-groen', naam: 'Eén groen licht', bouw: 'stuw', lampen: [['groen']], open: true, code: 'E.1', cwo: false,
+      betekenis: 'Doorvaren is toegestaan. Door een stuw mag je alleen varen waar aan beide kanten van de opening groen licht brandt.' },
+    { id: 'stuwbrug-a1', naam: 'Rood-wit-rood bord', bouw: 'stuwbrug', borden: 'A.1', cwo: false,
+      betekenis: 'Over de stuw ligt een brug. Door deze opening varen is verboden.' },
+    { id: 'stuwbrug-d1a', naam: 'Eén gele ruit', bouw: 'stuwbrug', borden: 'D.1a', cwo: false,
+      betekenis: 'Over de stuw ligt een brug. Dit is de aanbevolen doorvaartopening; er kan verkeer van de andere kant komen.' },
+    { id: 'stuwbrug-d1b', naam: 'Twee gele ruiten', bouw: 'stuwbrug', borden: 'D.1b', cwo: false,
+      betekenis: 'Over de stuw ligt een brug. Dit is de aanbevolen doorvaartopening, alleen in jouw richting: van de andere kant mag hier niemand door.' },
   ]],
   ['Spuien en inlaten', 'H.3', [
     { id: 'spui-spuien', naam: 'Spuien', bouw: 'spui', driehoek: 'op', vlag: 'spuien', code: 'H.3a',
@@ -93,8 +118,12 @@ const asLights = (lampen) => lampen.map(([k, kind]) => [KLEUR[k], kind]);
 
 /** The SVG of one state: the BPR's little scene of it, on its own. */
 export function seinPlaatje(sein) {
-  const { tafereel, brug, ophaalbrug, sluis, sluisBrug, sluisOphaal, vasteBrug, a10, d2, d1, a1 } = SCENE;
+  const { tafereel, brug, ophaalbrug, sluis, sluisBrug, sluisOphaal, vasteBrug, stuw, stuwBrug, licht, a10, d2, d1, a1 } = SCENE;
   const one = (scene) => tafereel([[scene]], 600).svg;
+  // over the opening: the boards, or the lights in their place
+  const boven = sein.licht
+    ? { 'A.1': licht(240, 46, 18, ROOD), 'D.1a': licht(240, 48, 18, GEEL), 'D.1b': licht(219, 48, 18, GEEL) + licht(262, 48, 18, GEEL) }
+    : { 'A.1': a1(240, 46, 66, 46), 'D.1a': d1(240, 48, 21), 'D.1b': d1(219, 48, 21) + d1(262, 48, 21) };
   switch (sein.bouw) {
     case 'brug': return one(brug(asLights(sein.lampen), sein.geel ?? 0));
     case 'ophaal': return one(ophaalbrug(asLights(sein.lampen)));
@@ -102,9 +131,10 @@ export function seinPlaatje(sein) {
     case 'sluisbrug': return one(sluisBrug(sein.lampen.map(([k]) => KLEUR[k]), sein.geel ?? 0));
     case 'sluisophaal': return one(sluisOphaal());
     case 'vast': return one(vasteBrug({
-      'A.10': a10(92, 46, 22, true) + a10(393, 46, 22, false), 'D.2': d2(92, 46, 22, false) + d2(393, 46, 22, true),
-      'A.1': a1(240, 46, 66, 46), 'D.1a': d1(240, 48, 21), 'D.1b': d1(219, 48, 21) + d1(262, 48, 21),
+      'A.10': a10(92, 46, 22, true) + a10(393, 46, 22, false), 'D.2': d2(92, 46, 22, false) + d2(393, 46, 22, true), ...boven,
     }[sein.borden], { gevel: !sein.borden.startsWith('D.1'), bodem: sein.borden.startsWith('A') }));
+    case 'stuw': return one(stuw(sein.lampen.map(([k]) => KLEUR[k]), sein.open ? 72 : 44));
+    case 'stuwbrug': return one(stuwBrug({ 'A.1': a1(286, 52, 92, 64), 'D.1a': d1(288, 52, 30), 'D.1b': d1(248, 57, 30) + d1(327, 57, 30) }[sein.borden]));
     default: return BORDEN[sein.code]?.svg ?? '';
   }
 }
@@ -134,7 +164,7 @@ function head(g, x, y, z, lampen, lamps) {
   const step = 0.42;
   g.add(box(0.42, step * lampen.length + 0.08, 0.22, M.kast, x, y - (step * (lampen.length - 1)) / 2, z));
   lampen.forEach(([kleur, kind], i) => {
-    const lamp = makeLamp(kleur, 2.4, LENS); lamp.position.set(x, y - i * step, z + 0.14); g.add(lamp);
+    const lamp = makeLamp(kleur, 2.4, LENS, { day: true }); lamp.position.set(x, y - i * step, z + 0.14); g.add(lamp);
     lamps.push({ lamp, lit: kind === 'flikker' ? character('Q') : () => true });
   });
 }
@@ -142,7 +172,7 @@ function head(g, x, y, z, lampen, lamps) {
 /** Yellow lamps under the middle of a span whose underside is at `y`, at its front `z`. */
 function yellows(g, n, y, z, lamps) {
   const xs = n === 2 ? [-0.35, 0.35] : n === 1 ? [0] : [];
-  for (const x of xs) { const lamp = makeLamp('geel', 2.2, LENS); lamp.position.set(x, y - 0.16, z + 0.05); g.add(lamp); lamps.push({ lamp, lit: () => true }); }
+  for (const x of xs) { const lamp = makeLamp('geel', 2.2, LENS, { day: true }); lamp.position.set(x, y - 0.16, z + 0.05); g.add(lamp); lamps.push({ lamp, lit: () => true }); }
 }
 
 /** A bascule bridge over the opening at `z`: fixed ends on the banks, the leaf down or standing open. */
@@ -221,10 +251,19 @@ export function makeSein(sein) {
       height = sein.bouw === 'sluisophaal' ? 6 : 3.4;
       break;
     }
-    case 'vast': {
+    case 'vast': case 'stuwbrug': {
       const under = 3.6; const deep = 2.4;
       for (const s of [-1, 1]) g.add(box(1.1, under - BANK.top, deep - 0.4, M.beton, s * (HALF + 0.55), (under + BANK.top) / 2, 0));
       g.add(box(OPENING + 6, 0.7, deep, M.beton, 0, under + 0.35, 0));
+      // over a weir: its gate drawn up under the deck, out of the water
+      if (sein.bouw === 'stuwbrug') g.add(box(OPENING, 1.1, 0.3, M.dek, 0, under - 0.55, -0.2));
+      // the lights in place of a board: one red, or one or two yellow side by side, on the fascia over the middle
+      if (sein.licht) {
+        const kleur = sein.borden === 'A.1' ? 'rood' : 'geel';
+        for (const x of sein.borden === 'D.1b' ? [-0.3, 0.3] : [0]) head(g, x, under + 0.35, deep / 2 + 0.11, [[kleur]], lamps);
+        height = 4.4;
+        break;
+      }
       const at = (code, x, mirror = false) => {
         const board = makeBoard(code, { 'D.1b': 1.2, 'A.1': 0.9, 'C.2': 0.66, 'G.5.2': 0.66, 'G.5.3': 0.66, 'G.5.1c': 0.66, 'G.5.1b': 0.62 }[code] ?? 0.6);
         board.position.set(x, under + 0.35, deep / 2 + 0.02); if (mirror) board.scale.x = -1; g.add(board);
@@ -235,13 +274,24 @@ export function makeSein(sein) {
       height = 4.4;
       break;
     }
+    case 'stuw': {
+      // two tall piers either side of the opening, the lights on their fronts; the gate between them down
+      // in the water when the weir is shut, drawn up out of it when it is open
+      const high = 6;
+      for (const s of [-1, 1]) g.add(box(1.4, high + 1.2, 3, M.beton, s * (HALF + 0.7), (high - 1.2) / 2, 0));
+      g.add(box(OPENING + 2.8, 0.5, 3, M.beton, 0, high + 0.25, 0));                              // the walkway the gate hangs from
+      g.add(box(OPENING, 2.4, 0.3, M.dek, 0, sein.open ? high - 1.4 : 0.4, -0.4));
+      sides(BANK.top + 3, 1.5 + 0.11);
+      height = 6.8;
+      break;
+    }
     case 'spui': {
       g.add(box(OPENING, 3.6, 1.2, M.beton, 0, 0.6, -0.6));                                       // the sluice across the canal
       for (const x of [-2.3, 0, 2.3]) g.add(box(1.6, 1.0, 0.04, M.donker, x, 0.3, 0.02));          // its openings
       g.add(box(0.12, 1.2, 0.12, M.kast, 0, 2.4 + 0.6, -0.3));
       g.add(box(1.3, 1.1, 0.12, M.kast, 0, 3.75, -0.3));
       const spots = { op: [[0, 0.3], [-0.38, -0.25], [0.38, -0.25]], neer: [[-0.38, 0.25], [0.38, 0.25], [0, -0.3]], rij: [[-0.42, 0], [0, 0], [0.42, 0]] }[sein.driehoek];
-      for (const [x, y] of spots) { const lamp = makeLamp('rood', 2.2, LENS); lamp.position.set(x, 3.75 + y, -0.2); g.add(lamp); lamps.push({ lamp, lit: () => true }); }
+      for (const [x, y] of spots) { const lamp = makeLamp('rood', 2.2, LENS, { day: true }); lamp.position.set(x, 3.75 + y, -0.2); g.add(lamp); lamps.push({ lamp, lit: () => true }); }
       flag(g, sein.vlag, HALF + 1.2, 1.2);
       height = 4.6;
       break;

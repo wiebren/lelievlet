@@ -127,6 +127,23 @@ function ophaalbrug(lights) {
   return { w: 430, h: 440, body: s };
 }
 
+// ---- G: weirs (G.3), scenes 564 x 196 and 568 x 272 -----------------------------------------
+
+/** A weir seen from downstream: two tall piers with `lights` (colour per lamp, top down) on their fronts, water between. */
+function stuw(lights, y0 = 44) {
+  let s = vlak([[12, 12], [108, 12], [108, 184], [12, 184]]) + vlak([[456, 12], [552, 12], [552, 184], [456, 184]]);
+  s += water(108, 456, 130, 184) + lijn([[108, 184], [456, 184]]);
+  lights.forEach((c, i) => { s += licht(60, y0 + i * 60, 16, c) + licht(504, y0 + i * 60, 16, c); });
+  return { w: 564, h: 196, body: s };
+}
+
+/** A bridge over a weir: the deck line, the structure with its two piers, water in the opening; `top` over it. */
+function stuwBrug(top) {
+  let s = lijn([[20, 12], [548, 12]]) + vlak([[18, 96], [554, 96], [554, 262], [18, 262]]);
+  s += lijn([[110, 96], [110, 262]]) + lijn([[460, 96], [460, 262]]) + water(110, 460, 214, 262);
+  return { w: 568, h: 272, body: s + top };
+}
+
 // ---- G: locks (G.4), scenes 420 x 200, 400 x 275, 472 x 538 ----------------------------------
 
 /** A lock head seen from outside: two walls with ledges, `lights` beside each wall. */
@@ -224,6 +241,11 @@ export default {
     [brug([[ROOD], [ROOD]]), brug([[ROOD], [ROOD]], 1)],
     [brug([[ROOD], [ROOD]], 2), ophaalbrug([[GROEN], [GROEN]])],
   ]),
+  // weir: closed (two red), no passage (one red), passage (green); a bridge over it: A.1, D.1a, D.1b over the opening
+  'G.3': tafereel([
+    [stuw([ROOD, ROOD]), stuw([ROOD]), stuw([GROEN], 72)],
+    [stuwBrug(a1(286, 52, 92, 64)), stuwBrug(d1(288, 52, 30)), stuwBrug(d1(248, 57, 30) + d1(327, 57, 30))],
+  ]),
   'G.4.1a': tafereel([[sluis([ROOD]), sluis([ROOD, GROEN]), sluis([GROEN], 71)]]),
   'G.4.1b': tafereel([[sluis([ROOD, ROOD], 50), sluis([GROEN, GROEN], 36)]]),
   'G.4.2': tafereel([[sluisBrug([ROOD, GROEN]), sluisBrug([GROEN], 2, 134), sluisOphaal()]]),
@@ -246,4 +268,4 @@ export default {
 /** The hoogteschaal itself, as it stands in the water: no panel round it, a metre 160 units, 1.5 m wide. */
 export const hoogteschaalBord = () => hoogteschaal(240, false);
 
-export const SCENE = { tafereel, brug, ophaalbrug, sluis, sluisBrug, sluisOphaal, vasteBrug, a10, d2, d1, a1 };
+export const SCENE = { tafereel, brug, ophaalbrug, sluis, sluisBrug, sluisOphaal, vasteBrug, stuw, stuwBrug, licht, a10, d2, d1, a1 };

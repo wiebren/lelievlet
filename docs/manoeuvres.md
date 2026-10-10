@@ -22,12 +22,18 @@ staat al"). De voorwaarden kijken naar hoe de boot er *nu* bij ligt, niet naar w
 gevraagd is. Wat niet genoemd wordt doet er niet toe: de mast strijken vraagt gestreken en
 opgebonden zeilen, waar het anker of het midzwaard intussen is maakt niet uit.
 
+Bovenaan de kaart staat het **doel** van de handeling: één zin, in woorden voor een kind van 10 tot 14
+(hieronder bij elke handeling). Onder de stappen staat bij sommige stappen een **tip**: waar ze
+vandaan komt (*Je vaart halve wind; eerst oploeven tot hoog aan de wind.*) of waar je op let (*Houd
+het roer recht, ook als je verlijert.*).
+
 Daaronder kies je:
 
 - **Bekijken**: de handeling speelt vanzelf af. De stappenbalk staat in de kaart: vorige stap,
   afspelen/pauzeren, volgende stap en een schuif over de hele handeling. Volgende en vorige stap gaan
-  altijd in de richting van de handeling zelf. Een stap op zich laat de camera eerst naar de onderdelen gaan
-  waar het om gaat.
+  altijd in de richting van de handeling zelf. De tip staat erbij zolang die stap bezig is. Een stap
+  op zich laat de camera bij de kleine handelingen (reven, vallen, lijnen) eerst naar de onderdelen
+  gaan waar het om gaat; bij de manoeuvres onder zeil blijft hij staan (zie *de camera* onderaan).
 - **Oefenen**: de boot blijft staan en bij elke stap is de vraag *Wat is de volgende stap?*, met vier
   antwoorden. Het goede antwoord staat ertussen, en de drie andere zijn stappen die in de toestand van
   de boot op dat moment wél zouden kunnen, alleen niet nu: een stap waarvan alles wat er eerst moet
@@ -38,7 +44,11 @@ Daaronder kies je:
   varend zou kunnen doen (oploeven, afvallen, ree, fok bak, gijp, zeilen los, strijken, anker zakken…),
   bij het afmeren ook stootwillen en landvasten, en afgemeerd de lijnen, stootwillen en afduwen. Een
   andere naam voor dezelfde zet als het goede antwoord (*Afvallen* bij *Iets afvallen*) staat er nooit
-  tussen. Na elk antwoord wordt de goede stap getoond; aan het eind volgt de uitslag.
+  tussen. Soms staat er met opzet een fout antwoord tussen dat leerlingen vaak kiezen (*Opsturen
+  omdat je verlijert*, bij de sliplanding aan hogerwal); kies je dat, dan zegt de kaart waarom het
+  fout is. Bij een wending of gijp zegt de eerste vraag eerst welke koers ze vaart (*Je vaart halve
+  wind. Wat is de volgende stap?*). Na elk antwoord wordt de goede stap getoond, met de tip als die
+  stap er een heeft; aan het eind volgt de uitslag.
 
 Een handeling die je bij Oefenen van begin tot eind zonder fout hebt doorlopen, krijgt een groen
 vinkje in de hoek van zijn tegel. Hij moet dan ook bij zijn eerste stap begonnen zijn: wie halverwege
@@ -49,6 +59,8 @@ Zolang een handeling loopt, staat de viewer in focusmodus: alleen de boot, de ka
 volledig scherm; een klik op het model doet dan niets.
 
 ## Zeilen strijken
+
+**Doel:** De zeilen rustig omlaag met de kop in de wind, zodat ze geen wind meer vangen.
 
 Voorwaarden:
 - de mast staat — anders grijs met *De mast ligt al*
@@ -80,6 +92,8 @@ hij er al, dan vouwt het zakkende zeil eroverheen en scheurt het, en loopt er ie
 
 ## Zeilen hijsen
 
+**Doel:** De zeilen omhoog met de kop in de wind, zodat ze pas wind vangen als jij dat wilt.
+
 Voorwaarden:
 - de mast staat — anders grijs met *Eerst de mast zetten*
 - de zeilen zijn aangeslagen — anders grijs met *Eerst de zeilen aanslaan*
@@ -109,6 +123,10 @@ overgeslagen.
 | 10 | Afvallen | Fok hijsen | 1,5 s |
 
 ## Zeilen aanslaan en afslaan
+
+**Doel:**
+- *Zeilen afslaan*: De zeilen van de rondhouten en de voorstag halen en netjes opbergen.
+- *Zeilen aanslaan*: De zeilen goed vastmaken aan gaffel, giek en voorstag, zodat je ze kunt hijsen.
 
 Een zeil kunnen aanslaan aan de rondhouten van het eigen schip, en het schip zeilklaar en nachtklaar
 maken (CWO Kielboot III, Handboek Opleidingen). **Afslaan** kan als de zeilen gestreken en opgebonden
@@ -144,6 +162,10 @@ Aanslaan:
 | 6 | Klauwval en piekenval aanslaan | Grootzeil aan gaffel en giek binden | 1,5 s |
 
 ## Zeilklaar en nachtklaar maken
+
+**Doel:**
+- *Nachtklaar maken*: De boot netjes en veilig opruimen voor de nacht, zodat er niets kapotgaat of wegwaait.
+- *Zeilklaar maken*: De boot na de nacht weer klaarmaken, zodat je de zeilen kunt hijsen.
 
 Het schip klaarmaken voor de nacht en weer zeilklaar maken (CWO Kielboot I, Handboek Opleidingen
 5.3.3). **Nachtklaar maken** kan met de mast op, de zeilen gestreken en opgedoekt en nog aangeslagen:
@@ -237,6 +259,8 @@ elke manoeuvre die nog bezig is af zoals het kruisje dat doet, en heft bijliggen
 
 ### Achtje roeien
 
+**Doel:** Laten zien dat je de boot met de riemen scherp en precies kunt sturen, naar beide kanten.
+
 | # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|---|
 | 1 | Scherpe bocht over bakboord | “Op riemen, bakboord stopt af, stuurboord haalt op… gelijk!” (de roerganger) | — | volgt uit de afstand en de snelheid |
@@ -245,6 +269,8 @@ elke manoeuvre die nog bezig is af zoals het kruisje dat doet, en heft bijliggen
 | 4 | Rechtdoor: het achtje is rond | “Op riemen, beide boorden haalt op… gelijk!” (de roerganger) | — | volgt uit de afstand en de snelheid |
 
 ### Afvaren roeiend
+
+**Doel:** Samen en rustig van de kant wegroeien, zonder dat er iets of iemand klem komt.
 
 | # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|---|
@@ -260,6 +286,8 @@ elke manoeuvre die nog bezig is af zoals het kruisje dat doet, en heft bijliggen
 
 ### Aanleggen met de boeg
 
+**Doel:** Recht en langzaam met de boeg bij de kant aankomen, zodat de haakvoor veilig op de kant stapt.
+
 | # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|---|
 | 1 | Haakvoor klaar met de voorlandvast | “Haakvoor, klaar om aan te leggen!” (de roerganger) | — | volgt uit de afstand en de snelheid |
@@ -268,6 +296,8 @@ elke manoeuvre die nog bezig is af zoals het kruisje dat doet, en heft bijliggen
 | 4 | De haakvoor stapt met de landvast op de kant en houdt de boot af | — | Beide boorden stoppen af: stil met de boeg bij de kant | 2 s |
 
 ### Zijwaartse aanleg
+
+**Doel:** Langzaam aankomen en precies langs de kant stil komen te liggen.
 
 | # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|---|
@@ -280,6 +310,8 @@ elke manoeuvre die nog bezig is af zoals het kruisje dat doet, en heft bijliggen
 
 ### Aanleggen met de spiegel
 
+**Doel:** Achteruit rustig met de spiegel bij de kant komen en stil liggen.
+
 | # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|---|
 | 1 | Langs de kant naar de plek waar je wilt aanleggen | — | — | volgt uit de afstand en de snelheid |
@@ -290,6 +322,8 @@ elke manoeuvre die nog bezig is af zoals het kruisje dat doet, en heft bijliggen
 | 6 | Met de achterlandvast overboord stappen en de boot vastleggen | — | Beide boorden stoppen af, tot stilstand | 2 s |
 
 ### Man overboord roeiend
+
+**Doel:** Iemand die overboord valt veilig weer aan boord halen, zonder hem met de riemen te raken.
 
 | # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|---|
@@ -305,6 +339,8 @@ elke manoeuvre die nog bezig is af zoals het kruisje dat doet, en heft bijliggen
 | 10 | De drenkeling aan de hoge kant binnenhalen, tussen de eerste en de tweede doft | — | Riemen laten lopen | 3 s |
 
 ### Ankeren roeiend
+
+**Doel:** Met de roeiboot op een vaste plek blijven liggen met het anker.
 
 | # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|---|
@@ -323,6 +359,8 @@ elke manoeuvre die nog bezig is af zoals het kruisje dat doet, en heft bijliggen
 
 ### Anker op roeiend
 
+**Doel:** Het anker ophalen en weer wegroeien.
+
 | # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|---|
 | 1 | Zwaard in | “Zwaard in!” (de roerganger) | — | 1,5 s |
@@ -339,6 +377,10 @@ Voorwaarden, bijvoorbeeld aanleggen met de boeg:
 - de boot ligt niet aan de kant en vaart geen manoeuvre — anders grijs met *Eerst afvaren*
 
 ## Bijliggen
+
+**Doel:**
+- *Bijliggen*: Bijna stil liggen, rustig en zonder te schommelen, bijvoorbeeld om iemand te helpen.
+- *Weer varen uit bijliggen*: Na het bijliggen weer vaart maken en terug naar je oude koers.
 
 Een rustige koers met weinig vaart, waarop de boot bijna niet schommelt: om een drenkeling aan boord
 te halen, voor EHBO, of om te wachten (CWO Kielboot; Meestoxopeus p. 3 "bijliggen", Katwijk p. 3
@@ -378,6 +420,12 @@ Weer varen:
 | 4 | Afvallen naar de oude koers | Helmstok recht | 3 s |
 
 ## Ankeren
+
+**Doel:**
+- *Ankeren onder zeil*: Op een vaste plek blijven liggen: het anker pas laten zakken als de boot achteruit gaat.
+- *Ankeren zonder zeilen*: Zonder zeilen op een vaste plek blijven liggen met het anker.
+- *Anker op onder zeil*: Het anker ophalen en meteen rustig wegvaren, zonder ergens tegenaan te drijven.
+- *Anker op zonder zeilen*: Het anker veilig en netjes ophalen.
 
 Voor anker gaan en het anker ophalen (zeilinstructieboek § 5.13.2 en § 5.13.3, pp. 87–89), onder
 zeil of met de zeilen al gestreken. Ankeren is een manoeuvre op zich, los van hijsen en strijken; met
@@ -478,6 +526,8 @@ Voorwaarden, anker op zonder zeilen:
 
 ## Mast strijken
 
+**Doel:** De mast rustig en veilig laten zakken, zonder dat er iets klem komt of valt.
+
 Voorwaarden:
 - de zeilen zijn gestreken en opgebonden — anders grijs met *Eerst de zeilen strijken*
 
@@ -492,6 +542,8 @@ Voorwaarden:
 | 7 | Mast strijken | Lummelbout uit, Grendelbout uit, Pelikaanhaak uit de hanekam, Fok afslaan | 5 s |
 
 ## Mast zetten
+
+**Doel:** De mast veilig rechtop zetten en vastzetten, zodat je kunt gaan tuigen.
 
 Een eigen handeling, vooruit. De mast gaat omhoog en wordt meteen vastgezet: eerst de pelikaanhaak in
 de hanekam en de ring erover, dan de grendelbout. Daarna de giek terug aan de lummel en het tuig terug
@@ -513,6 +565,8 @@ Voorwaarden:
 | 7 | Fok aanslaan | Pelikaanhaak in de hanekam | 2 s |
 
 ## Reven
+
+**Doel:** Het grootzeil kleiner maken, zodat de boot bij veel wind rustiger en veiliger vaart.
 
 Een rolrif: de giek wordt een aantal slagen gedraaid (0 tot en met het maximum dat het zeil toelaat),
 of het rif gaat er weer uit.
@@ -538,19 +592,28 @@ Voorwaarden:
 
 ## Overstag gaan (wenden)
 
-Met de kop door de wind van de ene boeg naar de andere, in de volgorde van het zeilinstructieboek
-(Katwijkse Zeeverkenners, § 5.6.1, p. 70). Hij kan vanaf aan de wind en halve wind: de eerste stap
-loeft op tot hoog aan de wind (45°), daarna gaat de boeg door de wind en eindigt de boot hoog aan de
-wind over de andere boeg. Een wending gaat alleen vooruit: terug is nog een keer overstag, over de
-andere boeg. Bij Oefenen zijn er daarom geen antwoorden die een stap terugdraaien; wel een stap die al
-gedaan is, nog een keer. Bij Bekijken kan Vorige stap wel: dat laat de stap ervoor nog eens zien. De fok doet wat de commando's zeggen:
-los en klapperend; bak aan de oude kant gehouden terwijl de boeg door de wind gaat, vol maar
-verkeerd om (de buik naar de nieuwe lijzijde); met *Fok bak houden* blijft hij zo staan terwijl de
-boot over de nieuwe boeg afvalt - de bakke fok helpt haar rond; pas dan weer los, klapperend over naar
-de nieuwe kant; en aangetrokken, vol de goede kant op. Het grootzeil killt van *Fok los* tot de boot
-over de nieuwe boeg is afgevallen, en de helmstok staat van *Ree* naar lij en komt bij het afvallen
-terug naar het midden. Het boek zelf gaat na *Fok bak* meteen naar *Fok over*; het vasthouden en
-afvallen daartussen is zoals het op het water gedaan wordt.
+**Doel:** Met de neus door de wind naar de andere boeg, zonder vaart te verliezen of stil te komen liggen.
+
+Met de kop door de wind van de ene boeg naar de andere, precies in de stappen van het
+zeilinstructieboek (Katwijkse Zeeverkenners, § 5.6.1, p. 70). Hij kan vanaf aan de wind en halve wind.
+De eerste stap is *Hoog aan de wind*; vaart ze ruimer dan hoog aan de wind, dan heet die stap
+*Oploeven tot hoog aan de wind* en zegt de tip waar ze vandaan komt (*Je vaart halve wind; eerst
+oploeven tot hoog aan de wind.*); bij Oefenen staat dat ook in de eerste vraag. Daarna gaat de boeg
+door de wind en eindigt de boot hoog aan de wind over de andere boeg. Een wending gaat alleen vooruit:
+terug is nog een keer overstag, over de andere boeg. Bij Oefenen zijn er daarom geen antwoorden die een
+stap terugdraaien; wel een stap die al gedaan is, nog een keer. Bij Bekijken kan Vorige stap wel: dat
+laat de stap ervoor nog eens zien.
+
+De fok doet wat de commando's zeggen: los en klapperend; bak aan de oude kant gehouden terwijl de boeg
+door de wind gaat, vol maar verkeerd om (de buik naar de nieuwe lijzijde); bij *Fok over*, als het
+achterlijk van het grootzeil over de nieuwe boeg wind vangt, klapperend over naar de nieuwe kant,
+terwijl de boot over de nieuwe boeg afvalt; en bij *Fok aan* aangetrokken, vol de goede kant op, als ze
+weer hoog aan de wind vaart. Het grootzeil killt van *Fok los* tot ze over de nieuwe boeg is
+afgevallen, en de helmstok staat van *Ree* naar lij en komt bij *Fok over* terug naar het midden.
+
+Zo was het eerst, en waarom het anders is: tussen *Fok bak* en *Fok over* zaten twee eigen stappen,
+*Fok bak houden* en *Afvallen*. Het boek kent die niet, en een instructeur wees erop dat kinderen niet
+te lang met de fok bak moeten varen; ze zijn eruit.
 
 Voorwaarden:
 - de zeilen staan — anders grijs met *Eerst de zeilen hijsen*
@@ -562,20 +625,20 @@ Voorwaarden:
 
 | # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|---|
-| 1 | Hoog aan de wind | — | — | 0,6 s, plus 1 s per 30° ruimer dan aan de wind |
+| 1 | Hoog aan de wind / Oploeven tot hoog aan de wind | — | — | 0,6 s, plus 1 s per 30° ruimer dan aan de wind |
 | 2 | Klaar om te wenden | “Klaar om te wenden!” (de roerganger) | — | 1 s |
 | 3 | Ree | “Ree!” (de roerganger) | Klaar om te wenden | 1 s |
 | 4 | Fok los | “Fok los!” (de roerganger) | — | 1,5 s |
 | 5 | Fok bak | “Fok bak!” (de roerganger) | — | 2 s |
-| 6 | Fok bak houden | “Fok bak houden!” (de roerganger) | Fok bak | 1 s |
-| 7 | Afvallen | — | — | 1,5 s |
-| 8 | Fok over | “Fok over!” (de roerganger) | Fok bak | 1,5 s |
-| 9 | Fok aan | “Fok aan!” (de roerganger) | — | 1,5 s |
+| 6 | Fok over | “Fok over!” (de roerganger) | Fok bak | 2 s |
+| 7 | Fok aan | “Fok aan!” (de roerganger) | — | 1,5 s |
 
 Wie met de hand een andere koers kiest terwijl een wending half af stilstaat, neemt het roer over: de
 wending vervalt.
 
 ## Gijpen
+
+**Doel:** Met de achterkant door de wind naar de andere boeg, zonder dat de giek hard overslaat.
 
 Met de achtersteven door de wind, in de volgorde van het zeilinstructieboek (§ 5.6.2, p. 71). Hij kan
 vanaf ruime wind en voor de wind: de eerste stap valt af tot goed voor de wind (172°), daarna gaat de
@@ -611,11 +674,14 @@ Voorwaarden:
 
 ## Stormrondje
 
+**Doel:** Bij harde wind veilig naar de andere boeg zonder gijp: oploeven, overstag en weer afvallen.
+
 Gijpen door overstag te gaan (zeilinstructieboek § 5.6.3, p. 72, Kielboot II & III): als het hard
 waait is een gijp lastig, omdat de wind het zeil bij het overhalen flinke vaart geeft. Dan loef je op,
 ga je overstag en val je weer af. Het is meer werk en vraagt meer ruimte, maar het is veiliger: het
 zeil vangt na de wending geleidelijk meer wind. Het boek geeft er geen eigen commando's voor; de
-wending in het midden is de overstag van hierboven, met zijn commando's. De boot begint op ruime wind
+wending in het midden is de overstag van hierboven, met zijn commando's, en daarna twee stappen die de
+overstag niet heeft: *Fok bak houden* en *Afvallen*. De boot begint op ruime wind
 of voor de wind, loeft op tot hoog aan de wind (45°) en gaat overstag. Na „Fok bak houden” valt ze in
 één keer af tot dezelfde koers over de andere boeg, met de fok nog bak: die duwt de boeg weg. Pas
 daarna komt de fok over en wordt hij aangetrokken voor die koers. De giek volgt de koers: aangetrokken
@@ -644,6 +710,8 @@ Voorwaarden:
 
 ## Opkruisen
 
+**Doel:** Tegen de wind in naar een punt varen in slagen: zo hoog mogelijk, met genoeg vaart.
+
 Naar een punt bovenwinds in een kanaal of een rivier moet je vaak overstag: opkruisen of laveren
 (zeilinstructieboek § 5.8, p. 75). Het stuk tussen twee wendingen heet een slag. Vaar zo hoog mogelijk
 met genoeg snelheid, en ga rustig overstag, met weinig roer: zo houd je de meeste vaart.
@@ -667,6 +735,8 @@ Voorwaarden:
 Voor Oefenen: telkens *Ree* pas na *Klaar om te wenden*. Alleen vooruit.
 
 ## Man over boord
+
+**Doel:** Iemand die overboord valt snel en veilig weer aan boord halen, zonder hem uit het oog te verliezen.
 
 Zeilinstructieboek § 5.11, pp. 83-84. Er valt iemand overboord terwijl de boot vaart; de viewer
 legt een drenkeling in het water, aan lij van waar ze op dat moment is.
@@ -720,25 +790,51 @@ Voorwaarden:
 
 ## Afmeren: sliplanding hogerwal
 
+**Doel:** Langzaam en met controle aankomen: hoog aan de wind, met killende zeilen, zodat je de vaart in de hand hebt.
+
 Aanleggen aan hogerwal, de wind recht van de kant af, met een sliplanding (zeilinstructieboek
 § 5.10.1, p. 79). De viewer legt een steiger dwars op de wind neer, precies voor waar de boeg
 uitkomt; de weg erheen blijft er benedenwinds van.
 
-- **Oploeven tot aan de wind** (alleen als ze nog niet aan de wind voer): koers op de kant.
-- **Zeilen los**: ruim van tevoren de schoten vieren tot de zeilen klapperen; ze remt af op de
-  tegenwind (van 1,4 naar 0,6 m/s).
-- **Grootzeil aan**: in het boek als je te vroeg stil komt te liggen. Hier altijd even, om te laten
-  zien hoe ze weer vaart krijgt (tot 1 m/s).
-- **Oploeven, kop in de wind aan de steiger**: het laatste stuk loeft ze op tot kop in de wind en komt
-  met de boeg vlak voor de steiger stil te liggen.
-- **Voorlandvast vastmaken**, van het sleepoog naar de bolder die het dichtst bij de boeg staat. De
-  wind houdt haar van de kant af; zo ligt ze ook als het boek het afvaren van hogerwal begint (§ 5.9.1,
-  p. 76: "je ligt al tegen wind in").
+- **Oploeven tot aan de wind** (alleen als ze nog niet aan de wind voer): het boek laat haar *aan de
+  wind richting de kant* komen.
+- **Zeilen vieren tot ze killen**, ruim van tevoren: de schoten gaan zo ver los dat de zeilen killen,
+  maar het achterlijk van het grootzeil blijft wind vangen. Zo houdt ze vaart en stuurt ze nog; ze
+  loopt terug van 1,4 naar 0,9 m/s. Het boek zegt "tot ze helemaal klapperen"; hier volgt de viewer
+  de instructeur (`reference/discussiepunten.md`).
+- **Vaart regelen met de grootschoot**: geen aan of uit, maar een glijdende schaal. Gaat ze te hard,
+  dan wordt de grootschoot verder gevierd; ligt ze te vroeg stil, dan wordt het grootzeil weer wat
+  aangetrokken (in het boek: "Als je te vroeg stilligt, grootzeil aantrekken"). De giek gaat in de
+  animatie eerst verder uit en dan weer wat in; ze loopt terug naar 0,7 m/s.
+- **In de wind sturen**: pas voor het laatste beetje vaart gaat het roer om, en ze loeft op tot kop in
+  de wind en komt met de boeg vlak voor de steiger stil te liggen.
+
+De weg erheen is een zacht oploevende bocht: met minder vaart komt de wind die ze voelt meer van
+voren, dus ze blijft oploeven, van aan de wind (45°) tot zo'n 23° als ze bij de steiger is, en dan de
+laatste 3 meter de wind in. De bocht wordt alleen maar krapper; het spoor valt nergens af, ook niet
+aan het eind. Een bocht die in één keer begint, zwaait de spiegel eerst de andere kant op, en het
+spoor (getekend van achter het midden van de boot, waar het kielwater begint) lijkt dan even af te
+vallen. Daarom begint het oploeven tot aan de wind zacht en wordt het geleidelijk krapper, net als de
+aanloop naar de steiger en de bocht van de opschieter: het spoor wijkt daar nergens meer dan een paar
+centimeter de verkeerde kant op. Oploeven vanaf halve wind kost zo wel een boot of twee lengte. Tot het laatste beetje vaart staat de helmstok recht. Kinderen duwen het roer graag
+om tegen het verlijeren, maar dan remt de boot af en verlijert ze juist meer: **roer recht**. Dat
+staat als tip bij de stappen.
+
+Dan, aan de steiger, in de volgorde van de instructeur (het boek zegt hier niets over):
+
+- **Haakvoor op de kant**: de haakvoor springt met de voorlandvast op de kant;
+- **Fok en grootzeil killen**: de schoten helemaal los, zodat de zeilen niets meer doen;
+- **Voorlandvast vast, stootwillen uit**: van het sleepoog naar de bolder die het dichtst
+  bij de boeg staat, en de stootwillen uit aan lij. De wind houdt haar van de kant af; zo ligt ze ook
+  als het boek het afvaren van hogerwal begint (§ 5.9.1, p. 76: "je ligt al tegen wind in").
 
 Kop in de wind leggen en afvaren van langswal gaan hier niet: die horen bij een langswal.
 
-Voor Oefenen is fout: oploeven naar de steiger voordat de zeilen los zijn, en het voorlandvast voordat
-ze er ligt. Grootzeil aan komt na zeilen los. Alleen vooruit.
+Voor Oefenen: de vaart regelen pas na het vieren; op de kant springen en de zeilen laten killen pas
+als ze aan de steiger ligt, en vastmaken pas als de haakvoor op de kant staat. Fout is ook: in de wind
+sturen voordat de zeilen gevierd zijn, en de zeilen laten killen voordat de haakvoor op de kant is.
+Bij *Vaart regelen met de grootschoot* staat altijd het foute antwoord *Opsturen omdat je verlijert*
+ertussen; wie dat kiest, leest waarom het fout is. Alleen vooruit.
 
 Voorwaarden:
 - de zeilen staan — anders grijs met *Eerst de zeilen hijsen*
@@ -750,12 +846,16 @@ Voorwaarden:
 | # | Stap | Roept | Eerst gedaan (voor Oefenen) | Duur |
 |---|---|---|---|---|
 | 1 | Oploeven tot aan de wind | — | — | volgt uit de afstand en de snelheid |
-| 2 | Zeilen los | “Zeilen los!” (de roerganger) | — | volgt uit de afstand en de snelheid |
-| 3 | Grootzeil aan | “Grootzeil aan!” (de roerganger) | Zeilen los | volgt uit de afstand en de snelheid |
-| 4 | Oploeven, kop in de wind aan de steiger | — | — | volgt uit de afstand en de snelheid |
-| 5 | Voorlandvast vastmaken | “Voorlandvast vast!” (de roerganger) | — | 2 s |
+| 2 | Zeilen vieren tot ze killen | “Zeilen vieren!” (de roerganger) | — | volgt uit de afstand en de snelheid |
+| 3 | Vaart regelen met de grootschoot | — | Zeilen vieren tot ze killen | volgt uit de afstand en de snelheid |
+| 4 | In de wind sturen | — | — | volgt uit de afstand en de snelheid |
+| 5 | Haakvoor op de kant | — | In de wind sturen | 2 s |
+| 6 | Fok en grootzeil killen | “Fok en grootzeil killen!” (de roerganger) | In de wind sturen | 1,5 s |
+| 7 | Voorlandvast vast, stootwillen uit | “Voorlandvast vast, stootwillen buitenboord!” (de roerganger) | Haakvoor op de kant | 2 s |
 
 ## Afmeren: opschieter hogerwal
+
+**Doel:** Precies bij de kant stil komen te liggen door op het goede moment in de wind te sturen.
 
 De andere manier om aan hogerwal aan te leggen (zeilinstructieboek § 5.10.1, p. 80). De viewer legt de
 steiger dwars op de wind neer, precies voor waar de boeg uitkomt, en laat hem van de kant waar ze
@@ -764,17 +864,17 @@ vandaan kwam af lopen: komt ze voor de wind aan, dan vaart ze langs het eind erv
 - **Langs de kant, remweg schatten**: ze vaart halve wind, ruime wind of voor de wind op de koers die
   ze had, zo ver van de kant als ze straks met de kop in de wind nodig heeft om stil te komen.
 - **Met veel roer tegen de wind in**: de helmstok gaat ver naar lij (35°) en ze loeft op in een ruime
-  halve cirkel, zoals het boek het tekent, tot kop in de wind; het laatste stuk gaat de helmstok terug
+  halve cirkel, zoals het boek het tekent, tot kop in de wind; de bocht begint en eindigt zacht; het laatste stuk gaat de helmstok terug
   naar het midden. Vanaf halve wind klapperen de zeilen. Ze schiet met de vaart die ze nog heeft op
   naar de steiger en komt met de boeg vlak ervoor stil te liggen.
-- **Voorlandvast vastmaken**, van het sleepoog naar de bolder die het dichtst bij de boeg staat, zoals
-  na de sliplanding aan hogerwal.
+- Dan, zoals na de sliplanding aan hogerwal: **haakvoor op de kant**, **fok en grootzeil killen**, en
+  **voorlandvast vast, stootwillen uit**.
 
 Het boek noemt ook afremmen door het roer heen en weer te bewegen, als het nodig is; dat zit er niet
 in: ze komt precies goed aan.
 
-Voor Oefenen: het roer gaat pas om als ze langs de kant vaart; het voorlandvast voordat ze er ligt is
-fout. Alleen vooruit.
+Voor Oefenen: het roer gaat pas om als ze langs de kant vaart; op de kant springen en killen pas als
+ze ligt, vastmaken pas als de haakvoor op de kant staat. Alleen vooruit.
 
 Voorwaarden:
 - de zeilen staan — anders grijs met *Eerst de zeilen hijsen*
@@ -787,9 +887,13 @@ Voorwaarden:
 |---|---|---|---|---|
 | 1 | Langs de kant, remweg schatten | — | — | volgt uit de afstand en de snelheid |
 | 2 | Met veel roer tegen de wind in | — | Langs de kant, remweg schatten | volgt uit de afstand en de snelheid |
-| 3 | Voorlandvast vastmaken | “Voorlandvast vast!” (de roerganger) | — | 2 s |
+| 3 | Haakvoor op de kant | — | Met veel roer tegen de wind in | 2 s |
+| 4 | Fok en grootzeil killen | “Fok en grootzeil killen!” (de roerganger) | Met veel roer tegen de wind in | 1,5 s |
+| 5 | Voorlandvast vast, stootwillen uit | “Voorlandvast vast, stootwillen buitenboord!” (de roerganger) | Haakvoor op de kant | 2 s |
 
 ## Afmeren: sliplanding langswal
+
+**Doel:** Rustig langs de steiger aankomen en stil komen te liggen, zonder de kant te raken.
 
 Aanleggen aan een langswal kan op twee manieren (zeilinstructieboek § 5.10.2, p. 81): met een
 sliplanding of voor top en takel. Dit is de eerste.
@@ -842,6 +946,8 @@ Voorwaarden:
 
 ## Afmeren: voor top en takel langswal
 
+**Doel:** Zonder zeilen met de wind mee langs de kant drijven, tot je op je plek ligt.
+
 De andere manier van § 5.10.2 (p. 81): op het laatste moment alle zeilen strijken en de boot met de
 wind laten meedrijven tot ze op haar plek ligt. Het vraagt ruimte langs de kant, en de snelheid is
 niet te regelen. De viewer legt de steiger weer precies naast waar de weg eindigt, langs de wind.
@@ -889,6 +995,8 @@ Voorwaarden:
 
 ## Dwarspeiling
 
+**Doel:** Weten wanneer je overstag moet om een punt boven de wind precies te halen.
+
 Een oefening op zich, naar de rechtertekening van zeilinstructieboek p. 79: geen steiger en niet
 afmeren, alleen de peiling. De viewer legt een rode stip op het water als punt. Ze vaart aan de wind
 naar het punt, op de boeg die haar er níet heen brengt. Ligt het punt precies dwars, dan heb je het
@@ -933,6 +1041,8 @@ Voorwaarden:
 
 ## Afmeren: aanleggen aan lagerwal
 
+**Doel:** Aanleggen terwijl de wind je naar de kant duwt, met de zeilen al omlaag, zodat je zacht aankomt.
+
 Zeilinstructieboek § 5.10.3, p. 82: de wind waait op de steiger. De zeilen moeten gestreken zijn als
 ze aankomt, anders vangen ze wind en drukken haar hard tegen de kant.
 
@@ -976,11 +1086,11 @@ Ligt de boot langszij afgemeerd, dan kan de wind gewoon verzet worden: de lijnen
 plaats en de wind draait om haar heen.
 
 Ligt ze met de boeg aan de steiger op alleen het voorlandvast (na de sliplanding of de opschieter aan
-hogerwal), dan draait ze om haar boeg als de wind verzet wordt. De windschuif blijft wat hij altijd is,
+hogerwal), dan draait ze om haar boeg als de wind verzet wordt. De windroos blijft wat hij altijd is,
 de wind op de boot: van kop in de wind tot halve wind draait ze mee, tot ze langs de steiger ligt;
 verder draait ze niet, anders zou ze erdoorheen gaan, en gaat alleen de wind verder rond. Onderweg komt
 de boeg wat van de steiger af, zodat haar zijkant vrij blijft. De zeilen staan los en waaien mee.
-Laat je de windschuif los terwijl de wind niet meer van de steiger af komt (geen hogerwal meer), of bij
+Laat je de wind op de windroos los terwijl de wind niet meer van de steiger af komt (geen hogerwal meer), of bij
 halve wind, ruime wind of voor de wind, dan drukt de wind haar tegen de steiger: ze draait verder rond
 tot ze erlangs ligt en wordt langszij vastgemaakt:
 steekt ze voorbij het eind van de steiger (na een opschieter ligt ze aan de kop ervan), dan schuift ze
@@ -1000,6 +1110,8 @@ of halve wind met de wind over de steiger, zodat ze boven het water uitstaan. Ge
 gebundeld midden op de voorstag, en de giek in de mik, wat de wind ook doet.
 
 ## Kop in de wind leggen
+
+**Doel:** De boot aan de steiger omdraaien, zodat de wind van voren komt en je kunt afvaren.
 
 Afgemeerd met de wind van achteren, met de zeilen gestreken: het boek wil haar kop in de wind voor het
 afvaren (§ 5.9.2, p. 77, "zonodig moet de boot even worden verhaald"). Ze wordt om haar boeg gedraaid.
@@ -1044,6 +1156,8 @@ Voorwaarden:
 
 ## Verhalen
 
+**Doel:** De boot met de lijnen een stukje langs de steiger verplaatsen, zonder zeilen.
+
 Langszij afgemeerd wordt de boot een bolder verder langs de steiger gehaald (CWO: "zonder gebruik te
 maken van de motor", met spierkracht, "zo veel mogelijk vanuit de kuip"). Ze gaat naar voren als er
 voor de boeg nog een bolder is om het voorlandvast naar te leiden, anders naar achteren. Het boek geeft
@@ -1087,6 +1201,8 @@ Naar achteren:
 
 ## Afvaren van langswal
 
+**Doel:** Van de steiger wegvaren zonder dat de achterkant tegen de kant slaat.
+
 Wegvaren van een langswal (zeilinstructieboek § 5.9.2, p. 77). De boot ligt kop in de wind met de
 zeilen op, zoals Afmeren haar achterlaat. De lijnen gaan in omgekeerde volgorde los
 (roei-instructieboek § 1.2.3, p. 3): eerst de springen, dan het achterlandvast, en het
@@ -1125,6 +1241,8 @@ Voorwaarden:
 
 ## Afvaren van hogerwal
 
+**Doel:** Rustig achteruit van de kant wegkomen en dan wegzeilen, zonder de steiger te raken.
+
 Zeilinstructieboek § 5.9.1, p. 76. Ze ligt met de boeg aan de steiger op het voorlandvast, kop in de
 wind, zoals de sliplanding en de opschieter aan hogerwal haar achterlaten, met de zeilen op en goed
 gevierd.
@@ -1133,7 +1251,8 @@ gevierd.
 - **Voorlandvast los, recht naar achteren afzetten**, en **deinzen**: ze vaart achteruit, en met het
   roer wordt ze in de wind gehouden. Let op: achteruit stuurt het roer precies andersom.
 - **Fok bak, grootzeil helemaal uitvieren** als er genoeg ruimte is: de boeg valt af.
-- **Wegzeilen** zodra ze op de goede koers ligt: fok over, grootzeil aan.
+- **Wegzeilen** zodra ze op de goede koers ligt: fok over, grootzeil aan. Hingen de stootwillen
+  buiten, dan komen ze nu binnen, zonder eigen stap.
 
 Staat de wind niet recht van de kant af (na het verzetten van de wind ligt ze schuin), dan valt ze af
 naar de kant waar de hoek tussen boot en kant het grootst is: daar is de meeste ruimte. Recht van de
@@ -1159,6 +1278,8 @@ Voorwaarden:
 | 5 | Wegzeilen | — | Fok bak, grootzeil helemaal uitvieren | volgt uit de afstand en de snelheid |
 
 ## Afvaren van lagerwal
+
+**Doel:** Wegkomen van een kant waar de wind je tegenaan duwt: eerst ver genoeg weg, dan pas zeil.
 
 Zeilinstructieboek § 5.9.3, p. 78. Aan lagerwal kun je niet gewoon de zeilen hijsen, want dan kom je
 niet weg: eerst op mankracht van de kant af.
@@ -1214,9 +1335,16 @@ buiten de ronde waterplas valt, ligt dan op de lucht; zo zie je aan het eind de 
 over boord het hele achtje. Daarbuiten, bij het verzetten van de
 koers of de wind, blijft de boot in beeld staan en draait de wereld eromheen, zoals altijd.
 
-De manoeuvres aan de wal (afmeren, kop in de wind leggen, afvaren) worden van hoog bekeken, met de
-boot en de steiger allebei in beeld: de camera gaat daarheen als de handeling begint, en bij elke stap
-die op zich getoond wordt. De andere handelingen gaan per stap naar de onderdelen waar het om gaat.
+In Vogelvlucht krijgt een handeling één vast beeld als hij begint. De manoeuvres onder zeil
+(overstag, gijpen, stormrondje, opkruisen, man over boord, dwarspeiling, bijliggen en weer varen,
+afmeren en afvaren, en de roeimanoeuvres) houden dat beeld de hele manoeuvre: de camera vliegt niet
+per stap in en uit, ook niet bij een stap op zich of een antwoord bij Oefenen. Overstag, gijpen, stormrondje en bijliggen
+beginnen van schuin achter en boven de boot, met fok, grootzeil en roer allemaal in beeld; afmeren en
+afvaren van hoog, met de boot en de steiger allebei in beeld. Kop in de wind leggen, verhalen en ankeren
+gaan ook van hoog, en daarbij gaat de camera bij elke stap die op zich getoond wordt terug naar dat beeld.
+De kleine handelingen, waar je echt goed moet kijken (reven, hijsen en strijken, de vallen, de mast),
+gaan per stap dichtbij naar de onderdelen waar het om gaat. In het beeld
+Dichtbij gaat de camera bij elke handeling per stap naar de onderdelen.
 
 Als een stap met een commando begint, verschijnt het commando in een tekstballon boven wie het roept:
 de roerganger achterin, of de fokkenist bij de mast (*Fok komt over!*). Een roeicommando dat je kiest
@@ -1238,8 +1366,8 @@ verschijnt op dezelfde manier. Terugspoelen of een stap terug roept niets.
 
 ## Koersen
 
-De koers kies je in het paneel Boot, onder Wind (alleen in de modus Zeilen): de wind komt van boven in de koersschuif, met **kop in de wind** in het
-midden, dan **aan de wind** (45°), **halve wind** (90°), **ruime wind** (135°) en **voor de wind**
+De koers kies je in het paneel Boot, onder Wind (alleen in de modus Zeilen), op de windroos: de boot ligt in het
+midden met de boeg naar boven, en je sleept de wind rond haar naar waar hij vandaan komt. Recht van voren ligt ze met **kop in de wind**, dan **aan de wind** (45°), **halve wind** (90°), **ruime wind** (135°) en **voor de wind**
 (vanaf 158°, met de fok te loevert), met de wind over bakboord of over stuurboord. Giek, fok en de
 bolling van de zeilen volgen de koers.
 

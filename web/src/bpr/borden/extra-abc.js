@@ -1,6 +1,8 @@
-// Signs of BPR bijlage 7 groups A, B and C that are not asked about in CWO, drawn after the BPR's own
-// drawings (reference/bpr/tekens/bpr_img) like the rest. See kader.js for the conventions.
-import { verbod, gebod, tekst, WIT, ZWART } from './kader.js';
+// Signs of BPR bijlage 7 groups A to D beyond those of tekens.js, drawn after the BPR's own drawings
+// (reference/bpr/tekens/bpr_img) like the rest. See kader.js for the conventions. Most are not asked
+// about in CWO; the few the Katwijk CWO book teaches say cwo: true.
+import { verbod, gebod, aanwijzing, tekst, WIT, ZWART } from './kader.js';
+import { witPijl } from './cd.js';
 
 const f = (v) => +v.toFixed(1);
 const punten = (pts) => pts.map(([x, y]) => `${f(x)},${f(y)}`).join(' ');
@@ -116,6 +118,13 @@ const waterscooter = () => `<g fill="${ZWART}">`
   + `<path d="M84,398 C160,378 230,356 300,331 C380,302 450,280 509,231" fill="none" stroke="${WIT}" stroke-width="8"/>`
   + `<path d="M84,477 C124,481 152,470 182,450 C220,422 250,398 280,398 C305,398 320,416 335,430 C350,414 362,410 380,412 C430,418 466,436 503,434" fill="none" stroke="${ZWART}" stroke-width="20" stroke-linejoin="miter"/>`;
 
+/** The plug of B.12 from the side: two pins at the left, the grip, the body, the cable stub at the right. */
+const stekker = () => `<g fill="${ZWART}">`
+  + '<rect x="159" y="232" width="86" height="26"/><rect x="159" y="332" width="86" height="26"/>'
+  + '<rect x="235" y="210" width="76" height="171" rx="12"/><rect x="300" y="229" width="87" height="133" rx="10"/>'
+  + '<rect x="380" y="276" width="71" height="38"/>'
+  + '</g>';
+
 /** "VHF", with a channel number below it or not. */
 const vhf = (y) => `<g transform="translate(300,0) scale(1.1,1) translate(-300,0)">${tekst(300, y, 'VHF', 175)}</g>`;
 
@@ -150,8 +159,12 @@ export default {
   'B.11a': { w: 600, h: 600, svg: gebod(vhf(297)) },
   // B.11b: with the channel; the BPR's example is 11
   'B.11b': { w: 600, h: 600, svg: gebod(vhf(188) + tekst(300, 393, '11', 175)) },
+  // B.12: a plug
+  'B.12': { w: 600, h: 600, svg: gebod(stekker()) },
   // C.4: the border alone; what is restricted goes on a plate below
   'C.4': { w: 600, h: 600, svg: gebod('') },
+  // D.3b: the arrow of D.3a stood up, on an upright board
+  'D.3b': { w: 600, h: 900, svg: aanwijzing(`<g transform="translate(300,900) rotate(-90) translate(0,-300)">${witPijl()}</g>`, 600, 900) },
 };
 
 const B = { kleur: 'rood', groep: 'Rode rand' };
@@ -169,7 +182,7 @@ export const EXTRA = [
     lelievlet: 'Het verbod geldt voor elk schip, dus ook voor een lelievlet, die makkelijk kan draaien.' },
   { code: 'A.14', naam: 'Verboden te waterskiën', ...A,
     betekenis: 'Hier mag je niet waterskiën en je ook niet op een soortgelijke manier achter een boot laten trekken. Waterskiën mag alleen overdag op plekken die daarvoor zijn aangewezen.' },
-  { code: 'A.18', naam: 'Einde snelvaren zonder snelheidsbeperking', ...A,
+  { code: 'A.18', naam: 'Einde snelvaren zonder snelheidsbeperking', ...A, cwo: true,
     betekenis: 'Hier eindigt het deel van de vaarweg waar snelle motorboten zo hard mogen varen als ze willen. Vanaf hier mogen ze niet sneller dan 20 km per uur, tenzij er een andere grens geldt.' },
   { code: 'A.19', naam: 'Verboden te water te laten of eruit te halen', ...A,
     betekenis: 'Hier mag je geen boot te water laten en ook geen boot uit het water halen, bijvoorbeeld met een trailer.',
@@ -188,12 +201,17 @@ export const EXTRA = [
     betekenis: 'Je moet hier het vaarwater oversteken naar de bakboordszijde, de linkerkant. Tegenliggers steken op dezelfde plek over.' },
   { code: 'B.4b', naam: 'Oversteken naar stuurboord', ...B,
     betekenis: 'Je moet hier het vaarwater oversteken naar de stuurboordszijde, de rechterkant. Tegenliggers steken op dezelfde plek over.' },
-  { code: 'B.7', naam: 'Geluidssein geven', ...B,
+  { code: 'B.7', naam: 'Geluidssein geven', ...B, cwo: true,
     betekenis: 'Je moet hier een geluidssein geven. Het bord wordt bijna niet meer gebruikt: tegenwoordig gaat zoiets meestal via de marifoon.' },
   { code: 'B.11a', naam: 'Marifoon gebruiken', ...B,
     betekenis: 'Je moet hier de marifoon gebruiken zoals de regels voorschrijven, of je melden op het aangegeven kanaal.' },
   { code: 'B.11b', naam: 'Marifoon gebruiken op dit kanaal', ...B,
     betekenis: 'Je moet hier de marifoon gebruiken op het kanaal dat op het bord staat, hier kanaal 11, of je op dat kanaal melden.' },
+  { code: 'B.12', naam: 'Walstroom verplicht', ...B,
+    betekenis: 'Wie hier ligplaats neemt, moet zijn schip op de walstroom aansluiten als die werkt, en al zijn stroom daarvandaan halen. Uitzonderingen staan op een wit bord eronder.',
+    lelievlet: 'Een lelievlet maakt aan boord geen stroom met een motor of aggregaat, dus dit geldt niet voor jou.' },
   { code: 'C.4', naam: 'Vaartbeperkingen, vraag inlichtingen', ...B,
     betekenis: 'Hier gelden beperkingen voor de scheepvaart; vraag om meer informatie. Op een bord eronder staat wat de beperking is of waar je informatie krijgt.' },
+  { code: 'D.3b', naam: 'Varen in de richting van de pijl (staand)', kleur: 'blauw', groep: 'Met een teken',
+    betekenis: 'Het wordt aanbevolen in de richting van de pijl te varen. Dit is de staande vorm van D.3a; in Nederland kom je hem bijna niet tegen.' },
 ];

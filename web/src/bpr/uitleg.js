@@ -374,6 +374,11 @@ export const MARK_UITLEG = {
     passeren: 'Opvarend houd je hem aan stuurboord, net als een groene ton, om in het hoofdvaarwater te blijven. Het nevenvaarwater ligt aan de andere kant.',
     licht: 'Groen flikkerlicht (Q): ononderbroken flikkeringen, 50 tot 60 per minuut.',
   },
+  'bpr-walbaken-splitsing': {
+    betekenis: 'Een rood driehoekig bord met de punt omlaag boven een groen bord met de punt omhoog, op een paal op de oever: een zandloper. Het geeft op de oever aan waar vaarwaters splitsen of samenkomen.',
+    passeren: 'Hier kun je meer dan één vaarwater in: kies het vaarwater dat je wilt nemen en blijf op afstand van de wal.',
+    licht: 'Wit snel isofaselicht (Iso), 2 seconden: 1 seconde aan en 1 seconde uit.',
+  },
   'bpr-aanvullend-rechts': {
     betekenis: 'Op brede vaarwaters geeft rood-wit naast de hoofdbetonning de rechterzijde aan van ander bruikbaar vaarwater. Vaak is dat een geul voor de recreatievaart.',
     passeren: 'Net als een rode ton: opvarend aan bakboord, afvarend aan stuurboord. Je vaart tussen de rood-witte en de groen-witte markering.',
@@ -386,6 +391,45 @@ export const MARK_UITLEG = {
     betekenis: 'Een gele markering is niet in de eerste plaats voor de navigatie. Ze geeft een gebied of voorwerp aan, zoals een verboden gebied, een wedstrijdbaan, een gebied voor waterskiërs of een kabel.',
     passeren: 'Vaar je er alleen langs, houd hem dan aan dezelfde kant als de gewone betonning op die plek. Vaar het gebied niet in als dat verboden is.',
     licht: 'Geel schitterlicht (Fl): elke 5 seconden één korte schittering. Bij een schitterlicht is het licht korter aan dan uit.',
+  },
+  'bijzondere-markering-verboden': {
+    betekenis: 'Een gele markering met als topteken een rood-wit-rode cilinder: het verbodsteken A.1. Het gebied dat ze markeert is verboden, bijvoorbeeld een vogelrustgebied.',
+    passeren: 'Vaar het gebied niet in. Vaar je er alleen langs, houd hem dan aan dezelfde kant als de gewone betonning op die plek.',
+  },
+  'bpr-vaargeul-rechteroever': {
+    betekenis: 'Een vierkant rood bord met een witte band boven en onder, op een paal op de rechteroever van een rivier, gezien stroomafwaarts. De vaargeul, het diepste deel van de rivier, loopt langs deze oever.',
+    passeren: 'De vaargeul ligt aan de kant van de rechteroever: daar vaart de beroepsvaart. Vaar je stroomopwaarts, dan ligt deze oever aan bakboord.',
+    licht: 'Rood onderbroken licht (Oc), 4 seconden: 3 seconden aan en 1 seconde uit. Bij onderbroken licht is het licht langer aan dan uit. Even en oneven genummerde lichten hebben een andere periode.',
+  },
+  'bpr-vaargeul-linkeroever': {
+    betekenis: 'Een vierkant bord op zijn punt, groen boven en wit onder, op een paal op de linkeroever van een rivier, gezien stroomafwaarts. De vaargeul, het diepste deel van de rivier, loopt langs deze oever.',
+    passeren: 'De vaargeul ligt aan de kant van de linkeroever: daar vaart de beroepsvaart. Vaar je stroomopwaarts, dan ligt deze oever aan stuurboord.',
+    licht: 'Groen onderbroken licht (Oc), 4 seconden: 3 seconden aan en 1 seconde uit. Bij onderbroken licht is het licht langer aan dan uit. Even en oneven genummerde lichten hebben een andere periode.',
+  },
+  'bpr-overgang-rechteroever': {
+    betekenis: 'Een vierkant geel bord met een zwarte verticale balk in het midden, op de rechteroever van een rivier. Hier gaat de vaargeul van de ene oever naar de andere over.',
+    passeren: 'Bij dit bord op de rechteroever steekt de vaargeul over naar de andere kant: verwacht dat de beroepsvaart hier schuin de rivier over gaat.',
+    licht: 'Geel onderbroken licht (Oc), 4 seconden: 3 seconden aan en 1 seconde uit.',
+  },
+  'bpr-overgang-linkeroever': {
+    betekenis: 'Een vierkant geel bord op zijn punt, met een zwarte balk van punt tot punt, op de linkeroever van een rivier. Hier gaat de vaargeul van de ene oever naar de andere over.',
+    passeren: 'Bij dit bord op de linkeroever steekt de vaargeul over naar de andere kant: verwacht dat de beroepsvaart hier schuin de rivier over gaat.',
+    licht: 'Geel onderbroken licht (Oc), 4 seconden: 3 seconden aan en 1 seconde uit.',
+  },
+  'bpr-geleidelijn': {
+    betekenis: 'Twee gele borden met een zwarte balk achter elkaar op dezelfde oever, het achterste hoger dan het voorste. Zie je ze recht boven elkaar, dan vaar je op de lijn waarlangs de vaargeul naar de andere oever overgaat.',
+    passeren: 'Stuur zo dat het achterste bord recht boven het voorste blijft. Staat het achterste links van het voorste, dan zit je links van de lijn en stuur je bij naar rechts; staat het rechts, dan stuur je bij naar links.',
+    licht: 'Geel onderbroken licht (Oc), 4 seconden, op beide palen tegelijk. ’s Nachts kunnen de lichten ook in plaats van de borden staan.',
+  },
+  'bpr-geleidelichten': {
+    betekenis: 'Twee lichten achter elkaar op de wal, het achterste hoger dan het voorste. Zie je ze recht boven elkaar, dan vaar je op de goede lijn: bijvoorbeeld een haveningang in, of door het diepste deel van een vaargeul.',
+    passeren: 'Stuur zo dat het hoge licht recht boven het lage blijft. Staat het hoge links van het lage, dan zit je links van de lijn en stuur je bij naar rechts; staat het rechts, dan stuur je bij naar links.',
+    licht: 'Wit isofaselicht (Iso), 4 seconden, en de twee lichten branden tegelijk. Het hoge licht kan ook een vast licht zijn. Overdag zie je de palen met hun ronde zwart-witte borden.',
+  },
+  'bpr-sectorlicht': {
+    betekenis: 'Eén licht op de wal dat naar verschillende kanten een andere kleur laat zien: wit boven het vaarwater, rood of groen boven ondiepten of de oever ernaast. Welke kleur je ziet, hangt af van waar je vaart.',
+    passeren: 'Blijf in de witte sector: zie je het licht wit, dan zit je goed. Zie je rood of groen, stuur dan terug naar het wit. Hier ligt het rood aan bakboord als je op het licht af vaart; waar welke kleur ligt, staat op de kaart.',
+    licht: 'Onderbroken licht (Oc), 4 seconden: 3 seconden aan en 1 seconde uit, wit, rood of groen al naar de sector waarin je vaart. Kijk er van een andere kant naar en de kleur wisselt.',
   },
   'noordkardinaal': {
     betekenis: 'Een noordcardinaal ligt ten noorden van een gevaar, zoals een ondiepte. Het bevaarbare water ligt aan de noordkant van de markering.',

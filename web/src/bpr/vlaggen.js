@@ -589,7 +589,7 @@ export function makeVlag(v) {
         staf(g, 0, STAF);
         const b = bord(o, 1.0); b.position.set(0, STAF - 0.5, 0.05); g.add(b);
         if (HAS_DOM) {
-          const lamp = makeLamp('wit', 1.6, 3); lamp.position.set(0, STAF - 0.5, 0.12); g.add(lamp);
+          const lamp = makeLamp('wit', 1.6, 3, { day: true }); lamp.position.set(0, STAF - 0.5, 0.12); g.add(lamp);
           ctx.lamps.push({ lamp, lit: character('Q') });
         }
         break;
@@ -613,5 +613,39 @@ export function makeVlag(v) {
     },
   };
   g.userData.update(0, 0);
+  return g;
+}
+
+// ---------------------------------------------------------------- on the lelievlet herself
+// What a lelievlet may fly herself: every flag and pennant of the Seinboek, the duikvlag, the noodsein N over C,
+// and the noodsein of a flag with a ball under it. The racing signals are the committee's, the rest of the BPR
+// is for other ships or for the shore.
+const ZELF = new Set(['bpr-3.38-duiker', 'bva-NC-noodsein', 'bpr-3.30-vlag-bol']);
+const SEINBOEK_SOORTEN = new Set(['letter', 'cijfer', 'vervanger', 'onderscheiding']);
+export const aanBoord = (v) => SEINBOEK_SOORTEN.has(v.soort) || ZELF.has(v.id);
+const KLEIN = 0.42;                                // a set of signal flags for a small boat: a flag 0.38 x 0.3 m
+
+/**
+ * The flags of `v` as they are hoisted on a line: their tops on it one below the other from y = 0 down, the
+ * hoist on x = 0 and flying towards +x, no staff (the line is the want they are made fast to).
+ * userData: { length, update(t) }.
+ */
+export function makeHijs(v) {
+  const g = new THREE.Group(); g.name = `hijs:${v.id}`;
+  const phase = ([...v.id].reduce((s, ch) => s + ch.charCodeAt(0), 0) * 0.37) % (2 * Math.PI);
+  const waves = [];
+  const designs = v.vlaggen ? v.vlaggen.map((id) => BY_ID.get(id).ontwerp) : [v.ontwerp];
+  let y = 0;
+  designs.forEach((o, i) => {
+    const h = (HOOGTE[o.vorm] ?? HOOGTE.vlag) * KLEIN;
+    const c = doek(o, h, waves, phase + i * 1.3); c.position.set(0.004, y, 0); g.add(c);
+    y -= h + 0.05;
+  });
+  if (v.tafereel === 'bol') {                      // the ball under the flag
+    const r = 0.12; const ball = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 14), M.bol);
+    ball.position.set(r + 0.01, y - 0.04 - r, 0); g.add(ball); y -= 0.08 + 2 * r;
+  }
+  g.userData = { length: -y, update: (t) => { for (const wave of waves) wave(t); } };
+  g.userData.update(0);
   return g;
 }

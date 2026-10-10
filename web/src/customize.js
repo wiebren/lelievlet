@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { unpack } from './config.js';
 import { CLOTH as SAILCLOTH } from './sails.js';
+import { GROEPEN } from './groepen.js';
 
 // "Aanpassen": sail number, name, home port, the paint scheme and the colour of the sails. Saved in the browser, unless the
 // embedder switched that off. Paint zones are glTF material names written by pipeline/parts.py.
@@ -12,6 +13,7 @@ import { CLOTH as SAILCLOTH } from './sails.js';
 // their colours.
 
 export const STORAGE_KEY = 'lelievlet.aanpassen.v1';
+const MODUS_KEY = 'lelievlet.aanpassen.modus';    // Bekend or Eigen, as it was last left
 
 export const ZONES = [
   ['romp', 'Romp'],
@@ -118,7 +120,8 @@ export function initCustomizePanel(ui, { signal, engaged } = {}) {
 /**
  * targets: {
  *   zoneMaterials: Map<zone, Material[]>, sailMaterials: Material[] (collectSailMaterials),
- *   setSailNumber(text), setHullText(key, text, color), setSailInk(white)
+ *   setSailNumber(text), setHullText(key, text, color), setSailInk(white),
+ *   melden(): the report of a group's colours (feedback.js); absent: no button for it
  * }
  */
 export function initCustomize(ui, appConfig, targets) {
@@ -182,10 +185,107 @@ export function initCustomize(ui, appConfig, targets) {
     Object.assign(config, structuredClone(base));
     save(config, base, opslaan);
     applyAll();
+    bekend.render();
   });
 
+  const bekend = initBekend(ui, { config, base, opslaan, applyAll, melden: targets.melden });
   applyAll();
   return config;
+}
+
+// ---------------------------------------------------------------- Bekend
+// The colours of groups that are known (groepen.js), found by the group, its plaats, or the zeilnummer or name of
+// one of its boats. A group gives its colours and plaats; one of its boats its zeilnummer and naam as well. Below
+// them, the way to report your own group's colours. Eigen is the fields and pickers to set them yourself.
+const fold = (text) => String(text).normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+const BLACK = '#0b0b0b';
+
+function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
+  const $ = (id) => ui.getElementById(id);
+  const el = (tag, props = {}, ...children) => { const node = Object.assign(document.createElement(tag), props); node.append(...children); return node; };
+  const zoek = $('cfg-zoek'); const list = $('cfg-groepen'); const geen = $('cfg-geen');
+
+  // which of the two, remembered in this browser (a convenience: nothing else hangs on it)
+  const modes = [...$('cfg-modus').querySelectorAll('button')];
+  const setMode = (modus) => {
+    for (const b of modes) b.setAttribute('aria-checked', String(b.dataset.modus === modus));
+    $('cfg-bekend').hidden = modus !== 'bekend'; $('cfg-eigen').hidden = modus !== 'eigen';
+    if (opslaan) try { localStorage.setItem(MODUS_KEY, modus); } catch { /* private mode */ }
+  };
+  for (const b of modes) b.addEventListener('click', () => { setMode(b.dataset.modus); if (b.dataset.modus === 'bekend') render(); });   // what Eigen changed shows
+  let saved = null;
+  if (opslaan) try { saved = localStorage.getItem(MODUS_KEY); } catch { /* private mode */ }
+  setMode(saved === 'eigen' ? 'eigen' : 'bekend');
+
+  // the boat as a group has her: is she that group's, and that boat?
+  // (a boat may have a bakskleur of her own: groups tell their boats apart by it)
+  const paintOf = (g, boat) => ({
+    kleuren: Object.fromEntries(ZONES.map(([zone]) => [zone, g.kleuren?.[zone] ?? base.kleuren[zone]])),
+    bakskleur: boat?.bakskleur ?? g.bakskleur ?? base.bakskleur, zeilkleur: g.zeilkleur ?? base.zeilkleur,
+    naamKleur: g.naamKleur ?? BLACK, plaatsKleur: g.plaatsKleur ?? BLACK,
+  });
+  const same = (a, b) => String(a).toLowerCase() === String(b).toLowerCase();
+  const isGroup = (g) => {
+    const p = paintOf(g);
+    const bakskleuren = [p.bakskleur, ...(g.boten ?? []).map((b) => paintOf(g, b).bakskleur)];
+    return same(config.plaats, g.plaats) && ZONES.every(([zone]) => same(config.kleuren[zone], p.kleuren[zone]))
+      && bakskleuren.some((c) => same(config.bakskleur, c)) && config.zeilkleur === p.zeilkleur;
+  };
+  const isBoat = (g, b) => isGroup(g) && same(config.bakskleur, paintOf(g, b).bakskleur)
+    && config.zeilnummer.trim() === String(b.zeilnummer) && config.naam === b.naam;
+  const pick = (g, boat) => {
+    const p = paintOf(g, boat);
+    Object.assign(config, { bakskleur: p.bakskleur, zeilkleur: p.zeilkleur, naamKleur: p.naamKleur, plaatsKleur: p.plaatsKleur, plaats: g.plaats });
+    Object.assign(config.kleuren, p.kleuren);
+    if (boat) Object.assign(config, { zeilnummer: String(boat.zeilnummer), naam: boat.naam });
+    save(config, base, opslaan);
+    applyAll(); render();
+  };
+
+  const own = (g) => (g.boten ?? []).some((b) => b.bakskleur);   // the bakskleur goes with each boat, not the group
+  const swatches = (g) => {
+    const p = paintOf(g);
+    return el('span', { className: 'groep-kleuren', ariaHidden: 'true' },
+      ...[p.kleuren.romp, p.kleuren.boeisel, p.kleuren.berghout, p.kleuren.voordek, own(g) ? null : p.bakskleur]
+        .filter(Boolean).map((c) => el('i', { style: `background: ${c}` })));
+  };
+  // searched: of a group found by its name or plaats all boats, of one found by a boat only the boats that match
+  const groepEl = (g, q) => {
+    const kop = el('button', { type: 'button', className: 'groep-kop', title: `De kleuren van ${g.groep}` },
+      el('span', {}, el('b', { textContent: g.groep }), el('span', { textContent: g.plaats })), swatches(g));
+    kop.addEventListener('click', () => pick(g));
+    const all = !q || fold(`${g.groep} ${g.plaats}`).includes(q);
+    const match = (g.boten ?? []).filter((b) => all || fold(`${b.zeilnummer} ${b.naam}`).includes(q));
+    const shown = match.length ? match : g.boten ?? [];               // found on more than one of them ("Zwolle 440"): all
+    const boten = el('div', { className: 'groep-boten' }, ...shown.map((b) => {
+      const button = el('button', { type: 'button', title: `${b.naam}, zeilnummer ${b.zeilnummer}` },
+        ...(b.bakskleur ? [el('i', { ariaHidden: 'true', style: `background: ${b.bakskleur}` })] : []), `${b.zeilnummer} ${b.naam}`);
+      if (isBoat(g, b)) button.setAttribute('aria-current', 'true');
+      button.addEventListener('click', () => pick(g, b));
+      return button;
+    }));
+    const card = el('div', { className: 'groep' }, kop, boten);
+    if (isGroup(g)) card.setAttribute('aria-current', 'true');
+    return card;
+  };
+  const MAX = 30;
+  function render() {
+    const typed = zoek.value.trim(); const q = fold(typed);
+    const hits = GROEPEN.filter((g) => !q || fold([g.groep, g.plaats, ...(g.boten ?? []).flatMap((b) => [b.zeilnummer, b.naam])].join(' ')).includes(q))
+      .sort((a, b) => a.groep.localeCompare(b.groep, 'nl'));
+    list.replaceChildren(...hits.slice(0, MAX).map((g) => groepEl(g, q)));
+    geen.hidden = hits.length > 0 && hits.length <= MAX;
+    // (the way to report one is only offered where reports can be made: an embed may have it off)
+    geen.textContent = !GROEPEN.length ? `Er zijn nog geen groepen bekend.${melden ? ' Staat jouw groep er niet bij? Zet de kleuren goed onder Eigen, en meld ze hieronder.' : ''}`
+      : hits.length > MAX ? `En nog ${hits.length - MAX} ${hits.length - MAX === 1 ? 'groep' : 'groepen'}: zoek op naam, plaats, zeilnummer of boot.`
+      : `Geen groep gevonden met „${typed}”.${melden ? ' Staat jouw groep er niet bij? Meld de kleuren hieronder.' : ''}`;
+  }
+  zoek.addEventListener('input', render);
+  const meld = $('cfg-melden');
+  meld.hidden = !melden;
+  meld.addEventListener('click', () => melden?.());
+  render();
+  return { render, setMode };
 }
 
 /** Group the (already per-part cloned) materials of the model by paint zone. */

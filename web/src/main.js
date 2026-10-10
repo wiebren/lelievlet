@@ -15,7 +15,6 @@ import { initNight } from './rig.js';
 import { initLocator } from './locator.js';
 import { initFullscreen } from './fullscreen.js';
 import { initFeedback } from './feedback.js';
-import { initBprDebug } from './bpr/debug.js';
 import { initZoeken } from './bpr/zoeken.js';
 import { initTekenQuiz } from './bpr/tekenquiz.js';
 import { useTrees, buildTrees } from './bvh.js';
@@ -79,6 +78,9 @@ export function mount(ui, host, config) {
   // Melden: from the first frame too - a model that will not load is worth a report as well
   const feedback = initFeedback({ ui, config, signal, engaged, snapshot: () => snapshot(),
     about: () => openPanel.get('about')(), updates: () => openPanel.get('updates')(),
+    // a group's colours: reported as Aanpassen has the boat, and set there under Eigen first if they are not right yet
+    aanpassen: () => (boat ? Object.fromEntries(['zeilnummer', 'naam', 'naamKleur', 'plaats', 'plaatsKleur', 'bakskleur', 'zeilkleur', 'kleuren'].map((k) => [k, structuredClone(boat[k])])) : null),
+    naarEigen: () => { if ($('customize').hidden) $('customize-toggle').click(); $('cfg-modus').querySelector('[data-modus="eigen"]').click(); },
     closeOthers: () => { if (!$('customize').hidden) $('customize-close').click(); closePanel.get('about')?.(); closePanel.get('updates')?.(); closePanel.get('parts')?.(); } });
 
   // panels behind a button: the parts list (the search in the part card), and Over dit model and
@@ -109,26 +111,29 @@ export function mount(ui, host, config) {
   $('about-close').addEventListener('click', () => closePanel.get('about')());
   $('updates-close').addEventListener('click', () => closePanel.get('updates')());
   // Updates: per date, the newest first. The browser keeps the newest date this user has seen; what came
-  // after it is marked Nieuw, and once the panel is open all of it counts as seen
+  // after it is marked Nieuw, and once the panel is open all of it counts as seen. A second update on one day
+  // has nr 2: '2026-10-10.2' comes after '2026-10-10', and before '2026-10-11'
   const UPDATES_KEY = 'lelievlet.updates.v1';
+  const updateKey = ({ datum, nr }) => (nr ? `${datum}.${nr}` : datum);
   const seenUpdates = () => {
     if (!opslaan) return null;
     try { return JSON.parse(localStorage.getItem(UPDATES_KEY) ?? 'null')?.gezien ?? null; } catch { return null; }
   };
   const markUpdatesSeen = () => {
     if (!opslaan || !UPDATES.length) return;
-    try { localStorage.setItem(UPDATES_KEY, JSON.stringify({ gezien: UPDATES[0].datum })); } catch { /* private mode */ }
+    try { localStorage.setItem(UPDATES_KEY, JSON.stringify({ gezien: updateKey(UPDATES[0]) })); } catch { /* private mode */ }
   };
   const dag = new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' });
   function showUpdates() {
     const seen = seenUpdates();
     // never seen any: only the newest is news to them
-    const isNew = (datum, i) => opslaan && (seen ? datum > seen : i === 0);
-    $('updates-list').replaceChildren(...UPDATES.flatMap(({ datum, punten }, i) => {
+    const isNew = (update, i) => opslaan && (seen ? updateKey(update) > seen : i === 0);
+    $('updates-list').replaceChildren(...UPDATES.flatMap((update, i) => {
+      const { datum, nr, punten } = update;
       const list = document.createElement('ul');
       list.append(...punten.map((punt) => Object.assign(document.createElement('li'), { textContent: punt })));
-      const head = Object.assign(document.createElement('h3'), { textContent: dag.format(new Date(`${datum}T12:00:00`)) });
-      if (isNew(datum, i)) head.append(Object.assign(document.createElement('span'), { className: 'nieuw', textContent: 'Nieuw' }));
+      const head = Object.assign(document.createElement('h3'), { textContent: `${dag.format(new Date(`${datum}T12:00:00`))}${nr ? ` (${nr})` : ''}` });
+      if (isNew(update, i)) head.append(Object.assign(document.createElement('span'), { className: 'nieuw', textContent: 'Nieuw' }));
       return [head, list];
     }));
     markUpdatesSeen();
@@ -141,7 +146,7 @@ export function mount(ui, host, config) {
   const newsOnArrival = () => {
     if (!opslaan || !UPDATES.length) return;
     const seen = seenUpdates();
-    if (seen && seen >= UPDATES[0].datum) return;
+    if (seen && seen >= updateKey(UPDATES[0])) return;
     let own = false;
     try { own = Object.keys(JSON.parse(localStorage.getItem(AANPASSEN_KEY) ?? '{}') ?? {}).length > 0; } catch { /* nothing saved */ }
     if (runsAsApp() || own) openPanel.get('updates')();
@@ -215,25 +220,35 @@ export function mount(ui, host, config) {
   let modelBox = new THREE.Box3();
   let hullBox = new THREE.Box3();          // the hull alone, without the rig: the camera never stands inside it
 
-  // Zoeken has five tabs: Onderdelen, Borden, Markeringen, Seinen and Vlaggen. A sign or mark picked is put out on the
-  // water beside the boat; it goes again with another tab, or when the panel closes.
+  // Zoeken: a start page with a field over everything, and a page per kind - Onderdelen, Borden, Markeringen,
+  // Seinen, Vlaggen, Lichten, Dagmerken and Geluidsseinen. What is picked is put out on the water; it goes again with another page, or
+  // when the panel closes.
   const zoeken = initZoeken({ ui, renderer, scene, camera, boat: () => hullBox.getCenter(new THREE.Vector3()), lookFromHelm: (at) => lookFromHelm(at),
     waterline: () => modes?.water.position.y ?? 0, windArrow: () => modes?.windArrow ?? null, view: () => (flight ? { position: flight.to.clone(), target: flight.toTarget.clone() }   // where it is going, when on its way
       : { position: camera.position.clone(), target: controls.target.clone() }),
-    fly: (position, target) => startFlight(position, target, 900), setDark: (k) => { zoekDark = k; } });
+    fly: (position, target) => startFlight(position, target, 900), setDark: (k) => { zoekDark = k; },
+    // a klein schip shown as the lelievlet: her lights and ankerbol, and the sails and anchor as asked - set at
+    // once, so the bar of the manoeuvre that anchored her has nothing to say
+    eigen: { show: (s) => {
+      modes?.showSignals?.(s);
+      modes?.showOwnState?.(s && (s.anker || s.tuig) ? { tuig: s.tuig, anker: s.anker } : null);
+      dismissProcedure();
+    },
+    // a flag she flies herself: on her own want (null takes it down)
+    flags: (group) => modes?.hoistFlags?.(group) ?? null,
+    // all of her, the top of the mast to the keel: what is fitted in the view when she is shown
+    box: () => (modelBox.isEmpty() ? null : modelBox.clone()) } });
   let zoekDark = null;
-  const zoekTabs = [...ui.querySelectorAll('.zoek-tabs [role="tab"]')];
-  for (const tab of zoekTabs) {
-    tab.addEventListener('click', () => {
-      if (tab.getAttribute('aria-selected') === 'true') return;   // the tab that is open: what is picked in it stays
-      for (const t of zoekTabs) { const on = t === tab; t.setAttribute('aria-selected', String(on)); $(t.getAttribute('aria-controls')).hidden = !on; }
-      zoeken.release(); zoeken.tab(tab.dataset.tab);
-    });
-  }
-  // Oefenen, Verkeerstekens: the signs, marks and signals of Zoeken as a quiz; for a round every panel is shut
+  // Oefenen, Verkeerstekens: the signs, marks and signals of Zoeken as a quiz; for a round every panel is
+  // shut, and the boat is out on open water under sail, not left at a steiger laid by a manoeuvre
   const tekenQuiz = initTekenQuiz({ ui, wrap, zoeken, openLearn: (kind) => openLearn(kind), opslaan, engaged, realTarget, signal,
-    closePanels: () => { for (const [panel, close] of closePanel) if (panel !== 'toestand') close(); if (!$('customize').hidden) $('customize-close').click(); } });
+    closePanels: () => {
+      for (const [panel, close] of closePanel) if (panel !== 'toestand') close();
+      if (!$('customize').hidden) $('customize-close').click();
+      modes?.sailFree(); dismissProcedure();                         // set at once: no bar of the hoist it took
+    } });
   onDestroy(() => tekenQuiz.stop());
+  onDestroy(() => zoeken.destroy());
   let selected = [];           // several at once: one row of the parts list can stand for four dollen
   let modes = null;
   let paintScheme = null;      // the older paint scheme; see initPaint in customize.js
@@ -310,6 +325,7 @@ export function mount(ui, host, config) {
         setSailNumber: (text) => { sails.setNumber(text); sailNumber = text; followNumber(); paintScheme?.setNumber(text); },
         setHullText: (key, text, color) => hullText.set(key, text, LETTERING[key].x, LETTERING[key].height, color),
         setSailInk: (white) => sails.setInk(white),
+        melden: feedback.groep,
       });
       // Installeer als app: to the app page on our own site, taking what the user made of the boat with
       // it, where the page shows how to install it: an icon in the bottom right-hand corner. Not
@@ -453,6 +469,8 @@ export function mount(ui, host, config) {
     $('parts-show-all').addEventListener('click', () => { for (const e of sections) e.show(true); });
     $('parts-hide-all').addEventListener('click', () => { for (const e of sections) e.show(false); });
     refreshPartList();
+    // the parts for the field over everything on the start page of Zoeken: a hit opens their page and picks it
+    zoeken.parts(rows.map((row) => ({ key: row.key, naam: row.button.querySelector('.naam').textContent, open: () => row.button.click() })), $('parts-search'));
     if (!$('parts').hidden) { partsPanelToggled(true); filterPartList(); }   // opened while the model was loading
   }
 
@@ -530,7 +548,7 @@ export function mount(ui, host, config) {
 
   /** The list only follows the mode while it is open, so a cheap poll is enough. */
   function partsPanelToggled(open) {
-    // closed, it opens again as new: no search, nothing picked on any tab (the tab itself stays)
+    // closed, it opens again as new: on its start page, no search, nothing picked
     if (!open) { zoeken.reset(); $('parts-search').value = ''; if (rows.length) filterPartList(); }
     clearInterval(partsPoll);
     partsPoll = null;
@@ -1508,8 +1526,7 @@ export function mount(ui, host, config) {
     modes?.update(dt, speed);
     turnWithHer();
     if (!followRunView(dt)) keepTrackInView(dt);
-    night?.hold(modes?.darkness() ?? zoekDark ?? bprDark);          // nachtklaar makes it dark itself, and so do Zoeken and the BPR panel
-    bpr?.update(dt);
+    night?.hold(modes?.darkness() ?? zoekDark);                     // nachtklaar makes it dark itself, and so does Zoeken
     zoeken.update(dt);
     night?.update(dt, speed);
     paintScheme?.update(dt);
@@ -1520,8 +1537,9 @@ export function mount(ui, host, config) {
     stepFlight();
     controls.update();
     // the near plane comes in with the camera, so a close look is not cut open; further out it stays
-    // at 5 cm, where the depth buffer has the precision to keep far surfaces apart
-    const near = THREE.MathUtils.clamp(camera.position.distanceTo(controls.target) * 0.2, 0.002, 0.05);
+    // at 5 cm, where the depth buffer has the precision to keep far surfaces apart - or further, while Zoeken
+    // shows a ship far out (camera.userData.minNear)
+    const near = Math.max(camera.userData.minNear ?? 0, THREE.MathUtils.clamp(camera.position.distanceTo(controls.target) * 0.2, 0.002, 0.05));
     if (Math.abs(near - camera.near) > 1e-4) { camera.near = near; camera.updateProjectionMatrix(); }
     renderer.render(scene, camera);
     // after the render: every matrix stands where this frame drew it, so a ring lands on the part
@@ -1616,17 +1634,12 @@ export function mount(ui, host, config) {
   // follows the boat and the camera while the panel is open.
   $('toestand-toggle').hidden = !config.debug.toestand;
   let night = null;                                                    // see initNight, once the model is there
-  let bpr = null; let bprDark = null;                                  // debug.bpr: the BPR assets, and the night it holds
   ready.then(() => {
     if (modes?.leechFlag) loadImage(asset('textures/embleem.png')).then((img) => modes.leechFlag.setEmblem(img), () => {});
     followNumber();
     // night keeps its own time; see initNight in rig.js
     night = initNight({ scene, sun, hemi, wrap, water: modes?.water, toplicht: modes?.toplicht,
                         slowest: Number($('speed').min) || 0.25, note: logboek.note });
-    if (config.debug.bpr) {
-      bpr = initBprDebug({ ui, wrap, scene, camera, waterline: modes.water.position.y, signal, engaged,
-        look: (position, target) => startFlight(position, target, 900), setDark: (k) => { bprDark = k; } });
-    }
     const stir = () => night.activity();
     for (const type of ['pointermove', 'pointerdown', 'wheel']) wrap.addEventListener(type, stir, { signal, passive: true });
     window.addEventListener('keydown', stir, { signal });
@@ -1718,7 +1731,7 @@ export function mount(ui, host, config) {
       toestand: get(),
       // what toestand cannot say: what the handelingen left her with, and the boat as the user made it
       boot: modes?.situation(),
-      aanpassen: boat ? Object.fromEntries(['zeilnummer', 'naam', 'plaats', 'bakskleur', 'zeilkleur', 'kleuren'].map((k) => [k, boat[k]])) : undefined,
+      aanpassen: boat ? Object.fromEntries(['zeilnummer', 'naam', 'naamKleur', 'plaats', 'plaatsKleur', 'bakskleur', 'zeilkleur', 'kleuren'].map((k) => [k, boat[k]])) : undefined,
       extra: extra(),
       // the step numbered the way the bar numbers it: without the steps skipped this time
       procedure: p && { naam: p.name, stap: p.label, index: p.index, stappen: p.steps.filter((st) => !st.skipped).length,

@@ -44,9 +44,11 @@ const SITE = 'https://wiebren.github.io/lelievlet/';   // the project's own page
  * snapshot(): { screenshot, gegevens } - the picture as a data URL (or null) and the state as data.
  * closeOthers(): puts away the panels that stand where this one does.
  * about(), updates(): open Over dit model and Updates, from the menu.
- * Returns { close, busy }: busy while a report is being put together, past the menu.
+ * aanpassen(): the boat as Aanpassen has her now; naarEigen(): opens Aanpassen on Eigen.
+ * Returns { close, busy, groep }: busy while a report is being put together, past the menu; groep() starts the
+ * report of a group's colours (from Aanpassen › Bekend).
  */
-export function initFeedback({ ui, config, signal, engaged, snapshot, closeOthers, about, updates }) {
+export function initFeedback({ ui, config, signal, engaged, snapshot, closeOthers, about, updates, aanpassen, naarEigen }) {
   const $ = (id) => ui.getElementById(id);
   const button = $('feedback-toggle'); const panel = $('feedback'); const body = $('feedback-body'); const title = $('feedback-title');
   const melden = config.feedback !== false;                         // false: the menu without Melden
@@ -252,6 +254,79 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
       ];
     },
 
+    // ------------------------------------------------ a group's colours (Aanpassen › Bekend)
+    groep: () => [
+      el('h3', { textContent: 'Kleuren van je groep melden' }),
+      thumb(),
+      el('h3', { textContent: 'Kloppen de kleuren van de boot nu met die van jullie boten, zo goed als het gaat?' }),
+      row(choice('Nee', () => go('groepEerst')), choice('Ja', () => go('groepGegevens'), true)),
+    ],
+
+    groepEerst: () => [
+      el('h3', { textContent: 'Zet de kleuren eerst goed' }),
+      text('Dat doe je in Aanpassen, onder Eigen: romp, boeisel, dekken, de bakskleur, de zeilen en de letters op de romp. Kom daarna terug en meld ze.', 'fb-lead'),
+      row(choice('Sluiten', close), choice('Naar Aanpassen', () => { close(); naarEigen?.(); }, true)),
+    ],
+
+    groepGegevens: () => {
+      const next = choice('Verder', () => go('groepBoten'), true);
+      const plaats = field('groepPlaats', 'Plaats', '', null, { single: true, min: 2 });
+      const naam = field('groepNaam', 'Naam van de groep', 'Bijvoorbeeld: Shawano’s', null, { single: true, min: 2 });   // made last: it has the focus
+      const check = () => { next.disabled = (report.groepNaam ?? '').trim().length < 2 || (report.groepPlaats ?? '').trim().length < 2; };
+      for (const input of [naam, plaats].map((f) => f.querySelector('input'))) input.addEventListener('input', check);
+      check();
+      return [el('h3', { textContent: 'Over je groep' }), naam, plaats, row(next)];
+    },
+
+    // one row a boat: zeilnummer, naam and bakskleur; Verder once every row that was begun is whole
+    groepBoten: () => {
+      const next = choice('Verder', () => go('groepAnders'), true);
+      const boten = report.groepBoten;
+      const list = el('div', { className: 'fb-boten' });
+      const whole = (b) => /^\d{1,4}$/.test(b.zeilnummer.trim()) && b.naam.trim().length > 0;
+      const begun = (b) => b.zeilnummer.trim() || b.naam.trim();
+      const check = () => { next.disabled = !boten.some(whole) || boten.some((b) => begun(b) && !whole(b)); };
+      const input = (b, key, props) => {
+        const i = el('input', { value: b[key], ...props });
+        i.addEventListener('input', () => { b[key] = i.value; check(); });
+        return i;
+      };
+      const draw = () => {
+        list.replaceChildren(el('div', { className: 'fb-boot fb-kop', ariaHidden: 'true' },
+          el('span', { textContent: 'Zeilnr.' }), el('span', { textContent: 'Naam' }), el('span', { textContent: 'Baks' }), el('span')),
+        ...boten.map((b, i) => {
+          const weg = el('button', { type: 'button', className: 'link-button', textContent: '×', title: 'Deze boot weghalen', ariaLabel: `Boot ${i + 1} weghalen` });
+          weg.addEventListener('click', () => { boten.splice(i, 1); if (!boten.length) boten.push(nieuw()); draw(); check(); });
+          return el('div', { className: 'fb-boot' },
+            input(b, 'zeilnummer', { type: 'text', inputMode: 'numeric', maxLength: 4, placeholder: '1850', ariaLabel: `Zeilnummer van boot ${i + 1}` }),
+            input(b, 'naam', { type: 'text', maxLength: 24, placeholder: 'Naam', ariaLabel: `Naam van boot ${i + 1}` }),
+            input(b, 'bakskleur', { type: 'color', ariaLabel: `Bakskleur van boot ${i + 1}`, title: 'Bakskleur' }),
+            weg);
+        }));
+      };
+      const nieuw = () => ({ zeilnummer: '', naam: '', bakskleur: boten.at(-1)?.bakskleur ?? aanpassen?.()?.bakskleur ?? '#c8102e' });
+      const meer = choice('+ Boot toevoegen', () => { boten.push(nieuw()); draw(); check(); list.querySelector('.fb-boot:last-child input')?.focus(); });
+      meer.className = 'link-button';
+      draw(); check();
+      queueMicrotask(() => list.querySelector('.fb-boot:not(.fb-kop) input')?.focus());
+      return [
+        el('h3', { textContent: 'Welke boten hebben jullie?' }),
+        text('Met de bakskleur van elke boot: daaraan zie je welke het is.'),
+        list, el('p', { className: 'fb-retake' }, meer),
+        row(next),
+      ];
+    },
+
+    groepAnders: () => {
+      const next = choice('Verder', () => { groepOmschrijving(); go('versturen'); }, true);
+      return [
+        el('h3', { textContent: 'Is er aan de kleuren nog iets anders?' }),
+        text('Wat de app niet kan laten zien, of wat net anders is: een streep op de romp, een andere kleur op de spiegel, letters in goud.'),
+        field('groepAnders', 'Wat is er anders? (mag leeg blijven)', '', next, { min: 0, rows: 4 }),
+        row(next),
+      ];
+    },
+
     verstuurd: () => [
       el('h3', { textContent: 'Bedankt!' }),
       text(url ? 'Je melding is verstuurd.' : 'De melding is opgeslagen als bestand.', 'fb-lead'),
@@ -295,10 +370,26 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
   }
   const go = (name) => show(name);
 
+  /** A group's report in words, for the issue it becomes, with the boat as Aanpassen has her. */
+  function groepOmschrijving() {
+    const g = report.groep;
+    g.naam = (report.groepNaam ?? '').trim(); g.plaats = (report.groepPlaats ?? '').trim();
+    g.boten = report.groepBoten.filter((b) => b.zeilnummer.trim() && b.naam.trim())
+      .map((b) => ({ zeilnummer: b.zeilnummer.trim(), naam: b.naam.trim(), bakskleur: b.bakskleur }));
+    g.anders = report.groepAnders?.trim() || undefined;
+    g.kleuren = aanpassen?.() ?? null;
+    report.omschrijving = [
+      `Groep: ${g.naam}, ${g.plaats}`,
+      'De kleuren van de boot in de app kloppen zo goed als het gaat (zie Kleuren).',
+      `De boten:\n${g.boten.map((b) => `${b.zeilnummer} ${b.naam}, bakskleur ${b.bakskleur}`).join('\n')}`,
+      g.anders ? `Verder anders aan de kleuren:\n${g.anders}` : '',
+    ].filter(Boolean).join('\n\n');
+  }
+
   // ---------------------------------------------------------------- sending
   /** The report as it goes out: the answers, the state, and the picture if it may go along. */
   function payload() {
-    const { screenshot, gegevens, metAfbeelding, issue, ...answers } = report;
+    const { screenshot, gegevens, metAfbeelding, issue, groepNaam, groepPlaats, groepBoten, groepAnders, ...answers } = report;
     return {
       versie: 1, ...answers,
       omschrijving: answers.omschrijving?.trim() ?? '', stappen: answers.stappen?.trim() || undefined,
@@ -337,12 +428,19 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
   }
 
   // ---------------------------------------------------------------- open and close
-  function open() {
+  function open(start = 'start') {
     report = {}; trail = [];
     if (melden) capture();                      // before anything else moves: what the user saw, the panels it closes too
     closeOthers();
     panel.hidden = false; button.setAttribute('aria-expanded', 'true');
-    show('start');
+    if (start === 'groep') {
+      // the boat as she is now as the first of the group's (unless she is still the one every viewer starts with)
+      const boot = aanpassen?.() ?? {};
+      const eigen = boot.zeilnummer && boot.zeilnummer !== '000';
+      report.categorie = 'groep'; report.groep = {}; report.groepPlaats = boot.plaats ?? ''; report.zichtbaar = true;
+      report.groepBoten = [{ zeilnummer: eigen ? boot.zeilnummer : '', naam: eigen ? boot.naam ?? '' : '', bakskleur: boot.bakskleur ?? '#c8102e' }];
+    }
+    show(start);
   }
   function close() {
     panel.hidden = true; button.setAttribute('aria-expanded', 'false');
@@ -354,5 +452,5 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
 
   // a report being put together: a tap beside the panel does not throw it away
   const busy = () => !panel.hidden && !['start', 'verstuurd', 'nogmaals'].includes(trail.at(-1));
-  return { close, busy };
+  return { close, busy, groep: melden ? () => open('groep') : null };
 }

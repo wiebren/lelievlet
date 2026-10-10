@@ -16,7 +16,8 @@ export class Procedure {
    * backwards; `focus` lists the ids of the parts to look at while it is stepped through, and
    * `camera` ({ positie, doel, kant }, model space), when given, is where to look from instead;
    * `like` names the key of another step whose movement it is framed on; `say` is what is called
-   * out as the step begins (a command), and `by` who calls it ('roer', the helmsman, by default).
+   * out as the step begins (a command), and `by` who calls it ('roer', the helmsman, by default);
+   * `tip` is a line said about it while it is on (Houd het roer recht).
    */
   constructor(name, values, steps) {
     this.name = name;
@@ -25,9 +26,9 @@ export class Procedure {
     this.steps = [];
     const reached = { ...values };
     let at = 0;
-    for (const { key, to, seconds, label, back, focus = [], camera = null, like = null, say = null, by = 'roer' } of steps) {
+    for (const { key, to, seconds, label, back, focus = [], camera = null, like = null, say = null, by = 'roer', tip = null } of steps) {
       if (Math.abs(to - reached[key]) < 1e-9) continue;               // nothing to do: not a step
-      this.steps.push({ key, label, back: back ?? label, focus, camera, like, say, by, from: reached[key], to, begin: at, end: at + seconds });
+      this.steps.push({ key, label, back: back ?? label, focus, camera, like, say, by, tip, from: reached[key], to, begin: at, end: at + seconds });
       reached[key] = to; at += seconds;
     }
     this.total = at;

@@ -1,7 +1,24 @@
 // "Updates": per date, what changed in the viewer, a short line each, as a user notices it. The newest
-// date first; add to it with every version that goes out. Only what can be found in the menus.
+// date first; add to it with every version that goes out. Only what can be found in the menus. A second
+// update on a day that already has one gets nr: 2 (and so on), so it shows as new to who saw the first.
 
 export const UPDATES = [
+  { datum: '2026-10-10', nr: 2, punten: [
+    'Zoeken › Lichten: de lichten van schepen, van voren, opzij en van achteren. Met een schuif van dag naar nacht.',
+    'Zoeken › Dagmerken: de bollen, kegels en andere tekens die schepen overdag voeren.',
+    'Zoeken › Geluidsseinen: elk sein om te beluisteren.',
+    'Boot › Wind: de koers kies je nu op een windroos. Sleep de wind rond de boot, of klik op een koers langs de ring.',
+    'Wat een lelievlet zelf voert, zie je op de boot zelf: haar toplicht, de ankerbol, de zaklamp, en vlaggen en wimpels aan de want.',
+    'Aanpassen heeft nu Bekend en Eigen. Onder Bekend zoek je de kleuren van je groep op naam, plaats, zeilnummer of bootnaam.',
+    'Staat je groep er niet bij? Meld de kleuren van je groep vanuit Aanpassen.',
+    'Zoeken heeft op elke pagina een knop CWO: dan zie je alleen wat bij CWO hoort.',
+    'Er zijn borden, seinen, markeringen en lichten bijgekomen, zoals de stuw, het sectorlicht, de oeverborden en de voorwaarschuwingslichten. Het BPR staat er nu zo goed als helemaal in.',
+    'In de quiz Verkeerstekens lijken de foute antwoorden meer op het goede, en de boot vaart weer vrij op het water als je begint.',
+    'Elke handeling begint met het doel ervan, en bij sommige stappen staat een tip.',
+    'Overstag gaat zoals in het boek: na Fok bak meteen Fok over.',
+    'Sliplanding aan hogerwal: hoog aan de wind met killende zeilen, de vaart regel je met de grootschoot. Daarna springt de haakvoor op de kant.',
+    'Bij het zeilen blijft de camera rustig staan, in plaats van bij elke stap in te zoomen.',
+  ] },
   { datum: '2026-10-10', punten: [
     'Zoeken heeft naast Onderdelen nu Borden, Markeringen, Seinen en Vlaggen. Zoek op naam, of op wat je ziet: kleur, vorm of patroon.',
     'Kies je een bord, ton, sein of vlag, dan lees je wat het betekent en staat het bij de boot op het water. Lichten kun je ook ’s nachts bekijken.',

@@ -45,11 +45,23 @@ const gistOf = (e, about) => (about === 'doen' ? (e.doen ?? '').split(/(?<=[.!?]
  * a red spar, a red buoy and a stomp steekbaken are passed alike.
  */
 const FAMILIES = [/^B\.1[ab]$/, /^B\.9[ab]$/, /^E\.9[a-i]$/, /^E\.10[a-f]$/];
+/**
+ * Signs that look alike and mean something else: the wrong answers come from among them first, so a question
+ * asks for the difference that matters - the crossing seen from the nevenvaarwater (B.9) or from the
+ * hoofdvaarwater (E.9, E.10), the arrow you must follow or are advised to (B.1, D.3), the ruiten that forbid or
+ * advise (A.10, D.2), and the signs over the opening of a fixed bridge.
+ */
+const LOOKALIKES = [
+  /^(B\.9[ab]|E\.9[a-i]|E\.10[a-f])$/, /^(B\.1[ab]|D\.3[abc])$/, /^(A\.10|D\.2)$/, /^(A\.1|D\.1[ab])$/,
+  /^vast-(a10|d2|a1|d1a|d1b)$/,
+];
 function familyOf(e, about) {
   if (e.soort === 'bord') { const f = FAMILIES.find((r) => r.test(e.id)); if (f) return String(f); }
   // a mark passed on the same side going up (opvarend) is passed the same way, whatever it looks like
   if (e.soort === 'ton' && about === 'doen') { const m = (e.doen ?? '').match(/opvarend[^.]*?aan (bakboord|stuurboord)/i); if (m) return m[1].toLowerCase(); }
-  if (/^bpr-3\.30-/.test(e.id)) return 'nood';                     // a flag swung round or a flag with a ball: both ask for help
+  if (/^bpr-3\.30-/.test(e.id)) return 'nood';
+  // a board over a fixed bridge and the lights that may stand in for it say the same
+  if (/^vast-.*-licht$/.test(e.id)) return `${e.soort}:${e.id.replace(/-licht$/, '')}`;                     // a flag swung round or a flag with a ball: both ask for help
   return `${e.soort}:${e.id}`;
 }
 
@@ -193,11 +205,14 @@ export function initTekenQuiz({ ui, wrap, zoeken, closePanels, openLearn, opslaa
     ask();
   }
 
-  /** Three others of the same kind, from its own group first: none that reads the same, none of the same family. */
+  /** Three others of the same kind, its lookalikes first, then its own group: none that reads the same, none of the same family. */
   function distractors(entry, by, about) {
     const same = zoeken.entries().filter((e) => e.cwo && e.soort === entry.soort && e !== entry && by(e) && by(e) !== by(entry));
     const seen = new Set([by(entry)]); const families = new Set([familyOf(entry, about)]); const out = [];
-    for (const e of [...shuffle(same.filter((x) => x.groep === entry.groep)), ...shuffle(same.filter((x) => x.groep !== entry.groep))]) {
+    const alike = LOOKALIKES.find((r) => r.test(entry.id));
+    const like = (x) => alike?.test(x.id);
+    for (const e of [...shuffle(same.filter(like)), ...shuffle(same.filter((x) => !like(x) && x.groep === entry.groep)),
+      ...shuffle(same.filter((x) => !like(x) && x.groep !== entry.groep))]) {
       if (out.length === CHOICES - 1) break;
       if (seen.has(by(e)) || families.has(familyOf(e, about))) continue;
       seen.add(by(e)); families.add(familyOf(e, about)); out.push(e);

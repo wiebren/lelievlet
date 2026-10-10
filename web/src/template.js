@@ -8,27 +8,39 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
   <!-- Zoeken: the parts of the boat, and the signs, marks, signals and flags along the water (built in bpr/zoeken.js) -->
   <aside id="parts" hidden>
     <header>
-      <h2>Zoeken</h2>
+      <button id="zoek-terug" type="button" class="link-button zoek-terug" aria-label="Terug naar Zoeken" title="Terug naar Zoeken" hidden>‹</button>
+      <h2 id="zoek-titel">Zoeken</h2>
       <button id="parts-close" type="button" class="link-button" aria-label="Sluiten">Sluiten</button>
     </header>
-    <div class="segmented zoek-tabs" role="tablist" aria-label="Wat zoek je">
-      <button type="button" role="tab" data-tab="onderdelen" aria-selected="true" aria-controls="zoek-onderdelen">Onderdelen</button>
-      <button type="button" role="tab" data-tab="borden" aria-selected="false" aria-controls="zoek-borden">Borden</button>
-      <button type="button" role="tab" data-tab="markeringen" aria-selected="false" aria-controls="zoek-markeringen">Markeringen</button>
-      <button type="button" role="tab" data-tab="seinen" aria-selected="false" aria-controls="zoek-seinen">Seinen</button>
-      <button type="button" role="tab" data-tab="vlaggen" aria-selected="false" aria-controls="zoek-vlaggen">Vlaggen</button>
+    <!-- the start: one field over everything, and what there is to look through; typing, the results take the tiles' place -->
+    <div id="zoek-home" class="zoek-pane">
+      <input id="zoek-alles" type="search" class="zoek-veld" autocomplete="off" placeholder="Zoek onderdeel, bord, ton, sein, vlag, schip of geluidssein…" aria-label="Zoek in alles">
+      <div class="zoek-tegels" id="zoek-tegels">
+        <button type="button" class="zoek-tegel" data-cat="onderdelen"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 16.5h17l-2.2 3.5H5.7z"/><path d="M12 3.5v13"/><path d="M12 4.5l6.5 10H12"/><path d="M12 7l-4.5 7.5H12"/></svg><span>Onderdelen</span></button>
+        <button type="button" class="zoek-tegel" data-cat="borden"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="3" width="13" height="10.5" rx="1.2"/><path d="M8.5 6l7 4.5"/><path d="M12 13.5V21"/></svg><span>Borden</span></button>
+        <button type="button" class="zoek-tegel" data-cat="markeringen"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 17.5L12 4.5l3.5 13z"/><path d="M3.5 20c2.5-1.6 5.5-1.6 8.5 0s6 1.6 8.5 0"/></svg><span>Markeringen</span></button>
+        <button type="button" class="zoek-tegel" data-cat="seinen"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2.5" width="8" height="14" rx="2"/><circle cx="12" cy="6.5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><path d="M12 16.5V21"/></svg><span>Seinen</span></button>
+        <button type="button" class="zoek-tegel" data-cat="lichten"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 17h17l-2 3.5H5.5z"/><path d="M12 17V8"/><circle cx="12" cy="6.2" r="1.6"/><circle cx="6.5" cy="13.6" r="1.4"/><circle cx="17.5" cy="13.6" r="1.4"/></svg><span>Lichten</span></button>
+        <button type="button" class="zoek-tegel" data-cat="dagmerken"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5.5" r="2.6"/><path d="M8.8 10h6.4L12 15.5z"/><path d="M12 15.5V21"/><path d="M8 21h8"/></svg><span>Dagmerken</span></button>
+        <button type="button" class="zoek-tegel" data-cat="vlaggen"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 21V3.5"/><path d="M6 4.5h11.5l-3 4 3 4H6"/></svg><span>Vlaggen</span></button>
+        <button type="button" class="zoek-tegel" data-cat="geluiden"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h3l5 4V6L7 10z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path d="M18 7a7 7 0 0 1 0 10"/></svg><span>Geluidsseinen</span></button>
+      </div>
+      <div class="zoek-scroll" id="zoek-resultaten" hidden></div>
     </div>
-    <div id="zoek-onderdelen" class="zoek-pane" role="tabpanel">
+    <div id="zoek-onderdelen" class="zoek-pane" hidden>
       <input id="parts-search" type="search" autocomplete="off" placeholder="Zoek onderdeel…" aria-label="Zoek onderdeel">
       <p class="parts-all"><button id="parts-show-all" type="button" class="link-button">Alles tonen</button>
         <button id="parts-hide-all" type="button" class="link-button">Alles verbergen</button></p>
       <div id="parts-list"></div>
       <p class="hint" id="parts-empty" hidden>Geen onderdeel gevonden.</p>
     </div>
-    <div id="zoek-borden" class="zoek-pane" role="tabpanel" hidden></div>
-    <div id="zoek-markeringen" class="zoek-pane" role="tabpanel" hidden></div>
-    <div id="zoek-seinen" class="zoek-pane" role="tabpanel" hidden></div>
-    <div id="zoek-vlaggen" class="zoek-pane" role="tabpanel" hidden></div>
+    <div id="zoek-borden" class="zoek-pane" hidden></div>
+    <div id="zoek-markeringen" class="zoek-pane" hidden></div>
+    <div id="zoek-seinen" class="zoek-pane" hidden></div>
+    <div id="zoek-vlaggen" class="zoek-pane" hidden></div>
+    <div id="zoek-lichten" class="zoek-pane" hidden></div>
+    <div id="zoek-dagmerken" class="zoek-pane" hidden></div>
+    <div id="zoek-geluiden" class="zoek-pane" hidden></div>
   </aside>
 
 
@@ -55,6 +67,17 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
       <h2>Aanpassen</h2>
       <button id="customize-close" type="button" class="link-button" aria-label="Sluiten">Sluiten</button>
     </header>
+    <div id="cfg-modus" class="segmented" role="radiogroup" aria-label="Kleuren">
+      <button type="button" role="radio" data-modus="bekend" aria-checked="true">Bekend</button>
+      <button type="button" role="radio" data-modus="eigen" aria-checked="false">Eigen</button>
+    </div>
+    <div id="cfg-bekend">
+      <input id="cfg-zoek" class="zoek-veld" type="search" autocomplete="off" placeholder="Zoek groep, plaats of zeilnummer…" aria-label="Zoek groep, plaats of zeilnummer">
+      <div id="cfg-groepen"></div>
+      <p id="cfg-geen" class="hint" hidden></p>
+      <button id="cfg-melden" type="button">Kleuren van je groep melden</button>
+    </div>
+    <div id="cfg-eigen" hidden>
     <label class="field"><span>Zeilnummer</span>
       <input id="cfg-zeilnummer" type="text" inputmode="numeric" maxlength="4" autocomplete="off"></label>
     <div class="field">
@@ -78,6 +101,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
       <label class="color-row"><input id="cfg-bakskleur" type="color"><span>Bakskleur</span></label>
     </div>
     <button id="customize-reset" type="button">Standaardwaarden</button>
+    </div>
     <h3>Animatie</h3>
     <label class="speed"><span>Snelheid</span>
       <input id="speed" type="range" min="0.25" max="2" step="0.05" value="1" aria-label="Snelheid van de animaties"></label>
@@ -148,17 +172,21 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
       </div>
       </div>
       <div id="wind-section">
-        <span class="caption">Wind <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" overflow="visible" aria-hidden="true">
-        <!-- a cloud blowing: the cloud sits where the wind comes from, the arrow points where it goes -->
-        <g id="wind-needle" transform="rotate(90 12 12)">
-          <path d="M7 10.5h10a3.2 3.2 0 0 0 .6-6.35A4.6 4.6 0 0 0 10.2 3.1 2.2 2.2 0 0 0 6.6 4.6 3.1 3.1 0 0 0 7 10.5z"/>
-          <path d="M10.6 13v4.6M13.4 13v4.6M8.2 17.6 12 22.4l3.8-4.8"/>
-        </g>
-      </svg></span>
+        <span class="caption">Wind</span>
+        <!-- the windroos: the boat in the middle, bow up; the wind is dragged round her, the courses named round the ring -->
         <div id="wind-panel" role="group" aria-label="Koers ten opzichte van de wind">
-          <div id="course-markers"></div>
-          <input id="course" type="range" step="1" value="45" aria-label="Koers ten opzichte van de wind">
-          <div class="ticks" aria-hidden="true"></div>
+          <div id="windroos" role="slider" tabindex="0" aria-label="Waar de wind vandaan komt" aria-valuemin="-180" aria-valuemax="180">
+            <svg viewBox="-100 -100 200 200" aria-hidden="true">
+              <path id="windroos-gap" class="gap"/>
+              <circle class="ring" r="72"/>
+              <g id="windroos-ticks"></g>
+              <path class="boot" d="M0,-34 C9,-26 12,-6 11,14 C10.5,24 8,30 0,31 C-8,30 -10.5,24 -11,14 C-12,-6 -9,-26 0,-34 Z"/>
+              <path class="mast" d="M0,-14 v0.1"/>
+              <g id="windroos-wind"><line class="pijl" x1="0" y1="-72" x2="0" y2="-44"/><path class="pijlkop" d="M-6,-50 L0,-40 L6,-50"/><circle class="greep" cy="-72" r="9"/></g>
+            </svg>
+            <div id="course-markers"></div>
+          </div>
+          <input id="course" type="range" step="1" value="45" hidden>
         </div>
       </div>
       <div id="oars-section">
@@ -440,7 +468,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
   <!-- the part card, in the bottom right corner: with nothing selected only its search button, which
        opens Zoeken above it -->
   <div id="info" class="leeg">
-    <button id="parts-toggle" class="info-search" type="button" aria-label="Zoeken: onderdelen, borden, markeringen, seinen en vlaggen" aria-expanded="false" aria-controls="parts" title="Zoeken">
+    <button id="parts-toggle" class="info-search" type="button" aria-label="Zoeken: onderdelen, borden, markeringen, seinen, vlaggen, lichten, dagmerken en geluidsseinen" aria-expanded="false" aria-controls="parts" title="Zoeken">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/>
       </svg>
