@@ -156,8 +156,8 @@ function sluisOphaal() {
 // ---- G.5: height marks -----------------------------------------------------------------------
 
 /** The hoogteschaal: metre blocks 7..11 alternating black and yellow, decimetre ticks down the left. */
-function hoogteschaal() {
-  const x = 50; const y = 50; const W = 320; const M = 160; const narrow = 39; const wide = 78;
+function hoogteschaal(W = 320, framed = true) {
+  const x = framed ? 50 : 0; const y = framed ? 50 : 0; const M = 160; const narrow = 39; const wide = 78;
   let s = '';
   for (let i = 0; i < 5; i++) {
     const top = y + i * M; const fill = i % 2 ? GEEL : ZWART; const ink = i % 2 ? ZWART : GEEL;
@@ -170,9 +170,17 @@ function hoogteschaal() {
       const tick = d < 5 ? GEEL : ZWART; const dm = M / 10;
       s += `<rect x="${x}" y="${(top + d * dm + dm * 0.1).toFixed(1)}" width="${narrow}" height="${(dm * 0.8).toFixed(1)}" fill="${tick}"/>`;
     }
-    s += tekst(x + wide + (W - wide) / 2, top + M / 2, String(7 + i), 175, ink);
+    s += tekst(x + wide + (W - wide) / 2, top + M / 2, String(7 + i), Math.min(175, (W - wide) / 1.25), ink);
   }
+  if (!framed) return { w: W, h: 5 * M, svg: svg(W, 5 * M, s) };
   return { w: 420, h: 900, svg: svg(420, 900, `<rect width="420" height="900" fill="${PANEEL}"/>${s}`) };
+}
+
+/** The voorhoogteschaal: a white name plate over the scale, as G.5.1 in its panel. */
+function voorHoogteschaal(naam = 'Hoge brug') {
+  const scale = hoogteschaal(320, false);
+  const plate = `<rect x="50" y="40" width="320" height="80" fill="${WIT}" stroke="${ZWART}" stroke-width="6"/>${tekst(210, 80, naam, 44)}`;
+  return { w: 420, h: 1000, svg: svg(420, 1000, `<rect width="420" height="1000" fill="${PANEEL}"/>${plate}<g transform="translate(50,150)">${scale.svg.replace(/^<svg[^>]*>|<\/svg>$/g, '')}</g>`) };
 }
 
 // ---- H.3: spui- en inlaattekens ---------------------------------------------------------------
@@ -221,10 +229,10 @@ export default {
   'G.4.2': tafereel([[sluisBrug([ROOD, GROEN]), sluisBrug([GROEN], 2, 134), sluisOphaal()]]),
   'G.5.1': hoogteschaal(),
   // referentietekens: the black board with two yellow blocks, or the A.10 or D.2 pair
-  'G.5.1b': tafereel([[
-    { w: 180, h: 360, body: `<rect width="180" height="360" fill="${ZWART}"/><rect x="16" y="84" width="148" height="80" fill="${GEEL}"/><rect x="16" y="238" width="148" height="80" fill="${GEEL}"/>` },
-    { w: 420, h: 360, body: a10(80, 90, 62, true) + a10(340, 90, 62, false) + d2(80, 270, 62, false) + d2(340, 270, 62, true) },
-  ]]),
+  // the black board with two yellow blocks; A.10 or D.2, where they are, serve as referentietekens too
+  'G.5.1b': { w: 180, h: 360, svg: svg(180, 360, `<rect width="180" height="360" fill="${ZWART}"/><rect x="16" y="84" width="148" height="80" fill="${GEEL}"/><rect x="16" y="238" width="148" height="80" fill="${GEEL}"/>`) },
+  // the voorhoogteschaal: a hoogteschaal some way before the bridge, the bridge's name over it
+  'G.5.1a': voorHoogteschaal(),
   'G.5.2': { w: 600, h: 600, svg: svg(600, 600, `<rect width="600" height="600" fill="${GEEL}"/><rect x="42" y="42" width="516" height="516" fill="${ZWART}"/>`
     + `<polygon points="160,80 440,80 300,215" fill="${GEEL}"/>${tekst(300, 372, '3,75', 175, GEEL)}`) },
 
@@ -233,3 +241,9 @@ export default {
   'H.3b': tafereel([[{ w: 880, h: 320, body: rood(57, 90) + rood(166, 90) + rood(110, 164) + enof(307, 110) + wimpel(480, 45) }]]),
   'H.3c': tafereel([[{ w: 1180, h: 320, body: rood(50, 110) + rood(135, 110) + rood(220, 110) + enof(330, 122) + vlag(420, 40) + enof(760, 122, 'of') + wimpel(820, 40) }]]),
 };
+
+// the little scenes on their own, for Seinen (zoeken.js): one picture per state of a bridge or lock
+/** The hoogteschaal itself, as it stands in the water: no panel round it, a metre 160 units, 1.5 m wide. */
+export const hoogteschaalBord = () => hoogteschaal(240, false);
+
+export const SCENE = { tafereel, brug, ophaalbrug, sluis, sluisBrug, sluisOphaal, vasteBrug, a10, d2, d1, a1 };

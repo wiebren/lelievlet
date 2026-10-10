@@ -913,7 +913,10 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   /** The round as it stands, for a feedback report: what kind, how far, and the part asked about now. */
   const info = () => round && { soort: round.kind, vraag: `${Math.min(round.index + 1, round.queue.length)} / ${round.queue.length}`,
     goed: round.goed, fout: round.fout, fouten: round.fouten, klaar: round.done,
-    // the part asked about only once it is answered: Melden must not give the answer away
-    onderdeel: question?.answered ? { nr: question.entry.nr, naam: question.entry.naam } : undefined, type: question?.type };
+    // the part asked about, and what there is to choose from (the card is not on the screenshot); Melden
+    // shows the part only once it is answered, so its details do not give the answer away (feedback.js)
+    onderdeel: question ? { nr: question.entry.nr, naam: question.entry.naam } : undefined, type: question?.type,
+    opties: (question?.type === 'kies' ? question.lit?.map((l) => l.entry) : question?.names)?.map((e) => e.naam),
+    beantwoord: question ? question.answered : undefined };
   return { panelToggled, click, rings, active: () => Boolean(round), info };
 }

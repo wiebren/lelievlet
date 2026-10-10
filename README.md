@@ -444,8 +444,10 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   bestand sorteert ook het niet-benoemde beslag naar wat met giek, gaffel of fok meebeweegt.
 - De knoppen zitten op drie plaatsen. Linksboven staat de kolom met **Boot**, de studentenmuts
   **Oefenen** en in Roeien **Roeicommando**. Oefenen kiest eerst wat je oefent - **Manoeuvres** (de
-  handelingen, alleen in Zeilen) of **Onderdelen** (de quiz) - en toont daaronder het startpaneel
-  daarvan; het opent op wat het laatst gekozen is.
+  handelingen, alleen in Zeilen), **Onderdelen** (de quiz) of **Verkeerstekens** (de quiz op borden,
+  tonnen en seinen, `web/src/bpr/tekenquiz.js`, alleen wat CWO vraagt, de score in
+  `lelievlet.verkeerstekens.v1`) - en toont daaronder het startpaneel daarvan; het opent op wat het
+  laatst gekozen is. Op een telefoon gaan de menu's van de kolom er over de hele breedte onder open.
   Rechtsboven zit het **tandwiel** voor Aanpassen, met onderaan dat paneel de snelheid van de
   animaties (met de sneltoetsen voor de camera). Daaronder het rondje met de **i**: een menu met
   **Melden**, de **Handleiding** en de **Homepagina** (op wiebren.github.io/lelievlet, in een nieuw
@@ -458,9 +460,14 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   Melden. Boot en Oefenen hebben, net als de andere panelen, rechtsboven *Sluiten*.
   Rechtsonder staat de **onderdelenkaart**: met niets geselecteerd is
   dat alleen een ronde zoekknop, met een onderdeel geselecteerd de kaart met groep en naam en
-  rechtsboven daarin dezelfde zoekknop. Die opent de doorzoekbare **Onderdelen**-lijst boven de
-  kaart; elke groepskop daarin heeft een oog dat de hele groep in het model verbergt of weer toont,
-  en *Alles tonen* / *Alles verbergen* doen dat voor alle groepen tegelijk. Wat verder in die hoek staat (de debugknoppen) schuift mee omhoog met de hoogte van de
+  rechtsboven daarin dezelfde zoekknop. Die opent **Zoeken** boven de kaart, met de tabbladen
+  **Onderdelen** (de doorzoekbare lijst; elke groepskop daarin heeft een oog dat de hele groep in het
+  model verbergt of weer toont, en *Alles tonen* / *Alles verbergen* doen dat voor alle groepen
+  tegelijk), **Borden**, **Markeringen**, **Seinen** en **Vlaggen** (`web/src/bpr/zoeken.js`). Wat daar
+  gekozen wordt, krijgt een kaartje met de betekenis en staat bij de boot op het water - een bord of ton
+  ernaast, een brug, sluis of veerpont vooruit; sluiten zet het paneel terug zoals het opende, het
+  tabblad uitgezonderd. Elk paneel gaat ook dicht met een tik ernaast (niet een melding in wording,
+  niet de kaart van een ronde). Wat verder in die hoek staat (de debugknoppen) schuift mee omhoog met de hoogte van de
   kaart (`--info-clear`). De bediening van de boot zelf zit achter de kolom iconen linksboven.
 - Onder het tandwiel zit **Volledig scherm** (de vier hoekhaken, naar binnen gekeerd zodra het aan
   staat), ook te bedienen met de toets `f`; hij verdwijnt zolang het Aanpassen-paneel open staat,

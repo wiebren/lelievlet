@@ -5,16 +5,30 @@
 export const TEMPLATE = `\n<div class="lv" part="viewer">\n
   <canvas id="scene"></canvas>
 
+  <!-- Zoeken: the parts of the boat, and the signs, marks, signals and flags along the water (built in bpr/zoeken.js) -->
   <aside id="parts" hidden>
     <header>
-      <h2>Onderdelen</h2>
+      <h2>Zoeken</h2>
       <button id="parts-close" type="button" class="link-button" aria-label="Sluiten">Sluiten</button>
     </header>
-    <input id="parts-search" type="search" autocomplete="off" placeholder="Zoek onderdeel…" aria-label="Zoek onderdeel">
-    <p class="parts-all"><button id="parts-show-all" type="button" class="link-button">Alles tonen</button>
-      <button id="parts-hide-all" type="button" class="link-button">Alles verbergen</button></p>
-    <div id="parts-list"></div>
-    <p class="hint" id="parts-empty" hidden>Geen onderdeel gevonden.</p>
+    <div class="segmented zoek-tabs" role="tablist" aria-label="Wat zoek je">
+      <button type="button" role="tab" data-tab="onderdelen" aria-selected="true" aria-controls="zoek-onderdelen">Onderdelen</button>
+      <button type="button" role="tab" data-tab="borden" aria-selected="false" aria-controls="zoek-borden">Borden</button>
+      <button type="button" role="tab" data-tab="markeringen" aria-selected="false" aria-controls="zoek-markeringen">Markeringen</button>
+      <button type="button" role="tab" data-tab="seinen" aria-selected="false" aria-controls="zoek-seinen">Seinen</button>
+      <button type="button" role="tab" data-tab="vlaggen" aria-selected="false" aria-controls="zoek-vlaggen">Vlaggen</button>
+    </div>
+    <div id="zoek-onderdelen" class="zoek-pane" role="tabpanel">
+      <input id="parts-search" type="search" autocomplete="off" placeholder="Zoek onderdeel…" aria-label="Zoek onderdeel">
+      <p class="parts-all"><button id="parts-show-all" type="button" class="link-button">Alles tonen</button>
+        <button id="parts-hide-all" type="button" class="link-button">Alles verbergen</button></p>
+      <div id="parts-list"></div>
+      <p class="hint" id="parts-empty" hidden>Geen onderdeel gevonden.</p>
+    </div>
+    <div id="zoek-borden" class="zoek-pane" role="tabpanel" hidden></div>
+    <div id="zoek-markeringen" class="zoek-pane" role="tabpanel" hidden></div>
+    <div id="zoek-seinen" class="zoek-pane" role="tabpanel" hidden></div>
+    <div id="zoek-vlaggen" class="zoek-pane" role="tabpanel" hidden></div>
   </aside>
 
 
@@ -123,7 +137,6 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
           <path d="M7.8 14.6c-2 0-3.3 1.1-3.3 2.4s1.3 2.4 3.3 2.4c3.4 0 5-4.8 8.4-4.8 2 0 3.3 1.1 3.3 2.4s-1.3 2.4-3.3 2.4c-3.4 0-5-4.8-8.4-4.8z"/>
         </g>
       </svg>
-      <span class="badge" id="reef-count" aria-hidden="true" hidden>0</span>
     </button>
     <div id="boat-panel" class="popover" role="group" aria-label="Boot" hidden>
       <div class="popover-head"><span class="caption">Modus</span><button type="button" class="link-button popover-close" aria-label="Sluiten">Sluiten</button></div>
@@ -164,8 +177,8 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
 
 
 
-    <!-- Oefenen: first what to practise, then its own panel - Manoeuvres (handelingen.js) or
-         Onderdelen (quiz.js) -->
+    <!-- Oefenen: first what to practise, then its own panel - Manoeuvres (handelingen.js),
+         Onderdelen (quiz.js) or Verkeerstekens (bpr/tekenquiz.js) -->
     <button id="learn-toggle" class="icon-button" type="button" aria-label="Oefenen" title="Oefenen" aria-expanded="false" aria-controls="learn-panel" disabled>
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M12 4 2.5 8.2 12 12.4l9.5-4.2z"/>
@@ -178,6 +191,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
       <div class="choices row" id="learn-kind">
         <button type="button" data-learn="manoeuvres" id="learn-manoeuvres" aria-pressed="true">Manoeuvres</button>
         <button type="button" data-learn="onderdelen" aria-pressed="false">Onderdelen</button>
+        <button type="button" data-learn="verkeerstekens" aria-pressed="false">Verkeerstekens</button>
       </div>
       <div id="ops-panel" class="learn-section">
         <div class="ops">
@@ -235,6 +249,38 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
         <button id="quiz-clear-no" type="button" class="link-button">Nee</button>
       </span>
       <button id="quiz-tables" type="button" class="link-button" hidden>Tabellen</button>
+    </footer>
+      </div>
+      <div id="teken-quiz" class="learn-section" hidden>
+    <div class="segmented soort" id="teken-soort" role="radiogroup" aria-label="Welke tekens">
+        <button type="button" role="radio" data-soort="alles" aria-checked="true">Alles</button>
+        <button type="button" role="radio" data-soort="borden" aria-checked="false">Borden</button>
+        <button type="button" role="radio" data-soort="tonnen" aria-checked="false">Tonnen</button>
+        <button type="button" role="radio" data-soort="seinen" aria-checked="false">Seinen</button>
+    </div>
+    <div class="kinds" id="teken-kind" role="radiogroup" aria-label="Soort oefening">
+      <button type="button" role="radio" data-kind="zien" aria-checked="true"><b>Wat zie je?</b><span>Hoe het heet en wat je moet doen</span></button>
+      <button type="button" role="radio" data-kind="herkennen" aria-checked="false"><b>Welk teken?</b><span>Kies het plaatje bij de vraag</span></button>
+      <button type="button" role="radio" data-kind="water" aria-checked="false"><b>Op het water</b><span>Kijk vanaf het roer</span></button>
+      <button type="button" role="radio" data-kind="gemengd" aria-checked="false"><b>Gemengd</b><span>Alles door elkaar</span></button>
+    </div>
+    <div class="option">
+      <span>Vragen</span>
+      <div class="segmented" id="teken-length" role="radiogroup" aria-label="Aantal vragen">
+        <button type="button" role="radio" data-length="10" aria-checked="true">10</button>
+        <button type="button" role="radio" data-length="20" aria-checked="false">20</button>
+        <button type="button" role="radio" data-length="alles" aria-checked="false">Alles</button>
+      </div>
+    </div>
+    <button id="teken-start" type="button" class="primary">Start</button>
+    <button id="teken-wrong" type="button" hidden>Oefen je fouten</button>
+    <footer>
+      <span id="teken-total"></span>
+      <button id="teken-clear" type="button" class="link-button">Wissen</button>
+      <span id="teken-clear-confirm" hidden>Score wissen?
+        <button id="teken-clear-yes" type="button" class="link-button">Ja</button>
+        <button id="teken-clear-no" type="button" class="link-button">Nee</button>
+      </span>
     </footer>
       </div>
     </div>
@@ -392,9 +438,9 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
   </aside>
 
   <!-- the part card, in the bottom right corner: with nothing selected only its search button, which
-       opens the list of Onderdelen above it -->
+       opens Zoeken above it -->
   <div id="info" class="leeg">
-    <button id="parts-toggle" class="info-search" type="button" aria-label="Zoek onderdeel" aria-expanded="false" aria-controls="parts" title="Zoek onderdeel">
+    <button id="parts-toggle" class="info-search" type="button" aria-label="Zoeken: onderdelen, borden, markeringen, seinen en vlaggen" aria-expanded="false" aria-controls="parts" title="Zoeken">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/>
       </svg>

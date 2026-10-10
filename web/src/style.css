@@ -95,10 +95,10 @@
 
 
 
-/* Onderdelen: opened by the search in the part card, and standing over it in the bottom right corner.
+/* Zoeken: opened by the search in the part card, and standing over it in the bottom right corner.
    Its list scrolls inside the panel, which stops well clear of the top. */
 #parts {
-  position: absolute; right: 16px; bottom: var(--info-clear, 16px); width: 280px; max-height: calc(100% - var(--info-clear, 16px) - var(--column-clear, 184px));   /* clear of the icons over it */
+  position: absolute; right: 16px; bottom: var(--info-clear, 16px); width: 360px; max-height: calc(100% - var(--info-clear, 16px) - var(--column-clear, 184px));   /* clear of the icons over it */
   display: flex; flex-direction: column; z-index: 3;
   padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
   backdrop-filter: blur(8px);
@@ -143,6 +143,73 @@
 #parts-list .part[aria-current="true"] .times, #parts-list .part[aria-current="true"] .gebied { color: #fff; opacity: 0.75; }
 #parts-list .part:disabled { color: var(--muted); opacity: 0.45; cursor: default; }
 #parts-list .part:disabled:hover { color: var(--muted); }
+
+/* Zoeken: tabs over the panes, one shown at a time; each pane a column whose list scrolls */
+/* on every tab but Onderdelen the panel keeps its full height: filtering on a colour or a shape changes
+   how long the list is, and the chips over it would otherwise jump up and down with it */
+#parts:has(#zoek-borden:not([hidden])), #parts:has(#zoek-markeringen:not([hidden])), #parts:has(#zoek-seinen:not([hidden])), #parts:has(#zoek-vlaggen:not([hidden])) {
+  height: calc(100% - var(--info-clear, 16px) - var(--column-clear, 184px));
+}
+#parts .zoek-tabs { display: flex; margin-bottom: 10px; }
+#parts .zoek-tabs button { flex: 1 1 auto; padding: 4px 3px; font-size: 12.5px; }
+#parts .zoek-tabs button[aria-selected="true"] { background: #fff; color: var(--accent); box-shadow: 0 1px 2px rgba(22, 34, 46, 0.18); }
+#parts .zoek-pane { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+#parts .zoek-pane[hidden] { display: none; }
+#parts .zoek-veld {
+  width: 100%; font: inherit; font-size: 15px; padding: 5px 8px; border-radius: 8px;
+  border: 1px solid var(--line); background: #fff; color: var(--text);
+}
+#parts .zoek-veld:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* what a sign or mark looks like: chips to tap, a second row for the kinds within a colour */
+#parts .zoek-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+#parts .zoek-chips.sub { margin-top: 5px; }
+#parts .zoek-chips[hidden] { display: none; }
+#parts .zoek-chips .chip {
+  display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 12.5px;
+  border: 1px solid var(--line); background: #fff; color: var(--text);
+}
+#parts .zoek-chips.sub .chip { font-size: 12px; padding: 2px 8px; background: rgba(22, 34, 46, 0.04); }
+#parts .zoek-chips .chip:hover { border-color: var(--accent); }
+#parts .zoek-chips .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+#parts .zoek-chips .dot { width: 11px; height: 11px; border-radius: 50%; border: 1px solid rgba(22, 34, 46, 0.3); flex: none; }
+#parts .zoek-scroll { flex: 1 1 auto; min-height: 0; overflow: auto; margin: 8px -6px 0; padding: 0 6px; touch-action: pan-y; overscroll-behavior: contain; }
+#parts .zoek-lijst section { margin-bottom: 8px; }
+#parts .zoek-lijst section[hidden] { display: none; }
+#parts .zoek-lijst h3 { margin: 6px 0 4px; font-size: 12px; font-weight: 600; color: var(--muted); }
+#parts .zoek-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
+#parts .zoek-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px 5px; border-radius: 8px;
+  border: 1px solid transparent; background: none; color: var(--text); font-size: 12px; line-height: 1.2; min-width: 0;
+}
+#parts .zoek-item[hidden] { display: none; }
+#parts .zoek-item img { width: 68px; height: 60px; object-fit: contain; }
+#parts .zoek-item span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#parts .zoek-item.mark img { width: 76px; height: 76px; background: linear-gradient(transparent 82%, rgba(29, 78, 121, 0.22) 82%); border-radius: 6px; }
+#parts .zoek-item.mark span { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-align: center; }
+/* a signal: the BPR's scene of it, wider than a sign, two to a row */
+#parts .zoek-grid:has(.sein) { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+#parts .zoek-item.sein img { width: 100%; height: 76px; }
+#parts .zoek-item.sein span { white-space: normal; text-align: center; }
+/* a flag: its name under it, on two lines at most */
+#parts .zoek-item.vlag img { width: 64px; height: 50px; }
+#parts .zoek-item.vlag span { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-align: center; }
+#parts .zoek-kaart-plaat { display: block; width: 100%; max-height: 150px; object-fit: contain; margin-bottom: 8px; border-radius: 6px; }
+#parts .zoek-item:hover { border-color: var(--line); background: rgba(11, 92, 173, 0.05); }
+#parts .zoek-item[aria-current="true"] { border-color: var(--accent); background: rgba(11, 92, 173, 0.1); }
+/* the card of what was picked, at the top of the list */
+#parts .zoek-kaart { position: relative; margin: 2px 0 10px; padding: 10px 12px; border-radius: 10px; background: #fff; border: 1px solid var(--line); font-size: 13px; line-height: 1.45; }
+#parts .zoek-kaart[hidden] { display: none; }
+#parts .zoek-kaart-kop { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; padding-right: 18px; }
+#parts .zoek-kaart-kop img { width: 84px; height: 84px; object-fit: contain; flex: none; }
+#parts .zoek-kaart-kop .code { font-size: 11px; font-weight: 600; color: var(--muted); }
+#parts .zoek-kaart-kop h3 { margin: 1px 0 0; font-size: 14px; line-height: 1.3; }
+#parts .zoek-kaart p { margin: 0 0 6px; }
+#parts .zoek-kaart-sluit { position: absolute; top: 4px; right: 6px; border: 0; background: none; font-size: 18px; line-height: 1; padding: 4px; color: var(--muted); }
+#parts .zoek-kaart-sluit:hover { color: var(--accent); }
+#parts .zoek-nacht { color: var(--accent); font-size: 12.5px; padding: 0; }
+/* a sign CWO does not ask about: there to look up, a little faded, and said so on its card */
+#parts .zoek-item.niet-cwo img { opacity: 0.6; }
+#parts .zoek-kaart p.niet-cwo { color: var(--muted); font-size: 12px; font-style: italic; }
 
 .icon-button {
   position: absolute; top: 16px; right: 16px; width: 44px; height: 44px; display: grid; place-items: center;
@@ -340,9 +407,15 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 }
 #controls .icon-button { position: relative; top: auto; right: auto; left: auto; }
 /* Oefenen: what to practise, then that one's start panel under it */
-#learn-panel { width: 312px; max-width: calc(100cqw - 88px); }
+#learn-panel { width: 336px; max-width: calc(100cqw - 88px); }
 #learn-panel .popover-head { margin: 0 0 4px; }
 #learn-panel #learn-kind { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+/* three to choose from on one line: Manoeuvres, Onderdelen, Verkeerstekens, each as wide as it needs */
+#learn-panel #learn-kind { flex-wrap: nowrap; gap: 2px; }
+#learn-panel #learn-kind button { flex: 1 1 auto; min-width: 0; padding: 5px 6px; font-size: 13.5px; }
+/* Verkeerstekens: what to practise on as a row of its own, the width of the panel */
+#teken-quiz .soort { display: flex; margin-bottom: 8px; }
+#teken-quiz .soort button { flex: 1; padding: 3px 4px; }
 #learn-panel .ops { width: auto; }
 /* Roeicommando: the four commando's the whole boat gets at once, then the two boorden side by side */
 .popover .boorden { display: flex; gap: 14px; align-items: start; }
@@ -368,7 +441,7 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 .popover .ops .go button { flex: 1; padding: 9px 12px; }
 .popover .ops .go button:disabled { opacity: 0.4; cursor: default; }
 .popover .reef input { width: 100%; accent-color: var(--accent); }
-#controls .badge, #log-toggle .badge {
+#log-toggle .badge {
   position: absolute; right: 1px; bottom: 1px; min-width: 16px; padding: 0 3px; border-radius: 999px;
   background: var(--accent); color: #fff; font-size: 10px; line-height: 16px; font-variant-numeric: tabular-nums;
 }
@@ -546,14 +619,33 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   #info { right: 16px; left: 16px; min-width: 0; }
 }
 
+/* a very narrow embed: the five tabs of Zoeken and the three of Oefenen go onto two lines rather than
+   running out of their panel */
+@container (max-width: 380px) {
+  #parts .zoek-tabs { flex-wrap: wrap; border-radius: 12px; }
+  #parts .zoek-tabs button { flex: 1 1 30%; }
+  #learn-panel #learn-kind { flex-wrap: wrap; }
+}
+
 /* too narrow an embed for the two boorden beside each other: they stack */
 @container (max-width: 320px) {
   .popover .boorden { flex-direction: column; gap: 8px; }
 }
 
 @container (max-width: 640px) {
+  /* on a phone every menu takes the width of the screen, less the margins: beside the column, or the
+     column of icons on the right, there is too little room for what they hold. The popovers of the
+     column open under it (modes.js place() sets how far down and how high they may be). */
+  .lv .popover, .lv #learn-panel { left: 0; width: calc(100cqw - 32px); max-width: none; }
+  .lv .popover .ops { width: auto; }
+  #customize, #feedback { left: 16px; right: 16px; width: auto; }
   /* as wide as the embed allows, over the part card */
   #parts { width: auto; left: 16px; }
+  /* a sign or mark picked: the panel down to its card, so what is out on the water is seen over it */
+  #parts.gekozen .zoek-tabs, #parts.gekozen .zoek-pane:not([hidden]) > :not(.zoek-scroll),
+  #parts.gekozen .zoek-lijst, #parts.gekozen .zoek-scroll > .hint { display: none; }
+  #parts.gekozen { max-height: 45%; height: auto !important; }
+  #parts.gekozen .zoek-scroll { margin-top: 0; }
   #procedure { padding: 8px 10px; gap: 6px; }      /* full width, with the buttons still 40 px */
 }
 
@@ -586,18 +678,18 @@ button:hover { border-color: var(--accent); color: var(--accent); }
 .segmented button:hover { color: var(--accent); }
 .segmented button[aria-checked="true"] { background: #fff; color: var(--accent); box-shadow: 0 1px 2px rgba(22, 34, 46, 0.18); }
 #quiz .warning { margin: 12px 0 0; color: var(--quiz-fout); font-size: 12px; }
-#quiz #quiz-start, #quiz #quiz-wrong { margin-top: 12px; width: 100%; padding: 9px 12px; }
-#quiz #quiz-wrong { margin-top: 6px; }
+#quiz #quiz-start, #quiz #quiz-wrong, #teken-start, #teken-wrong { margin-top: 12px; width: 100%; padding: 9px 12px; }
+#quiz #quiz-wrong, #teken-wrong { margin-top: 6px; }
 button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
 button.primary:hover { background: #094c90; color: #fff; }
 button.primary:disabled { opacity: 0.4; cursor: default; }
 button.primary:disabled:hover { background: var(--accent); }
-#quiz footer {
+#quiz footer, #teken-quiz footer {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-top: 12px; padding-top: 10px;
   border-top: 1px solid var(--line); color: var(--muted); font-size: 12px;
 }
-#quiz footer #quiz-total { flex: 1; }
-#quiz footer .link-button { color: var(--accent); font-size: 12px; }
+#quiz footer #quiz-total, #teken-quiz footer #teken-total { flex: 1; }
+#quiz footer .link-button, #teken-quiz footer .link-button { color: var(--accent); font-size: 12px; }
 
 /* debug.quiztabellen: the resolved quiz configuration, wide and scrollable both ways */
 #quiz-debug {
@@ -654,6 +746,18 @@ button.primary:disabled:hover { background: var(--accent); }
 .focus-card .answer.goed .key, .focus-card .answer.fout .key { color: inherit; }
 /* Kies het onderdeel: a chip per lit part, in the colour that part is lit in */
 .focus-card .answers.chips { display: flex; gap: 8px; }
+/* Verkeerstekens (tekenquiz.js): the picture asked about, and four pictures to choose from */
+.focus-card .teken-plaat { display: block; height: 110px; max-width: 100%; margin: 10px auto 0; object-fit: contain; }
+.focus-card .teken-plaat.breed { height: 120px; }
+.focus-card .teken-plaat[hidden] { display: none; }
+.focus-card .answers.lang { grid-template-columns: 1fr; }
+.focus-card .vraag.lang { font-size: 15px; line-height: 1.35; }
+.focus-card .answers.plaatjes { grid-template-columns: repeat(4, 1fr); }
+.focus-card .answers.plaatjes.breed { grid-template-columns: 1fr 1fr; }
+.focus-card .answer.plaatje { position: relative; justify-content: center; align-items: center; padding: 8px; }
+.focus-card .answer.plaatje .key { position: absolute; top: 4px; left: 6px; }
+.focus-card .answer.plaatje img { width: 100%; height: 64px; object-fit: contain; }
+.focus-card .answers.plaatjes.breed .answer.plaatje img { height: 80px; }
 .focus-card .chip {
   display: grid; place-items: center; width: 52px; height: 44px; padding: 0;
   border: 2px solid var(--chip); border-radius: 10px; background: var(--chip); color: #fff;
@@ -723,7 +827,7 @@ button.primary:disabled:hover { background: var(--accent); }
   }
   .focus-card.typing { top: 0; bottom: auto; border-radius: 0 0 16px 16px; border-width: 0 0 1px; padding-top: calc(8px + env(safe-area-inset-top)); }
   .focus-card .vraag { margin-top: 4px; font-size: 16px; }
-  .focus-card:not(.results) .hint { display: none; }
+  .focus-card:not(.results, .herkennen) .hint { display: none; }   /* in Welk teken? the hint is the question */
   .focus-card .answers { grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
   .focus-card .answer { min-height: 42px; padding: 6px 8px; align-items: center; font-size: 13px; line-height: 1.25; }
   .focus-card .answers.chips { justify-content: space-between; }

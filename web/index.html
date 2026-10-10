@@ -19,7 +19,9 @@
 
     // the viewer fills the page, which never scrolls: once the keyboard is put away after typing in a
     // field, the page is put back where it was - a phone may have moved it to keep the field in view
-    addEventListener('focusout', () => setTimeout(() => { if (scrollX || scrollY) scrollTo(0, 0); }, 100));
+    addEventListener('focusout', () => setTimeout(() => {
+      if ((scrollX || scrollY) && !document.activeElement?.matches?.('input, textarea')) scrollTo(0, 0);   // not while on to the next field
+    }, 100));
 
     Lelievlet.create(document.getElementById('app'), {
       // assets: '/',                                    // standaard: naast het script (dev: de serverroot)

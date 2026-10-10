@@ -16,6 +16,8 @@ import { initLocator } from './locator.js';
 import { initFullscreen } from './fullscreen.js';
 import { initFeedback } from './feedback.js';
 import { initBprDebug } from './bpr/debug.js';
+import { initZoeken } from './bpr/zoeken.js';
+import { initTekenQuiz } from './bpr/tekenquiz.js';
 import { useTrees, buildTrees } from './bvh.js';
 import { makeAsset } from './assets.js';
 import { naamVan, merge, unpack, pack, TYPING } from './config.js';
@@ -90,6 +92,7 @@ export function mount(ui, host, config) {
     const toggle = button && $(button);
     const aside = $(panel);
     const setOpen = (open) => {
+      if (aside.hidden === !open) return;          // already so: Escape or another panel must not reset what is not open
       aside.hidden = !open;
       toggle?.setAttribute('aria-expanded', String(open));
       onToggle?.(open);
@@ -158,6 +161,7 @@ export function mount(ui, host, config) {
   document.addEventListener('pointerup', (e) => {
     const from = tapFrom; tapFrom = null;
     if (!from || !e.isPrimary || Math.hypot(e.clientX - from.x, e.clientY - from.y) > 8) return;
+    if (from.path.includes($('feedback-toggle'))) return;   // Melden takes its picture first, then puts the others away itself
     for (const [panel, toggle, close] of besides) {
       const el = $(panel);
       if (el.hidden || from.path.includes(el) || (toggle && from.path.includes($(toggle)))) continue;
@@ -210,6 +214,26 @@ export function mount(ui, host, config) {
   const groups = new Map();    // groep id -> { title, node, parts[] }
   let modelBox = new THREE.Box3();
   let hullBox = new THREE.Box3();          // the hull alone, without the rig: the camera never stands inside it
+
+  // Zoeken has five tabs: Onderdelen, Borden, Markeringen, Seinen and Vlaggen. A sign or mark picked is put out on the
+  // water beside the boat; it goes again with another tab, or when the panel closes.
+  const zoeken = initZoeken({ ui, renderer, scene, camera, boat: () => hullBox.getCenter(new THREE.Vector3()), lookFromHelm: (at) => lookFromHelm(at),
+    waterline: () => modes?.water.position.y ?? 0, windArrow: () => modes?.windArrow ?? null, view: () => (flight ? { position: flight.to.clone(), target: flight.toTarget.clone() }   // where it is going, when on its way
+      : { position: camera.position.clone(), target: controls.target.clone() }),
+    fly: (position, target) => startFlight(position, target, 900), setDark: (k) => { zoekDark = k; } });
+  let zoekDark = null;
+  const zoekTabs = [...ui.querySelectorAll('.zoek-tabs [role="tab"]')];
+  for (const tab of zoekTabs) {
+    tab.addEventListener('click', () => {
+      if (tab.getAttribute('aria-selected') === 'true') return;   // the tab that is open: what is picked in it stays
+      for (const t of zoekTabs) { const on = t === tab; t.setAttribute('aria-selected', String(on)); $(t.getAttribute('aria-controls')).hidden = !on; }
+      zoeken.release(); zoeken.tab(tab.dataset.tab);
+    });
+  }
+  // Oefenen, Verkeerstekens: the signs, marks and signals of Zoeken as a quiz; for a round every panel is shut
+  const tekenQuiz = initTekenQuiz({ ui, wrap, zoeken, openLearn: (kind) => openLearn(kind), opslaan, engaged, realTarget, signal,
+    closePanels: () => { for (const [panel, close] of closePanel) if (panel !== 'toestand') close(); if (!$('customize').hidden) $('customize-close').click(); } });
+  onDestroy(() => tekenQuiz.stop());
   let selected = [];           // several at once: one row of the parts list can stand for four dollen
   let modes = null;
   let paintScheme = null;      // the older paint scheme; see initPaint in customize.js
@@ -506,6 +530,8 @@ export function mount(ui, host, config) {
 
   /** The list only follows the mode while it is open, so a cheap poll is enough. */
   function partsPanelToggled(open) {
+    // closed, it opens again as new: no search, nothing picked on any tab (the tab itself stays)
+    if (!open) { zoeken.reset(); $('parts-search').value = ''; if (rows.length) filterPartList(); }
     clearInterval(partsPoll);
     partsPoll = null;
     if (!open || !rows.length) return;
@@ -709,7 +735,7 @@ export function mount(ui, host, config) {
   canvas.addEventListener('pointerup', (e) => {
     if (!downAt || e.pointerId !== downAt.id || Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > 4) return;   // was a drag
     downAt = null;
-    if (handelingen?.active()) return;             // a run of an operation: the boat is looked at, not handled
+    if (handelingen?.active() || tekenQuiz.active()) return;   // a run, or a round of Verkeerstekens: the boat is looked at, not handled
     const part = pick(e);
     if (quiz?.click(part, lastHit)) return;        // a question is open: the click is an answer, nothing else
     select(part ? [part] : [], lastHit);           // clicking the model picks the one part, not its namesakes
@@ -718,7 +744,7 @@ export function mount(ui, host, config) {
   });
   // Escape lets go of the selection, as a click on nothing does; a quiz round keeps its own Escape
   window.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape' || !engaged() || !selected.length || quiz?.active()) return;
+    if (e.key !== 'Escape' || !engaged() || !selected.length || quiz?.active() || tekenQuiz.active()) return;
     if (realTarget(e).closest?.(TYPING)) return;
     select([]);
   }, { signal });
@@ -735,7 +761,7 @@ export function mount(ui, host, config) {
   };
   canvas.addEventListener('pointerdown', (e) => {
     // not in a focus mode: a run is looked at, and in a quiz round a click on the helmstok is an answer
-    if (e.button !== 0 || handelingen?.active() || quiz?.active() || !modes?.helm.grab(pick(e))) return;
+    if (e.button !== 0 || handelingen?.active() || quiz?.active() || tekenQuiz.active() || !modes?.helm.grab(pick(e))) return;
     e.stopImmediatePropagation();
     steering = true; downAt = null; steerFrom = [e.clientX, e.clientY]; steerId = e.pointerId;
     canvas.setPointerCapture(e.pointerId);
@@ -1145,8 +1171,8 @@ export function mount(ui, host, config) {
   onDestroy(() => cmdCover.disconnect());
 
   // ---------------------------------------------------------------- Oefenen
-  // A popover of the column: first what to practise - Manoeuvres (handelingen.js) or Onderdelen
-  // (quiz.js) - then that one's own start panel. It opens on the one chosen last; Manoeuvres is only
+  // A popover of the column: first what to practise - Manoeuvres (handelingen.js), Onderdelen
+  // (quiz.js) or Verkeerstekens (bpr/tekenquiz.js) - then that one's own start panel. It opens on the one chosen last; Manoeuvres is only
   // there while sailing or rowing (modes.js hides its button), and without it the panel shows Onderdelen.
   let learnKind = 'manoeuvres';
   let openLearn = () => {};
@@ -1158,8 +1184,10 @@ export function mount(ui, host, config) {
       for (const b of buttons) b.setAttribute('aria-pressed', String(b.dataset.learn === shown));
       $('ops-panel').hidden = shown !== 'manoeuvres';
       $('quiz').hidden = shown !== 'onderdelen';
+      $('teken-quiz').hidden = shown !== 'verkeerstekens';
       const open = !$('learn-panel').hidden;
       quiz?.panelToggled(open && shown === 'onderdelen');
+      if (open && shown === 'verkeerstekens') tekenQuiz.refresh();
       if (open && shown === 'manoeuvres') handelingen?.refresh();
       modes?.placePopover();                                  // its height changed: it has to fit again
     };
@@ -1317,7 +1345,11 @@ export function mount(ui, host, config) {
     try { const v = localStorage.getItem(RUN_VIEW_STORE); return RUN_VIEWS.includes(v) ? v : 'vogel'; } catch { return 'vogel'; }
   })();
   /** The view in force: the one chosen while the card of a run is open. */
-  const runView = () => (wrap.classList.contains('ops-on') ? runViewChosen : 'vogel');
+  // Oefenen, Verkeerstekens, Op het water: from the helm as in Schipper, looking at what was put out
+  let helmLook = null;
+  // let go of, the view was never Schipper as far as followRunView is concerned: Zoeken flies back itself
+  const lookFromHelm = (at) => { helmLook = at ? at.clone() : null; easing = null; if (!at) viewWas = 'vogel'; };
+  const runView = () => (helmLook ? 'schipper' : wrap.classList.contains('ops-on') ? runViewChosen : 'vogel');
   function chooseRunView(v) {
     if (!RUN_VIEWS.includes(v) || v === runViewChosen) return;
     runViewChosen = v;
@@ -1410,7 +1442,7 @@ export function mount(ui, host, config) {
       helmZ += ((Math.abs(wind) > 0.05 ? Math.sign(wind) * 0.55 : 0) - helmZ) * (1 - Math.exp(-dt * 1.5));
       const eye = helmEye();
       abovePos.set(eye.x, eye.y, helmZ);
-      aboveTarget.set(eye.x + 12, eye.y - 0.9, helmZ * 0.3);
+      if (helmLook) aboveTarget.copy(helmLook); else aboveTarget.set(eye.x + 12, eye.y - 0.9, helmZ * 0.3);
       controls.maxDistance = MAX_DISTANCE;
       horizon.matrix.makeRotationY(dock.heading).setPosition(abovePos.x, 0, abovePos.z);
       if (easing?.t >= 1) {
@@ -1476,8 +1508,9 @@ export function mount(ui, host, config) {
     modes?.update(dt, speed);
     turnWithHer();
     if (!followRunView(dt)) keepTrackInView(dt);
-    night?.hold(modes?.darkness() ?? bprDark);                      // nachtklaar makes it dark itself, and so does the BPR panel
+    night?.hold(modes?.darkness() ?? zoekDark ?? bprDark);          // nachtklaar makes it dark itself, and so do Zoeken and the BPR panel
     bpr?.update(dt);
+    zoeken.update(dt);
     night?.update(dt, speed);
     paintScheme?.update(dt);
     stepProcedureBar();
@@ -1694,6 +1727,8 @@ export function mount(ui, host, config) {
                         speelt: p.playing },
       handeling: handelingen?.info() ?? undefined,
       quiz: quiz?.info() ?? undefined,
+      verkeerstekens: tekenQuiz.info() ?? undefined,
+      zoeken: zoeken.info() ?? undefined,              // the sign, mark, signal or flag out on the water
       beeld: runView(),
       snelheid: speed,
       // what stands open, and what it says: the card of a run or a quiz, the procedure bar, the calls

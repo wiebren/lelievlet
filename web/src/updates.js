@@ -2,6 +2,14 @@
 // date first; add to it with every version that goes out. Only what can be found in the menus.
 
 export const UPDATES = [
+  { datum: '2026-10-10', punten: [
+    'Zoeken heeft naast Onderdelen nu Borden, Markeringen, Seinen en Vlaggen. Zoek op naam, of op wat je ziet: kleur, vorm of patroon.',
+    'Kies je een bord, ton, sein of vlag, dan lees je wat het betekent en staat het bij de boot op het water. Lichten kun je ook ’s nachts bekijken.',
+    'Seinen: de lichten bij bruggen, sluizen en spuisluizen, elke stand met zijn eigen betekenis.',
+    'Oefenen › Verkeerstekens: een quiz op borden, tonnen en seinen, ook vanaf het roer op het water. Je score wordt bijgehouden.',
+    'Ook de borden die niet bij CWO horen staan erin, om op te zoeken; in de quiz komen ze niet.',
+    'Op een telefoon openen de menu’s over de hele breedte.',
+  ] },
   { datum: '2026-10-09', punten: [
     'Aanpassen: een schuif voor de kleur van de zeilen, van helder wit tot heel donker bruin. Het menu is korter op een telefoon.',
     'Nieuw: een handleiding met plaatjes, en een homepagina over het project en hoe je de viewer op je eigen site zet. Beide in het menu onder de i.',

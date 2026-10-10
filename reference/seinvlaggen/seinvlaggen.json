@@ -1,0 +1,4857 @@
+[
+ {
+  "id": "A",
+  "kind": "letter",
+  "naam": "Alfa",
+  "naam_nl": "Lettervlag A",
+  "spelwoord": "Alfa",
+  "ontwerp": {
+   "vorm": "zwaluwstaart",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     0.75,
+     0.5
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "verticaal",
+     "verdeling": [
+      0.5,
+      0.5
+     ],
+     "kleuren": [
+      "wit",
+      "blauw"
+     ]
+    }
+   ],
+   "omschrijving": "verticaal gedeeld, wit aan de broeking, blauw aan de vlucht; zwaluwstaart"
+  },
+  "zoek": {
+   "kleuren": [
+    "wit",
+    "blauw"
+   ],
+   "patroon": [
+    "verticaal gedeeld",
+    "zwaluwstaart"
+   ],
+   "vorm": "zwaluwstaart"
+  },
+  "betekenis_nl": "Ik heb een duiker onder water; houd ruim afstand en vaar langzaam.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "I have a diver down; keep well clear at slow speed.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "BPR 3.38 / RPR 3.34"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "afwijkingen": "Diepte van de zwaluwstaart verschilt per tekening: RvW ~0,15 L, Commons 0,25 L, NGA ~0,32 L. NGA tekent het witte deel smaller (~0,28 L); RvW, Commons en het blazoen ('per pale') geven helften.",
+  "bpr": "BPR 3.38 / RPR 3.34: 'de internationale seinvlag A' (of een stijve replica) = duiker te water; 's nachts verlicht.",
+  "cwo": [
+   "Kielboot III / Gevorderd (BPR 3.38)"
+  ],
+  "relevant": true,
+  "wedstrijd": "Alleen in combinatie: OW boven A / N boven A = vandaag geen wedstrijden meer."
+ },
+ {
+  "id": "B",
+  "kind": "letter",
+  "naam": "Bravo",
+  "naam_nl": "Lettervlag B",
+  "spelwoord": "Bravo",
+  "ontwerp": {
+   "vorm": "zwaluwstaart",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     0.75,
+     0.5
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "rood"
+    }
+   ],
+   "omschrijving": "effen rood; zwaluwstaart"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood"
+   ],
+   "patroon": [
+    "effen",
+    "zwaluwstaart"
+   ],
+   "vorm": "zwaluwstaart"
+  },
+  "betekenis_nl": "Ik laad, los of vervoer gevaarlijke stoffen.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "I am taking in, or discharging, or carrying dangerous goods.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "BPR 10.04"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "geluid_opmerking": "Met geluid (morse) alleen te geven volgens de BVA/COLREGs (ICS note 1).",
+  "bpr": "BPR 10.04: zeegaand schip met gevaarlijke stoffen (bijlage 12) voert overdag seinvlag B (≥ 6 m hoog), 's nachts een rood helder rondom licht. Alleen op vaarwegen tussen zee en zeehavens (hoofdstuk 10).",
+  "relevant": true
+ },
+ {
+  "id": "C",
+  "kind": "letter",
+  "naam": "Charlie",
+  "naam_nl": "Lettervlag C",
+  "spelwoord": "Charlie",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "horizontaal",
+     "verdeling": [
+      0.2,
+      0.2,
+      0.2,
+      0.2,
+      0.2
+     ],
+     "kleuren": [
+      "blauw",
+      "wit",
+      "rood",
+      "wit",
+      "blauw"
+     ]
+    }
+   ],
+   "omschrijving": "vijf gelijke horizontale banen blauw-wit-rood-wit-blauw"
+  },
+  "zoek": {
+   "kleuren": [
+    "blauw",
+    "wit",
+    "rood"
+   ],
+   "patroon": [
+    "horizontale strepen"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Ja (bevestigend).",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "Yes (affirmative or \"The significance of the previous group should be read in the affirmative\").",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "RvW Wedstrijdseinen (PDF p. 4–5)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "geluid_opmerking": "Met geluid (morse) alleen te geven volgens de BVA/COLREGs (ICS note 1).",
+  "wedstrijd": "De positie van het volgende merkteken is gewijzigd (RvW 33), met herhaalde geluidsseinen.",
+  "opmerking": "N boven C (N.C.) is een noodsein (BVA bijlage IV f).",
+  "relevant": true
+ },
+ {
+  "id": "D",
+  "kind": "letter",
+  "naam": "Delta",
+  "naam_nl": "Lettervlag D",
+  "spelwoord": "Delta",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "horizontaal",
+     "verdeling": [
+      0.2,
+      0.6,
+      0.2
+     ],
+     "kleuren": [
+      "geel",
+      "blauw",
+      "geel"
+     ]
+    }
+   ],
+   "omschrijving": "horizontaal geel-blauw-geel, blauwe middenbaan 3× zo hoog (1 : 3 : 1)"
+  },
+  "zoek": {
+   "kleuren": [
+    "geel",
+    "blauw"
+   ],
+   "patroon": [
+    "horizontale strepen"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Houd van mij vrij; ik manoeuvreer met moeite.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "Keep clear of me; I am maneuvering with difficulty.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "geluid_opmerking": "Met geluid (morse) alleen te geven volgens de BVA/COLREGs (ICS note 1).",
+  "relevant": false
+ },
+ {
+  "id": "E",
+  "kind": "letter",
+  "naam": "Echo",
+  "naam_nl": "Lettervlag E",
+  "spelwoord": "Echo",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "horizontaal",
+     "verdeling": [
+      0.5,
+      0.5
+     ],
+     "kleuren": [
+      "blauw",
+      "rood"
+     ]
+    }
+   ],
+   "omschrijving": "horizontaal gedeeld, blauw boven, rood onder"
+  },
+  "zoek": {
+   "kleuren": [
+    "blauw",
+    "rood"
+   ],
+   "patroon": [
+    "horizontaal gedeeld"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Ik verander mijn koers naar stuurboord.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "I am altering my course to starboard.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "geluid_opmerking": "Met geluid (morse) alleen te geven volgens de BVA/COLREGs (ICS note 1).",
+  "relevant": false
+ },
+ {
+  "id": "F",
+  "kind": "letter",
+  "naam": "Foxtrot",
+  "naam_nl": "Lettervlag F",
+  "spelwoord": "Foxtrot",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "wit"
+    },
+    {
+     "type": "veelhoek",
+     "punten": [
+      [
+       0.5,
+       0
+      ],
+      [
+       1,
+       0.5
+      ],
+      [
+       0.5,
+       1
+      ],
+      [
+       0,
+       0.5
+      ]
+     ],
+     "kleur": "rood"
+    }
+   ],
+   "omschrijving": "wit met een rode ruit die de vier zijden in het midden raakt"
+  },
+  "zoek": {
+   "kleuren": [
+    "wit",
+    "rood"
+   ],
+   "patroon": [
+    "ruit"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Ik ben onmanoeuvreerbaar (onklaar); kom met mij in verbinding.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "I am disabled; communicate with me.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "relevant": false
+ },
+ {
+  "id": "G",
+  "kind": "letter",
+  "naam": "Golf",
+  "naam_nl": "Lettervlag G",
+  "spelwoord": "Golf",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "verticaal",
+     "verdeling": [
+      0.16666666666666666,
+      0.16666666666666666,
+      0.16666666666666666,
+      0.16666666666666666,
+      0.16666666666666666,
+      0.16666666666666666
+     ],
+     "kleuren": [
+      "geel",
+      "blauw",
+      "geel",
+      "blauw",
+      "geel",
+      "blauw"
+     ]
+    }
+   ],
+   "omschrijving": "zes verticale banen geel-blauw, geel aan de broeking"
+  },
+  "zoek": {
+   "kleuren": [
+    "geel",
+    "blauw"
+   ],
+   "patroon": [
+    "verticale strepen"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Ik heb een loods nodig. (Door vissersschepen dicht bij elkaar op de visgronden: ik haal mijn netten in.)",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "I require a pilot. When made by fishing vessels operating in close proximity on the fishing grounds it means: \"I am hauling nets\".",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "BPR 10.05"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "geluid_opmerking": "Met geluid (morse) alleen te geven volgens de BVA/COLREGs (ICS note 1).",
+  "bpr": "BPR 10.05: zeegaande schepen mogen dit vlagsein geven.",
+  "relevant": false
+ },
+ {
+  "id": "H",
+  "kind": "letter",
+  "naam": "Hotel",
+  "naam_nl": "Lettervlag H",
+  "spelwoord": "Hotel",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "verticaal",
+     "verdeling": [
+      0.5,
+      0.5
+     ],
+     "kleuren": [
+      "wit",
+      "rood"
+     ]
+    }
+   ],
+   "omschrijving": "verticaal gedeeld, wit aan de broeking, rood aan de vlucht"
+  },
+  "zoek": {
+   "kleuren": [
+    "wit",
+    "rood"
+   ],
+   "patroon": [
+    "verticaal gedeeld"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Ik heb een loods aan boord.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "I have a pilot on board.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "BPR 10.05"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "geluid_opmerking": "Met geluid (morse) alleen te geven volgens de BVA/COLREGs (ICS note 1).",
+  "wedstrijd": "Alleen in combinatie: OW boven H / N boven H = verdere seinen aan de wal.",
+  "bpr": "BPR 10.05: zeegaande schepen mogen dit vlagsein geven.",
+  "relevant": true
+ },
+ {
+  "id": "I",
+  "kind": "letter",
+  "naam": "India",
+  "naam_nl": "Lettervlag I",
+  "spelwoord": "India",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "geel"
+    },
+    {
+     "type": "cirkel",
+     "cx": 0.5,
+     "cy": 0.5,
+     "r": 0.25,
+     "kleur": "zwart"
+    }
+   ],
+   "omschrijving": "geel met een zwarte schijf in het midden (middellijn ½ van de hoogte)"
+  },
+  "zoek": {
+   "kleuren": [
+    "geel",
+    "zwart"
+   ],
+   "patroon": [
+    "schijf"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Ik verander mijn koers naar bakboord.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "I am altering my course to port.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "RvW Wedstrijdseinen (PDF p. 4–5)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "geluid_opmerking": "Met geluid (morse) alleen te geven volgens de BVA/COLREGs (ICS note 1).",
+  "wedstrijd": "Voorbereidingssein met I-vlagregel (RvW 30.1).",
+  "relevant": true
+ },
+ {
+  "id": "J",
+  "kind": "letter",
+  "naam": "Juliett",
+  "naam_nl": "Lettervlag J",
+  "spelwoord": "Juliett",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "horizontaal",
+     "verdeling": [
+      0.3333333333333333,
+      0.3333333333333333,
+      0.3333333333333333
+     ],
+     "kleuren": [
+      "blauw",
+      "wit",
+      "blauw"
+     ]
+    }
+   ],
+   "omschrijving": "horizontaal blauw-wit-blauw in drie gelijke banen"
+  },
+  "zoek": {
+   "kleuren": [
+    "blauw",
+    "wit"
+   ],
+   "patroon": [
+    "horizontale strepen"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Ik heb brand en gevaarlijke lading aan boord: houd ruim van mij vrij. Of: ik lek gevaarlijke lading.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "I am on fire and have dangerous cargo on board: keep well clear of me, or I am leaking dangerous cargo.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "opmerking": "ICS spelt 'Juliett' (dubbele t); RvW schrijft 'Juliet'.",
+  "relevant": false
+ },
+ {
+  "id": "K",
+  "kind": "letter",
+  "naam": "Kilo",
+  "naam_nl": "Lettervlag K",
+  "spelwoord": "Kilo",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "verticaal",
+     "verdeling": [
+      0.5,
+      0.5
+     ],
+     "kleuren": [
+      "geel",
+      "blauw"
+     ]
+    }
+   ],
+   "omschrijving": "verticaal gedeeld, geel aan de broeking, blauw aan de vlucht"
+  },
+  "zoek": {
+   "kleuren": [
+    "geel",
+    "blauw"
+   ],
+   "patroon": [
+    "verticaal gedeeld"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Ik wil met u in verbinding komen.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "I wish to communicate with you.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "opmerking": "K en S hebben ook een bijzondere betekenis als landingsseinen voor kleine boten met opvarenden in nood (SOLAS V/16, ICS note 2).",
+  "relevant": false
+ },
+ {
+  "id": "L",
+  "kind": "letter",
+  "naam": "Lima",
+  "naam_nl": "Lettervlag L",
+  "spelwoord": "Lima",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "rechthoek",
+     "x": 0,
+     "y": 0,
+     "b": 0.5,
+     "h": 0.5,
+     "kleur": "geel"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.5,
+     "y": 0,
+     "b": 0.5,
+     "h": 0.5,
+     "kleur": "zwart"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0,
+     "y": 0.5,
+     "b": 0.5,
+     "h": 0.5,
+     "kleur": "zwart"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.5,
+     "y": 0.5,
+     "b": 0.5,
+     "h": 0.5,
+     "kleur": "geel"
+    }
+   ],
+   "omschrijving": "gekwartierd geel en zwart, geel linksboven (broeking, boven)"
+  },
+  "zoek": {
+   "kleuren": [
+    "geel",
+    "zwart"
+   ],
+   "patroon": [
+    "kwartieren"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Stop uw schip onmiddellijk.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "You should stop your vessel instantly.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "RvW Wedstrijdseinen (PDF p. 4–5)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "wedstrijd": "Aan de wal: er is een mededeling voor de deelnemers opgehangen. Op het water: kom binnen praaiafstand of volg dit vaartuig.",
+  "afwijkingen": "Nederlandse Wikipedia geeft ook 'in de haven: ik lig onder quarantaine'; dat is de betekenis van vóór de ICS-1969 en staat niet in Pub. 102.",
+  "relevant": true
+ },
+ {
+  "id": "M",
+  "kind": "letter",
+  "naam": "Mike",
+  "naam_nl": "Lettervlag M",
+  "spelwoord": "Mike",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "blauw"
+    },
+    {
+     "type": "balk",
+     "van": [
+      0,
+      0
+     ],
+     "naar": [
+      1,
+      1
+     ],
+     "breedte": 0.175,
+     "kleur": "wit"
+    },
+    {
+     "type": "balk",
+     "van": [
+      0,
+      1
+     ],
+     "naar": [
+      1,
+      0
+     ],
+     "breedte": 0.175,
+     "kleur": "wit"
+    }
+   ],
+   "omschrijving": "blauw met een wit schuin kruis (Andreaskruis) van hoek tot hoek"
+  },
+  "zoek": {
+   "kleuren": [
+    "blauw",
+    "wit"
+   ],
+   "patroon": [
+    "schuin kruis"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Mijn schip ligt stil en heeft geen vaart door het water.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "My vessel is stopped and making no way through the water.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "RvW Wedstrijdseinen (PDF p. 4–5)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "wedstrijd": "Het voorwerp met dit sein vervangt een ontbrekend merkteken (RvW 34), met herhaalde geluidsseinen.",
+  "relevant": true
+ },
+ {
+  "id": "N",
+  "kind": "letter",
+  "naam": "November",
+  "naam_nl": "Lettervlag N",
+  "spelwoord": "November",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "schaakbord",
+     "kolommen": 4,
+     "rijen": 4,
+     "kleuren": [
+      "blauw",
+      "wit"
+     ]
+    }
+   ],
+   "omschrijving": "geblokt 4 × 4 blauw en wit, blauw linksboven"
+  },
+  "zoek": {
+   "kleuren": [
+    "blauw",
+    "wit"
+   ],
+   "patroon": [
+    "schaakbord"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Nee (ontkennend).",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "No (negative or \"The significance of the previous group should be read in the negative\"). Only visually or by sound; by voice or radio \"NO\".",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "RvW Wedstrijdseinen (PDF p. 4–5)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "wedstrijd": "Alle begonnen wedstrijden zijn afgebroken (RvW 32.3), drie geluidsseinen.",
+  "opmerking": "N boven C (N.C.) is een noodsein (BVA bijlage IV f).",
+  "relevant": true
+ },
+ {
+  "id": "O",
+  "kind": "letter",
+  "naam": "Oscar",
+  "naam_nl": "Lettervlag O",
+  "spelwoord": "Oscar",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "veelhoek",
+     "punten": [
+      [
+       0,
+       0
+      ],
+      [
+       1,
+       1
+      ],
+      [
+       0,
+       1
+      ]
+     ],
+     "kleur": "geel"
+    },
+    {
+     "type": "veelhoek",
+     "punten": [
+      [
+       0,
+       0
+      ],
+      [
+       1,
+       0
+      ],
+      [
+       1,
+       1
+      ]
+     ],
+     "kleur": "rood"
+    }
+   ],
+   "omschrijving": "diagonaal gedeeld van broeking-boven naar vlucht-onder: geel aan de broekingzijde onder, rood aan de vluchtzijde boven"
+  },
+  "zoek": {
+   "kleuren": [
+    "geel",
+    "rood"
+   ],
+   "patroon": [
+    "diagonaal gedeeld"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Man over boord.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "Man overboard.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "opmerking": "Vaak aan de man-over-boord-boei (MOB-paal) bevestigd.",
+  "relevant": false
+ },
+ {
+  "id": "P",
+  "kind": "letter",
+  "naam": "Papa",
+  "naam_nl": "Lettervlag P",
+  "spelwoord": "Papa",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "blauw"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.25,
+     "y": 0.25,
+     "b": 0.5,
+     "h": 0.5,
+     "kleur": "wit"
+    }
+   ],
+   "omschrijving": "blauw met een wit vierkant (rechthoek) in het midden"
+  },
+  "zoek": {
+   "kleuren": [
+    "blauw",
+    "wit"
+   ],
+   "patroon": [
+    "vierkant in het midden"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "In de haven: iedereen aan boord, het schip gaat vertrekken. Op zee (vissersschip): mijn netten zitten vast aan een obstakel.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "In harbor: All persons should report on board as the vessel is about to proceed to sea. At sea: may be used by fishing vessels to mean \"My nets have come fast upon an obstruction\". As a sound: \"I require a pilot\".",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "BPR 10.05"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "afwijkingen": "Grootte van het witte middenveld: RvW ½ L × ½ H, Commons ⅓ × ⅓, NGA ~0,55 L × 0,4 H.",
+  "wedstrijd": "Voorbereidingssein (RvW 26), 'Blue Peter'.",
+  "bpr": "BPR 10.05: zeegaande schepen mogen dit vlagsein geven.",
+  "relevant": true
+ },
+ {
+  "id": "Q",
+  "kind": "letter",
+  "naam": "Quebec",
+  "naam_nl": "Lettervlag Q",
+  "spelwoord": "Quebec",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "geel"
+    }
+   ],
+   "omschrijving": "effen geel"
+  },
+  "zoek": {
+   "kleuren": [
+    "geel"
+   ],
+   "patroon": [
+    "effen"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Mijn schip is gezond en ik verzoek om vrije verkeer met de wal (vrije pratique).",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "My vessel is \"healthy\" and I request free pratique.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "BPR 10.05"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "bpr": "BPR 10.05: zeegaande schepen mogen dit vlagsein geven.",
+  "relevant": false
+ },
+ {
+  "id": "R",
+  "kind": "letter",
+  "naam": "Romeo",
+  "naam_nl": "Lettervlag R",
+  "spelwoord": "Romeo",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "rood"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.44,
+     "y": 0,
+     "b": 0.12,
+     "h": 1,
+     "kleur": "geel"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0,
+     "y": 0.425,
+     "b": 1,
+     "h": 0.15,
+     "kleur": "geel"
+    }
+   ],
+   "omschrijving": "rood met een geel recht kruis in het midden"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood",
+    "geel"
+   ],
+   "patroon": [
+    "kruis"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Geen betekenis als losse vlag.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "No single-letter meaning in the ICS (R is absent from the single-letter table in Pub. 102).",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "afwijkingen": "Armbreedte: RvW ~0,11 L, Commons 0,2. Vóór 1969 betekende R 'de vaart is uit mijn schip'.",
+  "relevant": false
+ },
+ {
+  "id": "S",
+  "kind": "letter",
+  "naam": "Sierra",
+  "naam_nl": "Lettervlag S",
+  "spelwoord": "Sierra",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "wit"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.25,
+     "y": 0.25,
+     "b": 0.5,
+     "h": 0.5,
+     "kleur": "blauw"
+    }
+   ],
+   "omschrijving": "wit met een blauw vierkant (rechthoek) in het midden"
+  },
+  "zoek": {
+   "kleuren": [
+    "wit",
+    "blauw"
+   ],
+   "patroon": [
+    "vierkant in het midden"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Ik sla achteruit.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "I am operating astern propulsion.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "RvW Wedstrijdseinen (PDF p. 4–5)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "geluid_opmerking": "Met geluid (morse) alleen te geven volgens de BVA/COLREGs (ICS note 1).",
+  "opmerking": "K en S hebben ook een bijzondere betekenis als landingsseinen voor kleine boten met opvarenden in nood (SOLAS V/16, ICS note 2).",
+  "afwijkingen": "Grootte van het blauwe middenveld: RvW ½ × ½, Commons ⅓ × ⅓.",
+  "wedstrijd": "De baan is afgekort (RvW 32.2), twee geluidsseinen.",
+  "relevant": true
+ },
+ {
+  "id": "T",
+  "kind": "letter",
+  "naam": "Tango",
+  "naam_nl": "Lettervlag T",
+  "spelwoord": "Tango",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "verticaal",
+     "verdeling": [
+      0.3333333333333333,
+      0.3333333333333333,
+      0.3333333333333333
+     ],
+     "kleuren": [
+      "rood",
+      "wit",
+      "blauw"
+     ]
+    }
+   ],
+   "omschrijving": "verticaal rood-wit-blauw in drie gelijke banen, rood aan de broeking"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood",
+    "wit",
+    "blauw"
+   ],
+   "patroon": [
+    "verticale strepen"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Houd van mij vrij; ik vis met een spannet (twee schepen samen).",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "Keep clear of me; I am engaged in pair trawling.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "geluid_opmerking": "Met geluid (morse) alleen te geven volgens de BVA/COLREGs (ICS note 1).",
+  "opmerking": "Lijkt op de Franse vlag; de Nederlandse vlag (rood-wit-blauw horizontaal) is iets anders.",
+  "relevant": false
+ },
+ {
+  "id": "U",
+  "kind": "letter",
+  "naam": "Uniform",
+  "naam_nl": "Lettervlag U",
+  "spelwoord": "Uniform",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "rechthoek",
+     "x": 0,
+     "y": 0,
+     "b": 0.5,
+     "h": 0.5,
+     "kleur": "rood"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.5,
+     "y": 0,
+     "b": 0.5,
+     "h": 0.5,
+     "kleur": "wit"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0,
+     "y": 0.5,
+     "b": 0.5,
+     "h": 0.5,
+     "kleur": "wit"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.5,
+     "y": 0.5,
+     "b": 0.5,
+     "h": 0.5,
+     "kleur": "rood"
+    }
+   ],
+   "omschrijving": "gekwartierd rood en wit, rood linksboven (broeking, boven)"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood",
+    "wit"
+   ],
+   "patroon": [
+    "kwartieren"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "U loopt gevaar (u stuurt op gevaar af).",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "You are running into danger.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "RvW Wedstrijdseinen (PDF p. 4–5)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "wedstrijd": "Voorbereidingssein met U-vlagregel (RvW 30.3).",
+  "relevant": true
+ },
+ {
+  "id": "V",
+  "kind": "letter",
+  "naam": "Victor",
+  "naam_nl": "Lettervlag V",
+  "spelwoord": "Victor",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "wit"
+    },
+    {
+     "type": "balk",
+     "van": [
+      0,
+      0
+     ],
+     "naar": [
+      1,
+      1
+     ],
+     "breedte": 0.175,
+     "kleur": "rood"
+    },
+    {
+     "type": "balk",
+     "van": [
+      0,
+      1
+     ],
+     "naar": [
+      1,
+      0
+     ],
+     "breedte": 0.175,
+     "kleur": "rood"
+    }
+   ],
+   "omschrijving": "wit met een rood schuin kruis van hoek tot hoek"
+  },
+  "zoek": {
+   "kleuren": [
+    "wit",
+    "rood"
+   ],
+   "patroon": [
+    "schuin kruis"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Ik heb hulp nodig.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "I require assistance.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "RvW Wedstrijdseinen (PDF p. 4–5)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "wedstrijd": "Luister het communicatiekanaal uit voor veiligheidsinstructies (RvW 37).",
+  "relevant": true
+ },
+ {
+  "id": "W",
+  "kind": "letter",
+  "naam": "Whiskey",
+  "naam_nl": "Lettervlag W",
+  "spelwoord": "Whiskey",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "blauw"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.2,
+     "y": 0.2,
+     "b": 0.6,
+     "h": 0.6,
+     "kleur": "wit"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.3,
+     "y": 0.3,
+     "b": 0.4,
+     "h": 0.4,
+     "kleur": "rood"
+    }
+   ],
+   "omschrijving": "blauwe rand, daarbinnen een witte rand, rood middenveld"
+  },
+  "zoek": {
+   "kleuren": [
+    "blauw",
+    "wit",
+    "rood"
+   ],
+   "patroon": [
+    "rand",
+    "vierkant in het midden"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Ik heb medische hulp nodig.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "I require medical assistance.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "afwijkingen": "Verhoudingen verschillen sterk: RvW blauw ~0,19, wit ~0,06, rood ½ × ½; Commons drie gelijke banden van 1/5; NGA dikke blauwe rand, smal wit, klein rood. Gekozen: blauw 0,2, wit 0,1, rood 0,4.",
+  "relevant": false
+ },
+ {
+  "id": "X",
+  "kind": "letter",
+  "naam": "Xray",
+  "naam_nl": "Lettervlag X",
+  "spelwoord": "Xray",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "wit"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.44,
+     "y": 0,
+     "b": 0.12,
+     "h": 1,
+     "kleur": "blauw"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0,
+     "y": 0.425,
+     "b": 1,
+     "h": 0.15,
+     "kleur": "blauw"
+    }
+   ],
+   "omschrijving": "wit met een blauw recht kruis in het midden"
+  },
+  "zoek": {
+   "kleuren": [
+    "wit",
+    "blauw"
+   ],
+   "patroon": [
+    "kruis"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Stop met het uitvoeren van uw voornemens en let op mijn seinen.",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "Stop carrying out your intentions and watch for my signals.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "RvW Wedstrijdseinen (PDF p. 4–5)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "wedstrijd": "Individuele terugroep (RvW 29.1), één geluidssein.",
+  "opmerking": "ICS spelt 'Xray'; RvW 'X-ray'.",
+  "relevant": true
+ },
+ {
+  "id": "Y",
+  "kind": "letter",
+  "naam": "Yankee",
+  "naam_nl": "Lettervlag Y",
+  "spelwoord": "Yankee",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "diagonale_banden",
+     "aantal": 10,
+     "kleuren": [
+      "geel",
+      "rood"
+     ]
+    }
+   ],
+   "omschrijving": "tien schuine banen geel en rood, van linksonder naar rechtsboven lopend ('/'), geel in de hoek broeking-boven"
+  },
+  "zoek": {
+   "kleuren": [
+    "geel",
+    "rood"
+   ],
+   "patroon": [
+    "diagonale strepen"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Mijn anker krabt (ik drijf met mijn anker).",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "I am dragging my anchor.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "RvW Wedstrijdseinen (PDF p. 4–5)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "afwijkingen": "Aantal banen varieert in tekeningen (Commons en blazoen: 10). Alle bronnen: geel in de hoek broeking-boven.",
+  "wedstrijd": "Draag persoonlijke drijfmiddelen (RvW 40), één geluidssein.",
+  "relevant": true
+ },
+ {
+  "id": "Z",
+  "kind": "letter",
+  "naam": "Zulu",
+  "naam_nl": "Lettervlag Z",
+  "spelwoord": "Zulu",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "veelhoek",
+     "punten": [
+      [
+       0,
+       0
+      ],
+      [
+       1,
+       0
+      ],
+      [
+       0.5,
+       0.5
+      ]
+     ],
+     "kleur": "geel"
+    },
+    {
+     "type": "veelhoek",
+     "punten": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       0.5
+      ],
+      [
+       0,
+       1
+      ]
+     ],
+     "kleur": "zwart"
+    },
+    {
+     "type": "veelhoek",
+     "punten": [
+      [
+       0,
+       1
+      ],
+      [
+       0.5,
+       0.5
+      ],
+      [
+       1,
+       1
+      ]
+     ],
+     "kleur": "rood"
+    },
+    {
+     "type": "veelhoek",
+     "punten": [
+      [
+       1,
+       0
+      ],
+      [
+       1,
+       1
+      ],
+      [
+       0.5,
+       0.5
+      ]
+     ],
+     "kleur": "blauw"
+    }
+   ],
+   "omschrijving": "vier driehoeken die in het midden samenkomen: geel boven, zwart aan de broeking, rood onder, blauw aan de vlucht"
+  },
+  "zoek": {
+   "kleuren": [
+    "geel",
+    "zwart",
+    "rood",
+    "blauw"
+   ],
+   "patroon": [
+    "driehoeken"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Ik heb een sleepboot nodig. (Door vissersschepen dicht bij elkaar op de visgronden: ik zet mijn netten uit.)",
+  "betekenis_nl_status": "eigen vertaling (geen officiële Nederlandse tekst van het ICS online gevonden)",
+  "betekenis_en": "I require a tug. When made by fishing vessels operating in close proximity on the fishing grounds it means: \"I am shooting nets\".",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 10 'Single letter signals' (printed p. 21, PDF p. 26)",
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "BPR 10.05"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Lettervlaggen (PDF p. 2)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "geluid_opmerking": "Met geluid (morse) alleen te geven volgens de BVA/COLREGs (ICS note 1).",
+  "wedstrijd": "Voorbereidingssein met Z-vlagregel (RvW 30.2).",
+  "bpr": "BPR 10.05: zeegaande schepen mogen dit vlagsein geven.",
+  "relevant": true
+ },
+ {
+  "id": "1",
+  "kind": "cijfer",
+  "naam": "Pennant 1",
+  "naam_nl": "Cijferwimpel 1",
+  "spelwoord": "Unaone",
+  "ontwerp": {
+   "vorm": "wimpel",
+   "verhouding": 2.5,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.3
+    ],
+    [
+     1,
+     0.7
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "wit"
+    },
+    {
+     "type": "cirkel",
+     "cx": 0.24,
+     "cy": 0.5,
+     "r": 0.27,
+     "kleur": "rood"
+    }
+   ],
+   "omschrijving": "taps toelopende wimpel (stompe vlucht); wit met een rode schijf dicht bij de broeking"
+  },
+  "zoek": {
+   "kleuren": [
+    "wit",
+    "rood"
+   ],
+   "patroon": [
+    "schijf"
+   ],
+   "vorm": "wimpel"
+  },
+  "betekenis_nl": "Het cijfer 1.",
+  "betekenis_nl_status": "vanzelfsprekend",
+  "betekenis_en": "Numeral 1. No single-pennant meaning in the ICS.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 4 §5 (numbers) and sec. 10 figure spelling table"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Cijferwimpels (PDF p. 3)",
+   "RRS Race Signals (AP boven cijferwimpel)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "relevant": true,
+  "wedstrijd": "Onder de onderscheidingswimpel (OW boven cijferwimpel): uitstel van 1 uur vanaf de geplande starttijd (RvW Wedstrijdseinen).",
+  "afwijkingen": "Schijf: Commons hart op 0,5 H van de broeking, r 0,25 H; RvW ~0,64 H, r ~0,27 H (horizontaal uitgerekt tot ovaal); NGA ~0,6 H, r ~0,28 H. Gekozen: hart op 0,6 H (= 0,24 L bij L/H 2,5), r 0,27 H, altijd een ronde schijf."
+ },
+ {
+  "id": "2",
+  "kind": "cijfer",
+  "naam": "Pennant 2",
+  "naam_nl": "Cijferwimpel 2",
+  "spelwoord": "Bissotwo",
+  "ontwerp": {
+   "vorm": "wimpel",
+   "verhouding": 2.5,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.3
+    ],
+    [
+     1,
+     0.7
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "blauw"
+    },
+    {
+     "type": "cirkel",
+     "cx": 0.24,
+     "cy": 0.5,
+     "r": 0.27,
+     "kleur": "wit"
+    }
+   ],
+   "omschrijving": "taps toelopende wimpel (stompe vlucht); blauw met een witte schijf dicht bij de broeking"
+  },
+  "zoek": {
+   "kleuren": [
+    "blauw",
+    "wit"
+   ],
+   "patroon": [
+    "schijf"
+   ],
+   "vorm": "wimpel"
+  },
+  "betekenis_nl": "Het cijfer 2.",
+  "betekenis_nl_status": "vanzelfsprekend",
+  "betekenis_en": "Numeral 2. No single-pennant meaning in the ICS.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 4 §5 (numbers) and sec. 10 figure spelling table"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Cijferwimpels (PDF p. 3)",
+   "RRS Race Signals (AP boven cijferwimpel)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "relevant": true,
+  "wedstrijd": "Onder de onderscheidingswimpel (OW boven cijferwimpel): uitstel van 2 uur vanaf de geplande starttijd (RvW Wedstrijdseinen).",
+  "afwijkingen": "Schijf: Commons hart op 0,5 H van de broeking, r 0,25 H; RvW ~0,64 H, r ~0,27 H (horizontaal uitgerekt tot ovaal); NGA ~0,6 H, r ~0,28 H. Gekozen: hart op 0,6 H (= 0,24 L bij L/H 2,5), r 0,27 H, altijd een ronde schijf."
+ },
+ {
+  "id": "3",
+  "kind": "cijfer",
+  "naam": "Pennant 3",
+  "naam_nl": "Cijferwimpel 3",
+  "spelwoord": "Terrathree",
+  "ontwerp": {
+   "vorm": "wimpel",
+   "verhouding": 2.5,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.3
+    ],
+    [
+     1,
+     0.7
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "verticaal",
+     "verdeling": [
+      0.3333333333333333,
+      0.3333333333333333,
+      0.3333333333333333
+     ],
+     "kleuren": [
+      "rood",
+      "wit",
+      "blauw"
+     ]
+    }
+   ],
+   "omschrijving": "taps toelopende wimpel (stompe vlucht); verticaal rood-wit-blauw in drie gelijke delen, rood aan de broeking"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood",
+    "wit",
+    "blauw"
+   ],
+   "patroon": [
+    "verticale strepen"
+   ],
+   "vorm": "wimpel"
+  },
+  "betekenis_nl": "Het cijfer 3.",
+  "betekenis_nl_status": "vanzelfsprekend",
+  "betekenis_en": "Numeral 3. No single-pennant meaning in the ICS.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 4 §5 (numbers) and sec. 10 figure spelling table"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Cijferwimpels (PDF p. 3)",
+   "RRS Race Signals (AP boven cijferwimpel)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "relevant": true,
+  "wedstrijd": "Onder de onderscheidingswimpel (OW boven cijferwimpel): uitstel van 3 uur vanaf de geplande starttijd (RvW Wedstrijdseinen)."
+ },
+ {
+  "id": "4",
+  "kind": "cijfer",
+  "naam": "Pennant 4",
+  "naam_nl": "Cijferwimpel 4",
+  "spelwoord": "Kartefour",
+  "ontwerp": {
+   "vorm": "wimpel",
+   "verhouding": 2.5,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.3
+    ],
+    [
+     1,
+     0.7
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "rood"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.31,
+     "y": 0,
+     "b": 0.08,
+     "h": 1,
+     "kleur": "wit"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0,
+     "y": 0.4,
+     "b": 1,
+     "h": 0.2,
+     "kleur": "wit"
+    }
+   ],
+   "omschrijving": "taps toelopende wimpel (stompe vlucht); rood met een wit kruis, de staande arm naar de broeking verschoven"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood",
+    "wit"
+   ],
+   "patroon": [
+    "kruis"
+   ],
+   "vorm": "wimpel"
+  },
+  "betekenis_nl": "Het cijfer 4.",
+  "betekenis_nl_status": "vanzelfsprekend",
+  "betekenis_en": "Numeral 4. No single-pennant meaning in the ICS.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 4 §5 (numbers) and sec. 10 figure spelling table"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Cijferwimpels (PDF p. 3)",
+   "RRS Race Signals (AP boven cijferwimpel)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "relevant": true,
+  "wedstrijd": "Onder de onderscheidingswimpel (OW boven cijferwimpel): uitstel van 4 uur vanaf de geplande starttijd (RvW Wedstrijdseinen).",
+  "afwijkingen": "Plaats van de staande kruisarm verschilt: Commons op ~0,5 H van de broeking, RvW ~0,8 H, NGA ~1,1 H (als fractie van de lengte 0,28 / 0,42 / 0,34). Gekozen: hart op 0,35 L."
+ },
+ {
+  "id": "5",
+  "kind": "cijfer",
+  "naam": "Pennant 5",
+  "naam_nl": "Cijferwimpel 5",
+  "spelwoord": "Pantafive",
+  "ontwerp": {
+   "vorm": "wimpel",
+   "verhouding": 2.5,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.3
+    ],
+    [
+     1,
+     0.7
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "verticaal",
+     "verdeling": [
+      0.5,
+      0.5
+     ],
+     "kleuren": [
+      "geel",
+      "blauw"
+     ]
+    }
+   ],
+   "omschrijving": "taps toelopende wimpel (stompe vlucht); verticaal gedeeld, geel aan de broeking, blauw aan de vlucht"
+  },
+  "zoek": {
+   "kleuren": [
+    "geel",
+    "blauw"
+   ],
+   "patroon": [
+    "verticaal gedeeld"
+   ],
+   "vorm": "wimpel"
+  },
+  "betekenis_nl": "Het cijfer 5.",
+  "betekenis_nl_status": "vanzelfsprekend",
+  "betekenis_en": "Numeral 5. No single-pennant meaning in the ICS.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 4 §5 (numbers) and sec. 10 figure spelling table"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Cijferwimpels (PDF p. 3)",
+   "RRS Race Signals (AP boven cijferwimpel)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "relevant": true,
+  "wedstrijd": "Onder de onderscheidingswimpel (OW boven cijferwimpel): uitstel van 5 uur vanaf de geplande starttijd (RvW Wedstrijdseinen)."
+ },
+ {
+  "id": "6",
+  "kind": "cijfer",
+  "naam": "Pennant 6",
+  "naam_nl": "Cijferwimpel 6",
+  "spelwoord": "Soxisix",
+  "ontwerp": {
+   "vorm": "wimpel",
+   "verhouding": 2.5,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.3
+    ],
+    [
+     1,
+     0.7
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "horizontaal",
+     "verdeling": [
+      0.5,
+      0.5
+     ],
+     "kleuren": [
+      "zwart",
+      "wit"
+     ]
+    }
+   ],
+   "omschrijving": "taps toelopende wimpel (stompe vlucht); horizontaal gedeeld, zwart boven, wit onder"
+  },
+  "zoek": {
+   "kleuren": [
+    "zwart",
+    "wit"
+   ],
+   "patroon": [
+    "horizontaal gedeeld"
+   ],
+   "vorm": "wimpel"
+  },
+  "betekenis_nl": "Het cijfer 6.",
+  "betekenis_nl_status": "vanzelfsprekend",
+  "betekenis_en": "Numeral 6. No single-pennant meaning in the ICS.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 4 §5 (numbers) and sec. 10 figure spelling table"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Cijferwimpels (PDF p. 3)",
+   "RRS Race Signals (AP boven cijferwimpel)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "relevant": true,
+  "wedstrijd": "Onder de onderscheidingswimpel (OW boven cijferwimpel): uitstel van 6 uur vanaf de geplande starttijd (RvW Wedstrijdseinen)."
+ },
+ {
+  "id": "7",
+  "kind": "cijfer",
+  "naam": "Pennant 7",
+  "naam_nl": "Cijferwimpel 7",
+  "spelwoord": "Setteseven",
+  "ontwerp": {
+   "vorm": "wimpel",
+   "verhouding": 2.5,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.3
+    ],
+    [
+     1,
+     0.7
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "horizontaal",
+     "verdeling": [
+      0.5,
+      0.5
+     ],
+     "kleuren": [
+      "geel",
+      "rood"
+     ]
+    }
+   ],
+   "omschrijving": "taps toelopende wimpel (stompe vlucht); horizontaal gedeeld, geel boven, rood onder"
+  },
+  "zoek": {
+   "kleuren": [
+    "geel",
+    "rood"
+   ],
+   "patroon": [
+    "horizontaal gedeeld"
+   ],
+   "vorm": "wimpel"
+  },
+  "betekenis_nl": "Het cijfer 7.",
+  "betekenis_nl_status": "vanzelfsprekend",
+  "betekenis_en": "Numeral 7. No single-pennant meaning in the ICS.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 4 §5 (numbers) and sec. 10 figure spelling table"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Cijferwimpels (PDF p. 3)",
+   "RRS Race Signals (AP boven cijferwimpel)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "relevant": true,
+  "wedstrijd": "Onder de onderscheidingswimpel (OW boven cijferwimpel): uitstel van 7 uur vanaf de geplande starttijd (RvW Wedstrijdseinen)."
+ },
+ {
+  "id": "8",
+  "kind": "cijfer",
+  "naam": "Pennant 8",
+  "naam_nl": "Cijferwimpel 8",
+  "spelwoord": "Oktoeight",
+  "ontwerp": {
+   "vorm": "wimpel",
+   "verhouding": 2.5,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.3
+    ],
+    [
+     1,
+     0.7
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "wit"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.31,
+     "y": 0,
+     "b": 0.08,
+     "h": 1,
+     "kleur": "rood"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0,
+     "y": 0.4,
+     "b": 1,
+     "h": 0.2,
+     "kleur": "rood"
+    }
+   ],
+   "omschrijving": "taps toelopende wimpel (stompe vlucht); wit met een rood kruis, de staande arm naar de broeking verschoven"
+  },
+  "zoek": {
+   "kleuren": [
+    "wit",
+    "rood"
+   ],
+   "patroon": [
+    "kruis"
+   ],
+   "vorm": "wimpel"
+  },
+  "betekenis_nl": "Het cijfer 8.",
+  "betekenis_nl_status": "vanzelfsprekend",
+  "betekenis_en": "Numeral 8. No single-pennant meaning in the ICS.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 4 §5 (numbers) and sec. 10 figure spelling table"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Cijferwimpels (PDF p. 3)",
+   "RRS Race Signals (AP boven cijferwimpel)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "relevant": true,
+  "wedstrijd": "Onder de onderscheidingswimpel (OW boven cijferwimpel): uitstel van 8 uur vanaf de geplande starttijd (RvW Wedstrijdseinen).",
+  "afwijkingen": "Plaats van de staande kruisarm verschilt: Commons op ~0,5 H van de broeking, RvW ~0,8 H, NGA ~1,1 H (als fractie van de lengte 0,28 / 0,42 / 0,34). Gekozen: hart op 0,35 L."
+ },
+ {
+  "id": "9",
+  "kind": "cijfer",
+  "naam": "Pennant 9",
+  "naam_nl": "Cijferwimpel 9",
+  "spelwoord": "Novenine",
+  "ontwerp": {
+   "vorm": "wimpel",
+   "verhouding": 2.5,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.3
+    ],
+    [
+     1,
+     0.7
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "rechthoek",
+     "x": 0,
+     "y": 0,
+     "b": 0.5,
+     "h": 0.5,
+     "kleur": "wit"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.5,
+     "y": 0,
+     "b": 0.5,
+     "h": 0.5,
+     "kleur": "zwart"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0,
+     "y": 0.5,
+     "b": 0.5,
+     "h": 0.5,
+     "kleur": "rood"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.5,
+     "y": 0.5,
+     "b": 0.5,
+     "h": 0.5,
+     "kleur": "geel"
+    }
+   ],
+   "omschrijving": "taps toelopende wimpel (stompe vlucht); gekwartierd: broeking wit boven en rood onder, vlucht zwart boven en geel onder"
+  },
+  "zoek": {
+   "kleuren": [
+    "wit",
+    "zwart",
+    "rood",
+    "geel"
+   ],
+   "patroon": [
+    "kwartieren"
+   ],
+   "vorm": "wimpel"
+  },
+  "betekenis_nl": "Het cijfer 9.",
+  "betekenis_nl_status": "vanzelfsprekend",
+  "betekenis_en": "Numeral 9. No single-pennant meaning in the ICS.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 4 §5 (numbers) and sec. 10 figure spelling table"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Cijferwimpels (PDF p. 3)",
+   "RRS Race Signals (AP boven cijferwimpel)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "relevant": true,
+  "wedstrijd": "Onder de onderscheidingswimpel (OW boven cijferwimpel): uitstel van 9 uur vanaf de geplande starttijd (RvW Wedstrijdseinen)."
+ },
+ {
+  "id": "0",
+  "kind": "cijfer",
+  "naam": "Pennant 0",
+  "naam_nl": "Cijferwimpel 0",
+  "spelwoord": "Nadazero",
+  "ontwerp": {
+   "vorm": "wimpel",
+   "verhouding": 2.5,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.3
+    ],
+    [
+     1,
+     0.7
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "verticaal",
+     "verdeling": [
+      0.3333333333333333,
+      0.3333333333333333,
+      0.3333333333333333
+     ],
+     "kleuren": [
+      "geel",
+      "rood",
+      "geel"
+     ]
+    }
+   ],
+   "omschrijving": "taps toelopende wimpel (stompe vlucht); verticaal geel-rood-geel in drie gelijke delen"
+  },
+  "zoek": {
+   "kleuren": [
+    "geel",
+    "rood"
+   ],
+   "patroon": [
+    "verticale strepen"
+   ],
+   "vorm": "wimpel"
+  },
+  "betekenis_nl": "Het cijfer 0.",
+  "betekenis_nl_status": "vanzelfsprekend",
+  "betekenis_en": "Numeral 0. No single-pennant meaning in the ICS.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 4 §5 (numbers) and sec. 10 figure spelling table"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Cijferwimpels (PDF p. 3)",
+   "RRS Race Signals (AP boven cijferwimpel)",
+   "Commons",
+   "WP-EN blazoen"
+  ],
+  "relevant": false
+ },
+ {
+  "id": "1e-vervanger",
+  "kind": "vervanger",
+  "naam": "First substitute",
+  "naam_nl": "Eerste vervangwimpel",
+  "ontwerp": {
+   "vorm": "driehoek",
+   "verhouding": 1.6,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.5
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "blauw"
+    },
+    {
+     "type": "veelhoek",
+     "punten": [
+      [
+       0,
+       0.2
+      ],
+      [
+       0.6,
+       0.5
+      ],
+      [
+       0,
+       0.8
+      ]
+     ],
+     "kleur": "geel"
+    }
+   ],
+   "omschrijving": "driehoekige wimpel, blauw met een gele driehoek aan de broeking (het geel raakt de broeking, blauw langs boven- en onderkant)"
+  },
+  "zoek": {
+   "kleuren": [
+    "blauw",
+    "geel"
+   ],
+   "patroon": [
+    "driehoek in driehoek"
+   ],
+   "vorm": "driehoek"
+  },
+  "betekenis_nl": "Herhaalt de bovenste vlag van de soort (letter of cijfer) die direct boven de vervanger hangt.",
+  "betekenis_nl_status": "eigen vertaling",
+  "betekenis_en": "Repeats the uppermost signal flag of that class of flags which immediately precedes the substitute.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 5 §6 'The use of substitutes' (PDF p. 13)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Vervangwimpels (PDF p. 3)",
+   "Commons ICS Repeat One/Two/Three",
+   "WP-EN blazoen"
+  ],
+  "wedstrijd": "Algemene terugroep (RvW 29.2), twee geluidsseinen; waarschuwingssein 1 minuut na wegnemen (één geluidssein).",
+  "afwijkingen": "Grootte van de gele driehoek: Commons tot 0,67 L, NGA ~0,45 L, RvW ~0,35 L. Gekozen 0,6 L, evenwijdig aan de buitenrand.",
+  "relevant": true
+ },
+ {
+  "id": "2e-vervanger",
+  "kind": "vervanger",
+  "naam": "Second substitute",
+  "naam_nl": "Tweede vervangwimpel",
+  "ontwerp": {
+   "vorm": "driehoek",
+   "verhouding": 1.6,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.5
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "verticaal",
+     "verdeling": [
+      0.5,
+      0.5
+     ],
+     "kleuren": [
+      "blauw",
+      "wit"
+     ]
+    }
+   ],
+   "omschrijving": "driehoekige wimpel, verticaal gedeeld: blauw aan de broeking, wit naar de punt"
+  },
+  "zoek": {
+   "kleuren": [
+    "blauw",
+    "wit"
+   ],
+   "patroon": [
+    "verticaal gedeeld"
+   ],
+   "vorm": "driehoek"
+  },
+  "betekenis_nl": "Herhaalt de tweede vlag (van boven) van de soort die direct boven de vervanger hangt.",
+  "betekenis_nl_status": "eigen vertaling",
+  "betekenis_en": "Repeats the second signal flag, counting from the top, of the class of flags immediately preceding it.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 5 §6 'The use of substitutes' (PDF p. 13)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Vervangwimpels (PDF p. 3)",
+   "Commons ICS Repeat One/Two/Three",
+   "WP-EN blazoen"
+  ],
+  "afwijkingen": "Deelpunt: Commons 0,5 L, NGA ~0,45 L, RvW ~0,6 L.",
+  "relevant": false
+ },
+ {
+  "id": "3e-vervanger",
+  "kind": "vervanger",
+  "naam": "Third substitute",
+  "naam_nl": "Derde vervangwimpel",
+  "ontwerp": {
+   "vorm": "driehoek",
+   "verhouding": 1.6,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.5
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "wit"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0,
+     "y": 0.3333333333333333,
+     "b": 1,
+     "h": 0.3333333333333333,
+     "kleur": "zwart"
+    }
+   ],
+   "omschrijving": "driehoekige wimpel, wit met een zwarte horizontale baan door het midden tot in de punt"
+  },
+  "zoek": {
+   "kleuren": [
+    "wit",
+    "zwart"
+   ],
+   "patroon": [
+    "horizontale streep"
+   ],
+   "vorm": "driehoek"
+  },
+  "betekenis_nl": "Herhaalt de derde vlag (van boven) van de soort die direct boven de vervanger hangt.",
+  "betekenis_nl_status": "eigen vertaling",
+  "betekenis_en": "Repeats the third signal flag, counting from the top, of the class of flags immediately preceding it.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 5 §6 'The use of substitutes' (PDF p. 13)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat (PDF p. 2)",
+   "RvW Vervangwimpels (PDF p. 3)",
+   "Commons ICS Repeat One/Two/Three",
+   "WP-EN blazoen"
+  ],
+  "relevant": false
+ },
+ {
+  "id": "onderscheidingswimpel",
+  "kind": "onderscheiding",
+  "naam": "Answering pennant (Code pennant)",
+  "naam_nl": "Onderscheidingswimpel (OW)",
+  "ontwerp": {
+   "vorm": "wimpel",
+   "verhouding": 2.5,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.3
+    ],
+    [
+     1,
+     0.7
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "verticaal",
+     "verdeling": [
+      0.2,
+      0.2,
+      0.2,
+      0.2,
+      0.2
+     ],
+     "kleuren": [
+      "rood",
+      "wit",
+      "rood",
+      "wit",
+      "rood"
+     ]
+    }
+   ],
+   "omschrijving": "taps toelopende wimpel met vijf verticale banen rood-wit-rood-wit-rood, rood aan de broeking en de vlucht"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood",
+    "wit"
+   ],
+   "patroon": [
+    "verticale strepen"
+   ],
+   "vorm": "wimpel"
+  },
+  "betekenis_nl": "Contrasein, slotsein en decimaalteken (RvW-benaming). Halfstok: sein gezien; in top: sein begrepen; alleen gehesen na de laatste hijs: einde bericht; tussen cijfers: komma.",
+  "betekenis_nl_status": "benamingen officieel (Watersportverbond RvW p. 5), uitleg eigen vertaling",
+  "betekenis_en": "Answering pennant: hoisted at the dip when a hoist is seen, close up when understood; hoisted singly after the last hoist = signal completed; between numerals = decimal point.",
+  "bron": [
+   "ICS-NGA ch. 1 sec. 5 §3–4 (PDF p. 13); sec. 4 §5(c)",
+   "RvW Onderscheidingswimpel (PDF p. 3)"
+  ],
+  "ontwerp_check": [
+   "ICS-NGA plaat 'CODE'",
+   "RvW p. 5",
+   "RRS Race Signals (AP)",
+   "Commons ICS Answer.svg",
+   "WP-EN blazoen 'paleways of five'"
+  ],
+  "wedstrijd": "OW = uitstelsein (Engels: AP). Zie wed-OW.",
+  "afwijkingen": "Lengte: NGA ~3,1 H, Commons 1,8 H; vlucht 0,41–0,49 H.",
+  "relevant": true
+ },
+ {
+  "id": "wed-OW",
+  "kind": "wedstrijd",
+  "naam": "AP – postponement",
+  "naam_nl": "OW – uitstel",
+  "vlaggen": [
+   "onderscheidingswimpel"
+  ],
+  "betekenis_nl": "Nog niet gestarte wedstrijden zijn uitgesteld. Het waarschuwingssein volgt 1 minuut nadat OW is weggenomen, tenzij dan opnieuw wordt uitgesteld of afgebroken.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Races not started are postponed. The warning signal will be made 1 minute after removal unless at that time the race is postponed again or abandoned.",
+  "geluid": {
+   "tonen": "••",
+   "wegnemen": "•"
+  },
+  "regel": "RvW Wedstrijdseinen; 27.3",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true,
+  "scouting": [
+   "NK Lelievlet 2026 SI 5.1–5.2: OW op de wal in de vlaggenmast; na strijken minstens 60 min tot het volgende waarschuwingssein.",
+   "Kaagcup 2026: uitstel 1, 2 of 3 uur met OW boven cijferwimpel; de uitstelvlag gaat 10 min voor de start van de eerstvolgende klasse omlaag."
+  ]
+ },
+ {
+  "id": "wed-OW-H",
+  "kind": "wedstrijd",
+  "naam": "AP over H",
+  "naam_nl": "OW boven H",
+  "vlaggen": [
+   "onderscheidingswimpel",
+   "H"
+  ],
+  "betekenis_nl": "Nog niet gestarte wedstrijden zijn uitgesteld. Verdere seinen aan de wal.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Races not started are postponed. Further signals ashore.",
+  "geluid": {
+   "tonen": "••"
+  },
+  "regel": "RvW Wedstrijdseinen",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-OW-A",
+  "kind": "wedstrijd",
+  "naam": "AP over A",
+  "naam_nl": "OW boven A",
+  "vlaggen": [
+   "onderscheidingswimpel",
+   "A"
+  ],
+  "betekenis_nl": "Nog niet gestarte wedstrijden zijn uitgesteld. Vandaag geen wedstrijden meer.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Races not started are postponed. No more racing today.",
+  "geluid": {
+   "tonen": "••"
+  },
+  "regel": "RvW Wedstrijdseinen",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-OW-cijfer",
+  "kind": "wedstrijd",
+  "naam": "AP over a numeral pennant 1–9",
+  "naam_nl": "OW boven cijferwimpel 1–9",
+  "vlaggen": [
+   "onderscheidingswimpel",
+   "1–9"
+  ],
+  "betekenis_nl": "Uitstel van 1 tot 9 uur vanaf de geplande starttijd (het cijfer is het aantal uren).",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Postponement of 1–9 hours from the scheduled starting time.",
+  "geluid": {
+   "tonen": "••",
+   "wegnemen": "•"
+  },
+  "regel": "RvW Wedstrijdseinen",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-N",
+  "kind": "wedstrijd",
+  "naam": "N – abandonment",
+  "naam_nl": "N – afbreken",
+  "vlaggen": [
+   "N"
+  ],
+  "betekenis_nl": "Alle wedstrijden die zijn begonnen zijn afgebroken; terug naar het startgebied. Het waarschuwingssein volgt 1 minuut na het wegnemen, tenzij dan opnieuw wordt afgebroken of uitgesteld.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "All races in progress are abandoned. Return to the starting area. The warning signal will be made 1 minute after removal unless at that time the race is abandoned again or postponed.",
+  "geluid": {
+   "tonen": "•••",
+   "wegnemen": "•"
+  },
+  "regel": "RvW Wedstrijdseinen; 32.3",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true,
+  "opmerking": "'Terug naar het startgebied' staat in de Engelse tekst; de Nederlandse sein-pagina laat het weg.",
+  "scouting": [
+   "Kaagcup 2026: N = afgelasting of afbreking wedstrijden."
+  ]
+ },
+ {
+  "id": "wed-N-H",
+  "kind": "wedstrijd",
+  "naam": "N over H",
+  "naam_nl": "N boven H",
+  "vlaggen": [
+   "N",
+   "H"
+  ],
+  "betekenis_nl": "Alle begonnen wedstrijden zijn afgebroken. Verdere seinen aan de wal.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "All races in progress are abandoned. Further signals ashore.",
+  "geluid": {
+   "tonen": "•••"
+  },
+  "regel": "RvW Wedstrijdseinen; 32.3",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-N-A",
+  "kind": "wedstrijd",
+  "naam": "N over A",
+  "naam_nl": "N boven A",
+  "vlaggen": [
+   "N",
+   "A"
+  ],
+  "betekenis_nl": "Alle begonnen wedstrijden zijn afgebroken. Vandaag geen wedstrijden meer.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "All races in progress are abandoned. No more racing today.",
+  "geluid": {
+   "tonen": "•••"
+  },
+  "regel": "RvW Wedstrijdseinen; 32.3",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-V",
+  "kind": "wedstrijd",
+  "naam": "V – safety",
+  "naam_nl": "V – veiligheid",
+  "vlaggen": [
+   "V"
+  ],
+  "betekenis_nl": "Luister het communicatiekanaal uit voor veiligheids- (zoek- en reddings)instructies.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Monitor communication channel for safety instructions (see rule 37).",
+  "geluid": {
+   "tonen": "—",
+   "opmerking": "Sein-pagina: één lang geluid; regel 37 zegt 'met één geluidssein'."
+  },
+  "regel": "RvW Wedstrijdseinen; 37",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-P",
+  "kind": "wedstrijd",
+  "naam": "P – preparatory signal",
+  "naam_nl": "P – voorbereidingssein",
+  "vlaggen": [
+   "P"
+  ],
+  "betekenis_nl": "Voorbereidingssein.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Preparatory signal.",
+  "geluid": {
+   "tonen": "•",
+   "wegnemen": "—",
+   "opmerking": "Getoond 4 min voor de start (één geluidssein), weggenomen 1 min voor de start (één lang geluidssein)."
+  },
+  "regel": "RvW 26",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true,
+  "scouting": [
+   "Kaagcup 2026 en NK Lelievlet: start volgens RvW 26; Kaagcup noemt P 'Blue Peter'."
+  ]
+ },
+ {
+  "id": "wed-I",
+  "kind": "wedstrijd",
+  "naam": "I – preparatory signal",
+  "naam_nl": "I – voorbereidingssein",
+  "vlaggen": [
+   "I"
+  ],
+  "betekenis_nl": "Voorbereidingssein; regel 30.1 (I-vlagregel) is van toepassing: wie in de laatste minuut aan de baanzijde van de startlijn is, moet om een verlengde van de lijn terug.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Rule 30.1 is in effect.",
+  "geluid": {
+   "tonen": "•",
+   "wegnemen": "—",
+   "opmerking": "Getoond 4 min voor de start (één geluidssein), weggenomen 1 min voor de start (één lang geluidssein)."
+  },
+  "regel": "RvW 26; 30.1",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-Z",
+  "kind": "wedstrijd",
+  "naam": "Z – preparatory signal",
+  "naam_nl": "Z – voorbereidingssein",
+  "vlaggen": [
+   "Z"
+  ],
+  "betekenis_nl": "Voorbereidingssein; regel 30.2 (Z-vlagregel): wie in de laatste minuut in de driehoek startlijn–eerste merkteken is, krijgt 20 % strafpunten.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Rule 30.2 is in effect.",
+  "geluid": {
+   "tonen": "•",
+   "wegnemen": "—",
+   "opmerking": "Getoond 4 min voor de start (één geluidssein), weggenomen 1 min voor de start (één lang geluidssein)."
+  },
+  "regel": "RvW 26; 30.2",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-U",
+  "kind": "wedstrijd",
+  "naam": "U – preparatory signal",
+  "naam_nl": "U – voorbereidingssein",
+  "vlaggen": [
+   "U"
+  ],
+  "betekenis_nl": "Voorbereidingssein; regel 30.3 (U-vlagregel): wie in de laatste minuut in de driehoek startlijn–eerste merkteken is, wordt zonder zitting gediskwalificeerd (niet bij herstart).",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Rule 30.3 is in effect.",
+  "geluid": {
+   "tonen": "•",
+   "wegnemen": "—",
+   "opmerking": "Getoond 4 min voor de start (één geluidssein), weggenomen 1 min voor de start (één lang geluidssein)."
+  },
+  "regel": "RvW 26; 30.3",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-Z-I",
+  "kind": "wedstrijd",
+  "naam": "Z with I",
+  "naam_nl": "Z met I",
+  "vlaggen": [
+   "Z",
+   "I"
+  ],
+  "betekenis_nl": "Voorbereidingssein; regel 30.1 én 30.2 zijn van toepassing.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Rules 30.1 and 30.2 are in effect.",
+  "geluid": {
+   "tonen": "•",
+   "wegnemen": "—"
+  },
+  "regel": "RvW 26; 30.1; 30.2",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-zwarte-vlag",
+  "kind": "wedstrijd",
+  "naam": "Black flag",
+  "naam_nl": "Zwarte vlag",
+  "vlaggen": [],
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "zwart"
+    }
+   ],
+   "omschrijving": "effen zwart"
+  },
+  "zoek": {
+   "kleuren": [
+    "zwart"
+   ],
+   "patroon": [
+    "effen"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Voorbereidingssein; regel 30.4 (zwarte-vlagregel): wie in de laatste minuut in de driehoek startlijn–eerste merkteken is, wordt zonder zitting gediskwalificeerd, ook bij herstart; het zeilnummer wordt getoond.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Rule 30.4 is in effect.",
+  "geluid": {
+   "tonen": "•",
+   "wegnemen": "—"
+  },
+  "regel": "RvW 26; 30.4",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-X",
+  "kind": "wedstrijd",
+  "naam": "X – individual recall",
+  "naam_nl": "X – individuele terugroep",
+  "vlaggen": [
+   "X"
+  ],
+  "betekenis_nl": "Individuele terugroep: één of meer boten waren bij het startsein aan de baanzijde van de startlijn (of moeten aan 30.1 voldoen) en moeten opnieuw starten.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Individual recall.",
+  "geluid": {
+   "tonen": "•",
+   "opmerking": "Uiterlijk 4 min na het startsein weggenomen; geen geluid bij wegnemen."
+  },
+  "regel": "RvW 29.1",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true,
+  "scouting": [
+   "Kaagcup 2026: X met één kort hoornsignaal direct na het startsein, maximaal 5 min getoond; er worden geen nummers geroepen."
+  ]
+ },
+ {
+  "id": "wed-1e-vervanger",
+  "kind": "wedstrijd",
+  "naam": "First substitute – general recall",
+  "naam_nl": "Eerste vervangwimpel – algemene terugroep",
+  "vlaggen": [
+   "1e-vervanger"
+  ],
+  "betekenis_nl": "Algemene terugroep: de hele klasse start opnieuw. Het waarschuwingssein volgt 1 minuut na het wegnemen.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "General recall. The warning signal will be made 1 minute after removal.",
+  "geluid": {
+   "tonen": "••",
+   "wegnemen": "•"
+  },
+  "regel": "RvW 29.2",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true,
+  "scouting": [
+   "Kaagcup 2026: geluid '2 korte, pauze, 1 kort'; de wimpel gaat omlaag vóór het vijfminutensein van de volgende start."
+  ]
+ },
+ {
+  "id": "wed-S",
+  "kind": "wedstrijd",
+  "naam": "S – shortened course",
+  "naam_nl": "S – afgekorte baan",
+  "vlaggen": [
+   "S"
+  ],
+  "betekenis_nl": "De baan is afgekort; regel 32.2: finish tussen het merkteken en de stok met S (of de lijn of de gate die de baan voorschrijft).",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "The course has been shortened. Rule 32.2 is in effect.",
+  "geluid": {
+   "tonen": "••"
+  },
+  "regel": "RvW 32.2",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-C",
+  "kind": "wedstrijd",
+  "naam": "C – change of next leg",
+  "naam_nl": "C – volgend rak gewijzigd",
+  "vlaggen": [
+   "C"
+  ],
+  "betekenis_nl": "De positie van het volgende merkteken is gewijzigd: met een groene driehoek naar stuurboord, met een rode rechthoek naar bakboord, met '−' korter, met '+' langer (eventueel met de nieuwe kompaskoers).",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "The position of the next mark has been changed: to starboard (green triangle); to port (red rectangle); to decrease the length of the leg (−); to increase it (+).",
+  "geluid": {
+   "tonen": "- - - - -",
+   "opmerking": "herhaalde geluidsseinen"
+  },
+  "regel": "RvW 33",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true,
+  "bijtekens": [
+   "wed-groene-driehoek",
+   "wed-rode-rechthoek",
+   "wed-min",
+   "wed-plus"
+  ]
+ },
+ {
+  "id": "wed-groene-driehoek",
+  "kind": "wedstrijd",
+  "naam": "Green triangle (with C)",
+  "naam_nl": "Groene driehoek (bij C)",
+  "vlaggen": [],
+  "ontwerp": {
+   "vorm": "bord",
+   "verhouding": 0.8,
+   "omtrek": [
+    [
+     0.5,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "groen"
+    }
+   ],
+   "omschrijving": "groene gelijkbenige driehoek met de punt omhoog (bord)"
+  },
+  "zoek": {
+   "kleuren": [
+    "groen"
+   ],
+   "patroon": [
+    "effen"
+   ],
+   "vorm": "driehoek-rechtop"
+  },
+  "betekenis_nl": "Bij vlag C: het volgende rak gaat naar stuurboord.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "With flag C: change to starboard.",
+  "geluid": null,
+  "regel": "RvW 33(a)(2)",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-rode-rechthoek",
+  "kind": "wedstrijd",
+  "naam": "Red rectangle (with C)",
+  "naam_nl": "Rode rechthoek (bij C)",
+  "vlaggen": [],
+  "ontwerp": {
+   "vorm": "bord",
+   "verhouding": 0.8,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "rood"
+    }
+   ],
+   "omschrijving": "staande rode rechthoek (bord)"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood"
+   ],
+   "patroon": [
+    "effen"
+   ],
+   "vorm": "bord"
+  },
+  "betekenis_nl": "Bij vlag C: het volgende rak gaat naar bakboord.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "With flag C: change to port.",
+  "geluid": null,
+  "regel": "RvW 33(a)(2)",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-min",
+  "kind": "wedstrijd",
+  "naam": "'−' (with C)",
+  "naam_nl": "'−' (bij C)",
+  "vlaggen": [],
+  "ontwerp": {
+   "vorm": "bord",
+   "verhouding": 0.8,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "wit"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.25,
+     "y": 0.3,
+     "b": 0.5,
+     "h": 0.03,
+     "kleur": "zwart"
+    }
+   ],
+   "omschrijving": "wit bord met een zwart minteken (in de RvW-tekening hoog geplaatst)"
+  },
+  "zoek": {
+   "kleuren": [
+    "wit",
+    "zwart"
+   ],
+   "patroon": [
+    "teken"
+   ],
+   "vorm": "bord"
+  },
+  "betekenis_nl": "Bij vlag C: het volgende rak wordt korter.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "With flag C: decrease the length of the leg.",
+  "geluid": null,
+  "regel": "RvW 33(b)",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-plus",
+  "kind": "wedstrijd",
+  "naam": "'+' (with C)",
+  "naam_nl": "'+' (bij C)",
+  "vlaggen": [],
+  "ontwerp": {
+   "vorm": "bord",
+   "verhouding": 0.8,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "wit"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.25,
+     "y": 0.3,
+     "b": 0.5,
+     "h": 0.03,
+     "kleur": "zwart"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.485,
+     "y": 0.15,
+     "b": 0.03,
+     "h": 0.33,
+     "kleur": "zwart"
+    }
+   ],
+   "omschrijving": "wit bord met een zwart plusteken (in de RvW-tekening hoog geplaatst)"
+  },
+  "zoek": {
+   "kleuren": [
+    "wit",
+    "zwart"
+   ],
+   "patroon": [
+    "teken"
+   ],
+   "vorm": "bord"
+  },
+  "betekenis_nl": "Bij vlag C: het volgende rak wordt langer.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "With flag C: increase the length of the leg.",
+  "geluid": null,
+  "regel": "RvW 33(b)",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-L",
+  "kind": "wedstrijd",
+  "naam": "L – notice / come within hail",
+  "naam_nl": "L – mededeling / volg mij",
+  "vlaggen": [
+   "L"
+  ],
+  "betekenis_nl": "Aan de wal: er is een mededeling voor de deelnemers opgehangen. Op het water: kom binnen praaiafstand of volg dit vaartuig.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Ashore: A notice to competitors has been posted. Afloat: Come within hail or follow this vessel.",
+  "geluid": {
+   "tonen": "•"
+  },
+  "regel": "RvW Wedstrijdseinen",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true
+ },
+ {
+  "id": "wed-M",
+  "kind": "wedstrijd",
+  "naam": "M – mark replaced",
+  "naam_nl": "M – vervangend merkteken",
+  "vlaggen": [
+   "M"
+  ],
+  "betekenis_nl": "Het voorwerp dat dit sein toont vervangt een ontbrekend merkteken.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "The object displaying this signal replaces a missing mark.",
+  "geluid": {
+   "tonen": "- - - - -",
+   "opmerking": "herhaalde geluidsseinen"
+  },
+  "regel": "RvW 34",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true,
+  "scouting": [
+   "Kaagcup 2026: M = vervangend merkteken (boei)."
+  ]
+ },
+ {
+  "id": "wed-Y",
+  "kind": "wedstrijd",
+  "naam": "Y – personal flotation",
+  "naam_nl": "Y – drijfmiddelen",
+  "vlaggen": [
+   "Y"
+  ],
+  "betekenis_nl": "Draag persoonlijke drijfmiddelen (regel 40). Op het water vóór of met het waarschuwingssein: voor die wedstrijd; aan de wal: de hele dag op het water. Wet- en droogpakken tellen niet.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Wear a personal flotation device (see rule 40).",
+  "geluid": {
+   "tonen": "•"
+  },
+  "regel": "RvW 40",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true,
+  "scouting": [
+   "Kaagcup 2026: 'Y – reddingsvesten aan'; Y gehesen = iedereen reddingsvest aan, ook wie rond het wedstrijdwater vaart."
+  ]
+ },
+ {
+  "id": "wed-oranje-vlag",
+  "kind": "wedstrijd",
+  "naam": "Orange flag – starting line",
+  "naam_nl": "Oranje vlag – startlijn",
+  "vlaggen": [],
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "oranje"
+    }
+   ],
+   "omschrijving": "effen oranje (vorm niet voorgeschreven)"
+  },
+  "zoek": {
+   "kleuren": [
+    "oranje"
+   ],
+   "patroon": [
+    "effen"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "De stok met deze vlag is één einde van de startlijn.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "The staff displaying this flag is one end of the starting line.",
+  "geluid": {
+   "opmerking": "geen geluidssein"
+  },
+  "regel": "RvW Wedstrijdseinen",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true,
+  "scouting": [
+   "NK Lelievlet 2026 SI 10.3/12.2: startboeien geel met oranje vlag, startlijn aan bakboord van het startschip.",
+   "Kaagcup 2026: startlijn tussen twee oranje vlaggen (boei bakboord, startschip stuurboord)."
+  ]
+ },
+ {
+  "id": "wed-blauwe-vlag",
+  "kind": "wedstrijd",
+  "naam": "Blue flag – finishing line",
+  "naam_nl": "Blauwe vlag – finishlijn",
+  "vlaggen": [],
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "blauw"
+    }
+   ],
+   "omschrijving": "effen blauw (vorm niet voorgeschreven)"
+  },
+  "zoek": {
+   "kleuren": [
+    "blauw"
+   ],
+   "patroon": [
+    "effen"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "De stok met deze vlag is één einde van de finishlijn.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "The staff displaying this flag is one end of the finishing line.",
+  "geluid": {
+   "opmerking": "geen geluidssein"
+  },
+  "regel": "RvW Wedstrijdseinen",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true,
+  "scouting": [
+   "NK Lelievlet 2026 SI 10.3/14.1: finishboeien geel met blauwe vlag; finish tussen die boei en de stuurboordzijde van het finishschip."
+  ]
+ },
+ {
+  "id": "wed-klassenvlag",
+  "kind": "wedstrijd",
+  "naam": "Class flag – warning signal",
+  "naam_nl": "Klassenvlag – waarschuwingssein",
+  "vlaggen": [],
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "variabel"
+    }
+   ],
+   "omschrijving": "per evenement vastgesteld"
+  },
+  "zoek": {
+   "kleuren": [],
+   "patroon": [
+    "variabel"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Waarschuwingssein, 5 minuten voor de start (één geluidssein); weggenomen = startsein (één geluidssein). Een sein boven een klassenvlag geldt alleen voor die klasse.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "Warning signal (5 min, one sound); removed = starting signal (one sound).",
+  "geluid": {
+   "tonen": "•",
+   "wegnemen": "•"
+  },
+  "regel": "RvW 26",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true,
+  "opmerking": "Ontwerp per evenement (wedstrijdbepalingen).",
+  "startprocedure": [
+   {
+    "minuten": 5,
+    "sein": "klassenvlag omhoog",
+    "geluid": "•",
+    "betekenis": "waarschuwingssein"
+   },
+   {
+    "minuten": 4,
+    "sein": "P, I, Z, Z met I, U of zwarte vlag omhoog",
+    "geluid": "•",
+    "betekenis": "voorbereidingssein"
+   },
+   {
+    "minuten": 1,
+    "sein": "voorbereidingsvlag omlaag",
+    "geluid": "—",
+    "betekenis": "één minuut"
+   },
+   {
+    "minuten": 0,
+    "sein": "klassenvlag omlaag",
+    "geluid": "•",
+    "betekenis": "startsein"
+   }
+  ],
+  "scouting": [
+   "NK Lelievlet 2026 SI 7.1: klassenvlag met het speltakembleem: Scouts (t/m 15) op oranje veld, Explorers (t/m 18) op rood veld, open klasse (Roverscouts-embleem) op blauw veld; de boten voeren een oranje, paars resp. blauw lint in de voorstag.",
+   "Kaagcup 2026: klassenvlag 'in kleur van het veld'; elke boot draagt een veldteken (lint in de veldkleur) op 1–2 m in de voorstag; extra 10-minutensein met baanbord."
+  ],
+  "cwo": [
+   "Kielboot/Zwaardboot 2022: 3801 'kennismaken met wedstrijdzeilen' (Basis), 'simpele startprocedure' (Ervaren), 3701 'Starten' (module); vlaggen worden niet afzonderlijk genoemd"
+  ]
+ },
+ {
+  "id": "wed-protestvlag",
+  "kind": "wedstrijd",
+  "naam": "Red flag – protest",
+  "naam_nl": "Rode vlag – protest",
+  "vlaggen": [],
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "rood"
+    }
+   ],
+   "omschrijving": "effen rood"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood"
+   ],
+   "patroon": [
+    "effen"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Een boot die protesteert roept 'Protest' en toont, als zijn romp langer is dan 6 m, een opvallende rode vlag tot hij niet langer wedstrijd zeilt. Een lelievlet (5,6 m) hoeft dus alleen te roepen.",
+  "betekenis_nl_status": "parafrase van de officiële Nederlandse vertaling (Watersportverbond, RvW 2025–2028)",
+  "betekenis_en": "A protesting boat hails 'Protest' and, if her hull length is longer than 6 metres, conspicuously displays a red flag.",
+  "geluid": null,
+  "regel": "RvW 60.2(a)(1)",
+  "bron": [
+   "RvW Wedstrijdseinen (PDF p. 4–5)",
+   "RRS Race Signals (PDF p. 2–3)"
+  ],
+  "relevant": true,
+  "opmerking": "Het 'rode vlaggetje in het want' van wedstrijdboten in de Katwijkse/Mees Toxopeus-boekjes (6.4) is waarschijnlijk hierop terug te voeren; de RvW kent geen herkenningsvlag voor wedstrijdboten."
+ },
+ {
+  "id": "bpr-3.38-duiker",
+  "kind": "bpr",
+  "naam": "Seinvlag A – duiker te water",
+  "naam_nl": "Seinvlag A – duiker te water",
+  "vlaggen": [
+   "A"
+  ],
+  "betekenis_nl": "Een schip dat bij het duiken wordt gebruikt voert de internationale seinvlag A (of een stijve replica), van alle kanten zichtbaar, 's nachts verlicht. Mag ook bij duiken vanaf de wal. RPR: replica van niet-buigzaam materiaal, minstens 1 m hoog.",
+  "betekenis_nl_status": "officieel (parafrase van de wettekst)",
+  "betekenis_en": "A vessel used for diving shows signal flag A (or a rigid replica), visible all round, lit at night.",
+  "geluid": null,
+  "artikel": "BPR 3.38; RPR 3.34",
+  "bron": [
+   "BPR 3.38; RPR 3.34"
+  ],
+  "relevant": true,
+  "cwo": [
+   "Kielboot III / Gevorderd"
+  ],
+  "bijlage3": "schets 74 (68738.png)",
+  "scouting": [
+   "Katwijkse Zeeverkenners zeil-instructieboek p. 52 (PDF 58) 'Duikersvlag'; De Bevers Kielboot III lesboek fig. 5.25 (PDF 33)"
+  ]
+ },
+ {
+  "id": "bpr-3.17-rode-wimpel",
+  "kind": "bpr",
+  "naam": "Rode wimpel – recht van voorrang",
+  "naam_nl": "Rode wimpel – recht van voorrang",
+  "ontwerp": {
+   "vorm": "driehoek",
+   "verhouding": 2.0,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.5
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "rood"
+    }
+   ],
+   "omschrijving": "rode driehoekige wimpel (≥ 1 m lang, ≥ 0,5 m hoog; kleine schepen kleiner, BPR 3.03)"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood"
+   ],
+   "patroon": [
+    "effen"
+   ],
+   "vorm": "driehoek"
+  },
+  "betekenis_nl": "Een varend schip dat voorrang heeft bij de doorvaart (bruggen, sluizen) en dat wil gebruiken, voert overdag een rode wimpel op het voorschip.",
+  "betekenis_nl_status": "officieel (parafrase van de wettekst)",
+  "betekenis_en": "A vessel with priority of passage at bridges or locks shows a red pennant on the foreship by day.",
+  "geluid": null,
+  "artikel": "BPR 3.17; RPR 3.17",
+  "bron": [
+   "BPR 3.17; RPR 3.17"
+  ],
+  "relevant": true,
+  "bijlage3": "schets 40 (53149.png)",
+  "zie_ook": "6.26 en 6.28b: bruggen en sluizen laten zo'n schip zonder oponthoud door"
+ },
+ {
+  "id": "bpr-3.18-rode-vlag-zwaaien",
+  "kind": "bpr",
+  "naam": "Rode vlag heen en weer zwaaien – onmanoeuvreerbaar",
+  "naam_nl": "Rode vlag heen en weer zwaaien – onmanoeuvreerbaar",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "rood"
+    }
+   ],
+   "omschrijving": "effen rode vlag, heen en weer gezwaaid"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood"
+   ],
+   "patroon": [
+    "effen",
+    "gezwaaid"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Een schip dat onmanoeuvreerbaar wordt zwaait overdag met een rode vlag heen en weer (of toont twee zwarte bollen boven elkaar); 's nachts een heen en weer gezwaaid rood licht (klein schip: mag wit) of twee rode lichten boven elkaar. De vlag mag een bord van dezelfde kleur zijn.",
+  "betekenis_nl_status": "officieel (parafrase van de wettekst)",
+  "betekenis_en": "A vessel becoming unmanoeuvrable waves a red flag to and fro by day.",
+  "geluid": {
+   "sein": "Ik kan niet manoeuvreren",
+   "patroon": "• • • •",
+   "artikel": "BPR 3.18 lid 2, bijlage 6 A",
+   "opmerking": "De tekens vervangen dit geluidssein of vullen het aan."
+  },
+  "artikel": "BPR 3.18; RPR 3.18",
+  "bron": [
+   "BPR 3.18; RPR 3.18"
+  ],
+  "relevant": true,
+  "bijlage3": "schets 41a/b (53150, 53151, 68715, 68716)",
+  "cwo": []
+ },
+ {
+  "id": "bpr-3.30-noodtekens",
+  "kind": "bpr",
+  "naam": "Noodtekens",
+  "naam_nl": "Noodtekens",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "rood"
+    }
+   ],
+   "omschrijving": "vlag in het rond gezwaaid (BPR noemt geen kleur, RPR en de BPR-schets: rood); of vierkante vlag met een bol erboven of eronder"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood"
+   ],
+   "patroon": [
+    "effen",
+    "gezwaaid",
+    "vlag met bol"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Een schip in nood dat hulp wil inroepen mag overdag een vlag (RPR: rode vlag) of ander voorwerp in het rond zwaaien, of een vlag met daarboven of daaronder een bol tonen; ook vuurpijlen, lichtkogels, parachutelichten, rookbommen of vlammen. 's Nachts een licht in het rond zwaaien.",
+  "betekenis_nl_status": "officieel (parafrase van de wettekst)",
+  "betekenis_en": "A vessel in distress may swing a flag (RPR: red flag) or other object in a circle, or show a flag with a ball above or below it.",
+  "geluid": {
+   "sein": "Noodsein",
+   "patroon": "herhaalde lange stoten — — — of reeksen klokslagen (≈ 4 s per reeks)",
+   "artikel": "BPR 4.01 lid 4 en 5; bijlage 6 A",
+   "medisch": "vier korte stoten gevolgd door één lange (• • • • —) = verzoek om medische hulp (3.30 lid 3)"
+  },
+  "artikel": "BPR 3.30; RPR 3.30; BPR 4.01 lid 4",
+  "bron": [
+   "BPR 3.30; RPR 3.30; BPR 4.01 lid 4"
+  ],
+  "relevant": true,
+  "cwo": [
+   "Kielboot III / Gevorderd",
+   "Roeien III",
+   "noodsein (102) vanaf Introductie"
+  ],
+  "bijlage3": "schets 64 (68724, 68725, 272745)"
+ },
+ {
+  "id": "bva-NC-noodsein",
+  "kind": "bpr",
+  "naam": "Noodsein N boven C",
+  "naam_nl": "Noodsein N boven C",
+  "vlaggen": [
+   "N",
+   "C"
+  ],
+  "betekenis_nl": "Op zee (BVA): het noodsein N.C. uit het Internationaal Seinboek, of een vierkante vlag met daarboven of daaronder een bal, geeft nood en behoefte aan hulp aan.",
+  "betekenis_nl_status": "officieel (parafrase van de wettekst)",
+  "betekenis_en": "COLREGs Annex IV: the distress signal NC of the International Code of Signals; a square flag having above or below it a ball.",
+  "geluid": null,
+  "artikel": "BVA (COLREGs) bijlage IV 1 f en g",
+  "bron": [
+   "BVA (COLREGs) bijlage IV 1 f en g"
+  ],
+  "relevant": true,
+  "opmerking": "BVA geldt op zee, niet op de BPR-wateren; de BPR (3.30) noemt de vlag met bol wel, NC niet."
+ },
+ {
+  "id": "bpr-3.25-rood-wit",
+  "kind": "bpr",
+  "naam": "Rood-wit bord/vlag – werkend werktuig of vastgevaren schip",
+  "naam_nl": "Rood-wit bord/vlag – werkend werktuig of vastgevaren schip",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "horizontaal",
+     "verdeling": [
+      0.5,
+      0.5
+     ],
+     "kleuren": [
+      "rood",
+      "wit"
+     ]
+    }
+   ],
+   "omschrijving": "horizontaal gedeeld, rood boven, wit onder (vrije zijde)"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood",
+    "wit"
+   ],
+   "patroon": [
+    "horizontaal gedeeld"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Aan de vrije zijde (als het werktuig of schip ook tegen golfslag beschermd wil worden): een bord, bovenste helft rood en onderste helft wit, of twee borden rood boven wit. Aan de niet-vrije zijde: een rood bord. Borden mogen vlaggen van dezelfde kleur zijn (RPR: vlaggen, mogen borden zijn). Zonder golfslagbescherming: twee groene ruiten (vrij) en een rode bol (niet vrij).",
+  "betekenis_nl_status": "officieel (parafrase van de wettekst)",
+  "betekenis_en": "Working craft / grounded or sunken vessel: red-over-white board or flag on the side where passage is clear; red board or flag on the side where it is not.",
+  "geluid": null,
+  "artikel": "BPR 3.25 lid 1 c–d, lid 2; RPR 3.25",
+  "bron": [
+   "BPR 3.25 lid 1 c–d, lid 2; RPR 3.25"
+  ],
+  "relevant": true,
+  "ook": {
+   "niet_vrije_zijde": {
+    "vorm": "rechthoekig",
+    "verhouding": 1.25,
+    "omtrek": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      0,
+      1
+     ]
+    ],
+    "velden": [
+     {
+      "type": "vlak",
+      "kleur": "rood"
+     }
+    ],
+    "omschrijving": "effen rood"
+   }
+  },
+  "cwo": [
+   "Kielboot III / Gevorderd",
+   "Roeien III"
+  ],
+  "bijlage3": "schets 54–57",
+  "opmerking": "Varen langs de niet-vrije zijde is verboden (BPR 6.22 lid 3). RPR bijlage 8 IV gebruikt dezelfde vlaggen voor obstakels."
+ },
+ {
+  "id": "bpr-3.29-rood-boven-wit",
+  "kind": "bpr",
+  "naam": "Rood boven wit – bescherming tegen golfslag",
+  "naam_nl": "Rood boven wit – bescherming tegen golfslag",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "banden",
+     "richting": "horizontaal",
+     "verdeling": [
+      0.5,
+      0.5
+     ],
+     "kleuren": [
+      "rood",
+      "wit"
+     ]
+    }
+   ],
+   "omschrijving": "horizontaal gedeeld, rood boven, wit onder"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood",
+    "wit"
+   ],
+   "patroon": [
+    "horizontaal gedeeld"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Wie beschermd wil worden tegen hinderlijke waterbeweging (zwaar beschadigd, werkzaamheden in het vaarwater, niet in staat te manoeuvreren, of met schriftelijke toestemming) toont overdag een bord half rood (boven) half wit (onder), of twee borden rood boven wit; vlaggen mogen. Langsvaren langzaam en ver weg.",
+  "betekenis_nl_status": "officieel (parafrase van de wettekst)",
+  "betekenis_en": "Request for protection against wash: red-over-white board or flag (or two, red above white).",
+  "geluid": null,
+  "artikel": "BPR 3.29; RPR 3.29",
+  "bron": [
+   "BPR 3.29; RPR 3.29"
+  ],
+  "relevant": true,
+  "cwo": [
+   "Kielboot III / Gevorderd",
+   "Roeien III"
+  ],
+  "bijlage3": "schets 63 (53186, 53187)"
+ },
+ {
+  "id": "bpr-3.24-gele-vlag",
+  "kind": "bpr",
+  "naam": "Gele vlag – net of uitlegger",
+  "naam_nl": "Gele vlag – net of uitlegger",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "geel"
+    }
+   ],
+   "omschrijving": "effen geel"
+  },
+  "zoek": {
+   "kleuren": [
+    "geel"
+   ],
+   "patroon": [
+    "effen"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Een stilliggend schip met een net of uitlegger uit in of bij het vaarwater (op stromend water) voert overdag een gele vlag aan de kant van het net; 's nachts een wit rondom licht.",
+  "betekenis_nl_status": "officieel (parafrase van de wettekst)",
+  "betekenis_en": "Stationary vessel with a net or boom out: a yellow flag on the side of the net.",
+  "geluid": null,
+  "artikel": "BPR 3.24",
+  "bron": [
+   "BPR 3.24"
+  ],
+  "relevant": true,
+  "bijlage3": "schets 53 (68722, 68723)",
+  "opmerking": "Niet verwarren met seinvlag Q (ook effen geel)."
+ },
+ {
+  "id": "bpr-3.36-loodsvlag",
+  "kind": "bpr",
+  "naam": "Loodsvlag – blauw met witte L",
+  "naam_nl": "Loodsvlag – blauw met witte L",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "blauw"
+    },
+    {
+     "type": "tekst",
+     "tekst": "L",
+     "kleur": "wit",
+     "cx": 0.5,
+     "cy": 0.5,
+     "hoogte": 0.6
+    }
+   ],
+   "omschrijving": "blauw met een witte letter L"
+  },
+  "zoek": {
+   "kleuren": [
+    "blauw",
+    "wit"
+   ],
+   "patroon": [
+    "letter"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Een schip dat loodsdienst uitoefent voert overdag een blauwe vlag met een witte letter L aan of bij de top van de mast op het voorschip.",
+  "betekenis_nl_status": "officieel (parafrase van de wettekst)",
+  "betekenis_en": "Pilot vessel on duty: blue flag with a white letter L.",
+  "geluid": null,
+  "artikel": "BPR 3.36",
+  "bron": [
+   "BPR 3.36"
+  ],
+  "relevant": true,
+  "bijlage3": "schets 72 (68729, 68735)",
+  "opmerking": "Geen ICS-vlag (seinvlag L is geel-zwart gekwartierd; ICS H = loods aan boord)."
+ },
+ {
+  "id": "bpr-6.04a-lichtblauw-bord",
+  "kind": "bpr",
+  "naam": "Lichtblauw bord met wit flikkerlicht – stuurboord op stuurboord",
+  "naam_nl": "Lichtblauw bord met wit flikkerlicht – stuurboord op stuurboord",
+  "ontwerp": {
+   "vorm": "bord",
+   "verhouding": 1.0,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "wit"
+    },
+    {
+     "type": "rechthoek",
+     "x": 0.06,
+     "y": 0.06,
+     "b": 0.88,
+     "h": 0.88,
+     "kleur": "lichtblauw"
+    }
+   ],
+   "omschrijving": "lichtblauw bord met witte rand (≥ 5 cm), donker raamwerk; met wit flikkerlicht"
+  },
+  "zoek": {
+   "kleuren": [
+    "lichtblauw",
+    "wit"
+   ],
+   "patroon": [
+    "rand"
+   ],
+   "vorm": "bord"
+  },
+  "betekenis_nl": "Een groot schip dat stuurboord op stuurboord wil passeren toont aan stuurboord overdag een lichtblauw bord met witte rand (≥ 5 cm) samen met een wit helder rondom flikkerlicht. Een bord, geen vlag.",
+  "betekenis_nl_status": "officieel (parafrase van de wettekst)",
+  "betekenis_en": "Large vessel requesting a starboard-to-starboard passing: light-blue board with white border plus a white flashing light.",
+  "geluid": null,
+  "artikel": "BPR 6.04a lid 2–4; RPR 6.04",
+  "bron": [
+   "BPR 6.04a lid 2–4; RPR 6.04"
+  ],
+  "relevant": true,
+  "cwo": [
+   "Kielboot III / Gevorderd (6.01–6.28a)"
+  ],
+  "bijlage3": "schets 75 (53196, 53197)",
+  "opmerking": "Oud spraakgebruik 'blauwe vlag/blauw bord'. Kleine schepen zijn niet verplicht te antwoorden; zie VOORRANG.md S17."
+ },
+ {
+  "id": "bpr-A.1-rode-vlag",
+  "kind": "bpr",
+  "naam": "Rode vlag – in-, uit- of doorvaren verboden",
+  "naam_nl": "Rode vlag – in-, uit- of doorvaren verboden",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.25,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "rood"
+    }
+   ],
+   "omschrijving": "effen rood; of twee boven elkaar"
+  },
+  "zoek": {
+   "kleuren": [
+    "rood"
+   ],
+   "patroon": [
+    "effen"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Een rode vlag (of bord rood-wit-rood, of rood licht) = in-, uit- of doorvaren verboden. Twee boven elkaar = verbod van langere duur.",
+  "betekenis_nl_status": "officieel (parafrase van de wettekst)",
+  "betekenis_en": "Red flag = no entry / no passage (sign A.1); two above each other = prohibition of longer duration.",
+  "geluid": null,
+  "artikel": "BPR bijlage 7 A.1",
+  "bron": [
+   "BPR bijlage 7 A.1"
+  ],
+  "relevant": true,
+  "cwo": [
+   "Kielboot III / Gevorderd",
+   "Roeien III"
+  ],
+  "zie_ook": "../bpr/tekens.json A.1"
+ },
+ {
+  "id": "bpr-H.3a-spuien",
+  "kind": "bpr",
+  "naam": "Vlag 'spuien' – er wordt gespuid",
+  "naam_nl": "Vlag 'spuien' – er wordt gespuid",
+  "ontwerp": {
+   "vorm": "rechthoekig",
+   "verhouding": 1.6,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "blauw"
+    },
+    {
+     "type": "tekst",
+     "tekst": "spuien",
+     "kleur": "wit",
+     "cx": 0.5,
+     "cy": 0.5,
+     "hoogte": 0.45
+    }
+   ],
+   "omschrijving": "blauw met het witte woord 'spuien'"
+  },
+  "zoek": {
+   "kleuren": [
+    "blauw",
+    "wit"
+   ],
+   "patroon": [
+    "tekst"
+   ],
+   "vorm": "rechthoekig"
+  },
+  "betekenis_nl": "Blauwe vlag met het witte woord 'spuien' (en/of drie rode lichten in een driehoek, punt boven): er wordt gespuid, reken op stroom. Samen met drie lichten naast elkaar (H.3c): er wordt weldra gespuid.",
+  "betekenis_nl_status": "officieel (parafrase van de wettekst)",
+  "betekenis_en": "Blue flag with the white word 'spuien': water is being discharged.",
+  "geluid": null,
+  "artikel": "BPR bijlage 7 H.3a, H.3c",
+  "bron": [
+   "BPR bijlage 7 H.3a, H.3c"
+  ],
+  "relevant": true,
+  "cwo": [
+   "Kielboot III / Gevorderd",
+   "Roeien III"
+  ],
+  "zie_ook": "../bpr/tekens.json H.3a"
+ },
+ {
+  "id": "bpr-H.3b-inlaten",
+  "kind": "bpr",
+  "naam": "Wimpel 'inlaten' – er wordt ingelaten",
+  "naam_nl": "Wimpel 'inlaten' – er wordt ingelaten",
+  "ontwerp": {
+   "vorm": "driehoek",
+   "verhouding": 2.5,
+   "omtrek": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0.5
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "velden": [
+    {
+     "type": "vlak",
+     "kleur": "blauw"
+    },
+    {
+     "type": "tekst",
+     "tekst": "inlaten",
+     "kleur": "wit",
+     "cx": 0.34,
+     "cy": 0.5,
+     "hoogte": 0.3
+    }
+   ],
+   "omschrijving": "blauwe driehoekige wimpel met het witte woord 'inlaten'"
+  },
+  "zoek": {
+   "kleuren": [
+    "blauw",
+    "wit"
+   ],
+   "patroon": [
+    "tekst"
+   ],
+   "vorm": "driehoek"
+  },
+  "betekenis_nl": "Blauwe driehoekige wimpel met het witte woord 'inlaten' (en/of drie rode lichten in een driehoek, punt onder): er wordt water ingelaten, stroom naar de inlaat.",
+  "betekenis_nl_status": "officieel (parafrase van de wettekst)",
+  "betekenis_en": "Blue pennant with the white word 'inlaten': water is being let in.",
+  "geluid": null,
+  "artikel": "BPR bijlage 7 H.3b, H.3c",
+  "bron": [
+   "BPR bijlage 7 H.3b, H.3c"
+  ],
+  "relevant": true,
+  "cwo": [
+   "Kielboot III / Gevorderd",
+   "Roeien III"
+  ],
+  "zie_ook": "../bpr/tekens.json H.3b"
+ },
+ {
+  "id": "bpr-10.05-zeeschepen",
+  "kind": "bpr",
+  "naam": "Vlaggeseinen van zeeschepen",
+  "naam_nl": "Vlaggeseinen van zeeschepen",
+  "vlaggen": [
+   "A",
+   "B",
+   "G",
+   "H",
+   "P",
+   "Q",
+   "Z"
+  ],
+  "betekenis_nl": "Een zeegaand schip mag de internationale vlaggeseinen A, B, G, H, P, Q en Z geven.",
+  "betekenis_nl_status": "officieel (parafrase van de wettekst)",
+  "betekenis_en": "A seagoing vessel may make the ICS flag signals A, B, G, H, P, Q and Z.",
+  "geluid": null,
+  "artikel": "BPR 10.05 (hoofdstuk 10: vaarwegen tussen zee en zeehavens)",
+  "bron": [
+   "BPR 10.05 (hoofdstuk 10: vaarwegen tussen zee en zeehavens)"
+  ],
+  "relevant": false
+ }
+]

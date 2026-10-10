@@ -177,8 +177,11 @@ function twigs(bound) {
   return g;
 }
 
-/** A small glow that can be lit: a lens and a sprite round it. set(on, night) each frame. */
-export function makeLamp(kleur, size = 1) {
+/**
+ * A small glow that can be lit: a lens and a sprite round it. set(on, night) each frame. `strength`:
+ * how brightly the lens burns - less keeps the colour of a large lens, which would burn out to white.
+ */
+export function makeLamp(kleur, size = 1, strength = 3) {
   const hex = LICHT[kleur] ?? LICHT.wit;
   const group = new THREE.Group();
   const lens = new THREE.Mesh(new THREE.SphereGeometry(0.05 * size, 12, 8), new THREE.MeshStandardMaterial({ color: 0x222222, emissive: hex, emissiveIntensity: 0 }));
@@ -187,7 +190,7 @@ export function makeLamp(kleur, size = 1) {
   group.add(lens, glow);
   group.userData.set = (on, night) => {
     const k = on ? 1 : 0;
-    lens.material.emissiveIntensity = 3 * k;
+    lens.material.emissiveIntensity = strength * k;
     glow.material.opacity = k * (0.25 + 0.75 * night);
     glow.visible = k > 0;
   };

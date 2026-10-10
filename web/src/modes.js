@@ -5350,9 +5350,18 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   }));
   let opened = null;
   /** A panel beside its own icon, level with it, but kept inside the viewer - not inside the window. */
+  const NARROW = 640;                                               // px: the phone layout of style.css (@container max-width)
   const place = ({ button, panel }) => {
     const EDGE = 8;
     const frame = wrap.getBoundingClientRect(); const column = bar.getBoundingClientRect();
+    // a phone: the popover the width of the screen (style.css), under the column rather than beside it
+    if (frame.width <= NARROW) {
+      const top = column.bottom + EDGE;
+      panel.style.top = `${top - column.top}px`;
+      panel.style.maxHeight = `${Math.max(120, frame.bottom - EDGE - top)}px`;   // a very short embed: it scrolls
+      return;
+    }
+    panel.style.maxHeight = '';
     const box = button.getBoundingClientRect();
     const room = frame.bottom - EDGE - panel.offsetHeight;          // how far down it may start and still fit
     panel.style.top = `${Math.max(Math.min(box.top, room), frame.top + EDGE) - column.top}px`;
@@ -5437,11 +5446,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   };
 
   // reven: the number of turns of the giek, chosen in Handelingen (handelingen.js)
-  const reefCount = $('reef-count');
   let reefWanted = 0;                                               // what was last asked for
   const setReef = (turns, play = true) => {
     reefWanted = turns;
-    reefCount.textContent = String(turns); reefCount.hidden = turns === 0;
     return planReef(turns, play);
   };
 
@@ -5790,8 +5797,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
         if (!heaveOn()) { tackSteers = true; setCourse((Math.sign(state.course) || 1) * Math.round(heaving.fromCourse)); tackSteers = false; helm.target = 0; }
         heaving = Object.assign(bijliggen(pick(heaving.values, HOVE)), { fromCourse: heaving.fromCourse });
         drop(proc);
-      } else if (proc === reefing) {                                 // the rif as it is again, on the badge and in the panel
-        reefWanted = Math.round(reef.turns); reefCount.textContent = String(reefWanted); reefCount.hidden = reefWanted === 0;
+      } else if (proc === reefing) {                                 // the rif as it is again, in the panel
+        reefWanted = Math.round(reef.turns);
       } else if (proc === berthing) { berthing = dropBerthing(); layWal(null); }   // the steiger it laid goes with it
       else if (proc === leaving) {
         // back at the start of her way off, where she lay made fast - made fast, nothing puts her there
@@ -6224,7 +6231,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
                    get moored() { return dock.moored; }, get kind() { return dock.kind; } },
            bowsprit: bowsprit && { get on() { return bowsprit.want; }, set: setBowsprit },
            chill: chill && { get on() { return chill.holds; } },
-           water, waterHit, mob, toplicht: { set: setToplicht },
+           water, waterHit, mob, toplicht: { set: setToplicht }, windArrow: wind,
            boardDrop: { get on() { return bolt.down; }, set: (on) => (on ? dropBolt() : holdBolt()) },
            tow: tow && { get on() { return tow.want; }, set: (on) => { tow.want = on; } },
            island: moor && { get on() { return moor.want; }, set: (on) => { moor.want = on; } },

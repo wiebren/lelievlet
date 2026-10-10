@@ -230,7 +230,16 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
       const withShot = el('input', { type: 'checkbox', checked: report.metAfbeelding ?? Boolean(report.screenshot) });
       withShot.addEventListener('change', () => { report.metAfbeelding = withShot.checked; });
       report.metAfbeelding = withShot.checked;
+      // what a quiz asks about goes with the report, but is not shown here before it is answered: the
+      // details are not to give the answer away (it is said so, rather than left out)
       const shown = { ...report.gegevens };
+      for (const [key, field] of [['quiz', 'onderdeel'], ['verkeerstekens', 'teken']]) {
+        if (shown[key]?.[field] && !shown[key].beantwoord) shown[key] = { ...shown[key], [field]: '(meegestuurd, hier verborgen tot je hebt geantwoord)' };
+      }
+      // and so are the answers to choose from: in their order they would say which picture or part it is
+      for (const key of ['quiz', 'verkeerstekens']) {
+        if (shown[key]?.opties && !shown[key].beantwoord) shown[key] = { ...shown[key], opties: '(meegestuurd, hier verborgen tot je hebt geantwoord)' };
+      }
       return [
         el('h3', { textContent: 'Klaar om te versturen' }),
         field('naam', 'Je naam of scoutinggroep (mag leeg blijven)', '', null, { single: true, min: 0 }),
@@ -329,9 +338,9 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
 
   // ---------------------------------------------------------------- open and close
   function open() {
-    closeOthers();
     report = {}; trail = [];
-    if (melden) capture();                      // before anything else moves: what the user saw
+    if (melden) capture();                      // before anything else moves: what the user saw, the panels it closes too
+    closeOthers();
     panel.hidden = false; button.setAttribute('aria-expanded', 'true');
     show('start');
   }
