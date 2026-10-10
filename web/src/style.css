@@ -68,6 +68,16 @@
   text-align: start; text-transform: none; text-indent: 0; letter-spacing: normal; word-spacing: normal; white-space: normal;
   background: linear-gradient(var(--bg-top), var(--bg-bottom));
 }
+/* panels and cards: only their own scrolling, up and down, never handed on to the page - a pinch or a
+   swipe there would otherwise zoom or move the page, and the buttons with it */
+.lv aside, .lv .popover, .lv .cmd-card, .lv .focus-card, .lv #parts-list {
+  touch-action: pan-y; overscroll-behavior: contain;
+}
+/* on a touch screen a field under 16px makes the browser zoom in to it as it gets the focus: over every
+   field's own size (the search, Melden's are set by id) */
+@media (pointer: coarse) {
+  .lv input[type="text"], .lv input[type="search"], .lv textarea { font-size: 16px !important; }
+}
 
 #scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; }
 

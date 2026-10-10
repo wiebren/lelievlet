@@ -44,7 +44,7 @@ const SITE = 'https://wiebren.github.io/lelievlet/';   // the project's own page
  * snapshot(): { screenshot, gegevens } - the picture as a data URL (or null) and the state as data.
  * closeOthers(): puts away the panels that stand where this one does.
  * about(), updates(): open Over dit model and Updates, from the menu.
- * Returns { close }.
+ * Returns { close, busy }: busy while a report is being put together, past the menu.
  */
 export function initFeedback({ ui, config, signal, engaged, snapshot, closeOthers, about, updates }) {
   const $ = (id) => ui.getElementById(id);
@@ -343,5 +343,7 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
   $('feedback-close').addEventListener('click', close);
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && engaged() && !panel.hidden) close(); }, { signal });
 
-  return { close };
+  // a report being put together: a tap beside the panel does not throw it away
+  const busy = () => !panel.hidden && !['start', 'verstuurd', 'nogmaals'].includes(trail.at(-1));
+  return { close, busy };
 }

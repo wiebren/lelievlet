@@ -145,6 +145,25 @@ export function mount(ui, host, config) {
     else if (!seen) markUpdatesSeen();
   };
   $('toestand-close').addEventListener('click', () => closePanel.get('toestand')());
+  // Every panel closes on a tap beside it, as the popovers of the column do - a tap, not a drag, so the
+  // boat can still be turned to look at it with Aanpassen open. Not a report being written (its text
+  // would go), nor the cards of the roeicommando's, a run or a quiz, which stay open on purpose.
+  const besides = [['customize', 'customize-toggle', () => $('customize-close').click()],
+    ['feedback', 'feedback-toggle', () => { if (!feedback.busy()) feedback.close(); }],
+    ['parts', 'parts-toggle', () => closePanel.get('parts')()], ['about', null, () => closePanel.get('about')()],
+    ['updates', null, () => closePanel.get('updates')()], ['logboek', 'log-toggle', () => closePanel.get('logboek')()],
+    ['toestand', 'toestand-toggle', () => closePanel.get('toestand')()]];
+  let tapFrom = null;
+  document.addEventListener('pointerdown', (e) => { tapFrom = e.isPrimary ? { x: e.clientX, y: e.clientY, path: e.composedPath() } : null; }, { capture: true, signal });
+  document.addEventListener('pointerup', (e) => {
+    const from = tapFrom; tapFrom = null;
+    if (!from || !e.isPrimary || Math.hypot(e.clientX - from.x, e.clientY - from.y) > 8) return;
+    for (const [panel, toggle, close] of besides) {
+      const el = $(panel);
+      if (el.hidden || from.path.includes(el) || (toggle && from.path.includes($(toggle)))) continue;
+      close();
+    }
+  }, { capture: true, signal });
   $('parts-close').addEventListener('click', () => closePanel.get('parts')());
   $('log-close').addEventListener('click', () => closePanel.get('logboek')());
 
