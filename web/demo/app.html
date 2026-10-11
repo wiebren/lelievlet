@@ -88,7 +88,9 @@
     // the address the app is installed with: this page, and the boat after the # - what an iPhone puts
     // on its home screen, and the start_url of the manifest the page hands out (below)
     const hash = Object.keys(config).length ? `#${await packConfig(config)}` : '';
-    history.replaceState(null, '', location.pathname + hash);
+    // ?krachten stays: the viewer reads it to open Krachten en koppels, which is in no menu yet
+    const keep = new URLSearchParams(location.search).has('krachten') ? '?krachten' : '';
+    history.replaceState(null, '', location.pathname + keep + hash);
     // The manifest is handed out again with the boat's own icons in it, as data: Android makes its
     // home screen icon from the manifest's icons, fetched apart from this page, and so never saw the
     // ones the service worker keeps (the sail number went missing there). Handed out afresh whenever
@@ -101,7 +103,7 @@
         if (!manifest) return;
         const at = (path) => new URL(path, location.href).href;   // a manifest from a blob: everything absolute
         // the file itself has no start_url, so a browser that reads it starts where this page is: here too
-        Object.assign(manifest, { id: at(manifest.id), start_url: location.href, scope: at(manifest.scope) });
+        Object.assign(manifest, { id: at(manifest.id), start_url: at(location.pathname + location.hash), scope: at(manifest.scope) });
         for (const icon of manifest.icons) icon.src = icons[icon.src] ?? at(icon.src);
         const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
         if (manifestUrl) URL.revokeObjectURL(manifestUrl);
