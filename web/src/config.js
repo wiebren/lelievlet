@@ -17,12 +17,6 @@
 //                  voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499' },
 //       opslaan: true,                                      // false: never read or write localStorage
 //     },
-//     namen: {
-//       onderdelen: { hommerring: 'Mastring', want_bb: 'Bakboord zijstag' },   // by part id
-//       stappen: { 'Fok strijken': 'Fok neer' },                                // procedure steps, by their default label
-//       commandos: { stopaf: 'Houden', op: { knop: 'Riemen op', roep: 'riemen… op' } },   // roeicommando's, by key
-//       quiz: { 27: 'Hommerring', Kleed: 'Baan' },                              // quiz entries, by nr or default name
-//     },
 //     quiz: {
 //       weg: [27, 'Kleed'],                          // numbers or names to leave out
 //       erbij: [{ naam: 'Anker', delen: ['anker'], niveau: 1 }],
@@ -53,7 +47,6 @@ export const DEFAULTS = {
   feedback: { url: 'https://europe-west4-lelievlet.cloudfunctions.net/lelievlet-melden' },   // files it as an issue on GitHub
   aanpassen: { opslaan: true },
   toestand: {},
-  namen: { onderdelen: {}, stappen: {}, commandos: {}, quiz: {} },
   quiz: { weg: [], erbij: [], niveau: 3 },
   debug: { modelnummer: false, quiztabellen: false, toestand: false },
 };
@@ -92,11 +85,6 @@ export const TYPING = 'input:not([type=checkbox]), textarea, select, [contentedi
 /** Whether any debug aid is on: the handle is only handed out then. */
 export const debugOn = (config) => Object.values(config?.debug ?? {}).some(Boolean);
 
-/** The name a group uses for a part, a procedure step or a roeicommando; `fallback` when it has none. */
-export const naamVan = (config, soort, key, fallback) => config?.namen?.[soort]?.[key] ?? fallback;
-
-/** The name a group uses for a quiz entry: by its number, else by the name the entry has by default. */
-export const quizNaam = (config, nr, naam) => config?.namen?.quiz?.[nr] ?? config?.namen?.quiz?.[naam] ?? naam;
 
 /** The quiz entries for this configuration: the standard list less `weg`, plus `erbij`. */
 export function quizEntries(config, standard) {

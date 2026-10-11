@@ -19,7 +19,8 @@ import { initZoeken } from './bpr/zoeken.js';
 import { initTekenQuiz } from './bpr/tekenquiz.js';
 import { useTrees, buildTrees } from './bvh.js';
 import { makeAsset } from './assets.js';
-import { naamVan, merge, unpack, pack, TYPING } from './config.js';
+import { merge, unpack, pack, TYPING } from './config.js';
+import { zoeknamen } from './anderenamen.js';
 import { addEdges } from './edges.js';
 import { packConfig } from './pack.js';
 import { UPDATES } from './updates.js';
@@ -339,9 +340,9 @@ export function mount(ui, host, config) {
         // follows once the boat is packed (the app page lets go of its opener)
         const here = window.top === window.self && new URL(page, location.href).origin === location.origin;
         const tab = here ? null : window.open('about:blank', '_blank');
-        // what the boat looks like now, and the rest of what this viewer was given: its names, its quiz
+        // what the boat looks like now, and the rest of what this viewer was given: its quiz, where it is
         const keep = { aanpassen: own };
-        for (const key of ['namen', 'quiz', 'toestand']) if (Object.values(config[key] ?? {}).some((v) => (typeof v === 'object' ? Object.keys(v ?? {}).length : v !== undefined))) keep[key] = config[key];
+        for (const key of ['quiz', 'toestand']) if (Object.values(config[key] ?? {}).some((v) => (typeof v === 'object' ? Object.keys(v ?? {}).length : v !== undefined))) keep[key] = config[key];
         const url = `${page}?installeer#${await packConfig(keep)}`;
         if (here) location.href = url;
         else if (tab) tab.location.href = url;
@@ -358,11 +359,6 @@ export function mount(ui, host, config) {
       modes = initModes({ parts, tuig: root.getObjectByName('lelievlet').userData.tuig, scene,
                           ui, wrap, config, signal, onResize, engaged, realTarget, note: logboek.note, say });
       regions = initRegions({ parts, groups, highlight: SELECT });        // Boeg, Kleed: areas, not parts
-
-      // One choke point for namen.onderdelen: the parts from the model and the ones the viewer built
-      // itself (modes.js, flag.js, regions.js) are all in `parts` by now, and every place that shows
-      // a name - hover tip, info tile, Onderdelen list, quiz feedback - reads extras.naam.
-      for (const p of parts) p.extras.naam = naamVan(config, 'onderdelen', p.extras.id, p.extras.naam);
 
       for (const p of parts) groups.get(p.extras.groep)?.parts.push(p);   // after initModes: it adds the windvaan
       buildPartList();
@@ -454,7 +450,8 @@ export function mount(ui, host, config) {
         li.append(button);
         ul.append(li);
         // searching on "bakboord" still finds a merged row: its own names are part of what is matched
-        const key = fold([bucket.label, ...bucket.parts.map((p) => p.extras.naam)].join(' '));
+        // found by its own name and by the other names the lesson material gives it (dirk, vaantje, …)
+        const key = fold([bucket.label, ...bucket.parts.flatMap((p) => [p.extras.naam, ...zoeknamen(p.extras.id)])].join(' '));
         const row = { parts: bucket.parts, twins, button, li, section: entry, key };
         button.addEventListener('click', () => { const pick = twins ? pickTwin(row) : row.parts; select(pick); flyTo(pick); });
         entry.rows.push(row); rows.push(row);
@@ -1000,10 +997,24 @@ export function mount(ui, host, config) {
   let procPlaying = null;                // what the play/pause button is drawing
   let procDismissed = null;              // the shape of the procedure whose card was closed: it stays away
   let procWasPlaying = false;            // ... until it, or another one, is started afresh
+  // In the card of a run (Bekijken) it waits at its start, and play goes a step at a time: each step
+  // played the way a single step is, the camera first, and then held long enough to read what the
+  // card says about it before the next one begins.
+  let autoplay = false;                  // play pressed in the card of a run: it steps on by itself
+  let holdUntil = 0;                     // when the step just done has been read
+  const inRun = () => wrap.classList.contains('ops-on');
+  /** How long the step just done stays: a moment to see it, and time to read its name, waarom and tip. */
+  const readTime = (p) => {
+    const words = `${p.current?.label ?? ''} ${p.current?.waarom ?? ''} ${p.current?.tip ?? ''}`.split(/\s+/).filter(Boolean).length;
+    return Math.min(READ_MS.base + words * READ_MS.word, READ_MS.max);
+  };
+  /** Whether a step is left to play, forwards. */
+  const moreSteps = (p) => p.steps.some((s) => !s.skipped && s.end > p.t + 1e-6);
   const shapeOf = (p) => [p.name, ...p.steps.map((s) => `${s.end}${s.skipped ? 'x' : ''}`)].join(' ');
   /** The card of a run closed (handelingen.js): its bar goes at once, not after lingering. */
   function dismissProcedure() {
     const p = modes?.procedure();
+    autoplay = false;
     if (!p) return;
     procDismissed = shapeOf(p); procWasPlaying = p.playing;
     procBar.hidden = true; wrap.classList.remove('procedure-open');
@@ -1013,7 +1024,15 @@ export function mount(ui, host, config) {
   procPlay.addEventListener('click', () => {
     stepsQueued = 0;
     const p = modes?.procedure();
-    if (p) modes.procedureControl[p.playing ? 'pause' : 'play']();
+    if (!p) return;
+    if (inRun()) {
+      if (autoplay || p.playing) { autoplay = false; modes.procedureControl.pause(); return; }
+      if (!moreSteps(p)) return;
+      autoplay = true; holdUntil = 0;
+      stepProcedure(1);
+      return;
+    }
+    modes.procedureControl[p.playing ? 'pause' : 'play']();
   });
   // A step on its own is shown: the camera first goes to the parts it is about - all the room they
   // take up while it plays, from the side - and then it plays.
@@ -1056,6 +1075,7 @@ export function mount(ui, host, config) {
   function lookAtProcedure() {
     const v = runView();
     closeAt = -1; above = null; easing = null;
+    autoplay = false; holdUntil = 0;                                // a run begins at stap 0, waiting for play
     if (v === 'dichtbij') { closeAt = modes?.procedure()?.index ?? -1; flyToStep(1); return; }
     if (v !== 'vogel') return;                                      // Bovenaf and Schipper take it up themselves, per frame
     const view = modes?.procedureControl.view();
@@ -1066,6 +1086,7 @@ export function mount(ui, host, config) {
   let stepsQueued = 0;
   function clickStep(direction) {
     const p = modes?.procedure();
+    autoplay = false;                                    // stepped by hand: it no longer goes on by itself
     if (p?.stepping && p.heading === direction) { stepsQueued += direction; return; }
     stepsQueued = 0;
     stepProcedure(direction);
@@ -1079,7 +1100,7 @@ export function mount(ui, host, config) {
   // the slider goes in steps of 0.01 s, and a procedure is seldom that long exactly: at its right-hand
   // end it is the end, or the run would never be done
   procTime.addEventListener('input', () => {
-    stepsQueued = 0;
+    stepsQueued = 0; autoplay = false;
     const value = Number(procTime.value); const max = Number(procTime.max);
     modes?.procedureControl.scrub(value > max - Number(procTime.step) ? max : value);
   });
@@ -1107,6 +1128,7 @@ export function mount(ui, host, config) {
   /** Per frame: fill the bar with where the procedure stands, and decide whether it is in view. */
   function stepProcedureBar() {
     const p = modes?.procedure() ?? null;
+    if (autoplay && !inRun()) autoplay = false;
     // practising an operation (handelingen.js), the next step is the question: no bar to see or click
     if (!p || wrap.classList.contains('ops-oefenen')) { procBar.hidden = true; wrap.classList.remove('procedure-open'); stepsQueued = 0; return; }
     // after the card of a run closed, its bar stays away until another procedure is shown, or this
@@ -1120,6 +1142,14 @@ export function mount(ui, host, config) {
     if (stepsQueued && !p.playing) {                      // the step is done: on to the next one clicked for
       const direction = Math.sign(stepsQueued); stepsQueued -= direction;
       stepProcedure(direction);
+    }
+    if (autoplay && !p.playing) {                         // a step done: read, then the next
+      const now = performance.now();
+      if (!holdUntil) holdUntil = now + readTime(p);
+      else if (now >= holdUntil) {
+        holdUntil = 0;
+        if (moreSteps(p)) stepProcedure(1); else autoplay = false;
+      }
     }
     procBar.hidden = false;
     if (shape !== procShape) {                            // another procedure, or the same one anew
@@ -1141,14 +1171,19 @@ export function mount(ui, host, config) {
     // the step the label is about, and named the way the procedure is going (Fok strijken, Fok hijsen)
     // counted without the skipped steps: those are not done here at all
     const live = p.steps.filter((s) => !s.skipped); const at = live.indexOf(p.steps[p.index]);
-    const step = live.length ? `${Math.max(at, 0) + 1}/${live.length}  ${p.label}` : p.label;
+    // in the card of a run, before it has begun, it is at stap 0: what it is for, and what it needs
+    const waiting = inRun() && !p.playing && !autoplay && p.t < 1e-6;
+    const step = waiting ? `0/${live.length}  Voorbereiding`
+      : live.length ? `${Math.max(at, 0) + 1}/${live.length}  ${p.label}` : p.label;
     if (procStep.textContent !== step) procStep.textContent = step;
     if (procName.textContent !== p.name) procName.textContent = p.name;
-    if (procPlaying !== p.playing) {
-      procPlaying = p.playing;
+    procPlay.classList.toggle('go', waiting);             // green: this is where it starts
+    const playing = p.playing || autoplay;
+    if (procPlaying !== playing) {
+      procPlaying = playing;
       // the icons are SVG groups, which have no hidden property: the attribute has to be set
-      for (const icon of procIcons) icon.toggleAttribute('hidden', (icon.dataset.icon === 'pause') !== p.playing);
-      procPlay.setAttribute('aria-label', p.playing ? 'Pauzeren' : 'Afspelen');
+      for (const icon of procIcons) icon.toggleAttribute('hidden', (icon.dataset.icon === 'pause') !== playing);
+      procPlay.setAttribute('aria-label', playing ? 'Pauzeren' : 'Afspelen');
       procPlay.title = procPlay.getAttribute('aria-label');
     }
 
@@ -1438,14 +1473,22 @@ export function mount(ui, host, config) {
     if (v === 'boven' && performance.now() - handledAt < 3000) { easing = null; return true; }   // moved by hand: left there a while
     if (v === 'boven') {
       // the whole of the manoeuvre from straight above, still on the water: whatever she will go
-      // over, and whatever her track has taken in, only ever more of it
+      // over, and whatever her track has taken in, only ever more of it while it plays. Waiting -
+      // at stap 0, between steps, or a handeling on board that takes her nowhere - she sails on, and
+      // the frame goes along with her as it is, rather than growing after her for as long as it waits
       dock.extent(extentBox);
+      const at = dock.toWorld(tmpV.set(0, 0, 0), new THREE.Vector3()).setY(0);
       if (!above) {
         const wind = THREE.MathUtils.degToRad(modes.state.course);
         const up = dock.toWorld(tmpV.set(turnAbout.x + Math.cos(wind), 0, Math.sin(wind)), new THREE.Vector3())
           .sub(dock.toWorld(tmpV.copy(turnAbout), new THREE.Vector3())).setY(0).normalize();
-        above = { box: extentBox.clone(), up };
-      } else above.box.union(extentBox);
+        above = { box: extentBox.clone(), up, at };
+      } else {
+        const p = modes.procedure();
+        if (dock.turnsHer && p?.playing) above.box.union(extentBox);
+        else above.box.translate(tmpV.subVectors(at, above.at));
+        above.at = at;
+      }
       above.box.getBoundingSphere(extentSphere);
       const half = Math.min(THREE.MathUtils.degToRad(camera.fov / 2), Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect));
       const height = (extentSphere.radius + 4) / Math.tan(half);
@@ -1752,7 +1795,7 @@ export function mount(ui, host, config) {
         onderdeel: visibleText(infoCard),
         roepen: bubbles.map((b) => b.el.textContent),
       },
-      insluiting: { assets: config.assets, namen: config.namen, quiz: config.quiz },
+      insluiting: { assets: config.assets, quiz: config.quiz },
       apparaat: {
         browser: navigator.userAgent, taal: navigator.language,
         scherm: `${screen.width}×${screen.height}`, viewer: `${Math.round(w)}×${Math.round(h)}`,
@@ -1793,6 +1836,8 @@ const BUILD = typeof __LV_BUILD__ !== 'undefined' ? __LV_BUILD__ : { commit: 'de
 const FOV = 35;                         // degrees, upright: the lens of every view but Schipper
 const SCHIPPER_ACROSS = 90;
 const LOOK_REACH = 0.25;                // m before the helmsman's eye that a drag turns the view about             // degrees across the picture, seen from the helm
+// a step done in the card of a run stays this long before the next: a moment, and per word of what the card says of it
+const READ_MS = { base: 1500, word: 250, max: 10000 };
 const STEP_FLIGHT_MS = 1400;           // the camera goes to a step at half the speed of a click in the list
 const SAMPLES = [[0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
 const MARGIN = 1.6;                    // room left around the part

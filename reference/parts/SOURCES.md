@@ -43,12 +43,22 @@ Bronsleutels die in de woordenlijst hieronder gebruikt worden, staan tussen `[ ]
 - **De bruikbaarste enkele bron voor dit project**: de categorie-indeling is exact wat de quiz
   nodig heeft, en de romp is in groepskleuren ingekleurd (oranje/blauw/wit).
 
-### `scouting_de_bevers_kielboot_III_lesboek.pdf` — **[KB3]**
-- Bron: <https://www.scoutingdebevers.nl/wp-content/uploads/2023/10/Kielboot-III-Lesboek.pdf>
-- 72 pagina's, Christian Peppelman / Sint Maartengroep, versie 1.0.0 (26 feb 2023),
-  **CC BY-NC-SA 4.0** (herbruikbaar met naamsvermelding, niet-commercieel).
-- **§1.3 "Bootonderdelen", Tabel 1.1 "Vletonderdelen"**: dezelfde 88 onderdelen als [WIL88], maar
+### `../sintmaarten/kielboot-iii-lesboek.pdf` — **[KB3]** (in `CWO_NIVEAUS.md`: **[KB3L]**)
+- Bron: <https://github.com/ScoutingSintMaarten/Kielboot-Lesboeken> (repository van de auteur, met
+  de LaTeX-bronnen en alle figuren los als PDF/PNG); De Bevers
+  (<https://www.scoutingdebevers.nl/wp-content/uploads/2023/10/Kielboot-III-Lesboek.pdf>) host
+  alleen de oude versie 1.0.0.
+- 76 pagina's, Christian Peppelman / Sint Maartengroep, versie 1.1 (31 dec 2025),
+  **CC BY-NC-SA 4.0** (herbruikbaar met naamsvermelding, niet-commercieel, gelijk delen; niet voor
+  de logo's op de omslag en de Willibrordus-tekening). Tabel 1.1 en de paginanummers van
+  hoofdstuk 1–6 zijn gelijk aan 1.0.0.
+  Staat nu in `../sintmaarten/`, samen met de lesboeken Kielboot I en II van dezelfde auteur;
+  volledige index en de vergelijking met de quiz in `../sintmaarten/NOTES.md`.
+- **§1.3 "Bootonderdelen", Tabel 1.1 "Vletonderdelen"**: de tekening van [WIL88], maar
   als **selecteerbare tekst in een tabel** — de makkelijkste bron om machinaal over te nemen.
+  Let op: de tabel wijkt af van de namen op [WIL88] zelf (51 Kuip valt weg, 57 heet Kim en 58
+  Luchtkast waar [WIL88] 57 Luchtkast en 58 Mangat heeft, 71 Spant voor Bint, 16 Tophoek voor
+  Nokhoek); de genummerde pijlen in de figuur zijn niet aangepast.
   Grijs gedrukte nummers (27 Baan, 30 Strop, 86 Vlag, 87 Vlaggenstok, 88 Knop) hoeven cursisten
   níet te kennen — handig voor quiz-moeilijkheidsniveaus.
 - §1.3.1 "Extra onderdelen" geeft nog voorsteven, sluiting, kous, kiel en halstalie.

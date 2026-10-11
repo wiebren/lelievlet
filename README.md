@@ -30,18 +30,15 @@ al het overige werkt vanuit het gebouwde model.
 
 ## Licentie
 
-De software (de viewer in `web/` en de model-pipeline in `pipeline/`) valt onder de
-[PolyForm Noncommercial License 1.0.0](LICENSE). Je mag de code gebruiken, aanpassen en doorgeven
-voor alles wat niet commercieel is: als particulier, en als scoutinggroep, school, vereniging of
-andere organisatie zonder winstoogmerk. Wie de code doorgeeft, geeft de licentie en de regel
-`Required Notice:` bovenaan `LICENSE` mee.
+© 2026 Wiebren Braakman ([github.com/wiebren/lelievlet](https://github.com/wiebren/lelievlet)). Het hele
+project valt onder [CC BY-NC-SA 4.0](LICENSE) (Naamsvermelding-NietCommercieel-GelijkDelen): de software
+(de viewer in `web/` en de model-pipeline in `pipeline/`), de teksten erin (namen, uitleg, vragen, stappen),
+het gebouwde model (`web/public/models/`), de site, de handleiding en de schermafbeeldingen (`web/demo/`),
+de naslag in `docs/` en de eigen notities in `reference/`. Delen en bewerken mag, niet commercieel, als
+particulier en als scoutinggroep, school, vereniging of andere organisatie zonder winstoogmerk; met
+naamsvermelding, en een bewerking deel je onder dezelfde licentie.
 
-De rest valt onder [CC BY-NC-SA 4.0](LICENSE-content) (Naamsvermelding-NietCommercieel-GelijkDelen):
-het gebouwde model (`web/public/models/`), de site, de handleiding en de schermafbeeldingen
-(`web/demo/`), de naslag in `docs/` en de eigen notities in `reference/`. Delen en bewerken mag, niet
-commercieel, met naamsvermelding, en een bewerking deel je onder dezelfde licentie.
-
-Wat van anderen is, valt niet onder deze licenties:
+Wat van anderen is, valt niet onder deze licentie:
 
 - Het ontwerp van de lelievlet en het CAD-model waar de geometrie van `lelievlet.glb` uit komt, zijn
   van Scouting Nederland. De licentie geldt voor wat dit project eraan heeft toegevoegd.
@@ -49,6 +46,9 @@ Wat van anderen is, valt niet onder deze licenties:
   klassenteken van Scouting Nederland.
 - De bronnen die `reference/` beschrijft (het Vlettenboek, de CWO-lesboeken, foto's en tekeningen)
   houden hun eigen voorwaarden; de notities verwijzen ernaar en citeren eruit.
+- De lesboeken Kielboot I, II en III van Christian Peppelman (Scouting Sint Maarten) staan onder
+  CC BY-NC-SA 4.0, net als dit project. Wat de viewer eruit overneemt, staat met naam en
+  licentie onder *Over dit model*, is aangepast, en valt onder dezelfde licentie.
 - De teksten van het BPR zijn wetgeving en daarmee vrij (Auteurswet artikel 11).
 - three.js en three-mesh-bvh houden hun eigen licentie (MIT).
 
@@ -80,7 +80,6 @@ De viewer is een bibliotheek. Je zet een element op je pagina, geeft het een hoo
   import Lelievlet from 'https://wiebren.github.io/lelievlet/lelievlet.js';
   Lelievlet.create(document.getElementById('vlet'), {
     aanpassen: { zeilnummer: '442', naam: 'Fluessen', plaats: 'Zwolle' },
-    namen: { onderdelen: { hommerring: 'Mastring' } },
     quiz: { niveau: 2 },
   });
 </script>
@@ -243,20 +242,16 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 | `toestand.koers` | getal | `90` | Graden van de wind af: `0` is kop in de wind, `45` aan de wind, `90` halve wind, `135` ruime wind, `180` voor de wind (met de fok te loevert); daartussen mag ook. Positief: wind over stuurboord, negatief: over bakboord. Tussen 0 en 45 wordt 45. |
 | `toestand.reven` | 0–5 | `0` | Het aantal slagen van het grootzeil om de giek. |
 | `toestand.roeien` | `'naast'` \| `'kruis'` \| `'vier'` | `'vier'` | Twee riemen naast elkaar, twee kruislings of vier. |
-| `toestand.commando` | string of `{ bb, sb }` | `'slag'` | Het roeicommando (sleutels als bij `namen.commandos`). Een string geldt voor de hele boot; per boord kan alleen `haal` `opriemen` `strijk` `stopaf` `lopen`, en een boord dat je weglaat blijft zoals het was. |
+| `toestand.commando` | string of `{ bb, sb }` | `'slag'` | Het roeicommando (sleutels: `slag` `haal` `opriemen` `strijk` `stopaf` `lopen` `over` `op` `geroeid`). Een string geldt voor de hele boot; per boord kan alleen `haal` `opriemen` `strijk` `stopaf` `lopen`, en een boord dat je weglaat blijft zoals het was. |
 | `toestand.zwaard` | `'neer'` \| `'half'` \| `'op'` | volgt de koers | Het midzwaard. Zonder deze sleutel gaat het op bij roeien, wrikken, voor de wind en voor anker, en anders neer. Met het tuig gestreken of de mast neer staat het altijd op (de stap Midzwaard op). |
 | `toestand.aanzicht` | `'3d'` \| `'zij'` \| `'boven'` \| `'voor'` \| `'achter'` | `'3d'` | Het camerastandpunt waarmee de viewer begint (er zijn geen knoppen meer voor: de camera draai je zelf). |
 | `toestand.selectie` | id of lijst ids | — | Onderdelen die geselecteerd zijn, met hun infotegel; de camera gaat erheen, tenzij er ook een `aanzicht` of `camera` is. `null` of `[]` heft de selectie op. |
 | `toestand.camera` | `{ positie, doel }` | — | Het precieze standpunt: `positie` is waar de camera staat, `doel` waar hij naar kijkt, elk `[x, y, z]` in meters in de assen van het model (x van spiegel naar boeg, y omhoog, z naar stuurboord). Gaat voor `aanzicht`. Het makkelijkst te krijgen uit het paneel van `debug.toestand`. |
-| `namen.onderdelen[id]` | string | — | Hernoemt een onderdeel overal: hovertip, infotegel, de lijst Onderdelen (ook de samenvoeging van bakboord/stuurboord, die op namen werkt) en de terugkoppeling van de quiz. Sleutel is de onderdeel-id, bijvoorbeeld `{ hommerring: 'Mastring' }`. |
-| `namen.stappen[label]` | string | — | Hernoemt een stap van een procedure (Reven, Zeilen, Mast). Sleutel is het standaardlabel, bijvoorbeeld `{ 'Fok strijken': 'Fok neer' }`. Elke stap heeft ook een naam voor de andere kant op, die de balk toont als de procedure achteruit loopt (Fok hijsen, Anker op, Mast zetten, …); die hernoem je op dezelfde manier: `{ 'Fok hijsen': 'Fok op' }`. |
-| `namen.commandos[key]` | string of object | — | Hernoemt een roeicommando. Een string is het knoplabel; `{ knop, roep }` zet ook de woorden die de roerganger roept. Sleutels: `slag` `haal` `opriemen` `strijk` `stopaf` `lopen` `over` `op` `geroeid`. |
-| `namen.quiz[nr of naam]` | string | — | Hernoemt een quizvraag, op nummer of op de standaardnaam: `{ 27: 'Hommerring', Kleed: 'Baan' }`. |
 | `quiz.weg` | array | `[]` | Nummers of namen die niet gevraagd worden: `[27, 'Kleed']`. |
 | `quiz.erbij` | array | `[]` | Eigen vragen: `[{ naam, delen: ['id', …], ook: ['id', …], niveau: 1, roeien: true, nr: 200 }]`. `naam` en een niet-lege `delen` zijn verplicht; zonder `nr` krijgt de vraag er zelf een vanaf 1000, zonder `niveau` geldt Zeilen III, `roeien: true` vraagt hem ook bij Roeien en `zeilen: false` laat hem bij Zeilen weg. |
 | `quiz.niveau` | `'roeien'` \| 1 \| 2 \| 3 | `3` | Het niveau waarop het startpaneel opent: `'roeien'` voor CWO Roeien, 1–3 voor Zeilen I–III. De gebruiker kan het daarna zelf wisselen, en het paneel onthoudt zijn laatste keuze. |
 | `debug.modelnummer` | boolean | `false` | Toont de regel "Modelnummer" in de infotegel: de CAD-handle van de body waarop geklikt is. Een hulpmiddel bij het modelleren, niets voor een verkenner. |
-| `debug.quiztabellen` | boolean | `false` | Zet een link **Tabellen** in het startpaneel van Oefenen, die de opgeloste quizconfiguratie als tabel toont: nr, naam (na hernoemen), niveau, `delen` en `ook` (elke id die in het geladen model niet bestaat staat rood), of het een eigen vraag is, en de score per vraag. Daaronder een tweede tabel met alle onderdelen waar geen enkele vraag over gaat. |
+| `debug.quiztabellen` | boolean | `false` | Zet een link **Tabellen** in het startpaneel van Oefenen, die de opgeloste quizconfiguratie als tabel toont: nr, naam, niveau, `delen` en `ook` (elke id die in het geladen model niet bestaat staat rood), of het een eigen vraag is, en de score per vraag. Daaronder een tweede tabel met alle onderdelen waar geen enkele vraag over gaat. |
 | `debug.toestand` | boolean | `false` | Zet een icoon `{ }` rechtsonder, boven de onderdelenkaart. Het paneel toont de toestand waarin de viewer nu staat als de configuratie om daar te beginnen (`{ "toestand": { … } }`, zie `get()`, met het camerastandpunt), bijgewerkt zolang het open staat, met een knop **Kopieer als JSON**. |
 | `debug` | `true` \| `false` | — | `debug: true` zet alle hulpmiddelen tegelijk aan, `debug: false` alle uit. |
 
@@ -806,8 +801,7 @@ worden bij het opstarten tegen `parts` opgezocht; een entry waarvan geen enkel o
 afgevallen wordt één keer met `console.info` gelogd.
 
 Welke vragen een insluitende pagina stelt, bepaalt zij zelf: `quizEntries()` in `web/src/config.js`
-haalt `quiz.weg` uit de standaardlijst en zet `quiz.erbij` erachteraan, en `namen.quiz` hernoemt een
-vraag. `debug.quiztabellen` zet een link **Tabellen** in het startpaneel die laat zien wat daar
+haalt `quiz.weg` uit de standaardlijst en zet `quiz.erbij` erachteraan. `debug.quiztabellen` zet een link **Tabellen** in het startpaneel die laat zien wat daar
 uiteindelijk uit kwam — handig om te zien of een `weg` of `erbij` terechtkwam waar hij hoorde.
 
 Vier soorten oefening, en Gemengd, die per vraag één soort trekt uit wat de entry toelaat:

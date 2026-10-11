@@ -16,7 +16,7 @@ Source keys are those of `SOURCES.md`, plus the ones introduced here:
 | `[SNEEK]` | `scoutingsneek_zeilinstructieboek_kielboot_I_II_III.pdf` — "Theorie CWO Kielboot I, II & III", Adm. Vechtplassen, ed. jan. 2006 | **the only source that marks per name which parts are Kielboot I** |
 | `[KATZ]` | `cwo_zeil_instructieboek_katwijkse_zeeverkenners.pdf` (in `reference/`), 2e druk 2005 | the book the 84-name quiz list comes from |
 | `[MTX]` | `meestoxopeus_CWO_kielboot_1_2_3_instructieboek.pdf`, Adm. 12, 1e druk 2005 | derivative of `[KATZ]`, 104 names |
-| `[KB3L]` | `scouting_de_bevers_kielboot_III_lesboek.pdf` (2023) | Kielboot III lesboek, 88 names, greys out what is *not* required |
+| `[KB3L]` | `../sintmaarten/kielboot-iii-lesboek.pdf` (versie 1.1, 31 Dec 2025; index `../sintmaarten/NOTES.md`) | Kielboot III lesboek, 88 names, greys out what is *not* required |
 | `[ARG1]` `[ARG2]` | `argo8_cwo1_instructieboekje.pdf`, `argo8_cwo2_theorieboek.pdf` | group booklets KB1 / KB2, 80 names |
 | `[PRAET]` | `praetgroep_cwo2_insigne_zeilen_kielboot_2.pdf` (2012) | KB2 reader, 78 names |
 | `[KATR]` | `katwijkse_zeeverkenners_cwo_roei_instructieboek.pdf` | roeiboek, 40 names |
@@ -152,11 +152,11 @@ one roei-only entry.
 | 1 | Klauwval | 1 | – | `[SNEEK]` p. 21 nr. 86 `*`; `[SNEEK]` p. 21 *"\* Vallen … Voor het grootzeil zijn dit er twee, klauwval en piekenval"*; `[KATZ]` p. 64 hijsen (geen symbool = KB I) | hoog |
 | 2 | Windvaan | 3 | – | `[KATZ]` p. 13 = §1.6 *Ware wind & schijnbare wind*, symbool **Kielboot III**; idem `[MTX]` p. 19, `[SNEEK]` p. 14; niet gesterd in `[SNEEK]` p. 19 nr. 7 | midden |
 | 3 | Piekenval | 1 | – | `[SNEEK]` p. 21 nr. 82 `*`; `[ARG1]` p. 11–12 hijsen/strijken | hoog |
-| 4 | Gaffeldraad | 3 | – | `[SNEEK]` p. 19 nr. 5 *Spruit* (geen `*`); buiten de namenlijst alleen als KB III-oefenvraag `[KB3L]` p. 49 | midden |
-| 5 | Marllijn | 3 | – | `[SNEEK]` p. 19 nr. 2 (geen `*`); lesuitleg alleen in de onderdelenparagraaf `[MTX]` p. 22; marlsteek staat in `[MTX]` bijlage 7.3 p. 104 "Niet diploma"; KB III-oefenvraag `[KB3L]` p. 49 | midden |
+| 4 | Gaffeldraad | 3 | – | `[SNEEK]` p. 19 nr. 5 *Spruit* (geen `*`); buiten de namenlijst alleen als KB III-oefenvraag `[KB3L]` p. 51 | midden |
+| 5 | Marllijn | 3 | – | `[SNEEK]` p. 19 nr. 2 (geen `*`); lesuitleg alleen in de onderdelenparagraaf `[MTX]` p. 22; marlsteek staat in `[MTX]` bijlage 7.3 p. 104 "Niet diploma"; KB III-oefenvraag `[KB3L]` p. 51 | midden |
 | 6 | Gaffel | 1 | – | `[SNEEK]` p. 19 nr. 1 `*`; `[KATZ]` p. 64 hijsen; `[ARG1]` p. 11 | hoog |
 | 7 | Tophoek van het grootzeil | 2 | – | niet gesterd (`[SNEEK]` p. 21 nr. 98); wél lesstof KB I/II: `[KATZ]` p. 64 *"Gaffel goed stellen met de piekenval (vouw van halshoek naar tophoek)"*, `[ARG1]` p. 11 | midden |
-| 8 | Zeillat | 3 | – | `[SNEEK]` p. 21 nr. 102 (geen `*`); buiten de lijst alleen in §*Hoe werken de zeilen* = **Kielboot III**: `[KATZ]` p. 9, `[MTX]` p. 15, `[SNEEK]` p. 12; `[KB3L]` p. 58 | midden |
+| 8 | Zeillat | 3 | – | `[SNEEK]` p. 21 nr. 102 (geen `*`); buiten de lijst alleen in §*Hoe werken de zeilen* = **Kielboot III**: `[KATZ]` p. 9, `[MTX]` p. 15, `[SNEEK]` p. 12; `[KB3L]` p. 60 | midden |
 | 9 | Kleed | 3 | – | `[SNEEK]` p. 21 nr. 99 (geen `*`); komt in de lesteksten nooit onder deze naam voor — daar heet het *huik* (`[KATZ]` p. 64, `[ARG1]` p. 11) | laag |
 | 10 | Want | 1 | – | `[SNEEK]` p. 19 nr. 41 *Zijstag of want* `*`; `[SNEEK]` p. 22 *"Staand want … de voorstag en de zijstagen"*; `[KATZ]` p. 16 eist voor KB I expliciet *"onderdelen van het lopend en staand want"* | hoog |
 | 11 | Dirk of kraanlijn | 1 | – | `[SNEEK]` p. 19 nr. 43 `*`; `[SNEEK]` p. 21 uitleg vallen; `[KATZ]` p. 65 strijken | hoog |
@@ -181,7 +181,7 @@ one roei-only entry.
 | 30 | Voorstag | 1 | – | `[SNEEK]` p. 19 nr. 9 `*`; `[SNEEK]` p. 22 *"Staand want … de voorstag en de zijstagen"* | hoog |
 | 31 | Fok | 1 | – | `[SNEEK]` p. 21 nr. 91 `*`; `[HBO]` p. 14 en p. 20 verplicht | hoog |
 | 32 | Voorlijk van de fok | 2 | – | zie nr. 22; niet gesterd (`[SNEEK]` p. 21 nr. 90); `[ARG1]` p. 10 / `[ARG2]` p. 14 killen van het zeil | midden |
-| 33 | Tophoek van de fok | 2 | – | niet gesterd (`[SNEEK]` p. 21 nr. 89); `[ARG1]` p. 11; oefenvraag `[KB3L]` p. 49; `[KATZ]` p. 106 vraag 2 | midden |
+| 33 | Tophoek van de fok | 2 | – | niet gesterd (`[SNEEK]` p. 21 nr. 89); `[ARG1]` p. 11; oefenvraag `[KB3L]` p. 51; `[KATZ]` p. 106 vraag 2 | midden |
 | 34 | Halshoek of -broek van de fok | 2 | – | `[HBO]` p. 14 **verplicht vanaf KB II** (*halshoek*); `[ARG2]` p. 16; *broek* alleen in `[VDM8]`/`[KATZ]`/`[WIL88]` | midden |
 | 35 | Onderlijk van de fok | 2 | – | zie nr. 19; `[ARG2]` p. 16 reven; `[HBO]` p. 20 | midden |
 | 36 | Schoothoek van de fok | 2 | – | `[HBO]` p. 14 **verplicht vanaf KB II**; `[ARG2]` p. 16; niet gesterd (`[SNEEK]` p. 21 nr. 94) | hoog |
@@ -218,9 +218,9 @@ one roei-only entry.
 | 69 | Achterdek | 1 | ja | `[SNEEK]` p. 20 nr. 60/78 `*`; `[JPR3]` p. 7 nr. 22 | hoog |
 | 70 | Wrikgat | 3 | ja | `[SNEEK]` p. 20 nr. 62/80 (geen `*`); in de kielbootboeken geen lestekst. Wél Roeiboot-basisstof: `[KATR]` §1.2.1 *"De kant waar het wrikgat zit, is stuurboord"*, `[JPR3]` p. 7 nr. 32 | midden |
 | 71 | Helmstok | 1 | ja | `[SNEEK]` p. 19 nr. 29 `*`; `[HBO]` p. 14 en p. 20 verplicht; `[JPR3]` p. 7 nr. 29 | hoog |
-| 72 | Roerkoning | 2 | ja | niet gesterd (`[SNEEK]` p. 19 nr. 25), maar lesstof bij vlagvoering (*Gedragsregels* = theorie-eis 7 vanaf KB II, `[VS2]` p. 1): `[KATZ]` p. 95 / `[MTX]` p. 95 / `[SNEEK]` p. 86 *"de Nederlandse vlag op een gebogen vlaggenstok op de roerkoning"*; oefenvraag `[KB3L]` p. 49; `[JPR3]` p. 7 nr. 26 | midden |
+| 72 | Roerkoning | 2 | ja | niet gesterd (`[SNEEK]` p. 19 nr. 25), maar lesstof bij vlagvoering (*Gedragsregels* = theorie-eis 7 vanaf KB II, `[VS2]` p. 1): `[KATZ]` p. 95 / `[MTX]` p. 95 / `[SNEEK]` p. 86 *"de Nederlandse vlag op een gebogen vlaggenstok op de roerkoning"*; oefenvraag `[KB3L]` p. 51; `[JPR3]` p. 7 nr. 26 | midden |
 | 73 | Roerhaken | 3 | ja | `[SNEEK]` p. 19 nr. 23 (geen `*`); uitleg alleen binnen de onderdelenparagraaf (`[MTX]` p. 22, `[SNEEK]` p. 18); `[JPR3]` p. 7 nr. 27 | laag |
-| 74 | Vingerlingen | 3 | ja | `[SNEEK]` p. 19 nr. 21 (geen `*`); idem nr. 73; KB III-oefenvraag `[KB3L]` p. 49; `[JPR3]` p. 7 nr. 28 | midden |
+| 74 | Vingerlingen | 3 | ja | `[SNEEK]` p. 19 nr. 21 (geen `*`); idem nr. 73; KB III-oefenvraag `[KB3L]` p. 51; `[JPR3]` p. 7 nr. 28 | midden |
 | 75 | Roerblad | 1 | ja | `[SNEEK]` p. 19 nr. 22 `*`; `[HBO]` p. 20 verplicht; `[KATZ]` p. 7 werking van het roer; `[JPR3]` p. 7 nr. 25 | hoog |
 | 76 | Vlaggenstok | 3 | ja | **`[KB3L]` p. 10 nr. 87 staat grijs: hoeft ook op KB III niet gekend te worden.** Tegenspraak: `[KATZ]`/`[MTX]` p. 95 en `[SNEEK]` p. 86 behandelen hem wél in §vlagvoering (Kielboot II & III), en `[JPR3]` p. 7 nr. 36 eist hem voor Roeiboot | laag |
 | 77 | Knop van de vlaggenstok | 3 | – | **`[KB3L]` p. 10 nr. 88 grijs**; komt buiten de namenlijsten nergens voor | midden |

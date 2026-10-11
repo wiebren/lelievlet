@@ -553,6 +553,7 @@ button:hover { border-color: var(--accent); color: var(--accent); }
    takes the buttons out of reach of the pointer and of the tab key */
 #procedure.faded { opacity: 0; visibility: hidden; transition: opacity 0.35s, visibility 0s 0.35s; }
 #procedure .icon-button { position: relative; top: auto; right: auto; left: auto; width: 40px; height: 40px; }
+#procedure .icon-button.go { background: var(--quiz-goed); border-color: var(--quiz-goed); color: #fff; }   /* stap 0: start here */
 #procedure .track { flex: 1; min-width: 0; }
 #procedure .head { display: flex; align-items: baseline; gap: 8px; font-size: 13px; }
 #procedure .step {
@@ -762,6 +763,8 @@ button.primary:disabled:hover { background: var(--accent); }
 .focus-card .vraag { margin: 6px 0 0; font-size: 19px; font-weight: 600; }
 .focus-card .doel { margin: 6px 0 0; font-size: 13px; line-height: 1.35; }
 .focus-card .uitleg { margin: 8px 0 0; font-size: 13px; line-height: 1.35; color: var(--muted); }
+.focus-card .voorwaarden, .focus-card .start { margin: 6px 0 0; font-size: 13px; line-height: 1.35; }
+.focus-card .start { color: var(--muted); }
 .focus-card.results .vraag { margin-top: 0; font-size: 16px; }
 .focus-card .hint { margin: 2px 0 0; }
 .focus-card .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
@@ -833,14 +836,14 @@ button.primary:disabled:hover { background: var(--accent); }
 #ops-card .actions .primary { flex: none; margin-left: auto; min-height: 34px; padding: 6px 16px; }
 #ops-card.results .actions .feedback { flex-wrap: wrap; }
 #ops-card .steps #procedure .step { font-size: 16px; font-weight: 600; }
-.lv.ops-on > .icon-button:not(#fullscreen-toggle, #toestand-toggle, #feedback-toggle), .lv.ops-on > aside:not(#toestand, #feedback), .lv.ops-on #controls,
+.lv.ops-on > .icon-button:not(#fullscreen-toggle, #toestand-toggle, #feedback-toggle), .lv.ops-on > aside:not(#toestand, #feedback, #about, #updates), .lv.ops-on #controls,
 .lv.ops-on #hover, .lv.ops-on #info { display: none; }
 
 /* The debug aid Toestand stays in either focus mode: it only exists with its debug flag on, and is
-   what a run is checked with. */
+   what a run is checked with. So do the panels of the i menu, Melden, Updates and Over dit model. */
 /* while a round runs there is only the boat and the card: every button, bar and panel goes (full
    screen stays, it is no menu), and with them everything that would name a part */
-.lv.quiz-on > .icon-button:not(#fullscreen-toggle, #toestand-toggle, #feedback-toggle), .lv.quiz-on > aside:not(#toestand, #feedback), .lv.quiz-on #controls,
+.lv.quiz-on > .icon-button:not(#fullscreen-toggle, #toestand-toggle, #feedback-toggle), .lv.quiz-on > aside:not(#toestand, #feedback, #about, #updates), .lv.quiz-on #controls,
 .lv.quiz-on #hover, .lv.quiz-on #info, .lv.quiz-on #procedure { display: none; }
 
 @container (max-width: 640px) {

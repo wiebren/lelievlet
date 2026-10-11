@@ -9,6 +9,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { QUIZ } from '../src/quizdata.js';
+import { ANDERE_NAMEN } from '../src/anderenamen.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const web = resolve(here, '..');
@@ -34,49 +35,25 @@ const GROUPS = [
   ['lopend_want', 'Lopend want'], ['roeien', 'Roeien en wrikken'],
 ];
 
-// Other names for a part, with the source that uses them (keys as in reference/parts/SOURCES.md
-// and CWO_NIVEAUS.md). Only names the sources give; the name the quiz asks it by is in the Oefenen
-// column already.
-const ALT = {
-  dolboord_bb: 'boordrand [OZS102], stootrand [WIL88, ARG]', dolboord_sb: 'boordrand [OZS102], stootrand [WIL88, ARG]',
-  vlak_bb: 'bodem [ARG]', vlak_sb: 'bodem [ARG]',
-  spanten: 'wrang ≡ denningsteun [VDM8]',
-  buikdenning: 'buikdenning [VDM8, KATR], denning [KB3L, ARG]',
-  helmstok: 'helmstok (de meeste bronnen)',
-  roerkop: 'helmhoutbeslag',
-  zwaard: 'midzwaard [VDM8, KATR], zwaardblad',
-  zwaardloper_boven: 'zwaardval [ARG, HBO]', zwaardloper_onder: 'zwaardval [ARG, HBO]',
-  grendelbout: 'mastgrendel, borgbout',
-  klauw: 'gaffelklauw',
-  lummelbeslag: 'lummelhouder; in de lesstof vaak lummelbout [KATZ, MTX, SNEEK, PRAET]',
-  hommerring: 'mastring; [VDM8] en [OZS102] onderscheiden mastring, topmastring en hommerring',
-  hanekam: 'hanenkam (de meeste bronnen)',
-  want_bb: 'want [KATZ, ARG]', want_sb: 'want [KATZ, ARG]',
-  wantketting_bb: 'wantspanner [SNEEK, ARG], talreep', wantketting_sb: 'wantspanner [SNEEK, ARG], talreep',
-  voorstagspanner: 'spanner met klep, klephaak',
-  pelikaanhaak_ring: 'ring van de klephaak',
-  piekenval: 'piekeval [KB3L], nokeval',
-  fokkenval: 'fokkeval [KB3L]',
-  fokkenschoot: 'fokkeschoot [KB3L]',
-  gaffeldraad: 'spruit [MTX, SNEEK, KB3L]',
-  hanepootloper: 'spruitloper [MTX, SNEEK]',
-  dodemanseind: 'dodemanslijn, spruitloperborglijn [SNEEK], dodemanslijntje [PRAET]',
-  schootring: 'hoefijzer [KATZ, MTX], grootschootring [KB3L]',
-  grootzeil_tophoek: 'nokhoek [MTX, SNEEK, WIL88], piek',
-  fok_halshoek: 'halsbroek [VDM8, KATZ, WIL88]',
-  kettinkje_fok: 'fokkekettinkje',
-  leuvers: 'leuvertje',
-  leiogen_bb: 'leioog fokkeschoot', leiogen_sb: 'leioog fokkeschoot',
-  riem_bb: 'roeiriem', riem_sb: 'roeiriem',
-  voorplecht: 'plecht',
-};
 
 // Parts the viewer makes itself: in the quiz, but not in the model file.
 const MADE = {
-  windvaan: 'Windvaan', vlaggenstok: 'Vlaggenstok', vlag: 'Vlag', kleed: 'Kleed (gebied op het grootzeil)',
+  windvaan: 'Windvaantje', vlaggenstok: 'Vlaggenstok', vlag: 'Vlag', kleed: 'Kleed (gebied op het grootzeil)',
   boeg: 'Boeg (gebied)', stootwillen: 'Stootwillen', zeilbinders: 'Zeilbinders',
 };
-const nameOf = (id) => parts.find((p) => p.id === id)?.naam ?? MADE[id] ?? id;
+// and the parts the viewer makes itself (modes.js addPart), by the names it gives them there; the dollen
+// and their kettinkjes are made one per dol, from a template
+const ADDED = Object.fromEntries([...modes.matchAll(/addPart\([^,]+,\s*'([a-z_]+)',\s*'([^']+)'/g)].map(([, id, naam]) => [id, naam]));
+const SIDE = { sb: 'stuurboord', bb: 'bakboord' };
+const perDol = (id) => {
+  const m = /^(dol|dolketting)_(sb|bb)_(voor|achter)$/.exec(id);
+  return m && `${m[1] === 'dol' ? 'Dol' : 'Kettinkje van de dol'} ${SIDE[m[2]]} ${m[3]}`;
+};
+const nameOf = (id) => {
+  const naam = parts.find((p) => p.id === id)?.naam ?? MADE[id] ?? ADDED[id] ?? perDol(id);
+  if (!naam) console.warn(`docs: geen naam voor onderdeel ${id}`);
+  return naam ?? id;
+};
 
 function onderdelen() {
   const asked = new Map();        // part id -> [{ entry, how: 'is' | 'ook' }]
@@ -90,7 +67,7 @@ function onderdelen() {
 
   const shown = parts.filter((p) => !LEFT_OUT.has(p.id));
   const sections = GROUPS.map(([key, title]) => {
-    const rows = shown.filter((p) => p.groep === key).map((p) => [p.naam, `\`${p.id}\``, ALT[p.id] ?? '', quizCell(p.id)]);
+    const rows = shown.filter((p) => p.groep === key).map((p) => [p.naam, `\`${p.id}\``, ANDERE_NAMEN[p.id] ?? '', quizCell(p.id)]);
     return `### ${title}\n\n${table(['Onderdeel', 'Id', 'Andere namen', 'Oefenen'], rows)}`;
   });
 
@@ -110,7 +87,7 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 ## Hoe te lezen
 
 - **Onderdeel** is de naam die de viewer toont (hovertip, infotegel, onderdelenlijst); **Id** is de
-  sleutel waarmee een insluitende pagina het onderdeel hernoemt (\`namen.onderdelen\`) of selecteert.
+  sleutel waarmee een insluitende pagina het onderdeel selecteert.
 - **Andere namen** komen uit de lesstof; de bronsleutels staan in
   \`reference/parts/SOURCES.md\` en \`reference/parts/CWO_NIVEAUS.md\` (hoofdstuk 4). De naam
   waaronder Oefenen het vraagt staat in de kolom Oefenen.
@@ -131,8 +108,8 @@ ${count((q) => q.zeilen !== false)} vragen bij Zeilen (niveau I: ${count((q) => 
 tot en met II: ${count((q) => q.zeilen !== false && (q.niveau ?? 3) <= 2)}, tot en met III: ${count((q) => q.zeilen !== false)}),
 ${count((q) => q.roeien)} bij Roeien. Het nummer is dat van de onderdelentekening van de klasse
 (\`reference/book/onderdelen_lelievlet.json\`); 85 en verder zijn namen van de roeilijst die de
-zeiltekening niet nummert. Een insluitende pagina kan vragen weglaten (\`quiz.weg\`), toevoegen
-(\`quiz.erbij\`) en hernoemen (\`namen.quiz\`); zie de README.
+zeiltekening niet nummert. Een insluitende pagina kan vragen weglaten (\`quiz.weg\`) en toevoegen
+(\`quiz.erbij\`); zie de README.
 
 ${table(['Nr', 'Vraag', 'Zeilen', 'Roeien', 'Antwoord: onderdelen', 'Telt ook goed'], quizRows)}
 
@@ -159,6 +136,14 @@ function stepsOf(name) {
     const from = modes.lastIndexOf(`const ${spread[1]} = [`, at);
     block = block.replace(spread[0], modes.slice(from, modes.indexOf('];', from)));
   }
+  // the overstag's own tack steps, as a manoeuvre puts them in: `...tackSteps(seconds, 1)` - their
+  // time then from its way, and the suffix on their keys
+  block = block.replace(/\.\.\.tackSteps\(([^)]*)\),?/, (whole, args) => {
+    const [seconds, suffix = ''] = args.split(',').map((a) => a.trim());
+    const from = modes.indexOf('const tackSteps = (');
+    return modes.slice(from, modes.indexOf('].map(', from))
+      .replace(/step\('(\w+)', ([\d.]+),/g, (m, key, n) => `step('${key}${suffix}', ${seconds ? `seconds('${key}${suffix}')` : n},`);
+  });
   const out = [];
   const re = /(\.\.\.\(upwind \? \[)?\{ key: '(\w+)', to: ([^,]+), seconds: (.+?), label: stap\('([^']+)'\), back: stap\('([^']+)'\)/g;
   for (let m = re.exec(block); m; m = re.exec(block)) {
@@ -166,7 +151,7 @@ function stepsOf(name) {
   }
   // steps written through a helper: step('key', seconds, 'Label', [focus], camera, 'Said!', 'who'),
   // the same both ways; a label chosen as the boat lies (`free ? 'Then' : 'Else'`) is given as both
-  const helper = /step\('(\w+)', (.+?), (?:\w+ \? '([^']+)' : )?'([^']+)', \[[^\]]*\](?:, (?:\w+|null)(?:, '([^']+)')?(?:, '(\w+)')?)?\)/g;
+  const helper = /step\('(\w+)', (.+?), (?:[\w <>.]+ \? '([^']+)' : )?'([^']+)', \[[^\]]*\](?:, (?:\w+|null)(?:, '([^']+)')?(?:, '(\w+)')?)?\)/g;
   for (const m of block.matchAll(helper)) {
     const label = m[3] ? `${m[4]} / ${m[3]}` : m[4];
     out.push({ key: m[1], to: '1', seconds: m[2].trim(), label, back: label, ifUpwind: false, say: m[5] ?? null, by: m[6] ?? 'roer' });
@@ -273,7 +258,8 @@ function manoeuvres() {
   // a plain number of seconds, or the choice a step makes between two ("1,5 of 0,6 s")
   const secs = (s) => {
     const n = Number(s.seconds);
-    if (/GYBE_COURSE/.test(s.seconds)) return '0,6 s, plus 1 s per 30° hoger dan voor de wind';
+    if (/GYBE_COURSE|STORM_RUN/.test(s.seconds)) return '0,6 s, plus 1 s per 30° hoger dan voor de wind';
+    if (/STORM_OFF/.test(s.seconds)) return '0,8 s, plus 1 s per 45° van 110° tot voor de wind';
     if (/\/ 45/.test(s.seconds)) return `${s.seconds.match(/^\s*(\d+(\.\d+)?)/)[1].replace('.', ',')} s, plus 1 s per 45° ruimer dan aan de wind`;
     if (/(seconds|sec)\('/.test(s.seconds)) return 'volgt uit de afstand en de snelheid';
     if (/FENDER_SECONDS/.test(s.seconds)) return `${modes.match(/const FENDER_SECONDS = ([\d.]+)/)[1].replace('.', ',')} s`;
@@ -340,8 +326,7 @@ en in welke stappen. Wat er nog bij komt, met CWO-niveau en bronnen, staat in de
 
 Dit bestand wordt gemaakt door \`web/scripts/docs.mjs\` (\`pnpm run docs\` in \`web/\`); de stappen, de
 voorwaarden en wat er eerst gedaan moet zijn komen rechtstreeks uit \`web/src/modes.js\`. Pas het niet
-met de hand aan: verander de bron en draai het script opnieuw. Een insluitende pagina kan de namen
-van stappen veranderen (\`namen.stappen\`); hier staan de standaardnamen.
+met de hand aan: verander de bron en draai het script opnieuw.
 
 ## Het menu Handelingen
 
@@ -358,12 +343,16 @@ opgebonden zeilen, waar het anker of het midzwaard intussen is maakt niet uit.
 
 Bovenaan de kaart staat het **doel** van de handeling: één zin, in woorden voor een kind van 10 tot 14
 (hieronder bij elke handeling). Onder de stappen staat bij sommige stappen een **tip**: waar ze
-vandaan komt (*Je vaart halve wind; eerst oploeven tot hoog aan de wind.*) of waar je op let (*Houd
+vandaan komt (*Je vaart halve wind; eerst oploeven tot aan de wind.*) of waar je op let (*Houd
 het roer recht, ook als je verlijert.*).
 
 Daaronder kies je:
 
-- **Bekijken**: de handeling speelt vanzelf af. De stappenbalk staat in de kaart: vorige stap,
+- **Bekijken**: de handeling begint bij stap 0. De kaart toont het doel en de voorwaarden, en je
+  kiest hoe je kijkt. Met de groene afspeelknop gaat ze stap voor stap: elke stap blijft even staan,
+  lang genoeg om te lezen wat erbij staat, en dan komt de volgende. Je kunt ook zelf stap voor stap
+  doorklikken. Vanaf de eerste stap staat op de plaats van het doel waarom je die stap doet, waar daar
+  iets over te zeggen is (\`web/src/stapuitleg.js\`, naar de lesboeken van Sint Maarten en Katwijk). De stappenbalk staat in de kaart: vorige stap,
   afspelen/pauzeren, volgende stap en een schuif over de hele handeling. Volgende en vorige stap gaan
   altijd in de richting van de handeling zelf. De tip staat erbij zolang die stap bezig is. Een stap
   op zich laat de camera bij de kleine handelingen (reven, vallen, lijnen) eerst naar de onderdelen
@@ -375,9 +364,9 @@ Daaronder kies je:
   gedaan is. Ze komen vooral uit de handeling zelf, soms uit de andere helft van het tuig. Bij de
   manoeuvres (wenden, gijpen, afmeren, afvaren, kop in de wind) komen er zetten van andere manoeuvres
   bij, zodat er altijd vier antwoorden zijn: één of twee uit de manoeuvre zelf, de rest uit wat je
-  varend zou kunnen doen (oploeven, afvallen, ree, fok bak, gijp, zeilen los, strijken, anker zakken…),
+  varend zou kunnen doen (oploeven, afvallen, fok ree, fok bak, gijp, zeilen los, strijken, anker zakken…),
   bij het afmeren ook stootwillen en landvasten, en afgemeerd de lijnen, stootwillen en afduwen. Een
-  andere naam voor dezelfde zet als het goede antwoord (*Afvallen* bij *Iets afvallen*) staat er nooit
+  andere naam voor dezelfde zet als het goede antwoord (*Afvallen* bij *Binnen de wind varen*) staat er nooit
   tussen. Soms staat er met opzet een fout antwoord tussen dat leerlingen vaak kiezen (*Opsturen
   omdat je verlijert*, bij de sliplanding aan hogerwal); kies je dat, dan zegt de kaart waarom het
   fout is. Bij een wending of gijp zegt de eerste vraag eerst welke koers ze vaart (*Je vaart halve
@@ -407,7 +396,7 @@ overgeslagen; in Oefenen komt hij niet voor, ook niet als fout antwoord.
 
 De volgorde is die van het boek (§ 5.2.2, p. 65), aangevuld door de Zeilschool van Scouting Nederland:
 de kraanlijn houdt de giek op hoogte, een voorstrijk laat de piek wat zakken zodat er geen druk meer
-in het zeil staat, en de grootschoot wordt met twee slipsteken vastgezet zodat de giek niet meer
+in het zeil staat, en de grootschoot wordt met twee halve steken vastgezet, de eerste slippend, zodat de giek niet meer
 zwaait. Dan pas komt het grootzeil omlaag en wordt het opgedoekt. De mik gaat er als laatste in: staat
 hij er al, dan vouwt het zakkende zeil eroverheen en scheurt het, en loopt er iemand tegenaan.
 
@@ -440,7 +429,7 @@ zijn: de fok van de voorstag en in de zeilzak, het grootzeil van gaffel en giek 
 en giek blijven kaal in de mik liggen; de fokkenval gaat aan zijn kikker op de mastkoker. **Aanslaan**
 is een eigen handeling, vooruit, in de volgorde van het Handboek (5.3.3, zeilklaar maken): eerst de
 fok - uit de zak met de val klaar gehangen, de halshoek vast, de leuvers van onder af aan de voorstag,
-de fokkenschoten door de lij-ogen met een achtknoop - en dan het grootzeil aan gaffel en giek en de
+de fokkenschoten door de leiogen met een achtknoop - en dan het grootzeil aan gaffel en giek en de
 vallen erop. Afgeslagen kun je niet hijsen; de mast strijken kan wel, en heeft dan geen fok meer af te
 slaan.
 
@@ -489,7 +478,8 @@ ${flowRows(morning, MORNING_NEEDS)}
 In de modus roeien heeft Oefenen › Manoeuvres een eigen groep, **Roeien**; de groepen van het zeilen
 staan er dan niet. De manoeuvres volgen *CWO Roeien* van Scouting Nederland (2021, § 2.4, de leidraad
 voor het diploma); het Katwijkse roei-instructieboek (§ 2.3) heeft dezelfde met oudere woorden
-("Bakboord, stuurboord" waar de leidraad "beide boorden" zegt, "Zwem!" waar hij "Drijf!" zegt). De
+("Bakboord, stuurboord" waar de leidraad "beide boorden" zegt). Naar de drenkeling roept de viewer "Zwem!",
+zoals het Katwijkse boek en Sint Maarten; de leidraad zegt "Drijf!". De
 roerganger roept, de roeiers roeien: bij elke stap staan de riemen zoals het commando zegt (halen,
 stoppen af, strijken, lopen, op). Wie roept staat erbij; de haakvoor zit voorin.
 
@@ -510,9 +500,9 @@ stoppen af, strijken, lopen, op). Wie roept staat erbij; de haakvoor zit voorin.
   (bakboord stopt af, stuurboord haalt op), dan achteruit strijken - het roer werkt nu andersom -, op
   riemen en afstoppen vlak bij de kant. De achterlandvast gaat de kant op.
 - **Man overboord** (§ 2.4.7): op riemen, zodat de drenkeling geen klap krijgt; "Man overboord!",
-  "Drijf!" en de haakvoor wijst (de pijl, vanaf het voordek). Ze roeit weg, maakt een grote boog en
+  "Zwem!" en de haakvoor wijst (de pijl, vanaf het voordek). Ze roeit weg, maakt een grote boog en
   komt bijna tegen de wind in terug, met de drenkeling aan de hoge kant; afstoppen, riemen laten lopen
-  en de drenkeling binnenhalen tussen de eerste en de tweede doft. Ze begint dwars op de wind.
+  en de drenkeling binnenhalen tussen de eerste en de tweede doft (achter de stag). Ze begint dwars op de wind.
 - **Ankeren** (§ 2.4.8) en **anker op** (§ 2.4.10): zie hieronder; ze gebruiken het anker zoals de
   andere ankermanoeuvres.
 
@@ -668,26 +658,32 @@ ${reefTable}
 
 ${doel('overstag')}
 
-Met de kop door de wind van de ene boeg naar de andere, precies in de stappen van het
-zeilinstructieboek (Katwijkse Zeeverkenners, § 5.6.1, p. 70). Hij kan vanaf aan de wind en halve wind.
-De eerste stap is *Hoog aan de wind*; vaart ze ruimer dan hoog aan de wind, dan heet die stap
-*Oploeven tot hoog aan de wind* en zegt de tip waar ze vandaan komt (*Je vaart halve wind; eerst
-oploeven tot hoog aan de wind.*); bij Oefenen staat dat ook in de eerste vraag. Daarna gaat de boeg
-door de wind en eindigt de boot hoog aan de wind over de andere boeg. Een wending gaat alleen vooruit:
-terug is nog een keer overstag, over de andere boeg. Bij Oefenen zijn er daarom geen antwoorden die een
-stap terugdraaien; wel een stap die al gedaan is, nog een keer. Bij Bekijken kan Vorige stap wel: dat
-laat de stap ervoor nog eens zien.
+Met de kop door de wind van de ene boeg naar de andere, in de stappen van het Kielboot III lesboek
+van Scouting Sint Maarten (versie 1.1, § Overstag, p. 67; CC BY-NC-SA 4.0, aangepast). Hij kan vanaf
+aan de wind en halve wind. Een wending gaat alleen vooruit: terug is nog een keer overstag, over de
+andere boeg. Bij Oefenen zijn er daarom geen antwoorden die een stap terugdraaien; wel een stap die al
+gedaan is, nog een keer. Bij Bekijken kan Vorige stap wel: dat laat de stap ervoor nog eens zien.
 
-De fok doet wat de commando's zeggen: los en klapperend; bak aan de oude kant gehouden terwijl de boeg
-door de wind gaat, vol maar verkeerd om (de buik naar de nieuwe lijzijde); bij *Fok over*, als het
-achterlijk van het grootzeil over de nieuwe boeg wind vangt, klapperend over naar de nieuwe kant,
-terwijl de boot over de nieuwe boeg afvalt; en bij *Fok aan* aangetrokken, vol de goede kant op, als ze
-weer hoog aan de wind vaart. Het grootzeil killt van *Fok los* tot ze over de nieuwe boeg is
-afgevallen, en de helmstok staat van *Ree* naar lij en komt bij *Fok over* terug naar het midden.
+1. **Veiligheid** is geen eigen stap maar de tip bij de eerste: is het veilig in de boot, en is er
+   ruimte om overstag te gaan?
+2. **Goed aan de wind**, en roepen *Klaar om te wenden!* Vaart ze ruimer, dan heet de eerste stap
+   *Oploeven tot aan de wind* en zegt de tip waar ze vandaan komt (*Je vaart halve wind; eerst
+   oploeven tot aan de wind.*); bij Oefenen staat dat ook in de eerste vraag.
+3. **Fok ree**: het roer een duwtje naar lij, *Fok ree!*, en het grootzeil aangetrokken. De fok wordt
+   zo ver gevierd dat hij alleen nog aan het voorlijk wind vangt: hij killt, maar klappert niet los.
+   Ze loeft op tot bijna in de wind. Tip: begin met je gewicht aan lij.
+4. **Fok bak** als ze in de wind ligt: de fok wordt aan de oude kant gehouden, vol maar verkeerd om (de
+   buik naar de nieuwe lijzijde), en draait haar door de wind. Tip: vangt het zeil geen wind meer, dan
+   gaat het gewicht naar loef.
+5. **Fok over**, geleidelijk: de fok gaat met weinig klapperen naar de nieuwe kant terwijl ze over de
+   nieuwe boeg afvalt; de helmstok komt terug naar het midden, en het grootzeil wordt wat gevierd en
+   langzaam weer aangetrokken. Tip: maak de helling rustig weer neutraal.
+6. **Fok aan** als ze weer een goede koers aan de wind vaart, met genoeg vaart.
 
-Zo was het eerst, en waarom het anders is: tussen *Fok bak* en *Fok over* zaten twee eigen stappen,
-*Fok bak houden* en *Afvallen*. Het boek kent die niet, en een instructeur wees erop dat kinderen niet
-te lang met de fok bak moeten varen; ze zijn eruit.
+Het Katwijkse zeilinstructieboek (§ 5.6.1, p. 70), dat de viewer eerst volgde, roept *Ree* en *Fok
+los* apart, en daar klappert de fok los; een instructeur (#11) wilde de fok laten killen. Sint Maarten
+doet dat in één stap, *Fok ree*. Eerder zaten er ook nog *Fok bak houden* en *Afvallen* tussen *Fok
+bak* en *Fok over*; die kent geen van de boeken.
 
 Voorwaarden:
 ${pre('overstag')}
@@ -701,17 +697,32 @@ wending vervalt.
 
 ${doel('gijpen')}
 
-Met de achtersteven door de wind, in de volgorde van het zeilinstructieboek (§ 5.6.2, p. 71). Hij kan
-vanaf ruime wind en voor de wind: de eerste stap valt af tot goed voor de wind (172°), daarna gaat de
-achtersteven door de wind en eindigt de boot op 155° over de andere boeg, net buiten voor de wind.
-*Fok komt over* is de fok die naar te loevert klapt als de boot voorbij pal voor de wind afvalt; staat
-de fok aan het begin al te loevert (voor de wind), dan valt die stap weg. Te loevert over de oude boeg
-is lij over de nieuwe: daar blijft de fok, en hij gaat bij *Bijsturen* naar zijn gewone stand. De giek
-blijft aan de oude kant tot *Gijp!*, wordt dan hand over hand met de grootschoot binnengehaald tot vlak
-bij midscheeps en bij *Schoot uitvieren* rustig uitgevierd naar de nieuwe kant: geen klapgijp. De
-helmstok gaat bij *Iets afvallen* van de stuurman af (die aan lij zit), bij *Tegensturen* de andere
-kant op en bij *Bijsturen* weer recht. Net als overstag gaat een gijp alleen vooruit, en valt hij weg
-als je halverwege met de hand de koers verandert. *Kijken of de weg vrij is* uit het boek zit niet als eigen stap in de viewer.
+Met de achtersteven door de wind, in de stappen van het Kielboot III lesboek van Scouting Sint Maarten
+(versie 1.1, § Gijp, p. 68; CC BY-NC-SA 4.0, aangepast). Hij kan vanaf ruime wind en voor de wind en
+eindigt op 155° over de andere boeg, net buiten voor de wind.
+
+1. **Goed voor de wind** (172°; vanaf ruime wind valt ze eerst af). De tip: is het veilig in de boot en
+   is er ruimte voor een gijp; hou je koers vast en ga aan de verkeerde kant van je roer zitten, met wat
+   gewicht aan loef.
+2. **Fok te loevert** (*Fok te loevert!*): de fok gaat naar de loefzijde, wat alleen echt lukt als ze
+   goed voor de wind vaart. Staat de fok aan het begin al te loevert (pal voor de wind), dan valt die
+   stap weg. Te loevert over de oude boeg is lij over de nieuwe: daar blijft hij, en na de gijp gaat hij
+   naar zijn gewone stand.
+3. **Binnen de wind varen**: een beetje extra afvallen, voorbij pal voor de wind, met de giek nog aan
+   de oude kant; zo gaat het zeil makkelijker over. De helmstok gaat daarbij van de stuurman af.
+4. **Klaar voor de gijp** (*Klaar voor de gijp!*): de bemanning gewaarschuwd en het zeil binnengehaald,
+   de giek tot vlak bij midscheeps.
+5. **Gijp** (*Gijp!*): als het zeil overgaat, het zeil helemaal vieren en het roer vastpakken; het
+   gewicht naar de nieuwe loef stopt de draai. De helmstok gaat even de andere kant op en dan recht.
+   Geen klapgijp: de giek was binnengehaald.
+
+Het Katwijkse zeilinstructieboek (§ 5.6.2, p. 71), dat de viewer eerst volgde, doet het anders: de
+stuurman verzit naar lij, *Klaar voor de gijp!* komt vóór het iets afvallen, de fokkenist roept *Fok
+komt over!* als de fok vanzelf overslaat, bij *Gijp!* wordt de grootschoot pas binnengehaald, en dan
+volgen tegensturen, de schoot uitvieren en bijsturen als eigen stappen.
+
+Net als overstag gaat een gijp alleen vooruit, en valt hij weg als je halverwege met de hand de koers
+verandert.
 
 Voorwaarden:
 ${pre('gijpen')}
@@ -722,17 +733,24 @@ ${turnTable(gybe, GYBE_NEEDS)}
 
 ${doel('stormrondje')}
 
-Gijpen door overstag te gaan (zeilinstructieboek § 5.6.3, p. 72, Kielboot II & III): als het hard
-waait is een gijp lastig, omdat de wind het zeil bij het overhalen flinke vaart geeft. Dan loef je op,
-ga je overstag en val je weer af. Het is meer werk en vraagt meer ruimte, maar het is veiliger: het
-zeil vangt na de wending geleidelijk meer wind. Het boek geeft er geen eigen commando's voor; de
-wending in het midden is de overstag van hierboven, met zijn commando's, en daarna twee stappen die de
-overstag niet heeft: *Fok bak houden* en *Afvallen*. De boot begint op ruime wind
-of voor de wind, loeft op tot hoog aan de wind (45°) en gaat overstag. Na „Fok bak houden” valt ze in
-één keer af tot dezelfde koers over de andere boeg, met de fok nog bak: die duwt de boeg weg. Pas
-daarna komt de fok over en wordt hij aangetrokken voor die koers. De giek volgt de koers: aangetrokken
-bij het oploeven, gevierd bij het afvallen.
-Het spoor op het water laat de lus zien die de boot vaart.
+Gijpen door overstag te gaan: als het hard waait is een gijp lastig, omdat de wind het zeil bij het
+overhalen flinke vaart geeft. Dan loef je op, ga je overstag en val je weer af. Het is meer werk en
+vraagt meer ruimte, maar het is veiliger. De stappen zijn die van het Kielboot III lesboek van Sint
+Maarten (versie 1.1, § Stormrondje, p. 72; het Katwijkse zeilinstructieboek, § 5.6.3, p. 72, geeft
+er geen stappen voor):
+
+1. **Voor de wind**: daar begint het. Vaart ze ruime wind, dan heet de stap *Afvallen tot voor de
+   wind* en valt ze eerst af (tot 165°).
+2. **Oploeven**: rustig naar aan de wind, het grootzeil aangetrokken en de fok eventueel killend bij.
+   Tip: gewicht aan lij, dan loef je sneller op.
+3. **Overstag**: de stappen van overstag hierboven, *Klaar om te wenden* tot en met *Fok aan*.
+4. **Afvallen**, zo snel mogelijk: het roer om, het grootzeil gevierd. Tip: gewicht aan loef.
+5. **Blijven afvallen tot voor de wind**, over de andere boeg.
+
+De giek volgt de koers: aangetrokken bij het oploeven, gevierd bij het afvallen, en de fok wordt bij
+het afvallen weer gevierd tot hij staat zoals voor de wind hoort. Het spoor op het water laat de lus
+zien die de boot vaart. Versie 1.0 van het lesboek liet de fok bak houden om sneller af te vallen; de
+viewer deed dat ook (*Fok bak houden*), versie 1.1 niet meer, en die stap is eruit.
 
 Voorwaarden:
 ${pre('stormrondje')}
@@ -750,45 +768,53 @@ met genoeg snelheid, en ga rustig overstag, met weinig roer: zo houd je de meest
 De viewer legt een recht kanaal langs de wind, zoals de bovenste tekening in het boek: twee oevers
 aan weerszijden, op een paar meter van waar ze keert. Ze loeft op tot aan de wind (als ze dat nog niet
 voer) en vaart vier slagen: twee van gelijke lengte, de eerste half zo lang en de laatste iets langer
-dan die halve (ze vaart na de laatste wending nog een stuk door), met drie keer
-**Klaar om te wenden**, **Ree** daartussen, telkens vlak voor de oever. Elke slag heet naar zijn boeg:
-*Slag over stuurboord* of *over bakboord, zo hoog mogelijk*. Aan het eind vaart ze gewoon verder. Het
+dan die halve (ze vaart na de laatste wending nog een stuk door), met daartussen drie keer een
+wending vlak voor de oever, in de stappen van overstag hierboven: **Klaar om te wenden**, **Fok ree**,
+**Fok bak**, **Fok over** en **Fok aan**, met dezelfde tips en dezelfde fok en giek. Elke slag heet naar zijn boeg:
+*Slag met de wind van stuurboord* of *van bakboord* (niet *over stuurboord*: dat zegt het BPR van de giek), met als tip zo hoog mogelijk. Aan het eind vaart ze gewoon verder. Het
 kanaal en het spoor blijven in beeld zolang de oefening loopt.
 
 Voorwaarden:
 ${pre('opkruisen')}
 
-Voor Oefenen: telkens *Ree* pas na *Klaar om te wenden*. Alleen vooruit.
+Voor Oefenen: telkens *Fok ree* pas na *Klaar om te wenden* en *Fok over* pas na *Fok bak*. Alleen vooruit.
 
 ## Man over boord
 
 ${doel('manOverBoord')}
 
-Zeilinstructieboek § 5.11, pp. 83-84. Er valt iemand overboord terwijl de boot vaart; de viewer
-legt een drenkeling in het water, aan lij van waar ze op dat moment is.
+In de stappen van het Kielboot III lesboek van Scouting Sint Maarten (versie 1.1, § Man over boord,
+p. 71; CC BY-NC-SA 4.0, aangepast). Er valt iemand overboord terwijl de boot vaart; de viewer legt een
+drenkeling in het water, aan lij van waar ze op dat moment is.
 
-- **Man overboord! roepen** en **Zwem! roepen** naar de drenkeling: door de paniek kan die vergeten te
-  zwemmen. Ze valt meteen af, terwijl er geroepen wordt.
-- **Iemand aanwijzen die de drenkeling in de gaten houdt en blijft wijzen**: de stuurman roept *Wijs!*
-  en wijst iemand van de bemanning aan die de hele tijd naar de drenkeling wijst, want vooral met golven is iemand in
-  het water moeilijk terug te vinden. Dat wijzen is te zien: na *Wijs!* verschijnt een oranje pijl die
-  boven de achterste doft zweeft, waar die persoon zit, en de hele manoeuvre door naar de drenkeling wijst, tot die
-  vastgepakt wordt.
-- **Afvallen tot voor de wind** (net niet helemaal: er zit geen gijp in) en **een paar
-  scheepslengtes doorvaren**, anderhalve: het boek noemt 4 à 5, maar ook "een heel klein stukje".
-- **Oploeven tot aan de wind**, op dezelfde boeg als eerst: samen een soort achtje, zonder gijp.
-- **Dwarspeiling maken op de drenkeling**: doorvaren tot hij dwars ligt, iets verder als de punt
-  achterlijker dan dwars ligt. Dan **overstag**: op de andere boeg ligt hij recht vooruit. De peiling
-  wordt gewoon meegetekend, zonder pauze: haar koers met de rechte hoek en de lijn naar de drenkeling,
-  en na de wending gestippeld de koers naar waar ze hem oppikt. Ze blijven staan tot het eind.
-- **Snelheid regelen met de zeilen**: ze vieren om vaart te minderen; ze komt langzaam aan, met de
-  drenkeling aan loefzijde.
-- **Drenkeling aan loefzijde achter de stag pakken**, **fok bak trekken** zodat ze niet in de wind
-  draait en over hem heen vaart, en **drenkeling binnen halen**.
-- **Op een rustige koers doorvaren**, halve wind, en de drenkeling controleren.
+- **Man overboord! roepen**: de getuige, wie het ziet gebeuren, roept het (in de viewer de
+  fokkenist).
+- **Zwem, wijs, fok bak, reddingsvest**: de roerganger roept *Zwem, wijs, fok bak en gooi een
+  reddingsvest!* Iemand blijft de hele tijd naar de drenkeling wijzen: na de roep verschijnt een oranje
+  pijl boven de achterste doft, die naar de drenkeling wijst tot die vastgepakt wordt. De fok gaat bak.
+- **Zo snel mogelijk voor de wind**: zeil vieren, roer plat, de fok bak (net niet helemaal voor de wind:
+  er zit geen gijp in).
+- **3 à 4 bootlengtes doorvaren**, of tot ze voorbij de aan-de-windse lijn van de drenkeling is. De
+  animatie vaart maar anderhalve bootlengte door, zodat alles in beeld blijft.
+- **Fok over en aan, oploeven** tot aan de wind, op dezelfde boeg als eerst: samen een soort achtje.
+- **Moment van overstag bepalen** met de aan-de-windse lijnen: ligt de drenkeling dwars, dan heeft ze
+  hem bezeild. Dan **overstag**, in de stappen van overstag hierboven (*Klaar om te wenden* tot en met
+  *Fok aan*): op de andere boeg ligt hij recht vooruit. De lijnen worden meegetekend, zonder pauze: haar
+  koers met de rechte hoek en de lijn naar de drenkeling, en na de wending gestippeld de koers naar waar
+  ze hem oppikt. Ze blijven staan tot het eind.
+- **Vaart minderen met de zeilen**: fok en grootzeil gevierd; nu al wordt afgesproken wie de
+  drenkeling uit het water haalt: aan de hoge kant, achter de stag.
+- **Man vast** (*Man vast!*), **fok bak trekken** zodat ze niet in de wind draait en over hem heen
+  vaart, en **bijliggen**: het grootzeil gevierd en de helmstok naar lij, en ze ligt stil zoals bij
+  *Bijliggen*. Dan **drenkeling binnen halen**. Na afloop ligt ze bij; *Weer varen* brengt haar weer op
+  koers.
 
-Voor Oefenen: overstag pas na het oploeven; de fok bak en binnen halen pas als hij vast is,
-wegvaren pas als hij binnen is. Alleen vooruit.
+Het Katwijkse zeilinstructieboek (§ 5.11, pp. 83-84), dat de viewer eerst volgde, roept *Man
+overboord!*, *Zwem!* en *Wijs!* apart door de roerganger, laat 4 à 5 scheepslengtes doorvaren en
+eindigt op een rustige koers in plaats van bij te liggen.
+
+Voor Oefenen: klaar om te wenden pas na het oploeven, fok ree daarna en fok over na fok bak; de fok
+bak trekken en binnen halen pas als hij vast is, bijliggen pas met de fok bak. Alleen vooruit.
 
 Voorwaarden:
 ${pre('manOverBoord')}
@@ -805,10 +831,12 @@ uitkomt; de weg erheen blijft er benedenwinds van.
 
 - **Oploeven tot aan de wind** (alleen als ze nog niet aan de wind voer): het boek laat haar *aan de
   wind richting de kant* komen.
-- **Zeilen vieren tot ze killen**, ruim van tevoren: de schoten gaan zo ver los dat de zeilen killen,
-  maar het achterlijk van het grootzeil blijft wind vangen. Zo houdt ze vaart en stuurt ze nog; ze
-  loopt terug van 1,4 naar 0,9 m/s. Het boek zegt "tot ze helemaal klapperen"; hier volgt de viewer
-  de instructeur (\`reference/discussiepunten.md\`).
+- **Zeilen vieren tot ze killen**, dicht bij de wal (Sint Maarten Kielboot III, p. 69: "Wanneer je
+  dicht bij de wal vaart, vier je je grootzeil en fok. Laat je zeil nooit helemaal klapperen"): de
+  schoten gaan zo ver los dat de zeilen killen, maar het achterlijk van het grootzeil blijft wind
+  vangen. Zo houdt ze vaart en stuurt ze nog; ze loopt terug van 1,4 naar 0,9 m/s. Het Katwijkse boek
+  zegt "ruim van te voren" en "tot ze helemaal klapperen"; hier volgt de viewer de instructeur en Sint
+  Maarten (\`reference/discussiepunten.md\`).
 - **Vaart regelen met de grootschoot**: geen aan of uit, maar een glijdende schaal. Gaat ze te hard,
   dan wordt de grootschoot verder gevierd; ligt ze te vroeg stil, dan wordt het grootzeil weer wat
   aangetrokken (in het boek: "Als je te vroeg stilligt, grootzeil aantrekken"). De giek gaat in de
@@ -830,16 +858,17 @@ staat als tip bij de stappen.
 Dan, aan de steiger, in de volgorde van de instructeur (het boek zegt hier niets over):
 
 - **Haakvoor op de kant**: de haakvoor springt met de voorlandvast op de kant;
-- **Fok en grootzeil killen**: de schoten helemaal los, zodat de zeilen niets meer doen;
+- **Fok en grootzeil los**: de schoten helemaal los, zodat de zeilen klapperen en niets meer doen (tot
+  dan stonden ze gevierd maar niet los);
 - **Voorlandvast vast, stootwillen uit**: van het sleepoog naar de bolder die het dichtst
   bij de boeg staat, en de stootwillen uit aan lij. De wind houdt haar van de kant af; zo ligt ze ook
   als het boek het afvaren van hogerwal begint (§ 5.9.1, p. 76: "je ligt al tegen wind in").
 
 Kop in de wind leggen en afvaren van langswal gaan hier niet: die horen bij een langswal.
 
-Voor Oefenen: de vaart regelen pas na het vieren; op de kant springen en de zeilen laten killen pas
+Voor Oefenen: de vaart regelen pas na het vieren; op de kant springen en fok en grootzeil los pas
 als ze aan de steiger ligt, en vastmaken pas als de haakvoor op de kant staat. Fout is ook: in de wind
-sturen voordat de zeilen gevierd zijn, en de zeilen laten killen voordat de haakvoor op de kant is.
+sturen voordat de zeilen gevierd zijn, en fok en grootzeil los voordat de haakvoor op de kant is.
 Bij *Vaart regelen met de grootschoot* staat altijd het foute antwoord *Opsturen omdat je verlijert*
 ertussen; wie dat kiest, leest waarom het fout is. Alleen vooruit.
 
@@ -862,13 +891,13 @@ vandaan kwam af lopen: komt ze voor de wind aan, dan vaart ze langs het eind erv
   halve cirkel, zoals het boek het tekent, tot kop in de wind; de bocht begint en eindigt zacht; het laatste stuk gaat de helmstok terug
   naar het midden. Vanaf halve wind klapperen de zeilen. Ze schiet met de vaart die ze nog heeft op
   naar de steiger en komt met de boeg vlak ervoor stil te liggen.
-- Dan, zoals na de sliplanding aan hogerwal: **haakvoor op de kant**, **fok en grootzeil killen**, en
+- Dan, zoals na de sliplanding aan hogerwal: **haakvoor op de kant**, **fok en grootzeil los**, en
   **voorlandvast vast, stootwillen uit**.
 
 Het boek noemt ook afremmen door het roer heen en weer te bewegen, als het nodig is; dat zit er niet
 in: ze komt precies goed aan.
 
-Voor Oefenen: het roer gaat pas om als ze langs de kant vaart; op de kant springen en killen pas als
+Voor Oefenen: het roer gaat pas om als ze langs de kant vaart; op de kant springen en de zeilen los pas als
 ze ligt, vastmaken pas als de haakvoor op de kant staat. Alleen vooruit.
 
 Voorwaarden:
@@ -890,10 +919,11 @@ doorheen.
 
 - **Oploeven tot aan de wind** (alleen als ze nog niet aan de wind voer): koers op de kant.
 - **Stootwillen uit** aan de kant van de steiger, terwijl ze aan de wind doorvaart.
-- **Zeilen los**: ruim van tevoren de schoten vieren tot de zeilen klapperen. Ze vangt geen wind
-  meer en remt af op de tegenwind (van 1,4 naar 0,6 m/s).
-- **Grootzeil aan**: in het boek als je te vroeg stil komt te liggen. Hier altijd even, om te laten
-  zien hoe ze weer vaart krijgt (tot 1 m/s). De fok blijft los.
+- **Zeilen vieren tot ze killen**: de schoten vieren tot de zeilen killen, nooit helemaal klapperen
+  (Sint Maarten, KB II p. 48 en KB III p. 69; het Katwijkse boek laat ze klapperen). Ze remt af (van
+  1,4 naar 0,6 m/s).
+- **Vaart regelen met de grootschoot**: te snel, dan vieren; lig je te vroeg stil, dan aantrekken.
+  Hier trekt ze het grootzeil even wat aan, om te laten zien hoe ze weer vaart krijgt (tot 1 m/s).
 - **Oploeven, langszij**: ze loeft op tot kop in de wind, langs de steiger, en komt stil te liggen,
   een halve meter tot een meter ervandaan. Zo slaat de spiegel er bij het oploeven niet tegenaan.
 
@@ -967,15 +997,16 @@ De peiling wordt op het water getekend, in wit, en blijft staan zolang de oefeni
   verschijnt haar koers met de rechte hoek, dan groeit de peiling van haar naar het punt.
 - **Nog een bootlengte doorvaren: dan haal je het zeker**, met aan het eind **Klaar om te wenden**. Dan
   verschijnt een stippellijn: de koers die ze na de wending vaart, recht op het punt.
-- **Ree**: meteen daarna, een krappe wending, en ze komt precies op de stippellijn uit. Ze ligt iets
-  ruimer dan aan de wind, want ze is een bootlengte hoger dan nodig.
+- De wending, meteen daarna, in de stappen van overstag hierboven: **Fok ree**, **Fok bak**, **Fok
+  over** en **Fok aan**. Ze komt precies op de stippellijn uit, iets ruimer dan aan de wind, want ze is
+  een bootlengte hoger dan nodig.
 - **Over het punt varen**.
 
 Het punt ligt 28 meter dwars van waar de peiling genomen wordt. Bij man over boord worden dezelfde
 lijnen getekend, maar zonder pauze of uitleg in de stappen.
 
-Voor Oefenen: de bootlengte doorvaren na de peiling, ree na klaar om te wenden, over het punt na de
-wending. Alleen vooruit.
+Voor Oefenen: de bootlengte doorvaren na de peiling, fok ree na klaar om te wenden, fok over na fok
+bak, over het punt na de wending (fok aan). Alleen vooruit.
 
 Voorwaarden:
 ${pre('peiling')}
@@ -1203,7 +1234,7 @@ gaan per stap dichtbij naar de onderdelen waar het om gaat. In het beeld
 Dichtbij gaat de camera bij elke handeling per stap naar de onderdelen.
 
 Als een stap met een commando begint, verschijnt het commando in een tekstballon boven wie het roept:
-de roerganger achterin, of de fokkenist bij de mast (*Fok komt over!*). Een roeicommando dat je kiest
+de roerganger achterin, of de fokkenist bij de mast (*Man vast!*). Een roeicommando dat je kiest
 verschijnt op dezelfde manier. Terugspoelen of een stap terug roept niets.
 
 ## Zonder menu: met een klik op het model

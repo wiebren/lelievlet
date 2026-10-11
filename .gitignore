@@ -17,3 +17,6 @@ reference/**
 !reference/**/*.json
 !reference/cad/extract_sab.py
 !reference/cad/vertex_preview.png
+
+# Eigen notities en onderzoek (niet in de repo, wel naast de code zichtbaar)
+notities/

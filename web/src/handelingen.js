@@ -2,7 +2,8 @@
 //
 // The panel lists the operations a group at a time - Zeil, Wenden, Afmeren, Afvaren, Anker, Mast -
 // each greyed out with its reason while its preconditions are not met (modes.js, OPS), and asks
-// how: Bekijken, where it plays by itself and the step controls of the procedure come into the card,
+// how: Bekijken, where it waits at stap 0 (what it is for, what it needs) until play, which goes a step at
+// a time with a pause to read each, and the step controls of the procedure come into the card,
 // or Oefenen, where it stands still and every next step is a question with four options: the right
 // one and steps that could be done in the state the boat is in, only not now (modes.run.question).
 // An answer plays that step, the camera going first as always; a wrong one plays the right one.
@@ -121,6 +122,50 @@ const DOEL = {
   mobRoeiend: 'Iemand die overboord valt veilig weer aan boord halen, zonder hem met de riemen te raken.',
   ankerenRoeiend: 'Met de roeiboot op een vaste plek blijven liggen met het anker.',
   ankerOpRoeiend: 'Het anker ophalen en weer wegroeien.',
+};
+// what has to be so before it begins, shown at stap 0 of a run that is watched: the boat as the
+// viewer asks for it (modes.js, OPS), in words; for overstag and gijpen also the check of the
+// Sint Maarten Kielboot lesboeken, whether it is safe in the boat and there is room
+const VOORWAARDEN = {
+  mastZetten: 'De mast ligt gestreken in de mik.',
+  zeilklaar: 'De boot is nachtklaar: de zeilen in de zak of opgedoekt, het zeilkleed erover.',
+  aanslaan: 'De zeilen zijn nog niet aangeslagen.',
+  hijsen: 'De mast staat en de zeilen zijn aangeslagen. Ligt de boot afgemeerd, dan met de kop in de wind of met de wind over de steiger.',
+  reven: 'De zeilen staan.',
+  strijken: 'De mast staat en de zeilen staan.',
+  nachtklaar: 'De mast staat en de zeilen zijn gestreken, nog aangeslagen.',
+  afslaan: 'De zeilen zijn gestreken.',
+  mastStrijken: 'De zeilen zijn gestreken.',
+  overstag: 'De zeilen staan en je vaart aan de wind of halve wind. Het is veilig in de boot en er is ruimte om overstag te gaan.',
+  gijpen: 'De zeilen staan en je vaart ruime wind of voor de wind. Het is veilig in de boot en er is ruimte om te gijpen.',
+  stormrondje: 'De zeilen staan en je vaart ruime wind of voor de wind, en er is te veel wind om te gijpen.',
+  opkruisen: 'De zeilen staan en je vaart. Waar je heen wilt ligt tegen de wind in.',
+  manOverBoord: 'De zeilen staan en je vaart een koers. Dan valt er iemand overboord.',
+  peiling: 'De zeilen staan en je vaart. Waar je heen wilt ligt boven de wind.',
+  bijliggen: 'De zeilen staan en je vaart aan de wind of halve wind, met ruimte aan lij om weg te drijven.',
+  weerVaren: 'De boot ligt bij.',
+  slipHoger: 'De zeilen staan en je vaart naar een hogerwal: de wind waait van de kant af.',
+  opschieter: 'De zeilen staan en je vaart halve wind, ruime of voor de wind naar een hogerwal.',
+  afmeren: 'De zeilen staan en je vaart naar een langswal: de wind waait langs de kant.',
+  topEnTakel: 'De zeilen staan en je vaart naar een langswal: de wind waait langs de kant.',
+  aanleggenLager: 'De zeilen staan en je vaart naar een lagerwal: de wind waait naar de kant toe.',
+  verhalen: 'De boot ligt langszij afgemeerd, met de zeilen gestreken.',
+  afvarenHoger: 'De boot ligt met de kop aan een hogerwal, de kop in de wind, en de zeilen staan.',
+  afvaren: 'De boot ligt langszij een langswal of hogerwal en de zeilen staan.',
+  afvarenLager: 'De boot ligt aan een lagerwal: de wind waait naar de kant toe. De mast staat en de zeilen zijn gestreken, nog aangeslagen.',
+  kopInDeWind: 'De boot ligt afgemeerd aan een langswal met de wind van achteren, en de zeilen zijn gestreken.',
+  ankerenZeil: 'De zeilen staan en je vaart.',
+  ankerenKaal: 'De zeilen zijn omlaag en de boot ligt niet afgemeerd.',
+  ankerOpZeil: 'De boot ligt voor anker. De mast staat en de zeilen zijn gestreken, nog aangeslagen.',
+  ankerOpKaal: 'De boot ligt voor anker met de zeilen omlaag.',
+  achtje: 'Je roeit, vrij van de kant.',
+  afvarenRoeiend: 'De boot ligt afgemeerd en je gaat roeien.',
+  aanleggenBoeg: 'Je roeit, vrij van de kant, en vaart naar de kant toe.',
+  aanleggenZijkant: 'Je roeit, vrij van de kant, en vaart naar de kant toe.',
+  aanleggenSpiegel: 'Je roeit, vrij van de kant, en vaart langs de kant.',
+  mobRoeiend: 'Je roeit dwars op de wind. Dan valt er iemand overboord.',
+  ankerenRoeiend: 'Je roeit, vrij van de kant.',
+  ankerOpRoeiend: 'De boot ligt voor anker en je gaat roeien.',
 };
 const DONE = {
   aanslaan: 'De zeilen zijn aangeslagen', afslaan: 'De zeilen zijn afgeslagen',
@@ -260,6 +305,8 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
   // what it is for, from the start; and what is said about a step: the one on while it is watched,
   // the one just answered while it is practised - or why a wrong answer was wrong
   const doel = el('p', 'doel');
+  const voorwaarden = el('p', 'voorwaarden');                     // stap 0 of a watched run: what it needs
+  const startHint = el('p', 'start');                              // ... and how to go on from there
   const uitleg = el('p', 'uitleg');
   const big = el('div', 'big');
   const vraag = el('div', 'vraag');
@@ -272,7 +319,7 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
   const extra = Object.assign(el('button', 'extra'), { type: 'button' });
   const secondary = Object.assign(el('button', 'link-button secondary'), { type: 'button' });
   actions.append(feedback, secondary, extra, primary);             // what was right or wrong, beside Volgende
-  card.append(head, views, doel, big, vraag, hint, holder, answers, uitleg, actions);
+  card.append(head, views, doel, voorwaarden, startHint, big, vraag, hint, holder, answers, uitleg, actions);
   wrap.append(card);
   card.addEventListener('pointerdown', (e) => e.stopPropagation());
   const procBar = $('procedure'); const procHome = procBar.parentNode; const procNext = procBar.nextSibling;
@@ -335,7 +382,7 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
   function start(op, how, n) {
     if (!op) return;
     modes.closePopover();
-    if (!run.begin(op, { play: how === 'bekijken', turns: n })) return;
+    if (!run.begin(op, { play: false, turns: n })) return;        // watched too, it waits at stap 0 for play
     const p = modes.procedure();
     // it counts as the whole manoeuvre only when it starts at its first step: struck halfway and then
     // hoisted from there is a part of it, and earns no tick
@@ -343,7 +390,12 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
     current = { op, mode: how, total: p?.steps.filter((s) => !s.skipped).length ?? 0, fromStart, goed: 0, fout: 0, wrong: [], question: null, answered: false, done: false };
     name.textContent = op === 'reven' ? `${NAMES[op]} · ${n === 0 ? 'rif eruit' : `${n} ${n === 1 ? 'slag' : 'slagen'}`}` : NAMES[op];
     big.hidden = true; card.classList.remove('results');
-    doel.hidden = !DOEL[op]; doel.replaceChildren(el('b', null, 'Doel: '), DOEL[op] ?? '');
+    delete doel.dataset.shown; showDoel(null);
+    voorwaarden.replaceChildren(el('b', null, 'Voorwaarden: '), VOORWAARDEN[op] ?? '');
+    startHint.textContent = touch.matches
+      ? 'Kies hoe je kijkt. Tik op ▶ om af te spelen, of op ▶| om stap voor stap te gaan.'
+      : 'Kies hoe je kijkt. Klik op ▶ om af te spelen, of op ▶| om stap voor stap te gaan.';
+    showStart(false);
     setUitleg(null);
     card.classList.toggle('bekijken', how === 'bekijken');
     setDone(false);
@@ -358,6 +410,24 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
     }
   }
 
+  /**
+   * The line under the head: at stap 0 (`waarom` null) what the whole of it is for; once it has begun,
+   * what the step on is for - or nothing, where that needs no saying.
+   */
+  function showDoel(waarom) {
+    const text = waarom ?? DOEL[current?.op] ?? '';
+    const key = `${waarom === null ? 'doel' : 'waarom'}|${text}`;
+    if (doel.dataset.shown === key) return;
+    doel.dataset.shown = key;
+    doel.hidden = !text;
+    doel.replaceChildren(el('b', null, waarom === null ? 'Doel: ' : 'Waarom: '), text);
+  }
+
+  /** Stap 0: what it needs and how to begin, shown while a watched run has not begun. */
+  function showStart(on) {
+    voorwaarden.hidden = !on || !VOORWAARDEN[current?.op]; startHint.hidden = !on;
+  }
+
   /** Steps done so far. */
   const doneSteps = (p) => p.steps.filter((s) => !s.skipped && s.end <= p.t + 1e-6).length;
 
@@ -366,11 +436,19 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
     const p = modes.procedure();
     if (!p || !current) return;
     const done = Math.min(doneSteps(p), current.total);
-    count.textContent = `${Math.min(done + (current.done ? 0 : 1), current.total)} / ${current.total}`;
+    // watched, it counts the step that is playing, and 0 before the first; practised, the one asked
+    const on = current.mode === 'bekijken' ? done + (p.playing && done < current.total ? 1 : 0) : done + (current.done ? 0 : 1);
+    count.textContent = `${Math.min(on, current.total)} / ${current.total}`;
     barFill.style.width = `${(done / Math.max(current.total, 1)) * 100}%`;
     // watched to its end, or practised through to the result: done, and the cross says so
     setDone(current.done || (current.mode === 'bekijken' && run.finished && !p.playing));
-    if (current.mode === 'bekijken') { setUitleg(p.current?.tip); return; }   // nothing waits for it: it plays, and the cross closes it
+    if (current.mode === 'bekijken') {
+      const waiting = !p.playing && p.t < 1e-6;                   // stap 0: nothing has been done yet
+      showStart(waiting);
+      showDoel(waiting ? null : p.current?.waarom ?? '');
+      setUitleg(waiting ? null : p.current?.tip);
+      return;
+    }   // nothing waits for it: it plays, and the cross closes it
     if (current.answered && !current.done && !p.playing && primary.disabled) {   // the step has been shown
       const last = run.finished;
       setActions(last ? 'Uitslag' : 'Volgende', last ? results : ask);
@@ -418,7 +496,7 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
     current.done = true;
     if (current.mode === 'oefenen' && current.fromStart && current.fout === 0 && current.goed === current.total) markFlawless(current.op);
     card.classList.add('results');
-    answers.hidden = true; hint.hidden = true; doel.hidden = true; setUitleg(null);
+    answers.hidden = true; hint.hidden = true; doel.hidden = true; showStart(false); setUitleg(null);
     const total = current.goed + current.fout;
     big.hidden = false; big.textContent = `${pct(current.goed, total)}%`;
     vraag.textContent = `${current.goed} van de ${total} stappen goed`;

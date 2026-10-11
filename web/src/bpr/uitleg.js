@@ -51,7 +51,7 @@ export const BORD_UITLEG = {
     lelievlet: 'Een geroeide of zeilende lelievlet mag hier wel varen. Gebruik je een buitenboordmotor om te varen, ook terwijl je zeilt, dan ben je een motorschip.',
   },
   'A.13': {
-    betekenis: 'Kleine schepen, korter dan 20 meter, mogen hier niet varen. Op het bord staat het woord ‘sport’.',
+    betekenis: 'Kleine schepen mogen hier niet varen: schepen korter dan 20 meter, behalve onder meer passagiersschepen, vissersschepen en wie een groot schip sleept of duwt. Op het bord staat het woord ‘sport’.',
     lelievlet: 'Verboden voor kleine schepen: ook een lelievlet mag hier niet varen.',
   },
   'A.15': {
@@ -217,7 +217,7 @@ export const BORD_UITLEG = {
     betekenis: 'Motorschepen zijn hier toegestaan.',
   },
   'E.16': {
-    betekenis: 'Kleine schepen, korter dan 20 meter, zijn hier toegestaan. Op het bord staat het woord ‘sport’.',
+    betekenis: 'Kleine schepen zijn hier toegestaan: schepen korter dan 20 meter, behalve onder meer passagiersschepen, vissersschepen en wie een groot schip sleept of duwt. Op het bord staat het woord ‘sport’.',
     lelievlet: 'Een lelievlet is een klein schip en mag hier dus varen.',
   },
   'E.18': {

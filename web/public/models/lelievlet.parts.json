@@ -421,7 +421,7 @@
  },
  {
   "id": "helmstok",
-  "naam": "Helmhout",
+  "naam": "Helmstok",
   "groep": "roer",
   "materiaal": "hout_gelakt",
   "handles": [
@@ -949,7 +949,7 @@
  },
  {
   "id": "hanekam",
-  "naam": "Hanekam",
+  "naam": "Hanenkam",
   "groep": "beslag",
   "materiaal": "bakskleur",
   "handles": [

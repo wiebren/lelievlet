@@ -405,6 +405,8 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
       <li><a href="https://lszw.scouting.nl/images/lelievlet.pdf" target="_blank" rel="noreferrer">Vademecum voor het waterwerk deel 8: De Lelievlet</a> — het Vlettenboek, 8e druk 1988</li>
       <li><a href="https://lszw.scouting.nl/images/LSZW-2025/PDF-files/KLASSENVOORSCHRIFTEN_Lelievlet_v2.pdf" target="_blank" rel="noreferrer">Klassenvoorschriften Nationale Lelievlet Klasse v2.0</a> — geldig vanaf 1 mei 2025</li>
       <li><a href="https://katwijksezeeverkenners.nl/wp-content/uploads/2015/07/cwo_zeil_instructieboek_katwijkse_zeeverkenners.pdf" target="_blank" rel="noreferrer">CWO zeilinstructieboek</a> — Katwijkse Zeeverkenners</li>
+      <li><a href="https://github.com/ScoutingSintMaarten/Kielboot-Lesboeken" target="_blank" rel="noreferrer">Lesboeken Kielboot I, II en III</a> — Christian Peppelman, Scouting Sint Maarten Hoofddorp, onder
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.nl" target="_blank" rel="noreferrer">CC BY-NC-SA 4.0</a>; wat we eruit overnemen is aangepast</li>
       <li><a href="https://activiteitenbank.scouting.nl/uploads/Benamingen_vlet.pdf" target="_blank" rel="noreferrer">Benamingen vlet</a> — Activiteitenbank Scouting Nederland</li>
       <li><a href="https://nl.scoutwiki.org/Lelievlet" target="_blank" rel="noreferrer">Lelievlet</a> — ScoutWiki, met het zeilteken</li>
     </ul>

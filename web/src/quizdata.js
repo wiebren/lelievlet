@@ -1,7 +1,7 @@
 // What the quiz asks about: only the numbered names of the class's parts drawing ("Lelievlet",
 // 84 names; reference/book/onderdelen_lelievlet.json). The model has many more parts than have to
 // be learnt. Per name: the drawing's number, the name as it is taught (where the owner corrected the
-// sheet - Windvaan, Hanekam, Zwaardbout - his spelling), the ids of the parts that ARE it
+// sheet - Zwaardbout - his spelling; Windvaantje, Hanenkam and Helmstok as the lesboeken have them), the ids of the parts that ARE it
 // (`delen`: all of them light up, a click on any of them is right), and parts that also count as
 // right when clicked because they belong to it (`ook`).
 //
@@ -10,14 +10,15 @@
 // Roeien (reference/book/ROEIEN.md), which has no levels: every one of them is asked at once.
 // How each one was derived, with sources and page numbers: reference/parts/CWO_NIVEAUS.md.
 //
-// 85 and on are names of the roei list that the zeil drawing does not number.
+// 85 is a name of the roei list that the zeil drawing does not number; 86 and on are names the Kielboot
+// lesboeken of Sint Maarten ask that the drawing does not number either (reference/sintmaarten/NOTES.md).
 //
 // Not in the list: 61 Luchtkast and 62 Mangat (nothing in the model stands for them), and 77 Knop
 // van de vlaggenstok (it is part of the Vlaggenstok).
 
 export const QUIZ = [
   { nr: 1, naam: 'Klauwval', niveau: 1, delen: ['klauwval'], ook: ['blok_klauwval'] },
-  { nr: 2, naam: 'Windvaan', niveau: 3, delen: ['windvaan'] },
+  { nr: 2, naam: 'Windvaantje', niveau: 3, delen: ['windvaan'] },
   { nr: 3, naam: 'Piekenval', niveau: 1, delen: ['piekenval'], ook: ['blok_piekenval'] },
   { nr: 4, naam: 'Gaffeldraad', niveau: 3, delen: ['gaffeldraad'], ook: ['beslag_gaffel'] },
   { nr: 5, naam: 'Marllijn', niveau: 3, delen: ['marllijn_gaffel', 'marllijn_giek'] },
@@ -26,7 +27,7 @@ export const QUIZ = [
   { nr: 8, naam: 'Zeillat', niveau: 3, delen: ['zeillatten'] },
   { nr: 9, naam: 'Kleed', niveau: 3, delen: ['kleed'] },
   { nr: 10, naam: 'Zijstag', niveau: 1, delen: ['want_bb', 'want_sb'] },
-  { nr: 11, naam: 'Kraanlijn', niveau: 1, delen: ['kraanlijn'], ook: ['blok_kraanlijn'] },
+  { nr: 11, naam: 'Kraanlijn', niveau: 1, delen: ['kraanlijn'] },
   { nr: 12, naam: 'Grootzeil', niveau: 1, delen: ['grootzeil'] },
   { nr: 13, naam: 'Achterlijk', niveau: 2, delen: ['grootzeil_achterlijk', 'fok_achterlijk'] },
   { nr: 14, naam: 'Schoothoek van het grootzeil', niveau: 2, delen: ['grootzeil_schoothoek'] },
@@ -54,7 +55,7 @@ export const QUIZ = [
   { nr: 36, naam: 'Schoothoek van de fok', niveau: 2, delen: ['fok_schoothoek'] },
   { nr: 37, naam: 'Fokkenschoot', niveau: 1, delen: ['fokkenschoot'], ook: ['blok_fokkenschoot_bb', 'blok_fokkenschoot_sb'] },
   { nr: 38, naam: 'Kettinkje', niveau: 3, delen: ['kettinkje_fok'] },
-  { nr: 39, naam: 'Hanekam', niveau: 3, roeien: true, delen: ['hanekam'] },
+  { nr: 39, naam: 'Hanenkam', niveau: 3, roeien: true, delen: ['hanekam'] },
   { nr: 40, naam: 'Voorstagspanner', niveau: 3, delen: ['voorstagspanner', 'pelikaanhaak_ring'] },
   { nr: 41, naam: 'Dolboord', niveau: 3, roeien: true, delen: ['dolboord_bb', 'dolboord_sb'], ook: ['spiegelrand', 'boegrand'] },
   { nr: 42, naam: 'Boeisel', niveau: 3, roeien: true, delen: ['boeisel_bb', 'boeisel_sb'], ook: ['dekcontour'] },
@@ -75,7 +76,7 @@ export const QUIZ = [
     ook: ['dolketting_sb_voor', 'dolketting_bb_voor', 'dolketting_sb_achter', 'dolketting_bb_achter'] },
   { nr: 57, naam: 'Dolpot', niveau: 3, roeien: true, delen: ['dolpotten_bb', 'dolpotten_sb'] },
   { nr: 58, naam: 'Berghout', niveau: 2, roeien: true, delen: ['berghout_bb', 'berghout_sb'] },
-  { nr: 59, naam: 'Doft', niveau: 1, roeien: true, delen: ['doft_voor', 'doft_achter'], ook: ['dofthouders'] },
+  { nr: 59, naam: 'Doft', niveau: 1, roeien: true, delen: ['doft_voor', 'doft_achter'] },
   { nr: 60, naam: 'Voordek', niveau: 1, roeien: true, delen: ['voordek'] },
   { nr: 63, naam: 'Vlonder', niveau: 2, roeien: true, delen: ['buikdenning'] },
   { nr: 64, naam: 'Sleepoog', niveau: 1, roeien: true, delen: ['sleepoog_boeg'], ook: ['sleepogen'] },
@@ -85,7 +86,7 @@ export const QUIZ = [
   { nr: 68, naam: 'Landvastogen', niveau: 3, roeien: true, delen: ['landvastogen'] },
   { nr: 69, naam: 'Achterdek', niveau: 1, roeien: true, delen: ['achterdek'] },
   { nr: 70, naam: 'Wrikgat', niveau: 3, roeien: true, delen: ['wrikgat'] },
-  { nr: 71, naam: 'Helmhout', niveau: 1, roeien: true, delen: ['helmstok'], ook: ['roerkop'] },
+  { nr: 71, naam: 'Helmstok', niveau: 1, roeien: true, delen: ['helmstok'], ook: ['roerkop'] },
   { nr: 72, naam: 'Roerkoning', niveau: 2, roeien: true, delen: ['roerkoning'] },
   { nr: 73, naam: 'Roerhaken', niveau: 3, roeien: true, delen: ['roerhaken'] },
   { nr: 74, naam: 'Vingerlingen', niveau: 3, roeien: true, delen: ['vingerlingen'] },
@@ -99,4 +100,8 @@ export const QUIZ = [
   { nr: 83, naam: 'Dodemanseind', niveau: 3, delen: ['dodemanseind'] },
   { nr: 84, naam: 'Spant', niveau: 3, roeien: true, delen: ['spanten'] },
   { nr: 85, naam: 'Riem', zeilen: false, roeien: true, delen: ['riem_sb', 'riem_bb'], ook: ['wrikriem'] },
+  { nr: 86, naam: 'Bovenlijk', niveau: 3, delen: ['grootzeil_bovenlijk'] },
+  { nr: 87, naam: 'Zeilteken', niveau: 2, delen: ['grootzeil_zeilteken'] },
+  { nr: 88, naam: 'Zeilnummer', niveau: 2, delen: ['grootzeil_zeilnummer'] },
+  { nr: 89, naam: 'Dofthouder', niveau: 3, delen: ['dofthouders'] },
 ];

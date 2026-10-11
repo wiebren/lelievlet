@@ -135,15 +135,15 @@ export const GELUIDEN = [
   // E. Uit- en invaren van havens en nevenvaarwateren
   { id: 'haven-sb', groep: 'Havens en nevenvaarwateren', naam: 'Ik ga stuurboord uit (haven of nevenvaarwater)', patroon: 'lllk', artikel: 'BPR 6.16, bijlage 6 E',
     betekenis: 'Het schip vaart een haven of zijwater in of uit, en draait daarbij naar stuurboord, naar rechts.',
-    lelievlet: 'Hoor je dit van een groot schip, geef het dan voorrang. Het mag ook jouw medewerking vragen. Zelf geef je dit sein niet.',
+    lelievlet: 'Een groot schip mag zo je medewerking vragen: maak ruimte, zodat het veilig de haven in of uit kan. Vaar je zelf ook een haven in of uit, dan geef je het voorrang. Zelf geef je dit sein niet.',
     klein: false, cwo: true },
   { id: 'haven-bb', groep: 'Havens en nevenvaarwateren', naam: 'Ik ga bakboord uit (haven of nevenvaarwater)', patroon: 'lllkk', artikel: 'BPR 6.16, bijlage 6 E',
     betekenis: 'Het schip vaart een haven of zijwater in of uit, en draait daarbij naar bakboord, naar links.',
-    lelievlet: 'Hoor je dit van een groot schip, geef het dan voorrang. Het mag ook jouw medewerking vragen. Zelf geef je dit sein niet.',
+    lelievlet: 'Een groot schip mag zo je medewerking vragen: maak ruimte, zodat het veilig de haven in of uit kan. Vaar je zelf ook een haven in of uit, dan geef je het voorrang. Zelf geef je dit sein niet.',
     klein: false, cwo: true },
   { id: 'haven-oversteken', groep: 'Havens en nevenvaarwateren', naam: 'Ik ga oversteken', patroon: 'lll', artikel: 'BPR 6.16, bijlage 6 E',
     betekenis: 'Het schip komt een haven of zijwater uit en steekt het grote vaarwater recht over.',
-    lelievlet: 'Hoor je dit van een groot schip, geef het dan voorrang. Het mag ook jouw medewerking vragen. Zelf geef je dit sein niet.',
+    lelievlet: 'Een groot schip mag zo je medewerking vragen: maak ruimte, zodat het veilig de haven in of uit kan. Vaar je zelf ook een haven in of uit, dan geef je het voorrang. Zelf geef je dit sein niet.',
     klein: false, cwo: false },
 
   // G.1 Op radar varende schepen, zo dikwijls als nodig

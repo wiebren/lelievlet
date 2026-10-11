@@ -15,9 +15,10 @@ the bodies extracted from it are not; the indexes give the URL of each, to fetch
 | `rig/` | `SOURCES.md` | Sail plan, spar and fitting drawings (25 Vlettenboek pages at 300 dpi), rig inventory, class-rule rig sections, key rig dimensions with tolerances |
 | `parts/` | `SOURCES.md` | Labelled part diagrams (81 / 84 / 88 / 102-part variants), blank quiz drawing, ~200-term Dutch glossary with synonyms, CWO/insigne requirements, instruction booklets (sailing, rowing, wrikken), colour/numbering conventions |
 | `book/` | `NOTES.md`, `ROEIEN.md` | The Katwijkse Zeeverkenners CWO zeil-instructieboek: 84-part list as JSON, vector parts diagram (SVG), lesson/quiz page index. Its roei counterpart (`ROEIEN.md`): the 40-part roei list mapped onto the quiz, page index for roeitermen, commando's and manoeuvres |
+| `sintmaarten/` | `NOTES.md` | The **Kielboot I, II and III lesboeken** of Scouting Sint Maarten Hoofddorp (Christian Peppelman; versions 1.1, 2.4 and 1.1 of 31 Dec 2025) and its **manoeuvre cards** for KB II (2.0) and KB III (1.0), all from <https://github.com/ScoutingSintMaarten/Kielboot-Lesboeken>, which also has the LaTeX sources and every figure separately as PDF/PNG: page index, figures, lelievlet facts, the 88-name parts table with the KB I/II/III levels mapped onto the quiz, the eight manoeuvres step by step, the oefenvragen, what changed against the older versions, errors fixed and still there. **CC BY-NC-SA 4.0**, the same licence as this repository, so text and figures may be reused with attribution (line in `NOTES.md`), except the cover logos and the Willibrordus parts drawing |
 | `bpr/` | `VOORRANG.md`, `TEKENS.md`, `BETONNING.md`, `LICHTEN.md` | **Binnenvaartpolitiereglement** (BWBR0003628, geldig vanaf 17-06-2026, checked 2026-09-28): right of way with 37 scenarios, geluidsseinen; the scheepvaartverkeerstekens of bijlage 7 (132, with free SVGs where they exist); betonning and markering (bijlage 8, IALA-A, RWS Richtlijnen Scheepvaarttekens 2023 sizes); lights and dagmerken (hoofdstuk 3, bijlage 3), incl. what the lelievlet itself carries. Each with a JSON table (`voorrang`, `tekens`, `boeien`, `lichten`) and the CWO scope |
 | `seinvlaggen/` | `SEINVLAGGEN.md` | **Seinvlaggen** (checked 2026-10-10): the ICS set (26 lettervlaggen, 10 cijferwimpels, 3 vervangwimpels, onderscheidingswimpel) with designs cross-checked on NGA Pub. 102 (public domain), the Watersportverbond *Regels voor Wedstrijdzeilen 2025–2028* drawings and Commons; the wedstrijdseinen with sound signals and the startprocedure; the flag signs of BPR/RPR/BVA (seinvlag A, rode wimpel, rood-wit, noodtekens, lichtblauw bord, …). Dutch ICS meanings are our own translation (no official Dutch text online). JSON table `seinvlaggen` (83 entries, each drawable as SVG), the CWO scope and scouting usage (NK Lelievlet, Kaagcup, vlagvoering) |
-| `discussiepunten.md` | | Where a reporter teaches something else than the Katwijk book: the viewer keeps to the book for now; the points wait for a decision, to go back to the reporter |
+| `discussiepunten.md` | | Where a reporter or the books disagree (Katwijk, Sint Maarten, an instructor): each point, what each source says, and what was decided; to go back to the reporter |
 
 ## Source hierarchy — who wins on a conflict
 
@@ -34,6 +35,11 @@ the bodies extracted from it are not; the indexes give the URL of each, to fetch
    the Vlettenboek nominals (mast 5300 vs 5600, giek 2822 vs 2750, gaffel ≈ 2810 vs 2700) but
    are within the class rules.
 4. Group-made instruction booklets — for **names and lesson content only**, never dimensions.
+   Among them the Katwijkse Zeeverkenners CWO zeil-instructieboek (`book/`) and the Sint Maarten
+   Kielboot I–III lesboeken (`sintmaarten/`). Where they differ (decided 2026-10-11): **Sint Maarten
+   wins for anything new**; content the viewer already has is changed to Sint Maarten only after the
+   owner confirms it, point by point (`discussiepunten.md` keeps those points). Traffic rules always
+   follow the BPR (`bpr/`), whatever a booklet says.
 
 ## Headline dimensions
 
@@ -56,7 +62,7 @@ Known internal conflict in the Vlettenboek: voorstag 4,88 m (p56) vs 4,99 m (p84
 ## Naming
 
 The 81-name list on Vlettenboek p16–17 is the original that all later lists derive from
-(Katwijk 84, Willibrordus/De Bevers 88, onlinezeilschool 102). Synonyms the quiz must accept are
+(Katwijk 84, Willibrordus 88 — also used by the Sint Maarten lesboeken —, onlinezeilschool 102). Synonyms the quiz must accept are
 listed at the end of `parts/SOURCES.md` (tophoek/nokhoek, piekeval/piekenval, gaffeldraad/spruit,
 dirk/kraanlijn, buikdenning/vlonder, want/zijstag, schootring/hoefijzer, …). A lelievlet has
 **kikkers**, not bolders; the drain is a **spuigat**, the bailer a **hoosvat**.

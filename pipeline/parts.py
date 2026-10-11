@@ -91,7 +91,7 @@ _add("585F 5860", "zwaardstrippen", "Strippen zwaardsleuf", "zwaard", "romp")
 _add("5853", "mastkoker", "Mastkoker", "romp", "zwaardkast")
 _add("5980", "wantputting_bb", "Wantputting (bakboord)", "beslag", "verzinkt")
 _add("5981", "wantputting_sb", "Wantputting (stuurboord)", "beslag", "verzinkt")
-_add("589A", "hanekam", "Hanekam", "beslag", "bakskleur")
+_add("589A", "hanekam", "Hanenkam", "beslag", "bakskleur")
 _add("58B7", "roerblad", "Roerblad", "roer", "romp")
 _add("58C8", "roerkop", "Roerkop (helmhoutbeslag)", "roer", "bakskleur")
 
@@ -118,7 +118,7 @@ _add("592C 5930", "kikkers_voordek", "Kikkers op het voordek", "beslag", "verzin
 # ---- interior wood
 _add("5742", "doft_achter", "Achterste doft", "interieur", "hout_gelakt")
 _add("5744", "doft_voor", "Voorste doft (mastdoft)", "interieur", "hout_gelakt")
-_add("5737", "helmstok", "Helmhout", "roer", "hout_gelakt")
+_add("5737", "helmstok", "Helmstok", "roer", "hout_gelakt")
 
 # ---- spars, sails
 _add("56A3", "mast", "Mast", "rondhout", "hout_gelakt")

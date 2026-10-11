@@ -3,6 +3,16 @@
 // update on a day that already has one gets nr: 2 (and so on), so it shows as new to who saw the first.
 
 export const UPDATES = [
+  { datum: '2026-10-11', punten: [
+    'Bekijken begint bij stap 0: het doel van de manoeuvre en wat er nodig is. Kies hoe je kijkt, en druk op de groene afspeelknop of ga zelf stap voor stap.',
+    'Afspelen gaat stap voor stap, met na elke stap even tijd om te lezen wat erbij staat.',
+    'Bij de stappen staat waarom je ze doet, waar daar iets over te zeggen is.',
+    'Overstag, gijpen, het stormrondje en man over boord gaan zoals in de Kielboot-lesboeken van Scouting Sint Maarten.',
+    'Sliplanding langswal: de zeilen vier je tot ze killen, niet tot ze klapperen, en de vaart regel je met de grootschoot. Bij man overboord roeiend roep je "Zwem!".',
+    'De quiz vraagt ook naar het bovenlijk, het zeilteken, het zeilnummer en de dofthouder. Helmhout heet nu helmstok, hanekam hanenkam en windvaan windvaantje.',
+    'Zoeken › Onderdelen vindt ook andere namen, zoals dirk voor de kraanlijn en mastring voor de hommerring.',
+    'Bovenaf blijft rustig hangen zolang een manoeuvre wacht, en Updates en Over dit model openen ook tijdens een manoeuvre of quizronde.',
+  ] },
   { datum: '2026-10-10', nr: 2, punten: [
     'Zoeken › Lichten: de lichten van schepen, van voren, opzij en van achteren. Met een schuif van dag naar nacht.',
     'Zoeken › Dagmerken: de bollen, kegels en andere tekens die schepen overdag voeren.',

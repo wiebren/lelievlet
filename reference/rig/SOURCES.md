@@ -84,9 +84,14 @@ Officialness legend:
   (klauwval + piekeval in one double block or two single blocks, dirk/kraanlijn optional, etc.).
   No dimensions.
 
-### `scoutingdebevers_kielboot3_lesboek.pdf` **[SEMI]**
-- Source: https://www.scoutingdebevers.nl/wp-content/uploads/2023/10/Kielboot-III-Lesboek.pdf
-- 72 pages, CWO Kielboot III sailing theory with Scouting/lelievlet focus.
+### `../sintmaarten/kielboot-iii-lesboek.pdf` **[SEMI]**
+- Source: https://github.com/ScoutingSintMaarten/Kielboot-Lesboeken (the author's repository,
+  written by Christian Peppelman, Scouting Sint Maarten Hoofddorp; De Bevers only hosts the older
+  1.0.0 at https://www.scoutingdebevers.nl/wp-content/uploads/2023/10/Kielboot-III-Lesboek.pdf)
+- Version 1.1 (31 Dec 2025), 76 pages, CWO Kielboot III sailing theory with Scouting/lelievlet
+  focus, CC BY-NC-SA 4.0.
+  Moved to `../sintmaarten/` with its Kielboot I and II companions; index in
+  `../sintmaarten/NOTES.md`.
 
 ### `katwijkse_zeeverkenners_kielboot3_boek.pdf` **[SEMI]**
 - Source: https://www.cyoc.nl/pdf/kb3_boek.pdf — CWO Kielboot III booklet, Katwijkse Zeeverkenners

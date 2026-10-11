@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { QUIZ } from './quizdata.js';
 import { regionAt } from './regions.js';
-import { quizEntries, quizNaam, TYPING } from './config.js';
+import { quizEntries, TYPING } from './config.js';
 
 // Oefenen: a quiz over the numbered names of the parts drawing of the class (quizdata.js). Four
 // kinds of exercise, all drawn from the same pool:
@@ -136,15 +136,14 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   const touch = window.matchMedia('(pointer: coarse)');     // a finger: tik, and room for the keyboard
 
   // ---------------------------------------------------------------- the pool
-  // What this page asks about: the standard list less `quiz.weg`, plus `quiz.erbij`, under the
-  // names `namen.quiz` gives them.
+  // What this page asks about: the standard list less `quiz.weg`, plus `quiz.erbij`.
   const asked = quizEntries(config, QUIZ);
   const byId = new Map(parts.map((p) => [p.extras.id, p]));
   const pool = [];
   const dropped = [];
   const table = [];              // every entry as it was resolved, for the debug tables
   for (const q of asked) {
-    const naam = quizNaam(config, q.nr, q.naam);
+    const { naam } = q;
     const delen = q.delen.map((id) => byId.get(id)).filter(Boolean);
     const ook = (q.ook ?? []).map((id) => byId.get(id)).filter(Boolean);
     const niveau = q.zeilen === false ? null : q.niveau ?? TOP_LEVEL;   // null: not asked in Zeilen

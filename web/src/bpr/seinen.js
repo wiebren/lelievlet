@@ -41,7 +41,7 @@ const SEINEN_LIJST = [
     { id: 'brug-2rood-2geel', naam: 'Twee rode en twee gele lichten', bouw: 'brug', lampen: [['rood'], ['rood']], geel: 2,
       betekenis: 'De brug wordt niet bediend, maar onder de gesloten brug door mag als je schip laag genoeg is. Van de andere kant mag niemand komen.' },
     { id: 'brug-2groen', naam: 'Twee groene lichten boven elkaar', bouw: 'ophaal', lampen: [['groen'], ['groen']],
-      betekenis: 'Doorvaren is in beide richtingen toegestaan. De brug staat open en wordt niet bediend.' },
+      betekenis: 'Doorvaren is in beide richtingen toegestaan. De brug staat open en wordt niet bediend. De doorvaart is een engte: let op schepen van de andere kant.' },
   ]],
   ['Sluis in bedrijf', 'G.4.1a', [
     { id: 'sluis-rood', naam: 'Eén rood licht', bouw: 'sluis', lampen: [['rood']],
@@ -55,7 +55,7 @@ const SEINEN_LIJST = [
     { id: 'sluis-2rood', naam: 'Twee rode lichten boven elkaar', bouw: 'sluis', lampen: [['rood'], ['rood']],
       betekenis: 'Invaren is verboden. De sluis wordt niet bediend.' },
     { id: 'sluis-2groen', naam: 'Twee groene lichten boven elkaar', bouw: 'sluis', lampen: [['groen'], ['groen']], open: true,
-      betekenis: 'Invaren is toegestaan. De sluis staat aan beide kanten open en wordt niet bediend: je kunt er zo doorheen.' },
+      betekenis: 'Invaren is toegestaan. De sluis staat aan beide kanten open en wordt niet bediend. De sluis is dan een engte: let op schepen van de andere kant.' },
   ]],
   ['Sluis met beweegbare brug', 'G.4.2', [
     { id: 'sluisbrug-rood-groen', naam: 'Rood boven groen', bouw: 'sluisbrug', lampen: [['rood'], ['groen']],

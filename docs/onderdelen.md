@@ -10,7 +10,7 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 ## Hoe te lezen
 
 - **Onderdeel** is de naam die de viewer toont (hovertip, infotegel, onderdelenlijst); **Id** is de
-  sleutel waarmee een insluitende pagina het onderdeel hernoemt (`namen.onderdelen`) of selecteert.
+  sleutel waarmee een insluitende pagina het onderdeel selecteert.
 - **Andere namen** komen uit de lesstof; de bronsleutels staan in
   `reference/parts/SOURCES.md` en `reference/parts/CWO_NIVEAUS.md` (hoofdstuk 4). De naam
   waaronder Oefenen het vraagt staat in de kolom Oefenen.
@@ -58,11 +58,11 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 | Haak van het borgkettinkje | `borghaak_spiegel` |  | — |
 | Borgkettinkje | `borgkettinkje` |  | — |
 | Oog van het borgkettinkje | `borgoog_roer` |  | — |
-| Helmhout | `helmstok` | helmstok (de meeste bronnen) | **71 Helmhout** (Zeilen I, Roeien) |
+| Helmstok | `helmstok` |  | **71 Helmstok** (Zeilen I, Roeien) |
 | Roerblad | `roerblad` |  | **75 Roerblad** (Zeilen I, Roeien) |
 | Roerhaken | `roerhaken` |  | **73 Roerhaken** (Zeilen III, Roeien) |
 | Roerkoning | `roerkoning` |  | **72 Roerkoning** (Zeilen II, Roeien) |
-| Roerkop (helmhoutbeslag) | `roerkop` | helmhoutbeslag | telt mee bij 71 Helmhout |
+| Roerkop (helmhoutbeslag) | `roerkop` | helmhoutbeslag | telt mee bij 71 Helmstok |
 | Vingerlingen | `vingerlingen` |  | **74 Vingerlingen** (Zeilen III, Roeien) |
 
 ### Zwaard en zwaardkast
@@ -86,7 +86,7 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 | Vlonder | `buikdenning` | buikdenning [VDM8, KATR], denning [KB3L, ARG] | **63 Vlonder** (Zeilen II, Roeien) |
 | Achterste doft | `doft_achter` |  | **59 Doft** (Zeilen I, Roeien) |
 | Voorste doft (mastdoft) | `doft_voor` |  | **59 Doft** (Zeilen I, Roeien) |
-| Dofthouders | `dofthouders` |  | telt mee bij 59 Doft |
+| Dofthouders | `dofthouders` |  | **89 Dofthouder** (Zeilen III) |
 | EHBO-koffer | `ehbo_koffer` |  | — |
 | Hoosblik | `hoosblik` |  | — |
 | Meerpen | `meerpen` |  | — |
@@ -104,7 +104,7 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 | Grendelbout | `grendelbout` | mastgrendel, borgbout | **54 Grendelbout** (Zeilen I, Roeien) |
 | Grootschootoog | `grootschootoog` |  | **66 Grootschootoog** (Zeilen III) |
 | Steun grootschootoog | `grootschootoog_steun` |  | telt mee bij 66 Grootschootoog |
-| Hanekam | `hanekam` | hanenkam (de meeste bronnen) | **39 Hanekam** (Zeilen III, Roeien) |
+| Hanenkam | `hanekam` |  | **39 Hanenkam** (Zeilen III, Roeien) |
 | Hanepootloper | `hanepootloper` | spruitloper [MTX, SNEEK] | **82 Hanepootloper** (Zeilen III) |
 | Harpje | `harpje_fokkenval` |  | — |
 | Harpje | `harpje_strop` |  | telt mee bij 26 Strop van de gaffel |
@@ -135,9 +135,9 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 |---|---|---|---|
 | Gaffel | `gaffel` |  | **6 Gaffel** (Zeilen I) |
 | Giek | `giek` |  | **17 Giek** (Zeilen I) |
-| Hommerring | `hommerring` | mastring; [VDM8] en [OZS102] onderscheiden mastring, topmastring en hommerring | **27 Mastring** (Zeilen III) |
+| Hommerring | `hommerring` | mastring [VDM8 en OZS102 onderscheiden mastring, topmastring en hommerring] | **27 Mastring** (Zeilen III) |
 | Klauw | `klauw` | gaffelklauw | **24 Klauw** (Zeilen I) |
-| Lummelbeslag | `lummelbeslag` | lummelhouder; in de lesstof vaak lummelbout [KATZ, MTX, SNEEK, PRAET] | **21 Lummelbeslag** (Zeilen II) |
+| Lummelbeslag | `lummelbeslag` | lummelhouder, lummelbout [in de lesstof vaak: KATZ, MTX, SNEEK, PRAET] | **21 Lummelbeslag** (Zeilen II) |
 | Lummelbout | `lummelbout` |  | telt mee bij 21 Lummelbeslag |
 | Mast | `mast` |  | **28 Mast** (Zeilen I) |
 | Mastband met lummelbeslag | `mastband_lummel` |  | telt mee bij 21 Lummelbeslag |
@@ -157,15 +157,15 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 | Voorlijk fok | `fok_voorlijk` |  | **32 Voorlijk van de fok** (Zeilen II) |
 | Grootzeil | `grootzeil` |  | **12 Grootzeil** (Zeilen I) |
 | Achterlijk grootzeil | `grootzeil_achterlijk` |  | **13 Achterlijk** (Zeilen II) |
-| Bovenlijk grootzeil | `grootzeil_bovenlijk` |  | — |
+| Bovenlijk grootzeil | `grootzeil_bovenlijk` |  | **86 Bovenlijk** (Zeilen III) |
 | Halshoek grootzeil | `grootzeil_halshoek` |  | **20 Halshoek van het grootzeil** (Zeilen II) |
 | Klauwhoek | `grootzeil_klauwhoek` |  | **25 Klauwhoek** (Zeilen II) |
 | Onderlijk grootzeil | `grootzeil_onderlijk` |  | **19 Onderlijk van het grootzeil** (Zeilen II) |
 | Schoothoek grootzeil | `grootzeil_schoothoek` |  | **14 Schoothoek van het grootzeil** (Zeilen II) |
 | Tophoek grootzeil (piek) | `grootzeil_tophoek` | nokhoek [MTX, SNEEK, WIL88], piek | **7 Tophoek van het grootzeil** (Zeilen II) |
 | Voorlijk grootzeil | `grootzeil_voorlijk` |  | **22 Voorlijk van het grootzeil** (Zeilen II) |
-| Zeilnummer | `grootzeil_zeilnummer` |  | — |
-| Zeilteken | `grootzeil_zeilteken` |  | — |
+| Zeilnummer | `grootzeil_zeilnummer` |  | **88 Zeilnummer** (Zeilen II) |
+| Zeilteken | `grootzeil_zeilteken` |  | **87 Zeilteken** (Zeilen II) |
 | Zeillatten | `zeillatten` |  | **8 Zeillat** (Zeilen III) |
 
 ### Staand want
@@ -217,17 +217,17 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 
 ## De vragen van Oefenen
 
-81 vragen bij Zeilen (niveau I: 30,
-tot en met II: 48, tot en met III: 81),
+85 vragen bij Zeilen (niveau I: 30,
+tot en met II: 50, tot en met III: 85),
 35 bij Roeien. Het nummer is dat van de onderdelentekening van de klasse
 (`reference/book/onderdelen_lelievlet.json`); 85 en verder zijn namen van de roeilijst die de
-zeiltekening niet nummert. Een insluitende pagina kan vragen weglaten (`quiz.weg`), toevoegen
-(`quiz.erbij`) en hernoemen (`namen.quiz`); zie de README.
+zeiltekening niet nummert. Een insluitende pagina kan vragen weglaten (`quiz.weg`) en toevoegen
+(`quiz.erbij`); zie de README.
 
 | Nr | Vraag | Zeilen | Roeien | Antwoord: onderdelen | Telt ook goed |
 |---|---|---|---|---|---|
 | 1 | Klauwval | I |  | Klauwval | Blok klauwval |
-| 2 | Windvaan | III |  | Windvaan |  |
+| 2 | Windvaantje | III |  | Windvaantje |  |
 | 3 | Piekenval | I |  | Piekenval | Blok piekenval |
 | 4 | Gaffeldraad | III |  | Gaffeldraad | Banden van de gaffeldraad |
 | 5 | Marllijn | III |  | Marllijn (gaffel), Marllijn (giek) |  |
@@ -236,7 +236,7 @@ zeiltekening niet nummert. Een insluitende pagina kan vragen weglaten (`quiz.weg
 | 8 | Zeillat | III |  | Zeillatten |  |
 | 9 | Kleed | III |  | Kleed (gebied op het grootzeil) |  |
 | 10 | Zijstag | I |  | Bakboord zijstag, Stuurboord zijstag |  |
-| 11 | Kraanlijn | I |  | kraanlijn | blok_kraanlijn |
+| 11 | Kraanlijn | I |  | Kraanlijn |  |
 | 12 | Grootzeil | I |  | Grootzeil |  |
 | 13 | Achterlijk | II |  | Achterlijk grootzeil, Achterlijk fok |  |
 | 14 | Schoothoek van het grootzeil | II |  | Schoothoek grootzeil |  |
@@ -246,7 +246,7 @@ zeiltekening niet nummert. Een insluitende pagina kan vragen weglaten (`quiz.weg
 | 18 | Grootschoot | I |  | Grootschoot met blokken | Bovenblok grootschoot, Onderblok grootschoot |
 | 19 | Onderlijk van het grootzeil | II |  | Onderlijk grootzeil |  |
 | 20 | Halshoek van het grootzeil | II |  | Halshoek grootzeil |  |
-| 21 | Lummelbeslag | II |  | Lummelbeslag | Mastband met lummelbeslag, Lummelbout, lummelas |
+| 21 | Lummelbeslag | II |  | Lummelbeslag | Mastband met lummelbeslag, Lummelbout, As van het lummelbeslag (verend) |
 | 22 | Voorlijk van het grootzeil | II |  | Voorlijk grootzeil |  |
 | 23 | Rijglijn | I |  | Rijglijn |  |
 | 24 | Klauw | I |  | Klauw |  |
@@ -264,7 +264,7 @@ zeiltekening niet nummert. Een insluitende pagina kan vragen weglaten (`quiz.weg
 | 36 | Schoothoek van de fok | II |  | Schoothoek fok |  |
 | 37 | Fokkenschoot | I |  | Fokkenschoot | Blok fokkenschoot (bakboord), Blok fokkenschoot (stuurboord) |
 | 38 | Kettinkje | III |  | Kettinkje |  |
-| 39 | Hanekam | III | ja | Hanekam |  |
+| 39 | Hanenkam | III | ja | Hanenkam |  |
 | 40 | Voorstagspanner | III |  | Voorstagspanner met pelikaanhaak, Ring van de pelikaanhaak |  |
 | 41 | Dolboord | III | ja | Dolboord (bakboord), Dolboord (stuurboord) | Dolboord over de spiegel, Dwarsbuis voordek |
 | 42 | Boeisel | III | ja | Boeisel (bakboord), Boeisel (stuurboord) | Contour boeisel |
@@ -274,17 +274,17 @@ zeiltekening niet nummert. Een insluitende pagina kan vragen weglaten (`quiz.weg
 | 46 | Spiegel | II | ja | Spiegel |  |
 | 47 | Scheg | II | ja | Scheg |  |
 | 48 | Zwaard | I | ja | Zwaard |  |
-| 49 | Zwaardbout | III | ja | zwaardbout |  |
-| 50 | Zwaardloper | III | ja | Zwaardloper, Zwaardloper | borgpen, kettinkje |
+| 49 | Zwaardbout | III | ja | Zwaardbout |  |
+| 50 | Zwaardloper | III | ja | Zwaardloper, Zwaardloper | Borgpen, Kettinkje borgpen |
 | 51 | Zwaardkast | I | ja | Zwaardkast |  |
 | 52 | Mastkoker | III | ja | Mastkoker |  |
 | 53 | Mastbout | I |  | Mastbout |  |
 | 54 | Grendelbout | I | ja | Grendelbout |  |
 | 55 | Kikker | I | ja | Kikkers op de mastkoker, Kikkers op het voordek |  |
-| 56 | Dol | I | ja | dol_sb_voor, dol_bb_voor, dol_sb_achter, dol_bb_achter | dolketting_sb_voor, dolketting_bb_voor, dolketting_sb_achter, dolketting_bb_achter |
+| 56 | Dol | I | ja | Dol stuurboord voor, Dol bakboord voor, Dol stuurboord achter, Dol bakboord achter | Kettinkje van de dol stuurboord voor, Kettinkje van de dol bakboord voor, Kettinkje van de dol stuurboord achter, Kettinkje van de dol bakboord achter |
 | 57 | Dolpot | III | ja | Dolpotten (bakboord), Dolpotten (stuurboord) |  |
 | 58 | Berghout | II | ja | Berghout (bakboord), Berghout (stuurboord) |  |
-| 59 | Doft | I | ja | Voorste doft (mastdoft), Achterste doft | Dofthouders |
+| 59 | Doft | I | ja | Voorste doft (mastdoft), Achterste doft |  |
 | 60 | Voordek | I | ja | Voordek |  |
 | 63 | Vlonder | II | ja | Vlonder |  |
 | 64 | Sleepoog | I | ja | Sleepoog | Sleepogen |
@@ -294,7 +294,7 @@ zeiltekening niet nummert. Een insluitende pagina kan vragen weglaten (`quiz.weg
 | 68 | Landvastogen | III | ja | Landvastogen |  |
 | 69 | Achterdek | I | ja | Achterdek |  |
 | 70 | Wrikgat | III | ja | Wrikgat |  |
-| 71 | Helmhout | I | ja | Helmhout | Roerkop (helmhoutbeslag) |
+| 71 | Helmstok | I | ja | Helmstok | Roerkop (helmhoutbeslag) |
 | 72 | Roerkoning | II | ja | Roerkoning |  |
 | 73 | Roerhaken | III | ja | Roerhaken |  |
 | 74 | Vingerlingen | III | ja | Vingerlingen |  |
@@ -308,6 +308,10 @@ zeiltekening niet nummert. Een insluitende pagina kan vragen weglaten (`quiz.weg
 | 83 | Dodemanseind | III |  | Dodemanseind |  |
 | 84 | Spant | III | ja | Spanten (wrangen) |  |
 | 85 | Riem | – | ja | Roeiriem (stuurboord), Roeiriem (bakboord) | Wrikriem |
+| 86 | Bovenlijk | III |  | Bovenlijk grootzeil |  |
+| 87 | Zeilteken | II |  | Zeilteken |  |
+| 88 | Zeilnummer | II |  | Zeilnummer |  |
+| 89 | Dofthouder | III |  | Dofthouders |  |
 
 ## Niet gevraagd
 

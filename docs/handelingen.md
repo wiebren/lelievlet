@@ -108,7 +108,7 @@ over is:
 | *Halen!* | Aan de landvast halen | Verhalen |
 | *Voorlandvast vast!*, *Achterlandvast vast!* | Landvast opnieuw vastmaken | Verhalen |
 | *Fok bak houden!* | Fok bak houden | Overstag, stormrondje; *Fok bak houden!* ook bij afvaren van langswal |
-| *Stootwillen uit!*, *Zeilen los!*, *Grootzeil aan!* | Stootwillen uit, Zeilen los, Grootzeil aan | Sliplanding langswal en hogerwal |
+| *Stootwillen uit!*, *Zeilen vieren!* | Stootwillen uit, Zeilen vieren tot ze killen | Sliplanding langswal en hogerwal |
 | *Voorlandvast vast!*, *Achterlandvast vast!*, *Achterspring vast!*, *Voorspring vast!* | De landvasten en springen vastmaken | Afmeren (alle vormen), kop in de wind leggen |
 | *Voorspring los!*, *Achterspring los!*, *Achterlandvast los!* | De lijnen losmaken | Afvaren van langswal, kop in de wind leggen |
 | *Voorlandvast los, afduwen!* | Voorlandvast los, afduwen | Afvaren van langswal |
@@ -155,7 +155,7 @@ boeken het onderling oneens zijn, staat dat erbij; daar volgt de viewer er één
 | 12 | Afvaren roeiend | Van de boeg aan de kant: een eigen stap achteruit rond | [JPR3] p. 19 beschrijft alleen afvaren langszij | Houden als eigen uitwerking, of alleen langszij toestaan |
 | 13 | Afvaren roeiend (Oefenen) | *Riemen toe* mag vóór het afzetten | [JPR3] p. 19: riemen toe "als er genoeg ruimte is", na het afzetten | *toe* laten wachten op *zet* |
 | 14 | Ankeren roeiend (Oefenen) | *Het anker overboord* pas na *strijken* | [JPR3] p. 23: strijken kan, "bijv. bij weinig wind" | Strijken niet verplicht stellen |
-| 15 | Man overboord roeiend | De drenkeling altijd binnen tussen de eerste en de tweede doft | [JPR3] p. 22: zo zonder mast; met een mast bij het zijstag | Kiezen naar of de mast staat |
+| 15 | Man overboord roeiend | De drenkeling altijd binnen tussen de eerste en de tweede doft (achter de stag) | [JPR3] p. 22: zo zonder mast; met een mast bij het zijstag | Besloten 2026-10-11: dat komt op hetzelfde neer; "(achter de stag)" erbij |
 
 ## Werklijst
 
