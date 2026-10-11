@@ -665,6 +665,8 @@ button:hover { border-color: var(--accent); color: var(--accent); }
   .lv .popover .ops { width: auto; }
   #customize, #feedback { left: 16px; right: 16px; width: auto; }
   #customize { z-index: 6; }                       /* over the column of controls it now reaches across */
+  /* the screen held up in Melden is a tall picture on a phone: kept small, so the buttons under it show */
+  #feedback .fb-shot { width: auto; max-width: 100%; max-height: 28vh; margin: 0 auto; }
   /* as wide as the embed allows, over the part card */
   #parts { width: auto; left: 16px; }
   /* a sign or mark picked: the panel down to its card, so what is out on the water is seen over it */
@@ -912,4 +914,132 @@ button.primary:disabled:hover { background: var(--accent); }
     border-radius: 16px 16px 0 0; border-width: 1px 0 0; padding: 6px 10px calc(8px + env(safe-area-inset-bottom));
   }
   .lv.cmd-open #procedure { bottom: calc(var(--cmd-height, 0px) + 8px); }
+}
+
+/* ---------------------------------------------------------------- Krachten en koppels (krachten/)
+   Opened by ?krachten in the address. A card on the right with a lesson, its controls and a question;
+   the words of the arrows on the boat stand in a layer of their own over the canvas. */
+#krachten {
+  position: absolute; top: 16px; right: 72px; z-index: 6; width: 400px; max-height: calc(100% - 32px); overflow: auto;
+  padding: 12px 14px 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  backdrop-filter: blur(8px); font-size: 13.5px; line-height: 1.45;
+}
+#krachten header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+#krachten header span { display: flex; gap: 14px; }
+/* wide: the schema big on the left, the words and the controls beside it */
+#krachten.kr-breed { width: min(1100px, calc(100% - 160px)); }
+#krachten.kr-breed .kr-lijf { display: flex; gap: 20px; align-items: flex-start; }
+#krachten.kr-breed .kr-links { flex: 3 1 0; min-width: 0; position: sticky; top: 0; }
+#krachten.kr-breed .kr-rechts { flex: 2 1 0; min-width: 260px; }
+#krachten.kr-breed .kr-schema { max-height: min(68vh, 720px); }
+#krachten h2 { margin: 0; font-size: 16px; }
+#krachten h3 { margin: 0 0 4px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+#krachten h4 { margin: 10px 0 2px; font-size: 13px; }
+#krachten p { margin: 6px 0 0; }
+#krachten .kr-nav { display: flex; gap: 6px; align-items: stretch; }
+#krachten .kr-nav select { flex: 1; min-width: 0; font: inherit; padding: 4px 6px; border-radius: 8px; border: 1px solid var(--line); background: #fff; color: var(--text); }
+#krachten .kr-nav button { padding: 2px 10px; font-size: 17px; line-height: 1; }
+#krachten .kr-nav button:disabled { opacity: 0.35; cursor: default; }
+#krachten .kr-chips { margin-top: 8px; }
+#krachten .kr-chips span { display: inline-block; padding: 0 7px; border-radius: 999px; font-size: 11px; background: rgba(11, 92, 173, 0.1); color: var(--accent); }
+#krachten .kr-bediening { margin-top: 8px; padding-top: 4px; border-top: 1px solid var(--line); }
+#krachten .kr-rij { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 8px; margin-top: 6px; }
+#krachten .kr-rij > span { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+#krachten .kr-rij .segmented button { padding: 3px 9px; font-size: 12.5px; }
+#krachten .kr-schuif { display: grid; grid-template-columns: 1fr; gap: 0; }
+#krachten .kr-schuif > span b { color: var(--text); font-weight: 600; margin-left: 4px; }
+/* a place on a line, not how far along it: a thin track with a dot on it, nothing filled in */
+#krachten .kr-schuif input { width: 100%; margin: 6px 0 4px; height: 20px; background: none; -webkit-appearance: none; appearance: none; cursor: pointer; }
+#krachten .kr-schuif input::-webkit-slider-runnable-track { height: 2px; border-radius: 1px; background: rgba(22, 34, 46, 0.28); }
+#krachten .kr-schuif input::-moz-range-track { height: 2px; border-radius: 1px; background: rgba(22, 34, 46, 0.28); }
+#krachten .kr-schuif input::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -7px; border-radius: 50%;
+  background: var(--accent); border: 2px solid #fff; box-shadow: 0 0 0 1px var(--accent); }
+#krachten .kr-schuif input::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid #fff; box-shadow: 0 0 0 1px var(--accent); }
+#krachten .kr-schuif input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+#krachten .kr-schuif small { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; margin-top: -2px; }
+#krachten .kr-schuif small i { font-style: normal; }
+#krachten .kr-baan { position: relative; }
+#krachten .kr-goed { position: absolute; top: 0; transform: translateX(-50%); pointer-events: none; font-style: normal; font-size: 10px;
+  line-height: 1; color: #11552a; padding-top: 0; }
+#krachten .kr-goed::after { content: ''; position: absolute; left: 50%; top: 12px; width: 2px; height: 10px; margin-left: -1px; border-radius: 1px; background: #16833a; }
+#krachten .kr-merk input { margin-top: 12px; }
+#krachten .kr-vlaag[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+#krachten .kr-lagen { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+#krachten .kr-lagen button { padding: 2px 9px; border-radius: 999px; font-size: 12.5px; }
+#krachten .kr-lagen button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+#krachten .kr-status { min-height: 1.4em; padding: 6px 8px; margin-top: 8px; border-radius: 8px; background: rgba(22, 131, 58, 0.08); color: #11552a; }
+#krachten .kr-status:empty { display: none; }
+/* warnings: geel a flinke helling or upright, oranje the berghout under, heeled to loef or a roer that
+   cannot hold her, rood going over (krachten/index.js waarschuwing) */
+#krachten .kr-status.kr-geel { background: rgba(232, 184, 0, 0.16); color: #5e4a00; }
+#krachten .kr-status.kr-oranje { background: rgba(230, 116, 0, 0.15); color: #7a3a00; font-weight: 600; }
+#krachten .kr-status.kr-rood { background: rgba(192, 38, 45, 0.1); color: #8f1d22; font-weight: 600; }
+.kr-terug.kr-geel p { color: #5e4a00; }
+.kr-terug.kr-oranje p { color: #7a3a00; font-weight: 600; }
+.kr-terug.kr-rood p { color: #8f1d22; font-weight: 600; }
+#krachten .kr-balans { margin-top: 8px; font-size: 12px; }
+#krachten .kr-balans[hidden], #krachten .kr-balans-delen[hidden], #krachten .kr-balans-rij[hidden] { display: none; }
+#krachten .kr-balans-kop { display: flex; justify-content: space-between; margin-left: 68px; color: var(--muted); }
+#krachten .kr-balans-rij { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
+#krachten .kr-balans-rij > span { width: 60px; flex: none; text-align: right; color: var(--muted); white-space: nowrap; }
+#krachten .kr-balans-rij.kr-som > span { color: #11552a; font-weight: 600; }
+#krachten .kr-balans-baan { position: relative; flex: 1; height: 10px; border-radius: 5px; background: rgba(54, 69, 79, 0.08); }
+#krachten .kr-balans-baan::after { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--muted); }
+#krachten .kr-balans-baan i { position: absolute; top: 0; bottom: 0; left: 50%; width: 0; border-radius: 5px; opacity: 0.6; }
+#krachten .kr-balans-rij.kr-som i { opacity: 1; }
+#krachten .kr-balans-baan em { position: absolute; left: 50%; top: 50%; transform: translate(6px, -50%); font-style: normal; font-size: 11px;
+  line-height: 1; color: #11552a; white-space: nowrap; }
+/* short, in Zelf verkennen: the sum under the name of the balans, a click opens the parts */
+#krachten .kr-balans-open { display: block; width: 100%; padding: 0; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; }
+#krachten .kr-balans-open:hover .kr-balans-rij > span { color: var(--accent); }
+#krachten .kr-balans-open[hidden] { display: none; }
+#krachten .kr-vraag { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--line); }
+#krachten .kr-vraag:empty { display: none; }
+#krachten .kr-vraag p { margin: 0; }
+#krachten .kr-opties { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
+#krachten .kr-opties button { text-align: left; }
+#krachten .kr-opties button:disabled { cursor: default; opacity: 1; }
+#krachten .kr-opties button.goed { border-color: var(--quiz-goed); background: var(--quiz-goed-bg); color: var(--quiz-goed); }
+#krachten .kr-opties button.fout { border-color: var(--quiz-fout); background: var(--quiz-fout-bg); color: var(--quiz-fout); }
+#krachten .kr-uitleg { margin-top: 8px !important; }
+#krachten .kr-meer { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--line); }
+#krachten .kr-meer summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+.kr-schema { display: block; width: 100%; max-height: 340px; border-radius: 8px; border: 1px solid var(--line); }
+.kr-schema text { font-family: inherit; font-weight: 600; text-anchor: middle; dominant-baseline: middle;
+  paint-order: stroke; stroke: rgba(255, 255, 255, 0.9); stroke-linejoin: round; }   /* its width per pane: schema.js */
+.kr-schema text.kr-pane { text-anchor: start; fill: var(--muted); font-weight: 500; }
+.kr-labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
+.kr-label {
+  position: absolute; left: 0; top: 0; padding: 0 6px; border-radius: 8px; white-space: nowrap;
+  font-size: 12px; font-weight: 600; line-height: 1.5; color: var(--kr); background: rgba(255, 255, 255, 0.84);
+}
+/* the card stands where Aanpassen and Melden would: their buttons stay, under it */
+.lv.kr-open > #customize-toggle, .lv.kr-open > #fullscreen-toggle, .lv.kr-open > #feedback-toggle { z-index: 7; }
+.lv.ops-on #krachten, .lv.quiz-on #krachten, .lv.ops-on .kr-labels, .lv.quiz-on .kr-labels,
+.lv.ops-on .kr-terug, .lv.quiz-on .kr-terug { display: none; }
+#krachten .kr-schema-host { display: flex; gap: 6px; margin-top: 8px; }
+#krachten .kr-schema-host svg { flex: 1 1 0; min-width: 0; }
+#krachten .kr-toon-boot { display: none; }
+.kr-terug {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); background: var(--panel); border-top: 1px solid var(--line);
+  backdrop-filter: blur(8px); font-size: 13px;
+}
+.kr-terug[hidden] { display: none; }
+.kr-terug p { flex: 1; margin: 0; color: #11552a; }
+.kr-terug button { flex: none; }
+@container (max-width: 900px) {
+  /* a sheet over the boat, with a button to see the boat on its own - up to where the card beside the
+     boat would leave too little of it (krachten/index.js SHEET) */
+  #krachten { z-index: 8; top: auto; bottom: 0; left: 0; right: 0; width: auto; max-height: calc(100% - 64px); border-radius: 16px 16px 0 0;
+    border-width: 1px 0 0; padding: 10px 12px calc(12px + env(safe-area-inset-bottom)); }
+  #krachten .kr-toon-boot { display: block; width: 100%; margin-top: 8px; }
+  /* a sheet is as wide as it goes already: no wide one, and one column */
+  #krachten .kr-breed-knop { display: none; }
+  #krachten.kr-breed { width: auto; }
+  #krachten.kr-breed .kr-lijf { display: block; }
+  #krachten.kr-breed .kr-schema { max-height: 230px; }
+  .kr-schema { max-height: 230px; }
+  .kr-label { font-size: 11px; }
+  #krachten .kr-rij .segmented button { padding: 3px 7px; }
 }

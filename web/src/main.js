@@ -10,6 +10,7 @@ import { initModes } from './modes.js';
 import { initRegions } from './regions.js';
 import { initQuiz } from './quiz.js';
 import { initHandelingen } from './handelingen.js';
+import { initKrachten } from './krachten/index.js';
 import { initLogboek } from './logboek.js';
 import { initNight } from './rig.js';
 import { initLocator } from './locator.js';
@@ -257,6 +258,7 @@ export function mount(ui, host, config) {
   let regions = null;
   let quiz = null;
   let handelingen = null;     // a run of an operation, in its own focus mode
+  let krachten = null;        // Krachten en koppels, while it is only opened by the address (?krachten)
   let hovered = null;
   const override = new Map();  // part -> colour: the quiz lights four parts at once, each its own
 
@@ -381,6 +383,12 @@ export function mount(ui, host, config) {
       controls.update();
       renderer.render(scene, camera);
       settle();
+      // Krachten en koppels: in no menu yet; ?krachten in the address opens it (krachten/index.js)
+      if (new URLSearchParams(location.search).get('krachten') !== null) {
+        krachten = initKrachten({ wrap, scene, camera, controls, parts, modes, fly: krachtView, controlsNav: $('controls'),
+                                  setCoveredRight, opslaan });
+        onDestroy(() => krachten.dispose());
+      }
       newsOnArrival();
     } catch (error) { failed(error); }
   }, undefined, failed);
@@ -576,6 +584,25 @@ export function mount(ui, host, config) {
       return;
     }
     startFlight(position, target, 600);
+  }
+  /** The views of Krachten en koppels: from above with the bow up and stuurboord to the right, from
+   *  astern, and from astern and above - each far enough off to take in the arrows around her, and
+   *  sized for what the card leaves free of the picture (`covered`: px it covers on the right; the
+   *  krachten layer moves the picture itself into that part, with a view offset). */
+  function krachtView(name, covered = 0) {
+    const [height, width, target, dir] = {
+      boven: [9.2, 6.6, [3.0, 1.2, 0], [-0.002, 1, 0]],
+      achter: [7.6, 7.2, [2.8, 2.4, 0], [-1, 0.06, 0]],
+      achterboven: [9, 8, [2.8, 2.0, 0], [-0.74, 0.62, 0.26]],
+    }[name] ?? [];
+    if (!height) { setView('iso'); return; }
+    const rect = wrap.getBoundingClientRect();
+    const freeW = Math.max(rect.width - covered, rect.width * 0.35) / rect.width;
+    const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const dist = Math.max(height / 2 / tan, width / 2 / (tan * camera.aspect) / freeW);
+    const out = new THREE.Vector3(...dir).normalize();
+    const to = new THREE.Vector3(...target);
+    startFlight(to.clone().addScaledVector(out, dist), to, 900);
   }
   // how fast what is being done goes - procedures, and what is moved by hand; wind, water and flag keep their own time
   let speed = 1;
@@ -1201,12 +1228,15 @@ export function mount(ui, host, config) {
   // Part of the view covered from below (the card of a running quiz): the picture is lifted by half
   // of it, so what the camera looks at stands in the middle of what is still to be seen. Picking and
   // the locator rings go through the same projection, so they follow.
+  // Covered on the right (the card of Krachten en koppels): the picture moves left by half of it.
   let covered = 0;
+  let coveredRight = 0;
   function frame() {
     const { width: w, height: h } = wrap.getBoundingClientRect();
-    if (covered > 0 && w > 0 && h > 0) camera.setViewOffset(w, h, 0, covered / 2, w, h);
+    if ((covered > 0 || coveredRight > 0) && w > 0 && h > 0) camera.setViewOffset(w, h, coveredRight / 2, covered / 2, w, h);
     else camera.clearViewOffset();
   }
+  const setCoveredRight = (px) => { if (px !== coveredRight) { coveredRight = px; frame(); } };
   // by who: the card of a quiz round or a run, and the roeicommando card; the picture clears the most
   const coveredBy = {};
   const setCovered = (px, who = 'card') => {
@@ -1561,6 +1591,7 @@ export function mount(ui, host, config) {
 
 
   const clock = new THREE.Clock();
+  const canvasSize = new THREE.Vector2();
   let elapsed = 0;                 // ms since the first frame; the pulse and the rings beat on it
   const frameLoop = () => {
     const dt = Math.min(clock.getDelta(), 0.05);
@@ -1584,6 +1615,7 @@ export function mount(ui, host, config) {
     // shows a ship far out (camera.userData.minNear)
     const near = Math.max(camera.userData.minNear ?? 0, THREE.MathUtils.clamp(camera.position.distanceTo(controls.target) * 0.2, 0.002, 0.05));
     if (Math.abs(near - camera.near) > 1e-4) { camera.near = near; camera.updateProjectionMatrix(); }
+    if (krachten) { renderer.getSize(canvasSize); krachten.update(dt, canvasSize.x, canvasSize.y); }
     renderer.render(scene, camera);
     // after the render: every matrix stands where this frame drew it, so a ring lands on the part
     locator.update(elapsed, dt * 1000);

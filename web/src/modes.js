@@ -2150,6 +2150,10 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   /** Whether the turn (a tack or a gybe) has the boat: while it plays, or stands somewhere between its ends. */
   const tackOn = () => tacking && (tacking.playing || (tacking.t > 1e-6 && tacking.t < tacking.total - 1e-6));
   const tackTrim = { jib: null, luff: 0, belly: null, bend: null, flap: null, boom: null };
+  // Krachten (krachten/): while that layer is open it sets the sheeting of each sail (degrees, as now.boom and
+  // now.jib), a heel (radians about +x), the helmstok (radians, as helm.angle) and the wind the windvaan and
+  // the flag fly in (radians, as now.windAngle: the schijnbare wind); null, or a heel of 0, leaves it to the boat
+  const kracht = { boom: null, jib: null, heel: 0, helm: null, vane: null };
   let tackSteers = false;                                           // the course is being set by the tack itself
   /** The course, the fok and the helmstok as the tack has them now; the fok's in tackTrim. */
   const layTack = () => {
@@ -3174,6 +3178,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     follow.yaw += (raw - follow.yaw) * (1 - Math.exp(-dt * FOLLOW.rate));
     // someone has it: the hand, a tack or gybe (also inside a manoeuvre), the opschieter, the sliplanding aan hogerwal (straight
     // till the last of her way), bijliggen, the zijwaartse aanleg
+    if (kracht.helm !== null && !helm.held) { helm.target = kracht.helm; return; }
     if (helm.held || tackOn() || wayTack() || (rescuing && shown === rescuing && driving(rescuing) && rescuing.values.bij > 0) || roundingUp() || straightIn() || heaveOn() || (pulling?.kind === 'zijkant' && driving(pulling))) return;
     const astern = dock.speed < -0.05 ? -1 : 1;
     helm.target = clamp(astern * FOLLOW.gain * follow.yaw, -FOLLOW.max, FOLLOW.max);
@@ -5059,10 +5064,10 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const loose = Math.max((1 - smoothstep(strike.main)) * (1 - smoothstep(strike.schoot)), topping.hoist * topping.hoist);
     // with the mik set the giek lies in it, amidships, whatever the wind: heading up (skipped alongside) is not what puts it there
     const inMik = 1 - smoothstep(strike.mik);
-    chase('boom', sailing ? (tackTrim.boom ?? side * interp(BOOM, course) * upwind * inMik * (1 - smoothstep(strike.schoot))) + (1.6 + 2.4 * topping.hoist) * loose * now.flutter * Math.sin(1.9 * now.t) : 0, dt);
+    chase('boom', sailing ? (tackTrim.boom ?? kracht.boom ?? side * interp(BOOM, course) * upwind * inMik * (1 - smoothstep(strike.schoot))) + (1.6 + 2.4 * topping.hoist) * loose * now.flutter * Math.sin(1.9 * now.t) : 0, dt);
     // struck, the fok lies bundled on its stay, amidships: the wind has nothing to take hold of
     const jibUp = 1 - smoothstep(jibDown);
-    chase('jib', (sailing ? tackTrim.jib ?? THREE.MathUtils.lerp(jibFor(side, course), side * FOK_TE_LOEVERT, loevert) * upwind : FOK_CAD) * jibUp, dt);
+    chase('jib', (sailing ? tackTrim.jib ?? kracht.jib ?? THREE.MathUtils.lerp(jibFor(side, course), side * FOK_TE_LOEVERT, loevert) * upwind : FOK_CAD) * jibUp, dt);
     chase('jibBend', (tackTrim.bend ?? interp(FOK_BEND, course) * upwind) * jibUp, dt);
     chase('mainBend', interp(MAIN_BEND, course) * upwind, dt);
     // the relative wind, the short way round (a gijp goes on past 180), and held where the boat lies made fast
@@ -5495,7 +5500,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const tail = 4.4 + 1.9;                                         // the arrow is 1.9 m long, tip 4.4 m out
     wind.position.set(2.8 + tail * Math.cos(now.windAngle), tuig.waterlijn_m + 0.02, tail * Math.sin(now.windAngle));
     wind.rotation.y = Math.PI - now.windAngle;
-    vane.quaternion.setFromAxisAngle(UP, -now.windAngle).premultiply(qMast);   // its frame points into the wind
+    vane.quaternion.setFromAxisAngle(UP, -(kracht.vane ?? now.windAngle)).premultiply(qMast);   // its frame points into the wind
     withMast(tmp.copy(mastHead).setY(mastHead.y + 0.06), vane.position);
     withMast(tmp.copy(mastHead).setY(mastHead.y + 0.02), toplicht.position);
     // paint() in main.js blacks out emissive on every part when the highlighting is refreshed, so
@@ -5512,7 +5517,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     pivotRotate(rudderMeshes, rudderFoot, rudderAxis, helm.angle);
     helm.qTurn.setFromAxisAngle(rudderAxis, helm.angle);
     borg?.chain.update(delta.copy(rotatedPoint(borg.eye, rudderFoot, rudderAxis, helm.angle, tmp)).sub(borg.eye));
-    flyFlag(now.t, now.windAngle, now.wind, 1 - now.sculling, helm.qTurn);   // no flag while wrikken: the riem needs the room
+    // no flag while wrikken: the riem needs the room. With the krachten layer it flies, like the windvaan, in
+    // the wind she feels as she sails: the schijnbare wind
+    flyFlag(now.t, kracht.vane ?? now.windAngle, now.wind, 1 - now.sculling, helm.qTurn);
     layChill(step);
     leechFlag.k = clamp(leechFlag.k + (leechFlag.on ? dt : -dt) / 1.5, 0, 1);   // it fades in and out, a second and a half
     leechFlag.fly.mesh.visible = leechFlag.k > 0;
@@ -5530,7 +5537,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     poseOar(scullOar, now.sculling, wrikgat, dir, -0.65 * Math.cos(th) * now.sculling);
     stowOar(scullOar, now.sculling);
     // the boat rolls about its waterline
-    boat.quaternion.setFromAxisAngle(ROLL_AXIS, swell.roll);
+    boat.quaternion.setFromAxisAngle(ROLL_AXIS, swell.roll + kracht.heel);
     boat.position.copy(rollAt).sub(tmp.copy(rollAt).applyQuaternion(boat.quaternion));
 
     // roeiriemen: all in time, one stroke per 3.2 s
@@ -6613,6 +6620,18 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
            bowsprit: bowsprit && { get on() { return bowsprit.want; }, set: setBowsprit },
            chill: chill && { get on() { return chill.holds; } },
            water, waterHit, mob, toplicht: { set: setToplicht }, windArrow: wind,
+           /** For the krachten layer: what it may set (see `kracht`), and how the sails and the zwaard stand now. */
+           kracht, trim: () => ({ boom: now.boom, jib: now.jib, board: now.board }),
+           /** The rif for the krachten layer: how many turns, at most, and how far the voorlijk has come down
+            *  (of how long it is) - set at once: a lesson shows a rif, it does not reef. zetRif is false
+            *  while the boat is being reefed, and leaves her as she is. */
+           rif: () => ({ slagen: reef.turns, max: reefInfo.max_slagen, zakt: mainBend.drop(reef.turns * 2 * Math.PI), voorlijk: LUFF }),
+           zetRif: (turns) => {
+             if (reefing?.playing) return false;
+             reefing = drop(reefing); reefWanted = turns;
+             reef = { head: 0, slack: 0, slide: 0, pull: 0, turns, hoop: turns > 0 ? 1 : 0 };
+             return true;
+           },
            /** Her own lights and dagmerken as Zoeken shows them: { licht, bal }, or null to let go. */
            showSignals: (s) => { const was = signalsShown; signalsShown = s; if (!s && was) setToplicht(nightOn() ? smoothstep(night.licht) : 0); },
            showOwnState, sailFree,
