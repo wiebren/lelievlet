@@ -1,16 +1,19 @@
 // Bekende groepen: the colours of the lelievletten of scouting groups, as their members reported them (Aanpassen ›
 // Bekend › Melden) and they were checked. Each entry:
 //
-//   groep, plaats           the group and where it is
+//   groep, plaats           the group and where it is, the place written out (Rotterdam)
+//   plaatsOpBoot            the plaats as it is lettered on the hull, when that differs (R-dam); left out: plaats
 //   kleuren                 the paint per zone of customize.js (romp, berghout, boeisel, dolboord, voordek,
 //                           achterdek, kuip, zwaardkast); a zone left out keeps the viewer's own colour
 //   bakskleur, zeilkleur    as in customize.js (zeilkleur 0-100); left out: the viewer's own
 //   naamKleur, plaatsKleur  the lettering on the hull; left out: black
+//   rompnummer              true: the zeilnummer midships on the boeisel as well, in the naamKleur. Not in
+//                           Eigen: groups that letter it there have it from here
 //   boten                   [{ zeilnummer, naam, bakskleur }]; a boat's bakskleur, when she has one, is hers
 //                           instead of the group's
 //
-// Picked in Bekend, a group gives its colours and its plaats; one of its boats also its zeilnummer, naam and
-// bakskleur.
+// Picked in Bekend, a group gives its colours and its plaats on the hull; one of its boats also its zeilnummer,
+// naam and bakskleur. Found by either plaats.
 export const GROEPEN = [
   {
     groep: 'Zwolsche Zeeverkenners', plaats: 'Zwolle',
@@ -24,6 +27,18 @@ export const GROEPEN = [
       { zeilnummer: '441', naam: 'Morra', bakskleur: '#00843d' },
       { zeilnummer: '442', naam: 'Potten', bakskleur: '#f5c20d' },
       { zeilnummer: '884', naam: 'Brekken', bakskleur: '#0b4ea2' },
+    ],
+  },
+  {
+    groep: 'Tasmania', plaats: 'Rotterdam', plaatsOpBoot: 'R-dam',
+    kleuren: {
+      romp: '#bdbdbd', berghout: '#ff0000', boeisel: '#0c0182', dolboord: '#ff0000',
+      voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
+    },
+    zeilkleur: 0,
+    naamKleur: '#ffff00', plaatsKleur: '#ffff00', rompnummer: true,
+    boten: [
+      { zeilnummer: '124', naam: 'Heemskerck', bakskleur: '#c8102e' },
     ],
   },
 ];

@@ -270,12 +270,14 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
 
     groepGegevens: () => {
       const next = choice('Verder', () => go('groepBoten'), true);
-      const plaats = field('groepPlaats', 'Plaats', '', null, { single: true, min: 2 });
+      // the place written out: how it is on the hull (R-dam) comes along with the boat from Aanpassen
+      const plaats = field('groepPlaats', 'Plaats', 'Voluit, bijvoorbeeld: Rotterdam', null, { single: true, min: 2 });
       const naam = field('groepNaam', 'Naam van de groep', 'Bijvoorbeeld: Shawano’s', null, { single: true, min: 2 });   // made last: it has the focus
       const check = () => { next.disabled = (report.groepNaam ?? '').trim().length < 2 || (report.groepPlaats ?? '').trim().length < 2; };
       for (const input of [naam, plaats].map((f) => f.querySelector('input'))) input.addEventListener('input', check);
       check();
-      return [el('h3', { textContent: 'Over je groep' }), naam, plaats, row(next)];
+      return [el('h3', { textContent: 'Over je groep' }), naam, plaats,
+        text('Staat de plaats anders op de boot, zoals R-dam? Dat komt vanzelf mee uit Aanpassen.'), row(next)];
     },
 
     // one row a boat: zeilnummer, naam and bakskleur; Verder once every row that was begun is whole
@@ -378,8 +380,9 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
       .map((b) => ({ zeilnummer: b.zeilnummer.trim(), naam: b.naam.trim(), bakskleur: b.bakskleur }));
     g.anders = report.groepAnders?.trim() || undefined;
     g.kleuren = aanpassen?.() ?? null;
+    const opBoot = g.kleuren?.plaats?.trim();
     report.omschrijving = [
-      `Groep: ${g.naam}, ${g.plaats}`,
+      `Groep: ${g.naam}, ${g.plaats}${opBoot && opBoot !== g.plaats ? ` (op de boot: ${opBoot})` : ''}`,
       'De kleuren van de boot in de app kloppen zo goed als het gaat (zie Kleuren).',
       `De boten:\n${g.boten.map((b) => `${b.zeilnummer} ${b.naam}, bakskleur ${b.bakskleur}`).join('\n')}`,
       g.anders ? `Verder anders aan de kleuren:\n${g.anders}` : '',
@@ -437,7 +440,7 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
       // the boat as she is now as the first of the group's (unless she is still the one every viewer starts with)
       const boot = aanpassen?.() ?? {};
       const eigen = boot.zeilnummer && boot.zeilnummer !== '000';
-      report.categorie = 'groep'; report.groep = {}; report.groepPlaats = boot.plaats ?? ''; report.zichtbaar = true;
+      report.categorie = 'groep'; report.groep = {}; report.zichtbaar = true;
       report.groepBoten = [{ zeilnummer: eigen ? boot.zeilnummer : '', naam: eigen ? boot.naam ?? '' : '', bakskleur: boot.bakskleur ?? '#c8102e' }];
     }
     show(start);

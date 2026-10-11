@@ -53,6 +53,7 @@ export const DEFAULTS = {
   plaatsKleur: '#0b0b0b',
   bakskleur: '#c8102e',
   zeilkleur: 10,
+  rompnummer: false,      // the zeilnummer midships on the boeisel too, in the colour of the naam: only from a group
   kleuren: {
     romp: '#0a0a0b', berghout: '#0a0a0b', boeisel: '#f5c20d', dolboord: '#0a0a0b',
     voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
@@ -67,6 +68,7 @@ function baseOf(config) {
   for (const key of FIELDS) if (given[key] !== undefined && given[key] !== null) base[key] = String(given[key]).slice(0, key === 'zeilnummer' ? 4 : 24);
   for (const [zone] of ZONES) if (given.kleuren?.[zone] !== undefined) base.kleuren[zone] = given.kleuren[zone];
   if (zeilkleur(given.zeilkleur) !== null) base.zeilkleur = zeilkleur(given.zeilkleur);
+  if (typeof given.rompnummer === 'boolean') base.rompnummer = given.rompnummer;
   return base;
 }
 
@@ -79,6 +81,7 @@ function load(base, opslaan) {
     for (const key of FIELDS) if (typeof saved[key] === 'string') config[key] = saved[key];
     for (const [zone] of ZONES) if (typeof saved.kleuren?.[zone] === 'string') config.kleuren[zone] = saved.kleuren[zone];
     if (typeof saved.zeilkleur === 'number' && zeilkleur(saved.zeilkleur) !== null) config.zeilkleur = zeilkleur(saved.zeilkleur);
+    if (typeof saved.rompnummer === 'boolean') config.rompnummer = saved.rompnummer;
   } catch { /* nothing saved, no storage, or something else under the key: the base */ }
   return config;
 }
@@ -96,6 +99,7 @@ function save(config, base, opslaan) {
     if (!same(config.kleuren[zone], base.kleuren[zone], true)) (own.kleuren ??= {})[zone] = config.kleuren[zone];
   }
   if (config.zeilkleur !== base.zeilkleur) own.zeilkleur = config.zeilkleur;
+  if (config.rompnummer !== base.rompnummer) own.rompnummer = config.rompnummer;
   try {
     if (Object.keys(own).length) localStorage.setItem(STORAGE_KEY, JSON.stringify(own));
     else localStorage.removeItem(STORAGE_KEY);
@@ -133,10 +137,11 @@ export function initCustomize(ui, appConfig, targets) {
   const applyZone = (zone, hex) => {
     for (const m of targets.zoneMaterials.get(zone) ?? []) m.color.set(hex);
   };
+  const applyRompnummer = () => targets.setHullText('nummer', config.rompnummer ? config.zeilnummer : '', config.naamKleur);
   const apply = {
-    zeilnummer: (v) => targets.setSailNumber(v.trim()),
+    zeilnummer: (v) => { targets.setSailNumber(v.trim()); applyRompnummer(); },
     naam: () => targets.setHullText('naam', config.naam, config.naamKleur),
-    naamKleur: () => targets.setHullText('naam', config.naam, config.naamKleur),
+    naamKleur: () => { targets.setHullText('naam', config.naam, config.naamKleur); applyRompnummer(); },
     plaats: () => targets.setHullText('plaats', config.plaats, config.plaatsKleur),
     plaatsKleur: () => targets.setHullText('plaats', config.plaats, config.plaatsKleur),
     bakskleur: (v) => applyZone('bakskleur', v), // accents: beslag and the painted bands
@@ -194,8 +199,9 @@ export function initCustomize(ui, appConfig, targets) {
 }
 
 // ---------------------------------------------------------------- Bekend
-// The colours of groups that are known (groepen.js), found by the group, its plaats, or the zeilnummer or name of
-// one of its boats. A group gives its colours and plaats; one of its boats its zeilnummer and naam as well. Below
+// The colours of groups that are known (groepen.js), found by the group, its plaats (written out or as on the hull),
+// or the zeilnummer or name of one of its boats. A group gives its colours and plaats on the hull; one of its boats
+// its zeilnummer and naam as well. Below
 // them, the way to report your own group's colours. Eigen is the fields and pickers to set them yourself.
 const fold = (text) => String(text).normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 const BLACK = '#0b0b0b';
@@ -222,20 +228,21 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
   const paintOf = (g, boat) => ({
     kleuren: Object.fromEntries(ZONES.map(([zone]) => [zone, g.kleuren?.[zone] ?? base.kleuren[zone]])),
     bakskleur: boat?.bakskleur ?? g.bakskleur ?? base.bakskleur, zeilkleur: g.zeilkleur ?? base.zeilkleur,
-    naamKleur: g.naamKleur ?? BLACK, plaatsKleur: g.plaatsKleur ?? BLACK,
+    naamKleur: g.naamKleur ?? BLACK, plaatsKleur: g.plaatsKleur ?? BLACK, rompnummer: g.rompnummer === true,
   });
   const same = (a, b) => String(a).toLowerCase() === String(b).toLowerCase();
+  const opBoot = (g) => g.plaatsOpBoot ?? g.plaats;
   const isGroup = (g) => {
     const p = paintOf(g);
     const bakskleuren = [p.bakskleur, ...(g.boten ?? []).map((b) => paintOf(g, b).bakskleur)];
-    return same(config.plaats, g.plaats) && ZONES.every(([zone]) => same(config.kleuren[zone], p.kleuren[zone]))
-      && bakskleuren.some((c) => same(config.bakskleur, c)) && config.zeilkleur === p.zeilkleur;
+    return same(config.plaats, opBoot(g)) && ZONES.every(([zone]) => same(config.kleuren[zone], p.kleuren[zone]))
+      && bakskleuren.some((c) => same(config.bakskleur, c)) && config.zeilkleur === p.zeilkleur && config.rompnummer === p.rompnummer;
   };
   const isBoat = (g, b) => isGroup(g) && same(config.bakskleur, paintOf(g, b).bakskleur)
     && config.zeilnummer.trim() === String(b.zeilnummer) && config.naam === b.naam;
   const pick = (g, boat) => {
     const p = paintOf(g, boat);
-    Object.assign(config, { bakskleur: p.bakskleur, zeilkleur: p.zeilkleur, naamKleur: p.naamKleur, plaatsKleur: p.plaatsKleur, plaats: g.plaats });
+    Object.assign(config, { bakskleur: p.bakskleur, zeilkleur: p.zeilkleur, naamKleur: p.naamKleur, plaatsKleur: p.plaatsKleur, plaats: opBoot(g), rompnummer: p.rompnummer });
     Object.assign(config.kleuren, p.kleuren);
     if (boat) Object.assign(config, { zeilnummer: String(boat.zeilnummer), naam: boat.naam });
     save(config, base, opslaan);
@@ -254,7 +261,7 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
     const kop = el('button', { type: 'button', className: 'groep-kop', title: `De kleuren van ${g.groep}` },
       el('span', {}, el('b', { textContent: g.groep }), el('span', { textContent: g.plaats })), swatches(g));
     kop.addEventListener('click', () => pick(g));
-    const all = !q || fold(`${g.groep} ${g.plaats}`).includes(q);
+    const all = !q || fold(`${g.groep} ${g.plaats} ${opBoot(g)}`).includes(q);
     const match = (g.boten ?? []).filter((b) => all || fold(`${b.zeilnummer} ${b.naam}`).includes(q));
     const shown = match.length ? match : g.boten ?? [];               // found on more than one of them ("Zwolle 440"): all
     const boten = el('div', { className: 'groep-boten' }, ...shown.map((b) => {
@@ -271,7 +278,7 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
   const MAX = 30;
   function render() {
     const typed = zoek.value.trim(); const q = fold(typed);
-    const hits = GROEPEN.filter((g) => !q || fold([g.groep, g.plaats, ...(g.boten ?? []).flatMap((b) => [b.zeilnummer, b.naam])].join(' ')).includes(q))
+    const hits = GROEPEN.filter((g) => !q || fold([g.groep, g.plaats, opBoot(g), ...(g.boten ?? []).flatMap((b) => [b.zeilnummer, b.naam])].join(' ')).includes(q))
       .sort((a, b) => a.groep.localeCompare(b.groep, 'nl'));
     list.replaceChildren(...hits.slice(0, MAX).map((g) => groepEl(g, q)));
     geen.hidden = hits.length > 0 && hits.length <= MAX;
