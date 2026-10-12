@@ -453,7 +453,8 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
       <button id="about-close" type="button" class="link-button" aria-label="Sluiten">Sluiten</button>
     </header>
     <p>Gebaseerd op het officiële 3D-model van de lelievlet van Scouting Nederland. Maten en namen
-      zijn gecontroleerd aan de hand van het Vlettenboek en de klassenvoorschriften.</p>
+      zijn gecontroleerd aan de hand van het Vlettenboek en de klassenvoorschriften. De lessen en de quiz volgen de
+      lesboeken van Sint Maarten, het BPR en wat de CWO vraagt.</p>
 
     <h3>Bronnen</h3>
     <ul class="links">
@@ -465,6 +466,10 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
         <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.nl" target="_blank" rel="noreferrer">CC BY-NC-SA 4.0</a>; wat we eruit overnemen is aangepast</li>
       <li><a href="https://activiteitenbank.scouting.nl/uploads/Benamingen_vlet.pdf" target="_blank" rel="noreferrer">Benamingen vlet</a> — Activiteitenbank Scouting Nederland</li>
       <li><a href="https://nl.scoutwiki.org/Lelievlet" target="_blank" rel="noreferrer">Lelievlet</a> — ScoutWiki, met het zeilteken</li>
+      <li><a href="https://wetten.overheid.nl/BWBR0003628/2026-06-17" target="_blank" rel="noreferrer">Binnenvaartpolitiereglement (BPR)</a> — geldig vanaf 17 juni 2026: de voorrang, de verkeerstekens, de lichten en dagmerken en de geluidsseinen</li>
+      <li><a href="https://open.rijkswaterstaat.nl/@269371/richtlijnen-scheepvaarttekens-2023/" target="_blank" rel="noreferrer">Richtlijnen Scheepvaarttekens 2023</a> — Rijkswaterstaat: de betonning en markering</li>
+      <li><a href="https://www.cwo.nl/" target="_blank" rel="noreferrer">CWO</a> — de handboeken Kielboot (2022) en de competentiestructuur (2024): wat er per diploma gevraagd wordt</li>
+      <li><a href="https://www.watersportverbond.nl/" target="_blank" rel="noreferrer">Regels voor Wedstrijdzeilen 2025–2028</a> — Watersportverbond: de seinvlaggen en wedstrijdseinen</li>
     </ul>
 
     <h3>Broncode</h3>
