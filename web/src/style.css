@@ -1073,7 +1073,7 @@ button.primary:disabled:hover { background: var(--accent); }
 .kinds .les-telling { font-style: normal; font-size: 11.5px; color: var(--muted); }
 /* Leren › Lessen: in groups, each lesson a compact row - its name and how far it is gevolgd on one line, what it is
    about on one line under it (all of it in the title) - so the eleven fit without scrolling */
-#lessen-list { gap: 1px; }
+#lessen-list { gap: 1px; grid-template-columns: minmax(0, 1fr); }   /* one column, on a phone too: two would squeeze name and stand together */
 #lessen-list .les-groep { grid-column: 1 / -1; margin: 8px 0 1px; padding: 0 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
 #lessen-list .les-groep:first-child { margin-top: 0; }
 #lessen-list button { grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; padding: 4px 10px; min-width: 0; }
