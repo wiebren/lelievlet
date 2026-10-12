@@ -14,9 +14,10 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     </header>
     <!-- the start: one field over everything, and what there is to look through; typing, the results take the tiles' place -->
     <div id="zoek-home" class="zoek-pane">
-      <input id="zoek-alles" type="search" class="zoek-veld" autocomplete="off" placeholder="Zoek onderdeel, bord, ton, sein, vlag, schip of geluidssein…" aria-label="Zoek in alles">
+      <input id="zoek-alles" type="search" class="zoek-veld" autocomplete="off" placeholder="Zoek onderdeel, begrip, bord, ton, sein, vlag, schip of geluidssein…" aria-label="Zoek in alles">
       <div class="zoek-tegels" id="zoek-tegels">
         <button type="button" class="zoek-tegel" data-cat="onderdelen"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 16.5h17l-2.2 3.5H5.7z"/><path d="M12 3.5v13"/><path d="M12 4.5l6.5 10H12"/><path d="M12 7l-4.5 7.5H12"/></svg><span>Onderdelen</span></button>
+        <button type="button" class="zoek-tegel" data-cat="begrippen"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5c2.8-1.2 5.5-1.2 8 .5v14c-2.5-1.7-5.2-1.7-8-.5z"/><path d="M20 5.5c-2.8-1.2-5.5-1.2-8 .5v14c2.5-1.7 5.2-1.7 8-.5z"/></svg><span>Begrippen</span></button>
         <button type="button" class="zoek-tegel" data-cat="borden"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="3" width="13" height="10.5" rx="1.2"/><path d="M8.5 6l7 4.5"/><path d="M12 13.5V21"/></svg><span>Borden</span></button>
         <button type="button" class="zoek-tegel" data-cat="markeringen"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 17.5L12 4.5l3.5 13z"/><path d="M3.5 20c2.5-1.6 5.5-1.6 8.5 0s6 1.6 8.5 0"/></svg><span>Markeringen</span></button>
         <button type="button" class="zoek-tegel" data-cat="seinen"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2.5" width="8" height="14" rx="2"/><circle cx="12" cy="6.5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><path d="M12 16.5V21"/></svg><span>Seinen</span></button>
@@ -41,10 +42,12 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     <div id="zoek-lichten" class="zoek-pane" hidden></div>
     <div id="zoek-dagmerken" class="zoek-pane" hidden></div>
     <div id="zoek-geluiden" class="zoek-pane" hidden></div>
+    <!-- the zeil- and roeitermen (begrippen.js), each on to where the viewer shows it -->
+    <div id="zoek-begrippen" class="zoek-pane" hidden></div>
   </aside>
 
 
-  <!-- Oefenen: the start panel of the quiz; the card of a running round is built in quiz.js -->
+  <!-- Leren: the start panel of the quiz; the card of a running round is built in quiz.js -->
 
   <!-- debug.quiztabellen: the quiz configuration as it was resolved, and the parts no entry asks about -->
   <aside id="quiz-debug" hidden>
@@ -163,7 +166,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
       </svg>
     </button>
     <div id="boat-panel" class="popover" role="group" aria-label="Boot" hidden>
-      <div class="popover-head"><span class="caption">Modus</span><button type="button" class="link-button popover-close" aria-label="Sluiten">Sluiten</button></div>
+      <div class="popover-head"><h2>Modus</h2><button type="button" class="link-button popover-close" aria-label="Sluiten">Sluiten</button></div>
       <div id="mode-panel">
         <div class="choices row">
         <button type="button" data-mode="zeilen" aria-pressed="true">Zeilen</button>
@@ -205,21 +208,49 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
 
 
 
-    <!-- Oefenen: first what to practise, then its own panel - Manoeuvres (handelingen.js),
-         Onderdelen (quiz.js) or Verkeerstekens (bpr/tekenquiz.js) -->
-    <button id="learn-toggle" class="icon-button" type="button" aria-label="Oefenen" title="Oefenen" aria-expanded="false" aria-controls="learn-panel" disabled>
+    <!-- Leren: first what to learn, then its own panel - Lessen (zeiltermen/, krachten/), Manoeuvres
+         (handelingen.js), or Quiz: Onderdelen (quiz.js) or Verkeerstekens (bpr/tekenquiz.js) -->
+    <button id="learn-toggle" class="icon-button" type="button" aria-label="Leren" title="Leren" aria-expanded="false" aria-controls="learn-panel" disabled>
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M12 4 2.5 8.2 12 12.4l9.5-4.2z"/>
       <path d="M6.6 10.2v4.4c0 1.6 2.4 2.9 5.4 2.9s5.4-1.3 5.4-2.9v-4.4"/>
       <path d="M21.5 8.2v4.6"/>
     </svg>
     </button>
-    <div id="learn-panel" class="popover" role="group" aria-label="Oefenen" hidden>
-      <div class="popover-head"><span class="caption">Oefenen</span><button type="button" class="link-button popover-close" aria-label="Sluiten">Sluiten</button></div>
+    <div id="learn-panel" class="popover" role="group" aria-label="Leren" hidden>
+      <div class="popover-head"><h2>Leren</h2><button type="button" class="link-button popover-close" aria-label="Sluiten">Sluiten</button></div>
       <div class="choices row" id="learn-kind">
+        <button type="button" data-learn="lessen" aria-pressed="false">Lessen</button>
         <button type="button" data-learn="manoeuvres" id="learn-manoeuvres" aria-pressed="true">Manoeuvres</button>
-        <button type="button" data-learn="onderdelen" aria-pressed="false">Onderdelen</button>
-        <button type="button" data-learn="verkeerstekens" aria-pressed="false">Verkeerstekens</button>
+        <button type="button" data-learn="quiz" aria-pressed="false">Quiz</button>
+      </div>
+      <!-- a lesson opens as a card of its own, beside the boat -->
+      <div id="lessen-panel" class="learn-section" hidden>
+        <!-- in three groups: the boat itself, what you meet on the way, and the rules of the water -->
+        <div class="kinds" id="lessen-list">
+          <h3 class="les-groep">Zeilen</h3>
+          <button type="button" data-les="zeiltermen"><b>Zeiltermen</b><span>Bakboord en stuurboord, loef en lij, de koersen, overstag en gijpen</span></button>
+          <button type="button" data-les="krachten"><b>Krachten en koppels</b><span>Wat de zeilen, het zwaard en het roer met de boot doen</span></button>
+          <button type="button" data-les="weer"><b>Het weer</b><span>Windkracht in Beaufort, een weersomslag, ruimen en krimpen</span></button>
+          <h3 class="les-groep">Onderweg</h3>
+          <button type="button" data-les="schepen"><b>Grote schepen</b><span>De dode hoek, zuiging, diepgang en verlijeren</span></button>
+          <button type="button" data-les="bruggen"><b>Bruggen</b><span>Borden en lichten bij vaste en beweegbare bruggen</span></button>
+          <button type="button" data-les="sluizen"><b>Sluizen</b><span>De lichten bij een sluis, spuien en inlaten</span></button>
+          <h3 class="les-groep">Regels op het water</h3>
+          <button type="button" data-les="regels"><b>Regels</b><span>Groot en klein schip, goed zeemanschap, het BPR, de schipper</span></button>
+          <button type="button" data-les="voorrang"><b>Voorrang</b><span>Kruisen, tegemoet, oplopen: wie gaat voor, en waarom</span></button>
+          <button type="button" data-les="borden"><b>Verkeerstekens</b><span>Verboden, geboden, toegestaan, hoofdvaarwater en veerponten</span></button>
+          <button type="button" data-les="lichten"><b>Lichten en dagtekens</b><span>Toplicht, boordlichten, heklicht: van welke kant zie je wat</span></button>
+          <button type="button" data-les="geluiden"><b>Geluidsseinen</b><span>Korte en lange stoten: uitwijken, nood, brug of sluis</span></button>
+        </div>
+      </div>
+      <div id="quiz-soort-row" class="learn-section" hidden>
+        <div class="segmented" id="quiz-soort" role="radiogroup" aria-label="Waarover">
+          <button type="button" role="radio" data-quiz="onderdelen" aria-checked="true">Onderdelen</button>
+          <button type="button" role="radio" data-quiz="verkeerstekens" aria-checked="false">Verkeerstekens</button>
+          <button type="button" role="radio" data-quiz="voorrang" aria-checked="false">Voorrang</button>
+          <button type="button" role="radio" data-quiz="zeiltermen" aria-checked="false">Zeiltermen</button>
+        </div>
       </div>
       <div id="ops-panel" class="learn-section">
         <div class="ops">
@@ -285,6 +316,9 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
         <button type="button" role="radio" data-soort="borden" aria-checked="false">Borden</button>
         <button type="button" role="radio" data-soort="tonnen" aria-checked="false">Tonnen</button>
         <button type="button" role="radio" data-soort="seinen" aria-checked="false">Seinen</button>
+        <button type="button" role="radio" data-soort="lichten" aria-checked="false">Lichten</button>
+        <button type="button" role="radio" data-soort="dagmerken" aria-checked="false">Dagmerken</button>
+        <button type="button" role="radio" data-soort="geluiden" aria-checked="false">Geluiden</button>
     </div>
     <div class="kinds" id="teken-kind" role="radiogroup" aria-label="Soort oefening">
       <button type="button" role="radio" data-kind="zien" aria-checked="true"><b>Wat zie je?</b><span>Hoe het heet en wat je moet doen</span></button>
@@ -310,6 +344,28 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
         <button id="teken-clear-no" type="button" class="link-button">Nee</button>
       </span>
     </footer>
+      </div>
+      <!-- Quiz › Zeiltermen: each button questions of that kind on the boat, on a card of its own (zeiltermen/quiz.js) -->
+      <div id="zeiltermen-quiz" class="learn-section" hidden>
+    <p class="hint">Vragen over de boot op het water: zeg wat je ziet.</p>
+    <div class="kinds" id="zeiltermen-soort">
+      <button type="button" data-soort="gemengd"><b>Gemengd</b><span>Alles door elkaar</span></button>
+      <button type="button" data-soort="koers"><b>Koersen</b><span>Van in de wind tot voor de wind</span></button>
+      <button type="button" data-soort="boeg"><b>Wind over</b><span>Bakboord of stuurboord</span></button>
+      <button type="button" data-soort="boorden"><b>Bakboord en stuurboord</b><span>Welke kant is het, ook van voren gezien</span></button>
+      <button type="button" data-soort="loeflij"><b>Loef en lij</b><span>De hoge en de lage kant</span></button>
+      <button type="button" data-soort="wal"><b>Hogerwal en lagerwal</b><span>Welke wal is welke</span></button>
+      <button type="button" data-soort="draai"><b>Oploeven en afvallen</b><span>Kijk hoe de boot draait</span></button>
+    </div>
+      </div>
+      <!-- Quiz › Voorrang: each button a situatie of that kind at random, on a card of its own (lessen/voorrang-quiz.js) -->
+      <div id="voorrang-quiz" class="learn-section" hidden>
+    <p class="hint">Steeds een nieuwe situatie op het water: zeg wie er voorgaat.</p>
+    <div class="kinds" id="voorrang-niveau">
+      <button type="button" data-niveau="makkelijk"><b>Makkelijk</b><span>Oplopen, en zeil of roeien tegen motor</span></button>
+      <button type="button" data-niveau="normaal"><b>Normaal</b><span>Grote schepen, zeilschepen onderling, gelijke schepen</span></button>
+      <button type="button" data-niveau="moeilijk"><b>Moeilijk</b><span>Loef en lij, de stuurboordwal, en drie boten tegelijk</span></button>
+    </div>
       </div>
     </div>
 

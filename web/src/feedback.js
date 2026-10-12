@@ -35,13 +35,30 @@ const CATEGORIES = [
   { key: 'model', naam: 'Model, animaties, bediening', uitleg: 'De boot zelf, hoe iets beweegt, wat een klik of knop doet' },
   { key: 'manoeuvres', naam: 'Manoeuvres en uitleg', uitleg: 'De stappen, commando’s en uitleg van een handeling' },
   { key: 'verzoek', naam: 'Iets ontbreekt', uitleg: 'Iets wat bij een bestaand onderdeel nog niet af is' },
+  { key: 'quiz', naam: 'Een quizvraag', uitleg: 'Een vraag die niet klopt, onduidelijk is of verwarrende antwoorden heeft' },
 ];
+// what is wrong with a quiz question
+const QUIZ_FOUT = [
+  ['klopt-niet', 'Het antwoord klopt niet', 'Wat als goed telt is fout, of een goed antwoord telt als fout'],
+  ['onduidelijk', 'De vraag is onduidelijk', 'Je snapt niet wat er gevraagd wordt, of wat je moet aanwijzen'],
+  ['verwarrend', 'De antwoorden zijn verwarrend', 'Ze lijken te veel op elkaar, of er zijn er meer goed'],
+  ['anders', 'Iets anders', ''],
+];
+/** The question on screen when Melden was pressed: of the quiz Onderdelen or Verkeerstekens, or on a lesson's card. */
+const quizVraag = (g) => {
+  const q = g?.quiz ?? g?.verkeerstekens;
+  if (q?.vraag && !q.klaar) return `${g.quiz ? 'Quiz Onderdelen' : 'Quiz Verkeerstekens'}, vraag ${q.vraag}`;
+  const les = g?.les?.vragen?.[0];
+  if (les?.vraag) return `${g.les.titel ?? 'Les'}${g.les.onderwerp && g.les.kaart.indexOf('quiz') < 0 ? ` › ${g.les.onderwerp}` : ''}: ${les.vraag}`;
+  return null;
+};
 const MIN_TEXT = 10;                      // characters: "werkt niet" alone is no report
 const SITE = 'https://wiebren.github.io/lelievlet/';   // the project's own pages: home and handleiding
 
 /**
  * ui, wrap, config, signal, engaged: as mount() has them.
- * snapshot(): { screenshot, gegevens } - the picture as a data URL (or null) and the state as data.
+ * snapshot(): { screenshot, klaar, gegevens } - the picture as a data URL (or null), a promise of it again once all
+ * of the open cards is in, and the state as data.
  * closeOthers(): puts away the panels that stand where this one does.
  * about(), updates(): open Over dit model and Updates, from the menu.
  * aanpassen(): the boat as Aanpassen has her now; naarEigen(): opens Aanpassen on Eigen.
@@ -53,6 +70,17 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
   const button = $('feedback-toggle'); const panel = $('feedback'); const body = $('feedback-body'); const title = $('feedback-title');
   const melden = config.feedback !== false;                         // false: the menu without Melden
   const url = config.feedback?.url ?? null;
+  // who reports: name and e-mailadres are kept in this browser for the next report (not on a viewer told not to keep
+  // anything) - the address goes into the issue openly anyway, as the form says
+  const MELDER = 'lelievlet.melder.v1';
+  const opslaan = config?.aanpassen?.opslaan !== false;
+  const melder = {
+    get: () => { if (!opslaan) return {}; try { return JSON.parse(localStorage.getItem(MELDER) ?? 'null') ?? {}; } catch { return {}; } },
+    set: (naam, contact) => {
+      if (!opslaan) return;
+      try { if (naam || contact) localStorage.setItem(MELDER, JSON.stringify({ naam, contact })); else localStorage.removeItem(MELDER); } catch { /* not kept */ }
+    },
+  };
 
   let report = null;                       // what is being put together; null while closed
   let trail = [];                          // the screens gone through, for Terug
@@ -71,19 +99,27 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
   const row = (...buttons) => el('div', { className: 'fb-actions' }, ...buttons);
 
   /** A text field that remembers what was typed in `report[key]`, and keeps `next` shut until there is enough. */
-  function field(key, label, placeholder, next, { rows = 5, min = MIN_TEXT, single = false } = {}) {
+  function field(key, label, placeholder, next, { rows = 5, min = MIN_TEXT, single = false, type = 'text', focus = true } = {}) {
     const input = el(single ? 'input' : 'textarea', { value: report[key] ?? '', placeholder, id: `fb-${key}` });
-    if (single) input.type = 'text'; else input.rows = rows;
+    if (single) { input.type = type; if (type === 'email') input.autocomplete = 'email'; } else input.rows = rows;
     const check = () => { report[key] = input.value; if (next) next.disabled = input.value.trim().length < min; };
     input.addEventListener('input', check);
     check();
-    queueMicrotask(() => input.focus());
+    if (focus) queueMicrotask(() => input.focus());
     return el('label', { className: 'fb-field' }, el('span', { textContent: label }), input);
   }
 
   function capture() {
-    const { screenshot, gegevens } = snapshot();
+    const { screenshot, klaar, gegevens } = snapshot();
     report.screenshot = screenshot; report.gegevens = gegevens;
+    // the maps and pictures in the open cards come in a moment later: then the picture is taken over, and the
+    // thumbnail on the screen with it
+    const mine = report;
+    klaar?.then((shot) => {
+      if (!shot || report !== mine) return;
+      mine.screenshot = shot;
+      for (const img of body.querySelectorAll('img.fb-shot')) img.src = shot;
+    });
   }
   const thumb = () => (report.screenshot ? el('img', { className: 'fb-shot', src: report.screenshot, alt: 'Het scherm toen je op Melden drukte' }) : null);
 
@@ -131,7 +167,7 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
       const next = choice('Verder', () => go('categorie'), true);
       return [
         el('h3', { textContent: 'Beschrijf zo precies mogelijk wat je deed' }),
-        field('stappen', 'Wat deed je, stap voor stap?', 'Bijvoorbeeld: Oefenen → Manoeuvres → Overstag → Bekijken, en bij stap 3 …', next),
+        field('stappen', 'Wat deed je, stap voor stap?', 'Bijvoorbeeld: Leren → Manoeuvres → Overstag → Bekijken, en bij stap 3 …', next),
         row(next),
       ];
     },
@@ -140,7 +176,10 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
       el('h3', { textContent: 'Waar gaat het over?' }),
       el('div', { className: 'fb-kinds' }, ...CATEGORIES.map((c) => {
         const b = el('button', { type: 'button' }, el('b', { textContent: c.naam }), el('span', { textContent: c.uitleg }));
-        b.addEventListener('click', () => { report.categorie = c.key; go(c.key === 'manoeuvres' ? (activeStep(report.gegevens) ? 'plek' : 'welke') : c.key); });
+        b.addEventListener('click', () => {
+          report.categorie = c.key;
+          go(c.key === 'manoeuvres' ? (activeStep(report.gegevens) ? 'plek' : 'welke') : c.key === 'quiz' ? (quizVraag(report.gegevens) ? 'quiz' : 'welkeVraag') : c.key);
+        });
         return b;
       })),
     ],
@@ -154,6 +193,34 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
         row(next),
       ];
     },
+
+    // a quiz question: the one on screen, what is wrong with it, and in words
+    quiz: () => [
+      el('h3', { textContent: 'Een quizvraag' }),
+      text('Toen je op Melden drukte, stond deze vraag op het scherm:', 'fb-lead'),
+      el('p', { className: 'fb-lead', textContent: quizVraag(report.gegevens) }),
+      el('h3', { textContent: 'Wat is er mis mee?' }),
+      el('div', { className: 'fb-kinds' }, ...QUIZ_FOUT.map(([key, naam, uitleg]) => {
+        const b = el('button', { type: 'button' }, el('b', { textContent: naam }), uitleg ? el('span', { textContent: uitleg }) : null);
+        b.addEventListener('click', () => { report.quizFout = key; go('quizWat'); });
+        return b;
+      })),
+    ],
+    quizWat: () => {
+      const next = choice('Verder', () => go('versturen'), true);
+      const [, naam] = QUIZ_FOUT.find(([k]) => k === report.quizFout) ?? [];
+      return [
+        el('h3', { textContent: naam ?? 'Een quizvraag' }),
+        field('omschrijving', 'Wat klopt er niet, en hoe zou het wel moeten?', 'Bijvoorbeeld: de vraag zegt … maar het goede antwoord is …, want …', next),
+        row(next),
+      ];
+    },
+    // no question on screen: the report is only of use with it in front of them
+    welkeVraag: () => [
+      el('h3', { textContent: 'Zet de vraag op het scherm' }),
+      text('Ga in de quiz of de les naar de vraag waar het om gaat, en druk dan opnieuw op Melden.', 'fb-lead'),
+      row(choice('Sluiten', close, true)),
+    ],
 
     // what was on screen when Melden was pressed: is that where it goes wrong?
     plek: () => {
@@ -174,7 +241,7 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
     // not what was on screen, or nothing was: the report is only of use with the step in front of them
     welke: () => [
       el('h3', { textContent: 'Zet de manoeuvre op het scherm' }),
-      text('Start de manoeuvre via Oefenen → Manoeuvres → Bekijken en ga met de stappenbalk naar de stap waar het om gaat. Druk dan opnieuw op Melden.', 'fb-lead'),
+      text('Start de manoeuvre via Leren → Manoeuvres → Bekijken en ga met de stappenbalk naar de stap waar het om gaat. Druk dan opnieuw op Melden.', 'fb-lead'),
       row(choice('Sluiten', close, true)),
     ],
 
@@ -245,8 +312,9 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
       return [
         el('h3', { textContent: 'Klaar om te versturen' }),
         field('naam', 'Je naam of scoutinggroep (mag leeg blijven)', '', null, { single: true, min: 0 }),
+        field('contact', 'Je e-mailadres, als je antwoord wilt (mag leeg blijven)', 'naam@voorbeeld.nl', null, { single: true, min: 0, type: 'email', focus: false }),
         report.screenshot ? el('label', { className: 'fb-check' }, withShot, el('span', { textContent: 'Afbeelding van het scherm meesturen' })) : null,
-        text('Je melding wordt openbaar zichtbaar. Zet er niets in wat niet iedereen mag lezen.'),
+        text('Je melding wordt openbaar zichtbaar, met je naam en je e-mailadres als je die invult. Zet er niets in wat niet iedereen mag lezen.'),
         el('details', { className: 'fb-details' }, el('summary', { textContent: 'Wat wordt er meegestuurd?' }),
           el('pre', { textContent: JSON.stringify(shown, null, 2) })),
         url ? null : text('Versturen kan nog niet vanuit deze versie. Sla de melding op en stuur het bestand naar de makers.', 'fb-note'),
@@ -397,6 +465,8 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
       versie: 1, ...answers,
       omschrijving: answers.omschrijving?.trim() ?? '', stappen: answers.stappen?.trim() || undefined,
       naam: answers.naam?.trim() || undefined, bron: answers.bron?.trim() || undefined,
+      contact: answers.contact?.trim() || undefined,
+      quizVraag: answers.categorie === 'quiz' ? quizVraag(gegevens) ?? undefined : undefined,                 // in the issue as 'naam at domein.nl', openly
       gegevens, screenshot: metAfbeelding ? screenshot : null,
     };
   }
@@ -413,7 +483,7 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
   let sending = null;
   async function submit() {
     if (sending === report) return;
-    if (!url) { download(); go('verstuurd'); return; }
+    if (!url) { melder.set(report.naam?.trim() ?? '', report.contact?.trim() ?? ''); download(); go('verstuurd'); return; }
     const mine = report; sending = mine;
     const button = body.querySelector('.fb-actions .primary');
     if (button) { button.disabled = true; button.textContent = 'Bezig…'; }
@@ -423,6 +493,7 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
       const { issue } = await response.json().catch(() => ({}));
       if (report !== mine) return;                                 // sent; the panel has moved on
       report.issue = typeof issue === 'string' && issue.startsWith('https://') ? issue : null;   // where it was filed, if it says
+      melder.set(mine.naam?.trim() ?? '', mine.contact?.trim() ?? '');   // for the next report
       go('verstuurd');
     } catch (error) {
       console.warn('[lelievlet] melding versturen:', error);
@@ -432,7 +503,8 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
 
   // ---------------------------------------------------------------- open and close
   function open(start = 'start') {
-    report = {}; trail = [];
+    const { naam, contact } = melder.get();
+    report = { naam: naam || undefined, contact: contact || undefined }; trail = [];
     if (melden) capture();                      // before anything else moves: what the user saw, the panels it closes too
     closeOthers();
     panel.hidden = false; button.setAttribute('aria-expanded', 'true');

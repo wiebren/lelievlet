@@ -70,7 +70,7 @@
 
     <h2>Twee viewers op één pagina</h2>
     <p class="caption">Ze weten niets van elkaar: een keuze in de ene verandert niets in de andere. De linker is de
-      standaardviewer; de rechter heeft andere kleuren, een ander zeilnummer, Oefenen op
+      standaardviewer; de rechter heeft andere kleuren, een ander zeilnummer, de quiz op
       CWO I, en begint van boven gezien in Roeien met vier riemen.</p>
     <div class="rij">
       <div><div id="groot" class="viewer"></div></div>
@@ -109,7 +109,7 @@ vlet.set({ modus: 'roeien', commando: 'slag' });   // naar een andere toestand, 
     // links: alles standaard
     const groot = Lelievlet.create(document.getElementById('groot'));
 
-    // rechts: een andere boot, Oefenen op CWO I
+    // rechts: een andere boot, de quiz op CWO I
     const klein = Lelievlet.create(document.getElementById('klein'), {
       aanpassen: {
         zeilnummer: '442', naam: 'Fluessen', plaats: 'Sneek',

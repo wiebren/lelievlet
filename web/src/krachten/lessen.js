@@ -95,6 +95,28 @@ export const LESSEN = [
     koppel: 350,
   },
   {
+    id: 'stroming', titel: 'Stroming en druk', cwo: 'KB III', bron: 'Sint Maarten KB III § 7.3',
+    aanzicht: 'boven',
+    kort: [
+      'De wind stroomt langs de zeilen, en de zeilen buigen hem af. Aan de <b>holle kant</b> (loef) wordt de druk daardoor hoger: <b>+</b>. Aan de <b>bolle kant</b> (lij) wordt hij lager: <b>−</b>.',
+      'De lucht wil van hoge naar lage druk. Zo komt er op elk zeil een kracht, van de holle naar de bolle kant. De krachten op fok en grootzeil samen heten de <b>zeilkracht</b>: zie het volgende onderwerp.',
+    ],
+    meer: [
+      { kop: 'Fok en grootzeil samen', tekst: 'De fok en het grootzeil sturen elkaars stroming: de lucht die langs de fok gaat, komt anders bij het grootzeil aan. Samen geven ze meer kracht dan elk apart.' },
+      { kop: 'Ook zonder bolling', tekst: 'Zelfs een plat zeil dat schuin in de wind staat, buigt de stroming af en geeft dus kracht. De bolling maakt dat de stroming het zeil beter volgt: meer kracht bij minder hoek.' },
+    ],
+    bediening: ['koers'],
+    toon: ['stroom', 'druk', 'perzeil'],
+    begin: { koers: 60, groot: 'goed', fok: 'goed', bft: 3, vaart: 1 },
+    vraag: {
+      tekst: 'Aan welke kant van het zeil is de druk het laagst?',
+      opties: [['Aan de holle kant, loef', false], ['Aan de bolle kant, lij', true]],
+      uitleg: 'Aan de bolle kant is de druk lager. Daarheen wijst de kracht op het zeil: van loef naar lij, en een beetje naar voren.',
+      laat: {},
+    },
+    status: () => 'De stroming volgt de zeilen: aan loef hogere druk (+), aan lij lagere (−). De kracht op elk zeil wijst van + naar −.',
+  },
+  {
     id: 'zeil', titel: 'Zeilkracht', cwo: 'KB I · KB III', bron: 'Sint Maarten KB III § 7.3 en 7.4',
     aanzicht: 'boven',
     kort: [
@@ -123,10 +145,36 @@ export const LESSEN = [
     },
   },
   {
+    id: 'zeilstand', titel: 'De juiste zeilstand', cwo: 'KB III', bron: 'Sint Maarten KB III § 7.4',
+    aanzicht: 'boven',
+    kort: [
+      'Met de schoten zet je de zeilen in de juiste stand: <b>trimmen</b>. Staat een zeil <b>goed</b>, dan volgt de stroming het zeil aan beide kanten. Dat geeft het grootste drukverschil en de meeste voortstuwing.',
+      '<b>Te strak</b>: aan lij laat de stroming halverwege los, en achter het zeil wervelt de lucht. <b>Te los</b>: het voorlijk bolt naar binnen, een <b>tegenbolling</b>, en het zeil <b>killt</b>. Allebei geven ze minder voortstuwing.',
+    ],
+    meer: [
+      { kop: 'Zo trim je', tekst: 'Vier het zeil tot er een kleine tegenbolling in het voorlijk komt. Trek het daarna net zo ver aan tot die weg is. Doe dat vaak: bij elke koers en elke vlaag staat het zeil weer anders.' },
+      { kop: 'Te strak zie je slecht', tekst: 'Een te los zeil zie je aan het voorlijk. Een te strak zeil ziet er strak en mooi uit, maar de boot gaat langzamer en helt meer. Daarom trim je vanaf los: vieren tot het killt, dan net terug.' },
+    ],
+    bediening: ['groot', 'fok', 'koers', 'trimmen'],
+    toon: ['stroom', 'perzeil'],
+    begin: { koers: 70, groot: 'goed', fok: 'goed', bft: 3, vaart: 1 },
+    vraag: {
+      tekst: 'Het voorlijk van het grootzeil bolt naar binnen. Wat doe je?',
+      opties: [['De grootschoot vieren', false], ['De grootschoot iets aanhalen', true], ['Niets: zo staat hij goed', false]],
+      uitleg: 'Een tegenbolling in het voorlijk betekent: het zeil staat te los en killt. Haal de schoot aan tot de tegenbolling net weg is.',
+      laat: { groot: 'goed' },
+    },
+    status: (r) => {
+      const zegt = (z) => ({ goed: 'de stroming volgt het zeil', 'te strak': 'de stroming laat los aan lij', klappert: 'het voorlijk bolt in: het zeil killt', duwt: 'de wind duwt ertegen', bak: 'het staat bak' }[z.stand]);
+      const [g, f] = ['grootzeil', 'fok'].map((n) => r.zeilen.find((z) => z.naam === n));
+      return `Grootzeil: ${zegt(g)}. Fok: ${zegt(f)}.`;
+    },
+  },
+  {
     id: 'zwaard', titel: 'Zwaard en lateraal punt', cwo: 'KB III', bron: 'Sint Maarten KB III § 7.3.1 en 7.3.2',
     aanzicht: 'boven',
     kort: [
-      'Het verlijerende deel van de zeilkracht wil de boot opzij duwen. Het <b>onderwaterschip</b>, het <b>zwaard</b>, de <b>scheg</b> en het <b>roer</b> houden dat tegen. Samen geven ze de <b>driftbeperkende kracht</b>, in het <b>lateraal punt</b>.',
+      'Het verlijerende deel van de zeilkracht wil de boot opzij duwen. Het <b>onderwaterschip</b>, het <b>zwaard</b>, de <b>scheg</b> en het <b>roer</b> houden dat tegen: ze staan dwars op de beweging en moeten het water opzij duwen. Elk geeft een deel (de dunne rode pijlen); samen geven ze de <b>driftbeperkende kracht</b>, in het <b>lateraal punt</b>.',
       'Het voortstuwende deel duwt de boot vooruit, en het water remt de romp af: de <b>weerstand</b>. Vaart de boot even snel door, dan zijn alle krachten in evenwicht.',
     ],
     meer: [
@@ -137,7 +185,7 @@ export const LESSEN = [
       { kop: 'Waar ligt het lateraal punt?', tekst: 'Geen boek geeft de precieze plek voor een lelievlet. Dit model rekent het uit met de vormen onder water: iets achter de mast.' },
     ],
     bediening: ['koers', 'zwaard'],
-    toon: ['zeilkracht', 'ontbonden', 'drift', 'weerstand', 'lp', 'zp', 'koersdoorwater'],
+    toon: ['zeilkracht', 'ontbonden', 'drift', 'middelen', 'weerstand', 'lp', 'zp', 'koersdoorwater'],
     begin: { koers: 45, groot: 'goed', fok: 'goed', bft: 3, vaart: 1, zwaard: 'neer' },
     vraag: {
       tekst: 'Je vaart aan de wind en haalt het zwaard op. Wat gebeurt er?',

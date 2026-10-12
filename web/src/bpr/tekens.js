@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { bord } from './borden/index.js';
-import { hoogteschaalBord } from './borden/fgh.js';
+import { hoogteschaalBord, hoogteschaalStuk } from './borden/fgh.js';
 
 // Scheepvaartverkeerstekens (BPR bijlage 7): a board on a post at the waterside, its face our own
 // drawing of the sign (borden/, after the BPR's drawings), or a stand-in with its code for one not
@@ -84,19 +84,34 @@ export function makeBoard(code, side = SIDE, drawing = null, size = 512) {
   return board;
 }
 
+// on a kade wall (`kade` m out of the water) by a bridge `hoogte` m high: two whole metres of it, the top one the
+// highest that is under the top of the wall; boven: how much of it is out of the water
+const kadeStuk = (hoogte, kade) => { const van = Math.ceil(hoogte - kade); return { van, tot: van + 2, boven: hoogte - van }; };
+/** The picture of that piece of hoogteschaal, the water over it where it stands (Leren › Bruggen, its card). */
+export const kadeSchaal = (hoogte, kade) => { const { van, tot } = kadeStuk(hoogte, kade); return hoogteschaalStuk(van, tot, 240, hoogte); };
+
 /**
- * G.5.1, the hoogteschaal: not a board on a post but a tall scale on a thick pile in the water, its
- * foot under water - the figure at the waterline is the height there is under the bridge it belongs to.
- * A metre on the scale is a metre: five of them, 1.5 m wide.
+ * G.5.1, the hoogteschaal: a tall scale on a thick pile in the water, its foot under water - the figure at the
+ * waterline is the height there is under the bridge it belongs to; or, given hoogte and kade, that piece of it on a
+ * kade wall. A metre on the scale is a metre: five of them on the pile, 1.5 m wide.
  */
-function makeHoogteschaal(code = 'G.5.1') {
+function makeHoogteschaal(code = 'G.5.1', hoogte = null, kade = null) {
   const group = new THREE.Group(); group.name = code;
-  const HIGH = 5; const OUT = 3.6;                 // m: the scale, and how much of it stands out of the water
+  if (kade !== null && hoogte !== null) {
+    const { van, tot, boven } = kadeStuk(hoogte, kade);
+    const board = makeBoard(`G.5.1/kade-${van}`, tot - van, hoogteschaalStuk(van, tot), 1024);
+    board.position.set(0, boven - (tot - van) / 2, 0); group.add(board);
+    group.userData = { code, missing: false, height: kade, update() {} };
+    return group;
+  }
+  // else on its pile in the water, the figure at the waterline 3.6 m
+  const start = 7;
+  const HIGH = 5; const OUT = 3.6;                                    // m: the scale, and how much of it stands out of the water
   // the voorhoogteschaal (G.5.1a) carries the name of its bridge over it
   const plate = code === 'G.5.1a' ? 0.55 : 0;
   const pile = new THREE.Mesh(new THREE.BoxGeometry(0.55, OUT + plate + 0.4 + 3, 0.55), new THREE.MeshStandardMaterial({ color: 0x5b4a3a, roughness: 0.9 }));
   pile.position.set(0, (OUT + plate + 0.4 - 3) / 2, -0.3);
-  const board = makeBoard('G.5.1/schaal', HIGH, hoogteschaalBord(), 1024);
+  const board = makeBoard(`G.5.1/schaal-${start}`, HIGH, hoogteschaalBord(start), 1024);
   board.position.set(0, OUT - HIGH / 2, 0);
   group.add(pile, board);
   if (plate) {
@@ -135,9 +150,12 @@ function makeOnderbord(code) {
   return group;
 }
 
-/** A sign on its post (the hoogteschaal on its pile in the water, an onderbord with its main sign). */
-export function makeSign(code) {
-  if (code === 'G.5.1' || code === 'G.5.1a') return makeHoogteschaal(code);
+/**
+ * A sign on its post (the hoogteschaal on its pile in the water, an onderbord with its main sign); for a hoogteschaal
+ * { hoogte, kade }: fixed to a kade wall that stands kade m out of the water, by a bridge hoogte m high.
+ */
+export function makeSign(code, { hoogte = null, kade = null } = {}) {
+  if (code === 'G.5.1' || code === 'G.5.1a') return makeHoogteschaal(code, hoogte, kade);
   if (ONDERBORD[code]) return makeOnderbord(code);
   const group = new THREE.Group(); group.name = code;
   const wood = new THREE.MeshStandardMaterial({ color: 0x6d6d6d, roughness: 0.7 });

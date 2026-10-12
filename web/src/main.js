@@ -11,11 +11,24 @@ import { initRegions } from './regions.js';
 import { initQuiz } from './quiz.js';
 import { initHandelingen } from './handelingen.js';
 import { initKrachten } from './krachten/index.js';
+import { initZeiltermen } from './zeiltermen/index.js';
+import { initSeinLes, BRUGGEN, SLUIZEN } from './lessen/seinen.js';
+import { initSchepen } from './lessen/schepen.js';
+import { initWeer } from './lessen/weer.js';
+import { initGeluiden } from './lessen/geluiden.js';
+import { initLichten } from './lessen/lichten.js';
+import { initBorden } from './lessen/borden.js';
+import { initVoorrang } from './lessen/voorrang.js';
+import { initVoorrangQuiz } from './lessen/voorrang-quiz.js';
+import { initZeiltermenQuiz } from './zeiltermen/quiz.js';
+import { initRegels } from './lessen/regels.js';
+import { voortgang } from './lessen/voortgang.js';
 import { initLogboek } from './logboek.js';
 import { initNight } from './rig.js';
 import { initLocator } from './locator.js';
 import { initFullscreen } from './fullscreen.js';
 import { initFeedback } from './feedback.js';
+import { tekenPanelen } from './schermbeeld.js';
 import { initZoeken } from './bpr/zoeken.js';
 import { initTekenQuiz } from './bpr/tekenquiz.js';
 import { useTrees, buildTrees } from './bvh.js';
@@ -86,7 +99,7 @@ export function mount(ui, host, config) {
     closeOthers: () => { if (!$('customize').hidden) $('customize-close').click(); closePanel.get('about')?.(); closePanel.get('updates')?.(); closePanel.get('parts')?.(); } });
 
   // panels behind a button: the parts list (the search in the part card), and Over dit model and
-  // Updates, which have no button of their own but are in the menu under the "i". Oefenen is a
+  // Updates, which have no button of their own but are in the menu under the "i". Leren is a
   // popover of the column.
   const closePanel = new Map();                  // panel id -> close it
   const openPanel = new Map();                   // panel id -> open it
@@ -108,8 +121,14 @@ export function mount(ui, host, config) {
   }
   // Aanpassen, Melden and the parts list share the right-hand side: one open at a time (registered
   // after the toggles themselves, so each sees the state the click left)
-  $('customize-toggle').addEventListener('click', () => { if (!$('customize').hidden) { feedback.close(); closePanel.get('parts')(); } });
-  $('parts-toggle').addEventListener('click', () => { if (!$('parts').hidden) { feedback.close(); if (!$('customize').hidden) $('customize-close').click(); } });
+  // - and a lesson, whose card stands there too, is shut (lessen/kaart.js)
+  const closeLessons = () => { for (const l of Object.values(lessons)) l.close(); };
+  $('customize-toggle').addEventListener('click', () => { if (!$('customize').hidden) { feedback.close(); closePanel.get('parts')(); closeLessons(); } });
+  $('parts-toggle').addEventListener('click', () => { if (!$('parts').hidden) { feedback.close(); if (!$('customize').hidden) $('customize-close').click(); closeLessons(); } });
+  // Escape shuts a lesson too, as it does a panel - not from a field being typed in
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && engaged() && !e.composedPath().some((el) => el.matches?.('input, select, textarea'))) closeLessons();
+  }, { signal });
   $('about-close').addEventListener('click', () => closePanel.get('about')());
   $('updates-close').addEventListener('click', () => closePanel.get('updates')());
   // Updates: per date, the newest first. The browser keeps the newest date this user has seen; what came
@@ -200,6 +219,7 @@ export function mount(ui, host, config) {
   controls.minDistance = 0.02;           // close enough to read a shackle; see aimAt() for why it stays usable
   const MAX_DISTANCE = 60;                                           // how far out the view goes, but to keep a manoeuvre's track in (keepTrackInView)
   controls.maxDistance = MAX_DISTANCE;
+  let lessonDistance = 0;                                            // a lesson's view of a big ship or a long way: further out (krachtView)
 
   const sun = new THREE.DirectionalLight(0xffffff, 1.4);
   sun.position.set(4, 9, 6);
@@ -222,13 +242,37 @@ export function mount(ui, host, config) {
   let modelBox = new THREE.Box3();
   let hullBox = new THREE.Box3();          // the hull alone, without the rig: the camera never stands inside it
 
-  // Zoeken: a start page with a field over everything, and a page per kind - Onderdelen, Borden, Markeringen,
+  // Zoeken: a start page with a field over everything, and a page per kind - Onderdelen, Begrippen, Borden, Markeringen,
   // Seinen, Vlaggen, Lichten, Dagmerken and Geluidsseinen. What is picked is put out on the water; it goes again with another page, or
   // when the panel closes.
   const zoeken = initZoeken({ ui, renderer, scene, camera, boat: () => hullBox.getCenter(new THREE.Vector3()), lookFromHelm: (at) => lookFromHelm(at),
     waterline: () => modes?.water.position.y ?? 0, windArrow: () => modes?.windArrow ?? null, view: () => (flight ? { position: flight.to.clone(), target: flight.toTarget.clone() }   // where it is going, when on its way
       : { position: camera.position.clone(), target: controls.target.clone() }),
     fly: (position, target) => startFlight(position, target, 900), setDark: (k) => { zoekDark = k; },
+    // Begrippen: what a button on to a lesson, a handeling or a part is called, and opening it (null, or why not)
+    begrip: {
+      label: (n) => {
+        if (n.les) {
+          const les = ui.querySelector(`#lessen-list [data-les="${n.les}"] b`)?.textContent;
+          const o = lessons[n.les]?.onderwerpen?.find((x) => x.id === n.onderwerp);
+          return les && `Les: ${les}${o ? ` › ${o.titel}` : ''}`;
+        }
+        if (n.handeling) { const naam = handelingen?.naam(n.handeling); return naam && `Manoeuvre: ${naam}${n.stap ? ` › ${n.stap}` : ''}`; }
+        if (n.onderdeel) { const row = partRow(n.onderdeel); return row && `Onderdeel: ${row.button.querySelector('.naam').textContent}`; }
+        return null;
+      },
+      open: (n) => {
+        if (n.les) { closePanel.get('parts')(); lessons[n.les]?.open(n.onderwerp); return null; }
+        if (n.handeling) {
+          if (!handelingen) return 'De boot is nog niet geladen';
+          const waarom = handelingen.bekijk(n.handeling, n.stap, () => closePanel.get('parts')());
+          if (waarom) openLearn('manoeuvres');
+          return waarom;
+        }
+        if (n.onderdeel) { const row = partRow(n.onderdeel); if (!row) return 'Niet gevonden'; zoeken.goto('onderdelen'); row.button.click(); return null; }
+        return null;
+      },
+    },
     // a klein schip shown as the lelievlet: her lights and ankerbol, and the sails and anchor as asked - set at
     // once, so the bar of the manoeuvre that anchored her has nothing to say
     eigen: { show: (s) => {
@@ -241,7 +285,7 @@ export function mount(ui, host, config) {
     // all of her, the top of the mast to the keel: what is fitted in the view when she is shown
     box: () => (modelBox.isEmpty() ? null : modelBox.clone()) } });
   let zoekDark = null;
-  // Oefenen, Verkeerstekens: the signs, marks and signals of Zoeken as a quiz; for a round every panel is
+  // Leren, Verkeerstekens: the signs, marks and signals of Zoeken as a quiz; for a round every panel is
   // shut, and the boat is out on open water under sail, not left at a steiger laid by a manoeuvre
   const tekenQuiz = initTekenQuiz({ ui, wrap, zoeken, openLearn: (kind) => openLearn(kind), opslaan, engaged, realTarget, signal,
     closePanels: () => {
@@ -258,7 +302,7 @@ export function mount(ui, host, config) {
   let regions = null;
   let quiz = null;
   let handelingen = null;     // a run of an operation, in its own focus mode
-  let krachten = null;        // Krachten en koppels, while it is only opened by the address (?krachten)
+  const lessons = {};         // the lessons of Leren › Lessen, by the key of their row in the list (template.js)
   let hovered = null;
   const override = new Map();  // part -> colour: the quiz lights four parts at once, each its own
 
@@ -368,7 +412,7 @@ export function mount(ui, host, config) {
       quiz = initQuiz({ parts, scene, select, flyTo, setCovered, openLearn: (kind) => openLearn(kind),
                         setHighlights, partVisible, closePanel, opslaan,
                         ui, wrap, config, signal, engaged, realTarget, onDestroy,
-                        rowing: () => ['roeien', 'wrikken'].includes(modes?.state.mode) });   // Oefenen
+                        rowing: () => ['roeien', 'wrikken'].includes(modes?.state.mode) });   // Leren
       handelingen = initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedure, dismissProcedure,
         runView: { get: () => runViewChosen, set: chooseRunView }, setCovered, opslaan, signal, engaged, realTarget, onDestroy });
       modes.onModeChange(() => handelingen.callOff());
@@ -383,12 +427,36 @@ export function mount(ui, host, config) {
       controls.update();
       renderer.render(scene, camera);
       settle();
-      // Krachten en koppels: in no menu yet; ?krachten in the address opens it (krachten/index.js)
-      if (new URLSearchParams(location.search).get('krachten') !== null) {
-        krachten = initKrachten({ wrap, scene, camera, controls, parts, modes, fly: krachtView, controlsNav: $('controls'),
-                                  setCoveredRight, opslaan });
-        onDestroy(() => krachten.dispose());
-      }
+      // the lessons, opened from Leren › Lessen - one at a time - or at once by their key in the address (?bruggen)
+      voortgang.opslaan = opslaan;
+      const lesson = (key) => ({ sleutel: key, fly: krachtView, wrap, scene, camera, controls, parts, modes, setCoveredRight, opslaan, dismissProcedure,
+        setDark: (k) => { zoekDark = k; },                          // how dark the sky is, as Zoeken holds it (null lets go)
+        // Zelf verkennen: on to all of it in Zoeken, on the page of its tile (bpr/zoeken.js)
+        naarZoeken: (cat) => { if ($('parts').hidden) $('parts-toggle').click(); ui.querySelector(`.zoek-tegel[data-cat="${cat}"]`)?.click(); },
+        // the last page of a lesson: on to its quiz in Leren › Quiz ('verkeerstekens', 'voorrang')
+        naarQuiz: (soort) => openLearn(soort),
+        // one lesson at a time, and not under Zoeken or Aanpassen, which stand where its card does
+        onOpen: () => {
+          for (const [k, l] of Object.entries(lessons)) if (k !== key) l.close();
+          closePanel.get('parts')(); if (!$('customize').hidden) $('customize-close').click();
+        } });
+      lessons.zeiltermen = initZeiltermen(lesson('zeiltermen'));
+      lessons.weer = initWeer(lesson('weer'));
+      lessons.schepen = initSchepen(lesson('schepen'));
+      lessons.bruggen = initSeinLes({ ...lesson('bruggen'), id: 'les-bruggen', titel: 'Bruggen', lessen: BRUGGEN, store: 'lelievlet.les.bruggen.v1' });
+      lessons.sluizen = initSeinLes({ ...lesson('sluizen'), id: 'les-sluizen', titel: 'Sluizen', lessen: SLUIZEN, store: 'lelievlet.les.sluizen.v1' });
+      lessons.regels = initRegels(lesson('regels'));
+      lessons.voorrang = initVoorrang(lesson('voorrang'));
+      lessons.borden = initBorden(lesson('borden'));
+      lessons.geluiden = initGeluiden(lesson('geluiden'));
+      lessons.lichten = initLichten(lesson('lichten'));
+      lessons.krachten = initKrachten(lesson('krachten'));
+      // not a lesson of the list, but the card of Leren › Quiz › Voorrang - a lesson's card all the same
+      lessons.voorrangquiz = initVoorrangQuiz(lesson('voorrangquiz'));
+      lessons.zeiltermenquiz = initZeiltermenQuiz(lesson('zeiltermenquiz'));
+      onDestroy(() => { for (const l of Object.values(lessons)) l.dispose(); });
+      const asked = new URLSearchParams(location.search);
+      Object.entries(lessons).find(([k]) => asked.has(k))?.[1].open();
       newsOnArrival();
     } catch (error) { failed(error); }
   }, undefined, failed);
@@ -399,6 +467,7 @@ export function mount(ui, host, config) {
   // twin share one row as well, under the name without the side; picking it takes one of the two.
   const sections = [];         // { head, ul, count, section, rows[], total, open }
   const rows = [];             // { parts[], twins, button, li, section, key }
+  const partRow = (id) => rows.find((row) => row.parts.some((p) => p.extras.id === id));   // Zoeken › Begrippen
   let currentRow = null;
   let partsPoll = null;
   onDestroy(() => clearInterval(partsPoll));
@@ -565,6 +634,7 @@ export function mount(ui, host, config) {
 
   // ---------------------------------------------------------------- camera views
   function setView(name, animate = true) {
+    lessonDistance = 0;                                           // back to the viewer's own views: its own range
     const center = modelBox.getCenter(new THREE.Vector3());
     const size = modelBox.getSize(new THREE.Vector3());
     const radius = size.length() / 2;
@@ -586,14 +656,19 @@ export function mount(ui, host, config) {
     startFlight(position, target, 600);
   }
   /** The views of Krachten en koppels: from above with the bow up and stuurboord to the right, from
-   *  astern, and from astern and above - each far enough off to take in the arrows around her, and
+   *  astern, and from astern and above - and for Zeiltermen from ahead, and high over her with the
+   *  wallen and the way of a manoeuvre in it, or a view of a lesson's own - each far enough off to take in what is drawn, and
    *  sized for what the card leaves free of the picture (`covered`: px it covers on the right; the
    *  krachten layer moves the picture itself into that part, with a view offset). */
   function krachtView(name, covered = 0) {
-    const [height, width, target, dir] = {
+    // a lesson may give its own: { hoogte, breedte, doel, richting }, metres and model space as these - and oog: the
+    // height the camera stands at (Lichten: the eye of someone in a small boat), as far off as it would be
+    const [height, width, target, dir] = typeof name === 'object' && name ? [name.hoogte, name.breedte, name.doel, name.richting] : {
       boven: [9.2, 6.6, [3.0, 1.2, 0], [-0.002, 1, 0]],
       achter: [7.6, 7.2, [2.8, 2.4, 0], [-1, 0.06, 0]],
       achterboven: [9, 8, [2.8, 2.0, 0], [-0.74, 0.62, 0.26]],
+      voor: [7.6, 7.2, [2.8, 2.4, 0], [1, 0.06, 0]],
+      hoog: [26, 28, [2.8, 0.4, 0], [-0.32, 1, 0]],
     }[name] ?? [];
     if (!height) { setView('iso'); return; }
     const rect = wrap.getBoundingClientRect();
@@ -602,7 +677,11 @@ export function mount(ui, host, config) {
     const dist = Math.max(height / 2 / tan, width / 2 / (tan * camera.aspect) / freeW);
     const out = new THREE.Vector3(...dir).normalize();
     const to = new THREE.Vector3(...target);
-    startFlight(to.clone().addScaledVector(out, dist), to, 900);
+    lessonDistance = dist * 1.3;                                    // a big ship or a long way: further off than the boat on her own needs
+    controls.maxDistance = Math.max(MAX_DISTANCE, lessonDistance);
+    const at = to.clone().addScaledVector(out, dist);
+    if (typeof name === 'object' && name?.oog != null) at.y = name.oog;
+    startFlight(at, to, 900);
   }
   // how fast what is being done goes - procedures, and what is moved by hand; wind, water and flag keep their own time
   let speed = 1;
@@ -1216,7 +1295,7 @@ export function mount(ui, host, config) {
 
     // it stays while it runs or stands still half way, while its own popover is open - so a finished
     // procedure can be scrubbed back through - and while it is hovered or has the focus
-    // in sight: its section shown, and the Oefenen popover open - read from their state, not the layout
+    // in sight: its section shown, and the Leren popover open - read from their state, not the layout
     const panelOpen = !$('learn-panel').hidden && !$('ops-panel').hidden;
     const now = performance.now();
     if (!p.resting || panelOpen || procBar.matches(':hover, :focus-within')) procWoke = now;
@@ -1236,7 +1315,8 @@ export function mount(ui, host, config) {
     if ((covered > 0 || coveredRight > 0) && w > 0 && h > 0) camera.setViewOffset(w, h, coveredRight / 2, covered / 2, w, h);
     else camera.clearViewOffset();
   }
-  const setCoveredRight = (px) => { if (px !== coveredRight) { coveredRight = px; frame(); } };
+  // (and the bar of a manoeuvre, played from a lesson, stands in the middle of what the card leaves free: style.css)
+  const setCoveredRight = (px) => { if (px !== coveredRight) { coveredRight = px; wrap.style.setProperty('--kr-gedekt', `${px}px`); frame(); } };
   // by who: the card of a quiz round or a run, and the roeicommando card; the picture clears the most
   const coveredBy = {};
   const setCovered = (px, who = 'card') => {
@@ -1253,30 +1333,70 @@ export function mount(ui, host, config) {
   cmdCover.observe(cmdCard);
   onDestroy(() => cmdCover.disconnect());
 
-  // ---------------------------------------------------------------- Oefenen
-  // A popover of the column: first what to practise - Manoeuvres (handelingen.js), Onderdelen
-  // (quiz.js) or Verkeerstekens (bpr/tekenquiz.js) - then that one's own start panel. It opens on the one chosen last; Manoeuvres is only
-  // there while sailing or rowing (modes.js hides its button), and without it the panel shows Onderdelen.
-  let learnKind = 'manoeuvres';
+  // ---------------------------------------------------------------- Leren
+  // A popover of the column: first what to learn - Lessen (Zeiltermen and Krachten en koppels,
+  // each a card of its own), Manoeuvres (handelingen.js) or Quiz: Onderdelen (quiz.js), Verkeerstekens
+  // (bpr/tekenquiz.js), Voorrang (lessen/voorrang-quiz.js) or Zeiltermen (zeiltermen/quiz.js) - then that one's own panel. It opens on the one chosen last; Manoeuvres is only there
+  // while sailing or rowing (modes.js hides its button), and without it the panel shows Lessen.
+  let learnKind = 'lessen';
+  let quizKind = 'onderdelen';
   let openLearn = () => {};
   function initLearn() {
     const buttons = [...ui.querySelectorAll('#learn-kind button')];
+    const quizButtons = [...ui.querySelectorAll('#quiz-soort button')];
     const show = (kind = learnKind) => {
       const can = !$('learn-manoeuvres').hidden;
-      const shown = kind === 'manoeuvres' && !can ? 'onderdelen' : kind;
+      const shown = kind === 'manoeuvres' && !can ? 'lessen' : kind;
       for (const b of buttons) b.setAttribute('aria-pressed', String(b.dataset.learn === shown));
+      for (const b of quizButtons) b.setAttribute('aria-checked', String(b.dataset.quiz === quizKind));
+      const onderdelen = shown === 'quiz' && quizKind === 'onderdelen'; const tekens = shown === 'quiz' && quizKind === 'verkeerstekens';
+      $('lessen-panel').hidden = shown !== 'lessen';
+      if (shown === 'lessen') tellingen();
       $('ops-panel').hidden = shown !== 'manoeuvres';
-      $('quiz').hidden = shown !== 'onderdelen';
-      $('teken-quiz').hidden = shown !== 'verkeerstekens';
+      $('quiz-soort-row').hidden = shown !== 'quiz';
+      $('quiz').hidden = !onderdelen;
+      $('teken-quiz').hidden = !tekens;
+      $('voorrang-quiz').hidden = !(shown === 'quiz' && quizKind === 'voorrang');
+      $('zeiltermen-quiz').hidden = !(shown === 'quiz' && quizKind === 'zeiltermen');
       const open = !$('learn-panel').hidden;
-      quiz?.panelToggled(open && shown === 'onderdelen');
-      if (open && shown === 'verkeerstekens') tekenQuiz.refresh();
+      quiz?.panelToggled(open && onderdelen);
+      if (open && tekens) tekenQuiz.refresh();
       if (open && shown === 'manoeuvres') handelingen?.refresh();
       modes?.placePopover();                                  // its height changed: it has to fit again
     };
     for (const b of buttons) b.addEventListener('click', () => { learnKind = b.dataset.learn; show(); });
+    for (const b of quizButtons) b.addEventListener('click', () => { quizKind = b.dataset.quiz; show(); });
+    // Quiz › Voorrang: the popover makes way for its card, on a situatie of that niveau
+    for (const b of ui.querySelectorAll('#voorrang-niveau button')) {
+      b.addEventListener('click', () => { modes?.closePopover(); lessons.voorrangquiz?.open(b.dataset.niveau); });
+    }
+    // Quiz › Zeiltermen: the same, on questions of that kind (zeiltermen/quiz.js)
+    for (const b of ui.querySelectorAll('#zeiltermen-soort button')) {
+      b.addEventListener('click', () => { modes?.closePopover(); lessons.zeiltermenquiz?.open(b.dataset.soort); });
+    }
+    // a lesson: the popover makes way for its card
+    for (const b of ui.querySelectorAll('#lessen-list button')) {
+      b.addEventListener('click', () => { modes?.closePopover(); lessons[b.dataset.les]?.open(); });
+    }
+    // how far each lesson is gevolgd, under its name (lessen/voortgang.js)
+    const tellingen = () => {
+      for (const b of ui.querySelectorAll('#lessen-list button')) {
+        const l = lessons[b.dataset.les]; if (!l?.onderwerpen) continue;
+        const { gevolgd, van } = voortgang.telling(b.dataset.les, l.onderwerpen);
+        let tel = b.querySelector('.les-telling');
+        if (!tel) { tel = Object.assign(document.createElement('em'), { className: 'les-telling' }); b.append(tel); }
+        tel.textContent = gevolgd ? (gevolgd === van ? `Alles gevolgd (${van})` : `${gevolgd} van ${van} gevolgd`) : `${van} ${van === 1 ? 'onderwerp' : 'onderwerpen'}`;
+        b.title ||= b.querySelector('span')?.textContent ?? '';   // all of what it is about: the row has one line of it
+        b.classList.toggle('klaar', gevolgd === van);
+      }
+    };
+    voortgang.bijWijziging(tellingen);
     $('learn-toggle').addEventListener('click', () => show()); // after modes.js has opened or shut it
-    openLearn = (kind) => { if (kind) learnKind = kind; if ($('learn-panel').hidden) $('learn-toggle').click(); else show(); };
+    // (quiz.js and the tekenquiz come back to their own: 'onderdelen' or 'verkeerstekens')
+    openLearn = (kind) => {
+      if (['onderdelen', 'verkeerstekens', 'voorrang', 'zeiltermen'].includes(kind)) { learnKind = 'quiz'; quizKind = kind; } else if (kind) learnKind = kind;
+      if ($('learn-panel').hidden) $('learn-toggle').click(); else show();
+    };
   }
 
   // ---------------------------------------------------------------- the bottom right corner
@@ -1378,7 +1498,7 @@ export function mount(ui, host, config) {
   const lookFrom = new THREE.Vector3(); const lookAt = new THREE.Vector3();
   function keepTrackInView(dt) {
     const dock = modes?.dock;
-    if (!dock?.turnsHer) { controls.maxDistance = MAX_DISTANCE; refitting = false; return; }
+    if (!dock?.turnsHer) { controls.maxDistance = Math.max(MAX_DISTANCE, lessonDistance); refitting = false; return; }
     if (flight || performance.now() - handledAt < 3000) return;
     // only while the manoeuvre runs: done, she sails on and her track with her, and a view that kept
     // all of it in would draw back for as long as she goes
@@ -1428,7 +1548,7 @@ export function mount(ui, host, config) {
     try { const v = localStorage.getItem(RUN_VIEW_STORE); return RUN_VIEWS.includes(v) ? v : 'vogel'; } catch { return 'vogel'; }
   })();
   /** The view in force: the one chosen while the card of a run is open. */
-  // Oefenen, Verkeerstekens, Op het water: from the helm as in Schipper, looking at what was put out
+  // Leren, Verkeerstekens, Op het water: from the helm as in Schipper, looking at what was put out
   let helmLook = null;
   // let go of, the view was never Schipper as far as followRunView is concerned: Zoeken flies back itself
   const lookFromHelm = (at) => { helmLook = at ? at.clone() : null; easing = null; if (!at) viewWas = 'vogel'; };
@@ -1593,6 +1713,17 @@ export function mount(ui, host, config) {
   const clock = new THREE.Clock();
   const canvasSize = new THREE.Vector2();
   let elapsed = 0;                 // ms since the first frame; the pulse and the rings beat on it
+  // On a phone the card of a lesson is a sheet over nearly all of the boat (lessen/kaart.js): then the picture is
+  // drawn only now and then, enough for the rim above it - everything else goes on as ever, so the boat is where it
+  // should be the moment the sheet is dragged (it moves: drawn every frame again) or goes down
+  const SHEET = 900;               // px: as lessen/kaart.js and style.css have it
+  const COVERED_MS = 500;
+  let drawnAt = -Infinity;
+  const underSheet = () => {
+    if (canvasSize.x > SHEET) return false;
+    const card = wrap.querySelector(':scope > .les-kaart:not([hidden]), :scope > #krachten:not([hidden])');
+    return Boolean(card) && !card.style.transform;
+  };
   const frameLoop = () => {
     const dt = Math.min(clock.getDelta(), 0.05);
     elapsed += dt * 1000;
@@ -1615,8 +1746,9 @@ export function mount(ui, host, config) {
     // shows a ship far out (camera.userData.minNear)
     const near = Math.max(camera.userData.minNear ?? 0, THREE.MathUtils.clamp(camera.position.distanceTo(controls.target) * 0.2, 0.002, 0.05));
     if (Math.abs(near - camera.near) > 1e-4) { camera.near = near; camera.updateProjectionMatrix(); }
-    if (krachten) { renderer.getSize(canvasSize); krachten.update(dt, canvasSize.x, canvasSize.y); }
-    renderer.render(scene, camera);
+    renderer.getSize(canvasSize);
+    for (const l of Object.values(lessons)) l.update(dt, canvasSize.x, canvasSize.y);
+    if (!underSheet() || elapsed - drawnAt >= COVERED_MS) { renderer.render(scene, camera); drawnAt = elapsed; }
     // after the render: every matrix stands where this frame drew it, so a ring lands on the part
     locator.update(elapsed, dt * 1000);
   };
@@ -1779,10 +1911,30 @@ export function mount(ui, host, config) {
   /**
    * For Melden (feedback.js): the picture as it is now, and everything the viewer knows about where
    * it is. The canvas is drawn again and read at once - its buffer is not kept between frames - and
-   * made smaller, as a JPEG, so a report stays well under a megabyte.
+   * made smaller, as a JPEG, so a report stays well under a megabyte. What stands open over it - the cards, the
+   * words on the boat - is drawn in too (schermbeeld.js); `klaar` gives the picture again once the maps and
+   * pictures in them, which load first, are in as well.
    */
+  /** The card of a lesson that stands open: which, which onderwerp, and its question as it is on the card now. */
+  function lesInfo() {
+    const card = [...wrap.querySelectorAll(':scope > .les-kaart, :scope > #krachten')].find((c) => !c.hidden);
+    if (!card) return undefined;
+    const tekst = (el) => el?.textContent.replace(/\s+/g, ' ').trim() || undefined;
+    const vragen = [...card.querySelectorAll('.kr-vraag')].filter((v) => v.querySelector('button'));
+    return {
+      kaart: card.id, titel: tekst(card.querySelector('header h2')),
+      onderwerp: tekst(card.querySelector('.kr-lessen')?.selectedOptions[0]),
+      vragen: vragen.map((v) => ({
+        kop: tekst(v.querySelector('h3')), vraag: tekst(v.querySelector('p')),
+        opties: [...v.querySelectorAll('.kr-opties button')].map((b) => ({ tekst: tekst(b), ...(b.classList.contains('goed') ? { goed: true } : {}), ...(b.classList.contains('fout') ? { fout: true } : {}) })),
+        uitleg: tekst(v.querySelector('.kr-uitleg:not([hidden])')),
+      })),
+      status: tekst(card.querySelector('.kr-status')),
+    };
+  }
+
   function snapshot() {
-    let screenshot = null;
+    let screenshot = null; let klaar = null;
     try {
       if (loaded) renderer.render(scene, camera);
       const scale = Math.min(1, SHOT_WIDTH / canvas.width);
@@ -1792,7 +1944,12 @@ export function mount(ui, host, config) {
       g.fillStyle = style.getPropertyValue('--bg-bottom').trim() || '#f4f7f9';      // the sky is the page behind a transparent canvas
       g.fillRect(0, 0, out.width, out.height);
       g.drawImage(canvas, 0, 0, out.width, out.height);
-      if (box.width && box.height) screenshot = out.toDataURL('image/jpeg', 0.85);
+      let later = null;
+      try { later = tekenPanelen(ui, g, box, out); } catch (error) { keepError(`schermafbeelding, panelen: ${error}`); }
+      if (box.width && box.height) {
+        screenshot = out.toDataURL('image/jpeg', 0.85);
+        klaar = later?.then(() => out.toDataURL('image/jpeg', 0.85)).catch(() => null) ?? null;
+      }
     } catch (error) { keepError(`schermafbeelding: ${error}`); }
 
     const visibleText = (el) => el && el.offsetParent !== null ? el.innerText.replace(/\s+\n/g, '\n').trim().slice(0, 1000) : undefined;
@@ -1817,6 +1974,7 @@ export function mount(ui, host, config) {
       quiz: quiz?.info() ?? undefined,
       verkeerstekens: tekenQuiz.info() ?? undefined,
       zoeken: zoeken.info() ?? undefined,              // the sign, mark, signal or flag out on the water
+      les: lesInfo(),                                  // the card of a lesson, or of a quiz on one (Voorrang, Zeiltermen)
       beeld: runView(),
       snelheid: speed,
       // what stands open, and what it says: the card of a run or a quiz, the procedure bar, the calls
@@ -1837,7 +1995,7 @@ export function mount(ui, host, config) {
       },
       fouten: errors.length ? [...errors] : undefined,
     };
-    return { screenshot, gegevens: JSON.parse(JSON.stringify(gegevens)) };   // plain data: no undefined, nothing live
+    return { screenshot, klaar, gegevens: JSON.parse(JSON.stringify(gegevens)) };   // plain data: no undefined, nothing live
   }
 
   const debug = { camera, controls, scene, parts, rows, held, keyboardNavigate, select, flyTo,

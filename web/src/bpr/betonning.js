@@ -294,7 +294,7 @@ function twigs(bound) {
  * A small glow that can be lit: a lens and a sprite round it. set(on, night) each frame. `strength`:
  * how brightly the lens burns - less keeps the colour of a large lens, which would burn out to white.
  */
-export function makeLamp(kleur, size = 1, strength = 3, { day = false } = {}) {
+export function makeLamp(kleur, size = 1, strength = 3, { day = false, weg = false } = {}) {
   const hex = LICHT[kleur] ?? LICHT.wit;
   const group = new THREE.Group();
   const lens = new THREE.Mesh(new THREE.SphereGeometry(0.05 * size, 12, 8), new THREE.MeshStandardMaterial({ color: 0x222222, emissive: hex, emissiveIntensity: 0 }));
@@ -302,12 +302,14 @@ export function makeLamp(kleur, size = 1, strength = 3, { day = false } = {}) {
   glow.scale.setScalar(0.45 * size);
   group.add(lens, glow);
   // in daylight a lamp is no more than a bright lens; its glow comes up with the dark. A light that is there to be
-  // seen by day (`day`: a signal at a bridge or lock, a flikkerlicht) burns full and keeps some of its glow
+  // seen by day (`day`: a signal at a bridge or lock, a flikkerlicht) burns full and keeps some of its glow. `weg`: a
+  // lamp that is out is not there at all - a ship's light by day (or out of sight), no dark ball on her
   group.userData.set = (on, night) => {
     const k = on ? 1 : 0; const dusk = night * night * (3 - 2 * night);
     lens.material.emissiveIntensity = strength * k * (day ? 1 : 0.4 + 0.6 * dusk);
     glow.material.opacity = k * (day ? 0.3 + 0.7 * dusk : 0.15 + 0.85 * dusk);
     glow.visible = k > 0;
+    if (weg) lens.visible = k > 0;
   };
   return group;
 }

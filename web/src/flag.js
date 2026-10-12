@@ -51,7 +51,8 @@ function makeJollyRoger() {
 /**
  * foot: top end of the roerkoning on its axis, axis: unit vector up along it (model space).
  * addPart registers a node as a pickable part; accent is the shared bakskleur material.
- * Returns update(t, windAngle, wind 0..1, present 0..1, turn): turn = how the rudder is turned (quaternion).
+ * Returns update(t, windAngle, wind 0..2, present 0..1, turn): wind 0 hanging, 1 straight out, above that flapping
+ * harder; turn = how the rudder is turned (quaternion).
  */
 export function initFlag({ foot, axis, addPart, joinPart, accent }) {
   const wood = new THREE.MeshStandardMaterial({ color: 0xb07a3f, roughness: 0.55 });
@@ -127,7 +128,9 @@ export function initFlag({ foot, axis, addPart, joinPart, accent }) {
   const DOWN = new THREE.Vector3(0, -1, 0);
 
   const leanNow = new THREE.Vector3();
-  const fly = (t, windAngle, wind, present, turn) => {
+  // the wave along the cloth keeps its own phase, moved on by its speed now: a change of wind, no jump
+  let phase = 0; let lastT = null;
+  const fly = (t, windAngle, blow, present, turn) => {
     // taken out for wrikken: drawn up out of the tube, then gone
     const drawn = (1 - present) * 0.4;
     lifted.copy(foot).addScaledVector(axis, drawn);
@@ -140,14 +143,16 @@ export function initFlag({ foot, axis, addPart, joinPart, accent }) {
 
     // The cloth leaves the staff in one direction: downwind with a little droop when there is wind,
     // straight down when there is none. A wave runs out along it, growing towards the fly.
+    const wind = Math.min(blow, 1); const harder = Math.max(blow - 1, 0);
     out.set(-Math.cos(windAngle), 0, -Math.sin(windAngle)).multiplyScalar(wind).addScaledVector(DOWN, 1 - 0.78 * wind).normalize();
-    const swell = 0.012 + 0.05 * wind; const speed = 1.5 + 5.5 * wind;
+    const swell = 0.012 + 0.05 * wind + 0.03 * harder; const speed = 1.5 + 5.5 * wind + 7 * harder;
+    phase += (lastT === null ? 0 : Math.max(t - lastT, 0)) * speed; lastT = t;
     for (let j = 0; j <= NV; j++) {
       from.copy(hoist[j].point).applyQuaternion(turn).add(lifted);    // down the hoist, along the curve
       across.crossVectors(leanNow.copy(hoist[j].tangent).applyQuaternion(turn), out).normalize();
       for (let i = 0; i <= NU; i++) {
         const u = i / NU;
-        const wave = swell * u * (Math.sin(9 * u - speed * t + 1.1 * (j / NV)) + 0.35 * Math.sin(17 * u - 1.7 * speed * t));
+        const wave = swell * u * (Math.sin(9 * u - phase + 1.1 * (j / NV)) + 0.35 * Math.sin(17 * u - 1.7 * phase));
         at.copy(from).addScaledVector(out, FLY * u * (1 - 0.04 * wind * Math.abs(wave) / swell)).addScaledVector(across, wave);
         at.y -= 0.10 * u * u * wind;                                    // the fly end sags a little
         at.toArray(position, (j * (NU + 1) + i) * 3);

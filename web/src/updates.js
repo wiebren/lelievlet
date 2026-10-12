@@ -3,6 +3,22 @@
 // update on a day that already has one gets nr: 2 (and so on), so it shows as new to who saw the first.
 
 export const UPDATES = [
+  { datum: '2026-10-12', punten: [
+    'Melden: een melding over een quizvraag, je naam en e-mailadres die onthouden worden, en de open kaarten mee op de schermafbeelding.',
+    'Oefenen heet nu Leren, met Lessen, Manoeuvres en Quiz. Leren opent op Lessen.',
+    'Leren › Lessen › Zeiltermen: bakboord en stuurboord, loef en lij, hogerwal en lagerwal, de koersen, oploeven en afvallen, overstag, opkruisen en gijpen. Op de boot, en in een tekening met de wind van boven.',
+    'Leren › Lessen › Krachten en koppels: wat de zeilen, het zwaard en het roer met de boot doen, als pijlen op de boot.',
+    'Leren › Lessen › Het weer: zie hoe windkracht eruitziet, van windstil tot storm: golven, rook, een boom en een vlag. En een weersomslag die je kunt laten gebeuren.',
+    'Leren › Lessen › Grote schepen, Bruggen, Sluizen, Regels, Voorrang, Verkeerstekens, Geluidsseinen en Lichten en dagtekens.',
+    'De meeste lessen eindigen met Zelf verkennen, met alles wat de viewer erover heeft. Je browser onthoudt welke onderwerpen je hebt gevolgd.',
+    'Onderaan een les staan Meer uitleg en Volgende.',
+    'Op een groot scherm kan elke les Breed, met de tekening groot ernaast.',
+    'Op een telefoon vult de les het scherm; schuif hem naar beneden om de boot te zien.',
+    'Zoeken › Begrippen: de zeil- en roeitermen met een korte uitleg, en een knop naar de les, de manoeuvre of het onderdeel waar je het ziet.',
+    'Leren › Quiz › Voorrang: steeds een nieuwe situatie op het water, makkelijk, normaal of moeilijk. Zeg wie er voorgaat, en bij drie boten in welke volgorde.',
+    'Leren › Quiz › Zeiltermen: de boot vaart, en jij zegt welke koers het is, waar loef is, welke wal de hogerwal is of welke kant stuurboord.',
+    'Leren › Quiz › Verkeerstekens vraagt nu ook naar Lichten en Dagmerken van schepen, en naar Geluidsseinen, die je hoort.',
+  ] },
   { datum: '2026-10-11', punten: [
     'Bekijken begint bij stap 0: het doel van de manoeuvre en wat er nodig is. Kies hoe je kijkt, en druk op de groene afspeelknop of ga zelf stap voor stap.',
     'Afspelen gaat stap voor stap, met na elke stap even tijd om te lezen wat erbij staat.',

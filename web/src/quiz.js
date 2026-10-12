@@ -3,7 +3,7 @@ import { QUIZ } from './quizdata.js';
 import { regionAt } from './regions.js';
 import { quizEntries, TYPING } from './config.js';
 
-// Oefenen: a quiz over the numbered names of the parts drawing of the class (quizdata.js). Four
+// Leren › Quiz › Onderdelen: a quiz over the numbered names of the parts drawing of the class (quizdata.js). Four
 // kinds of exercise, all drawn from the same pool:
 //   aanwijzen  a name is given and the part has to be clicked (pick first, then Bevestigen)
 //   benoemen   the part is highlighted and flown to, and four names are offered
@@ -324,7 +324,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   // ---------------------------------------------------------------- the start panel
   // One list of exercises to pick from, two small segmented choices under it and one Start. What
   // was chosen last is what the panel opens on.
-  const quizToggle = $('learn-toggle');                     // Oefenen, in the column (main.js, initLearn)
+  const quizToggle = $('learn-toggle');                     // Leren, in the column (main.js, initLearn)
   const startButton = $('quiz-start');
   const wrongButton = $('quiz-wrong');
   const totalLine = $('quiz-total');
@@ -667,6 +667,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
     card.classList.remove('results');
     setHighlights([]);
     select([]);
+    question?.entry.gebied?.verberg?.();               // a kleed lit up by a tap
     answers.replaceChildren();
     answers.hidden = true;
     typed.hidden = true;
@@ -791,7 +792,10 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
     if (!question || question.type !== 'aanwijzen' || question.answered) return true;
     if (!part) { cancelPick(); return true; }
     question.pending = { part, hit };
-    select([part], hit);                           // the normal selection highlight, and no name
+    // a kleed: the cloth tapped lights up, not the whole zeil (regions.js) - any kleed is right, so it gives nothing away
+    question.entry.gebied?.verberg?.();
+    if (question.entry.gebied?.toon?.(hit)) select([]);
+    else select([part], hit);                      // the normal selection highlight, and no name
     setFeedback(null);
     setActions('Bevestigen', confirmPick, 'Annuleren', cancelPick);
     return true;
@@ -800,6 +804,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
   function cancelPick() {
     if (!question?.pending) return;
     question.pending = null;
+    question.entry.gebied?.verberg?.();
     select([]);
     setActions('Bevestigen', null, null, null);
   }
@@ -808,9 +813,11 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
     const { part, hit } = question.pending ?? {};
     if (!part) return;
     const { entry } = question;
-    // a gebied is right when the click landed on one of the parts it lies on AND inside the area
-    const right = entry.gebied ? regionAt(entry.gebied, hit) : entry.ids.has(part.extras.id);
+    // a gebied is right when the click landed on one of the parts it lies on AND inside the area - for a kleed any
+    // cloth of the grootzeil (raak), for the boeg its own triangles
+    const right = entry.gebied ? (entry.gebied.raak ? entry.gebied.raak(hit) > 0 : regionAt(entry.gebied, hit)) : entry.ids.has(part.extras.id);
     question.pending = null;
+    entry.gebied?.verberg?.();
     if (!right) { select(entry.delen); flyTo(entry.delen); }
     settle(right, right ? 'Goed!' : `Fout. Dit is: ${part.extras.naam}`);
   }

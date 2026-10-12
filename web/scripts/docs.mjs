@@ -1,5 +1,5 @@
 // Writes the reference documents for the viewer, in Dutch, from what the viewer itself uses:
-//   docs/onderdelen.md   every part of the model, its other names and where Oefenen asks about it
+//   docs/onderdelen.md   every part of the model, its other names and where the quiz asks about it
 //   docs/manoeuvres.md   every operation: what it is for, its preconditions and its steps
 // Run from web/ with `pnpm run docs` after the model, the quiz list or the operations change. The
 // tables come from lelievlet.parts.json, src/quizdata.js, src/modes.js and src/handelingen.js, so
@@ -68,7 +68,7 @@ function onderdelen() {
   const shown = parts.filter((p) => !LEFT_OUT.has(p.id));
   const sections = GROUPS.map(([key, title]) => {
     const rows = shown.filter((p) => p.groep === key).map((p) => [p.naam, `\`${p.id}\``, ANDERE_NAMEN[p.id] ?? '', quizCell(p.id)]);
-    return `### ${title}\n\n${table(['Onderdeel', 'Id', 'Andere namen', 'Oefenen'], rows)}`;
+    return `### ${title}\n\n${table(['Onderdeel', 'Id', 'Andere namen', 'Quiz'], rows)}`;
   });
 
   const quizRows = QUIZ.map((q) => [q.nr, q.naam, q.zeilen === false ? '–' : ROMAN[q.niveau ?? 3], q.roeien ? 'ja' : '',
@@ -78,7 +78,7 @@ function onderdelen() {
   return `# Onderdelen van de lelievlet
 
 Naslag voor wie de viewer gebruikt of controleert: elk onderdeel dat het 3D-model heeft, de andere
-namen die de lesstof ervoor gebruikt, en of en hoe **Oefenen** ernaar vraagt.
+namen die de lesstof ervoor gebruikt, en of en hoe de **quiz** (Leren › Quiz) ernaar vraagt.
 
 Dit bestand wordt gemaakt door \`web/scripts/docs.mjs\` (\`pnpm run docs\` in \`web/\`) uit
 \`web/public/models/lelievlet.parts.json\` (het model) en \`web/src/quizdata.js\` (de vragen). Pas
@@ -90,8 +90,8 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
   sleutel waarmee een insluitende pagina het onderdeel selecteert.
 - **Andere namen** komen uit de lesstof; de bronsleutels staan in
   \`reference/parts/SOURCES.md\` en \`reference/parts/CWO_NIVEAUS.md\` (hoofdstuk 4). De naam
-  waaronder Oefenen het vraagt staat in de kolom Oefenen.
-- **Oefenen**: **vetgedrukt** is een vraag waarvan dit onderdeel het antwoord *is*, met het niveau
+  waaronder de quiz het vraagt staat in de kolom Quiz.
+- **Quiz**: **vetgedrukt** is een vraag waarvan dit onderdeel het antwoord *is*, met het niveau
   waarop het gevraagd wordt: Zeilen I, II of III (CWO Zeilen Kielboot) en/of Roeien (CWO Roeiboot,
   zonder niveaus: alles tegelijk). "Telt mee bij" betekent dat een klik op dit onderdeel bij die vraag
   ook goed is, omdat het erbij hoort. Zeilen-niveau L vraagt alles tot en met L.
@@ -102,7 +102,7 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 
 ${sections.join('\n\n')}
 
-## De vragen van Oefenen
+## De vragen van de quiz
 
 ${count((q) => q.zeilen !== false)} vragen bij Zeilen (niveau I: ${count((q) => q.zeilen !== false && (q.niveau ?? 3) === 1)},
 tot en met II: ${count((q) => q.zeilen !== false && (q.niveau ?? 3) <= 2)}, tot en met III: ${count((q) => q.zeilen !== false)}),
@@ -330,7 +330,7 @@ met de hand aan: verander de bron en draai het script opnieuw.
 
 ## Het menu Handelingen
 
-Oefenen (de studentenmuts in de kolom linksboven) → Manoeuvres, in de modus Zeilen en Roeien, toont de
+Leren (de studentenmuts in de kolom linksboven) → Manoeuvres, in de modus Zeilen en Roeien, toont de
 handelingen per groep: **Tuigage** (mast zetten, zeilen aanslaan, hijsen, reven, strijken en afslaan, mast strijken), **Wenden** (overstag, gijp, stormrondje,
 opkruisen, man over boord, dwarspeiling, bijliggen en weer varen), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een
 langswal de sliplanding en voor top en takel; aanleggen aan lagerwal; verhalen),
@@ -475,7 +475,7 @@ ${flowRows(morning, MORNING_NEEDS)}
 
 ## Roeimanoeuvres
 
-In de modus roeien heeft Oefenen › Manoeuvres een eigen groep, **Roeien**; de groepen van het zeilen
+In de modus roeien heeft Leren › Manoeuvres een eigen groep, **Roeien**; de groepen van het zeilen
 staan er dan niet. De manoeuvres volgen *CWO Roeien* van Scouting Nederland (2021, § 2.4, de leidraad
 voor het diploma); het Katwijkse roei-instructieboek (§ 2.3) heeft dezelfde met oudere woorden
 ("Bakboord, stuurboord" waar de leidraad "beide boorden" zegt). Naar de drenkeling roept de viewer "Zwem!",

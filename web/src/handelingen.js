@@ -1,4 +1,4 @@
-// Handelingen: the Manoeuvres section of the Oefenen popover, and the card of a run.
+// Handelingen: the Manoeuvres section of the Leren popover, and the card of a run.
 //
 // The panel lists the operations a group at a time - Zeil, Wenden, Afmeren, Afvaren, Anker, Mast -
 // each greyed out with its reason while its preconditions are not met (modes.js, OPS), and asks
@@ -276,7 +276,7 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
     if (chosen === 'reven' && turns === run.turns) turns = run.turns === 0 ? 1 : 0;
     for (const b of Object.values(goButtons)) b.disabled = !chosen;
   }
-  // while it is in sight - its section of Oefenen shown, and that popover open - it follows the boat
+  // while it is in sight - its section of Leren shown, and that popover open - it follows the boat
   const panelWatch = setInterval(() => { if (panel.offsetParent !== null) refreshPanel(); }, 300);
   onDestroy?.(() => clearInterval(panelWatch));
 
@@ -531,5 +531,51 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
     goed: current.goed, fout: current.fout, klaar: current.done, vraag: current.question && { opties: current.question.options, antwoord: current.question.answer, beantwoord: current.answered } };
   /** The card closed, its run called off if it was under way: another mode leaves nothing running. */
   const callOff = () => { if (current) close(); };
-  return { active: () => Boolean(current), refresh: refreshPanel, info, callOff };
+
+  // ---------------------------------------------------------------- from Zoeken › Begrippen
+  // What stands in the way of an operation, and the plain change that clears it - by the reason run.ops() gives
+  const side = () => Math.sign(modes.state.course) || 1;
+  const PREP = [
+    [/zeilen hijsen/, () => modes.apply({ tuig: 'op' }, { direct: true })],
+    [/zeilen strijken|grootzeil en fok strijken|zeilen omlaag|mast zetten/, () => modes.apply({ tuig: 'gestreken' }, { direct: true })],
+    [/aan de wind of halve wind/, () => modes.apply({ koers: side() * 60 }, { direct: true })],
+    [/ruime of voor de wind/, () => modes.apply({ koers: side() * 150 }, { direct: true })],
+    [/niet kop in de wind/, () => modes.apply({ koers: side() * 90 }, { direct: true })],
+  ];
+  // done already, so not to be done: the tuig the other way first
+  const UNDONE = { hijsen: 'gestreken', strijken: 'op', mastZetten: 'mast', mastStrijken: 'gestreken' };
+  /**
+   * Watch `op` in Bekijken, at the end of the step labelled `stap` (or at its start), paused there. The boat is
+   * made ready first as far as a few plain changes go: the mode of its group, the sails up or down, a course to
+   * start from. Returns null when it runs; else why not, with the list of Leren › Manoeuvres left on it.
+   * `voor()` is called just before it starts (Zoeken closes then).
+   */
+  function bekijk(op, stap, voor) {
+    if (current) close();
+    const g = GROUPS.find(([, ops]) => op in ops)?.[0];
+    if (!g) return 'Onbekende handeling';
+    const mode = GROUP_MODE[g] ?? 'zeilen';
+    if (modes.state.mode !== mode) modes.apply({ modus: mode });
+    for (let i = 0; i < 5; i++) {
+      const o = run.ops().find((x) => x.op === op);
+      if (o.done && UNDONE[op]) { modes.apply({ tuig: UNDONE[op] }, { direct: true }); continue; }
+      const fix = o.blocked && PREP.find(([re]) => re.test(o.blocked));
+      if (!fix) break;
+      fix[1]();
+    }
+    dismissProcedure?.();                                          // a direct change leaves no bar of its own
+    const o = run.ops().find((x) => x.op === op);
+    if (o.blocked || o.done) {
+      group = g; chosen = op; refreshPanel();
+      return o.blocked ?? DONE[op] ?? 'Dat is al gedaan';
+    }
+    group = g; chosen = op;
+    voor?.();
+    start(op, 'bekijken', op === 'reven' ? 1 : turns);
+    const p = modes.procedure();
+    const s = stap && p?.steps.find((x) => x.label === stap);
+    if (s) { modes.procedureControl.pause(); modes.procedureControl.scrub(Math.max(s.begin, s.end - 1e-3)); follow(); }   // just in it: done, and still that step
+    return null;
+  }
+  return { active: () => Boolean(current), refresh: refreshPanel, info, callOff, bekijk, naam: (op) => NAMES[op] };
 }

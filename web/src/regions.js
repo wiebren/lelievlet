@@ -74,6 +74,43 @@ export function regionAt(region, hit) {
   return Boolean(faces && hit.face && faces.has(`${hit.face.a},${hit.face.b},${hit.face.c}`));
 }
 
+/**
+ * Every kleed of the grootzeil, not only the one of the drawing: any panel between two seams is a kleed, so in the
+ * quiz (Aanwijzen) a tap on any of them is right, and the one tapped lights up while it waits to be confirmed - not
+ * the whole zeil. raak(hit): the cloth a click landed on (its number), or 0; toon(hit): light that cloth up;
+ * verberg(): put it out again. The overlays are made the first time a cloth is shown, as the gebied's own are.
+ */
+function kledenVan(sources, material) {
+  const made = new Map();                                  // `${mesh.uuid} ${n}` -> overlay
+  let shown = null;
+  const raak = (hit) => (hit?.face && sources.includes(hit.object) ? clothAt(hit.object, [hit.face.a, hit.face.b, hit.face.c]) : 0);
+  const overlay = (mesh, n) => {
+    const key = `${mesh.uuid} ${n}`;
+    if (made.has(key)) return made.get(key);
+    const index = mesh.geometry.index; const keep = [];
+    for (let t = 0; t < index.count; t += 3) {
+      const tri = [index.getX(t), index.getX(t + 1), index.getX(t + 2)];
+      if (clothAt(mesh, tri) === n) keep.push(...tri);
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', mesh.geometry.attributes.position);
+    geometry.setAttribute('normal', mesh.geometry.attributes.normal);
+    geometry.setIndex(new THREE.BufferAttribute(Uint32Array.from(keep), 1));
+    const o = new THREE.Mesh(geometry, material); o.visible = false; o.frustumCulled = false;
+    mesh.add(o); made.set(key, o);
+    return o;
+  };
+  const verberg = () => { if (shown) shown.visible = false; shown = null; };
+  const toon = (hit) => {
+    verberg();
+    const n = raak(hit);
+    if (!n) return false;
+    shown = overlay(hit.object, n); shown.visible = true;
+    return true;
+  };
+  return { raak, toon, verberg };
+}
+
 /** Builds every gebied and pushes it into `parts`; returns them. */
 export function initRegions({ parts, groups, highlight }) {
   const byId = new Map(parts.map((p) => [p.extras.id, p]));
@@ -120,6 +157,7 @@ export function initRegions({ parts, groups, highlight }) {
     groups.get(def.groep).node.add(node);
     const part = { node, meshes: overlays, sources, covered, box: (out) => spanBox(spans, out),
                    extras: { id: def.id, naam: def.naam, groep: def.groep, gebied: true } };
+    if (def.id === 'kleed') Object.assign(part, kledenVan(sources, material));
     parts.push(part);
     made.push(part);
   }

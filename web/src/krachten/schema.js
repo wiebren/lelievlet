@@ -50,6 +50,7 @@ export function createSchema(host) {
       if (it.type === 'pijl') { take(it.from); take(it.from.map((c, i) => c + it.vec[i])); }
       else if (it.type === 'punt' || it.type === 'tekst' || it.type === 'ruimte') take(it.at);
       else if (it.type === 'lijn' || it.type === 'maat') { take(it.a); take(it.b); }
+      else if (it.type === 'stroom') it.pts.forEach(take);
       else if (it.type === 'boog') { const [x, y, z] = it.center; take([x - it.r, y - it.r, z - it.r]); take([x + it.r, y + it.r, z + it.r]); }
     }
     if (p.across) {
@@ -127,9 +128,24 @@ export function createSchema(host) {
         const d = Math.hypot(eu - pu, ev - pv) || 1; const tu = (eu - pu) / d; const tv = (ev - pv) / d;
         const hl = (it.vol ? 11 : 9) * px; const hw = (it.vol ? 5.5 : 4.5) * px; const bu = eu - tu * hl; const bv = ev - tv * hl;
         out += `<polygon points="${f(eu)},${f(ev)} ${f(bu - tv * hw)},${f(bv + tu * hw)} ${f(bu + tv * hw)},${f(bv - tu * hw)}" fill="${it.kleur}"/>`;
-        if (it.label) { const [mu, mv] = pts[Math.floor(pts.length / 2)]; word(mu, mv, it.label, it.kleur); }
+        // its word just outside the arc, away from its middle, so the arc stays in sight beside it
+        if (it.label) {
+          const [mu, mv] = pts[Math.floor(pts.length / 2)]; const [cu, cv] = P(it.center);
+          const d = Math.hypot(mu - cu, mv - cv) || 1;
+          word(mu + ((mu - cu) / d) * 14 * px, mv + ((mv - cv) / d) * 10 * px, it.label, it.kleur);
+        }
       } else if (it.type === 'tekst') {
         const [u, v] = P(it.at); const [ou, ov] = it.offset ?? [0, 0]; word(u + ou * px, v + ov * px, it.label, it.kleur);
+      } else if (it.type === 'stroom') {
+        if (base !== 'boven') continue;                                // the air from above only: from astern it is a smudge
+        const pts = it.pts.map(P);
+        out += `<polyline points="${pts.map((p) => p.map(f).join(',')).join(' ')}" fill="none" stroke="${it.kleur}" stroke-width="${f(1.1 * px)}" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>`;
+        if (it.pijl && pts.length > 2) {
+          const [eu, ev] = pts[pts.length - 1]; const [pu, pv] = pts[pts.length - 3];
+          const d = Math.hypot(eu - pu, ev - pv) || 1; const tu = (eu - pu) / d; const tv = (ev - pv) / d;
+          const hl = 6 * px; const hw = 3 * px; const bu = eu - tu * hl; const bv = ev - tv * hl;
+          out += `<polygon points="${f(eu)},${f(ev)} ${f(bu - tv * hw)},${f(bv + tu * hw)} ${f(bu + tv * hw)},${f(bv - tu * hw)}" fill="${it.kleur}" opacity="0.85"/>`;
+        }
       } else if (it.type === 'maat') {
         const [u0, v0] = P(it.a); const [u1, v1] = P(it.b);
         const len = Math.hypot(u1 - u0, v1 - v0); if (len < 3 * px) continue;

@@ -1,11 +1,15 @@
-// Oefenen, Verkeerstekens: a quiz on the borden, tonnen and seinen of Zoeken (zoeken.js hands them
-// over, each with its picture, its name and what it means you must do). Only what CWO asks about
-// comes in. The kinds of exercise:
+// Leren, Verkeerstekens: a quiz on the borden, tonnen and seinen of Zoeken, and on the lichten, dagmerken
+// and geluidsseinen of other ships (zoeken.js hands them over, each with its picture, its name and what it
+// means you must do; a geluidssein can be heard). Only what CWO asks about comes in. The kinds of exercise:
 // - zien: the picture on the card; one question asks what it is called, the next what it means or
 //   what you must do (a tonne: how you pass it) - the two mixed
 // - herkennen: a name or a meaning on the card, which of four pictures is it
 // - water: it stands out on the water, seen from the helm; what is it, or what must you do
 // - gemengd: the three by turns
+// A ship by its lights or dagmerken, and a geluidssein, are asked by what it is (its name: 'Ankerend schip',
+// 'Ik ga stuurboord uit'). A geluidssein is heard and seen as the BPR draws it; it is not out on the water, so
+// there Op het water asks it as Wat zie je?. A ship on the water lies ahead, by night or by day, from a side
+// at random.
 // The wrong answers are drawn from the same kind of thing, and from its own group first (a red sign
 // beside red signs, a lock beside locks), so the picture alone does not give it away. The card looks
 // and works like the one of Onderdelen (quiz.js), and so does the score, kept in this browser.
@@ -15,7 +19,8 @@ import { TYPING } from '../config.js';
 const CHOICES = 4;
 const LENGTHS = { 10: 10, 20: 20, alles: Infinity };
 const TYPES = ['zien', 'herkennen', 'water'];
-const SOORTEN = { alles: ['bord', 'ton', 'sein'], borden: ['bord'], tonnen: ['ton'], seinen: ['sein'] };
+const SOORTEN = { alles: ['bord', 'ton', 'sein', 'licht', 'dagmerk', 'geluid'], borden: ['bord'], tonnen: ['ton'], seinen: ['sein'],
+  lichten: ['licht'], dagmerken: ['dagmerk'], geluiden: ['geluid'] };
 const MARKS = { goed: '✓', fout: '✗' };
 const STORE = 'lelievlet.verkeerstekens.v1';
 
@@ -25,12 +30,20 @@ const pct = (a, total) => Math.round((100 * a) / Math.max(total, 1));
 
 // what a question asks for: 'naam' (what it is called) or 'doen' (what it means, what you must do)
 const VRAAG = {
-  naam: { bord: 'Hoe heet dit bord?', ton: 'Hoe heet deze markering?' },
+  naam: { bord: 'Hoe heet dit bord?', ton: 'Hoe heet deze markering?', licht: 'Wat voor schip is dit?', dagmerk: 'Wat voor schip is dit?',
+    geluid: 'Wat betekent dit geluidssein?' },
   doen: { bord: 'Wat betekent dit bord?', ton: 'Hoe vaar je langs deze markering?', sein: 'Wat betekent dit sein?' },
 };
-const HERKEN = { bord: 'Welk bord hoort hierbij?', ton: 'Welke markering hoort hierbij?', sein: 'Welk sein hoort hierbij?' };
-/** Naam or doen, as the entry allows: a signal has no name worth asking (it says what it looks like). */
-const askFor = (e) => (e.soort === 'sein' || !e.naam ? 'doen' : !e.doen ? 'naam' : Math.random() < 0.5 ? 'naam' : 'doen');
+const HERKEN = { bord: 'Welk bord hoort hierbij?', ton: 'Welke markering hoort hierbij?', sein: 'Welk sein hoort hierbij?',
+  licht: 'Welke lichten horen hierbij?', dagmerk: 'Welk dagmerk hoort hierbij?', geluid: 'Welk geluidssein hoort hierbij?' };
+/** On the water: where to look. */
+const WATER = { licht: 'Een schip op het water, ’s nachts.', dagmerk: 'Een schip op het water, overdag.' };
+/**
+ * Naam or doen, as the entry allows: a signal has no name worth asking (it says what it looks like); a ship by
+ * its lights or dagmerken, and a geluidssein, by what it is - its name says it.
+ */
+const askFor = (e) => (e.soort === 'sein' || !e.naam ? 'doen' : ['licht', 'dagmerk', 'geluid'].includes(e.soort) || !e.doen ? 'naam'
+  : Math.random() < 0.5 ? 'naam' : 'doen');
 const textOf = (e, about) => (about === 'doen' ? e.doen : e.naam);
 /**
  * What makes two answers different enough to tell apart: a meaning by its first sentence (E.10a to f
@@ -56,6 +69,7 @@ const LOOKALIKES = [
   /^vast-(a10|d2|a1|d1a|d1b)$/,
 ];
 function familyOf(e, about) {
+  if (e.familie) return e.familie;                               // ships that look the same, signals that sound the same
   if (e.soort === 'bord') { const f = FAMILIES.find((r) => r.test(e.id)); if (f) return String(f); }
   // a mark passed on the same side going up (opvarend) is passed the same way, whatever it looks like
   if (e.soort === 'ton' && about === 'doen') { const m = (e.doen ?? '').match(/opvarend[^.]*?aan (bakboord|stuurboord)/i); if (m) return m[1].toLowerCase(); }
@@ -68,7 +82,7 @@ function familyOf(e, about) {
 /**
  * ui, wrap: the viewer's shadow root and its wrapper; zoeken: the signs, marks and signals
  * (entries()) and taking what was put on the water away again (release()); closePanels(): every panel
- * shut for the round; openLearn(kind): back to the Oefenen panel; opslaan: whether the score is kept;
+ * shut for the round; openLearn(kind): back to the Leren panel; opslaan: whether the score is kept;
  * engaged, realTarget, signal: as main.js.
  */
 export function initTekenQuiz({ ui, wrap, zoeken, closePanels, openLearn, opslaan = true, engaged, realTarget, signal }) {
@@ -97,6 +111,23 @@ export function initTekenQuiz({ ui, wrap, zoeken, closePanels, openLearn, opslaa
   const statsOf = (e) => store.per[keyOf(e)] ?? { goed: 0, fout: 0, laatst: 0 };
 
   // ---------------------------------------------------------------- the start panel
+  // the kinds of exercise in the words of what is asked: a sound is heard, not seen, and is not out on the water
+  const KIND_WOORDEN = {
+    zien: { geluid: ['Wat hoor je?', 'Wat het geluidssein betekent'] },
+    herkennen: { licht: ['Welke lichten?', 'Kies het plaatje bij de naam'], dagmerk: ['Welk dagmerk?', 'Kies het plaatje bij de naam'],
+      geluid: ['Welk geluid?', 'Kies het sein bij de betekenis'] },
+  };
+  const kindTekst = new Map([...$('teken-kind').querySelectorAll('button')].map((b) => [b.dataset.kind, [b.querySelector('b')?.textContent, b.querySelector('span')?.textContent]]));
+  function benoemKinds() {
+    const enkel = SOORTEN[soort]?.length === 1 ? SOORTEN[soort][0] : null;
+    for (const b of $('teken-kind').querySelectorAll('button')) {
+      const [kop, uitleg] = (enkel && KIND_WOORDEN[b.dataset.kind]?.[enkel]) ?? kindTekst.get(b.dataset.kind) ?? [];
+      if (b.querySelector('b') && kop) b.querySelector('b').textContent = kop;
+      if (b.querySelector('span') && uitleg) b.querySelector('span').textContent = uitleg;
+      b.disabled = b.dataset.kind === 'water' && enkel === 'geluid';
+    }
+    if (enkel === 'geluid' && kind === 'water') $('teken-kind').querySelector('[data-kind="zien"]')?.click();
+  }
   let soort = store.keuze.soort ?? 'alles'; let kind = store.keuze.kind ?? 'zien'; let length = store.keuze.length ?? '10';
   const pick = (group, attr, value, set) => {
     const buttons = [...$(group).querySelectorAll('button')];
@@ -111,9 +142,10 @@ export function initTekenQuiz({ ui, wrap, zoeken, closePanels, openLearn, opslaa
       });
     }
   };
-  pick('teken-soort', 'soort', soort, (v) => { soort = v; });
+  pick('teken-soort', 'soort', soort, (v) => { soort = v; benoemKinds(); });
   pick('teken-kind', 'kind', kind, (v) => { kind = v; });
   pick('teken-length', 'length', length, (v) => { length = v; });
+  benoemKinds();
 
   /** What can be asked: only what CWO asks about, of the kind chosen. */
   const pool = (s = soort) => zoeken.entries().filter((e) => e.cwo && SOORTEN[s].includes(e.soort));
@@ -153,13 +185,22 @@ export function initTekenQuiz({ ui, wrap, zoeken, closePanels, openLearn, opslaa
   const head = el('div', 'head'); head.append(count, bar, score, stop);
   const big = el('div', 'big'); const vraag = el('div', 'vraag'); const hint = el('div', 'hint');
   const plaat = Object.assign(el('img', 'teken-plaat'), { alt: '' });
+  // a geluidssein: to be heard, as often as you like
+  const speel = Object.assign(el('button', 'teken-speel'), { type: 'button', hidden: true });
+  let speelt = null;                                             // the entry that is sounding
+  const speelLabel = () => { speel.textContent = speelt ? '■ Stop' : '▶ Laat horen'; };
+  const laatHoren = (e) => {
+    if (speelt) { speelt.stil(); return; }
+    if (e.speel(() => { speelt = null; speelLabel(); })) { speelt = e; speelLabel(); }
+  };
+  speel.addEventListener('click', () => question && laatHoren(question.entry));
   const answers = el('div', 'answers'); const feedback = el('div', 'feedback');
   const actions = el('div', 'actions');
   const primary = Object.assign(el('button', 'primary'), { type: 'button' });
   const extra = Object.assign(el('button', 'extra'), { type: 'button' });
   const secondary = Object.assign(el('button', 'link-button secondary'), { type: 'button' });
   actions.append(secondary, extra, primary);
-  card.append(head, big, vraag, hint, plaat, answers, feedback, actions);
+  card.append(head, big, vraag, hint, plaat, speel, answers, feedback, actions);
   wrap.append(card);
   card.addEventListener('pointerdown', (e) => e.stopPropagation());   // the column's popovers keep out of it
 
@@ -230,6 +271,8 @@ export function initTekenQuiz({ ui, wrap, zoeken, closePanels, openLearn, opslaa
   function clearQuestion() {
     big.hidden = true; card.classList.remove('results');
     plaat.hidden = true; plaat.removeAttribute('src');
+    if (speelt) speelt.stil();
+    speel.hidden = true;
     vraag.classList.remove('lang');
     answers.replaceChildren(); answers.hidden = true;
     setFeedback(null);
@@ -238,7 +281,8 @@ export function initTekenQuiz({ ui, wrap, zoeken, closePanels, openLearn, opslaa
   function ask() {
     if (round.index >= round.queue.length) { showResults(); return; }
     const entry = round.queue[round.index];
-    const type = round.kind === 'gemengd' ? TYPES[Math.floor(Math.random() * TYPES.length)] : round.kind;
+    const gekozen = round.kind === 'gemengd' ? TYPES[Math.floor(Math.random() * TYPES.length)] : round.kind;
+    const type = gekozen === 'water' && !entry.place ? 'zien' : gekozen;           // a geluidssein is not out on the water
     const about = askFor(entry);
     // pictures told apart by what they are asked as; a picture that goes with the same words would be right as well
     const by = (e) => gistOf(e, about);
@@ -264,12 +308,13 @@ export function initTekenQuiz({ ui, wrap, zoeken, closePanels, openLearn, opslaa
     } else {
       vraag.textContent = VRAAG[about][entry.soort];
       if (type === 'water') {
-        setHint(entry.ahead ? 'Kijk vooruit, vanaf het roer.' : 'Kijk opzij, vanaf het roer.');
-        entry.place({ helm: true });
+        setHint(WATER[entry.soort] ?? (entry.ahead ? 'Kijk vooruit, vanaf het roer.' : 'Kijk opzij, vanaf het roer.'));
+        entry.place({ helm: true, willekeurig: true });
       } else {
         setHint(null);
         showPicture(entry);
       }
+      if (entry.speel) { speel.hidden = false; speelLabel(); laatHoren(entry); }
       answers.className = `answers${about === 'doen' ? ' lang' : ''}`;
       answers.replaceChildren(...options.map((e, i) => {
         const b = Object.assign(el('button', 'answer'), { type: 'button' });
@@ -305,6 +350,7 @@ export function initTekenQuiz({ ui, wrap, zoeken, closePanels, openLearn, opslaa
     const said = entry.soort === 'sein' ? `${entry.groep}, ${entry.naam}. ${entry.doen}`
       : `${entry.soort === 'bord' ? `${entry.id} ` : ''}${entry.naam}.${entry.doen ? ` ${entry.doen}` : ''}`;
     if (type === 'herkennen') showPicture(entry);
+    if (entry.speel && speel.hidden) { speel.hidden = false; speelLabel(); }
     setFeedback(right ? `Goed! ${said}` : `Fout. ${said}`, right ? 'goed' : 'fout');
     setActions(round.index + 1 < round.queue.length ? 'Volgende' : 'Uitslag', next);
     primary.focus();

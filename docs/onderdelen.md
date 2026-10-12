@@ -1,7 +1,7 @@
 # Onderdelen van de lelievlet
 
 Naslag voor wie de viewer gebruikt of controleert: elk onderdeel dat het 3D-model heeft, de andere
-namen die de lesstof ervoor gebruikt, en of en hoe **Oefenen** ernaar vraagt.
+namen die de lesstof ervoor gebruikt, en of en hoe de **quiz** (Leren › Quiz) ernaar vraagt.
 
 Dit bestand wordt gemaakt door `web/scripts/docs.mjs` (`pnpm run docs` in `web/`) uit
 `web/public/models/lelievlet.parts.json` (het model) en `web/src/quizdata.js` (de vragen). Pas
@@ -13,8 +13,8 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
   sleutel waarmee een insluitende pagina het onderdeel selecteert.
 - **Andere namen** komen uit de lesstof; de bronsleutels staan in
   `reference/parts/SOURCES.md` en `reference/parts/CWO_NIVEAUS.md` (hoofdstuk 4). De naam
-  waaronder Oefenen het vraagt staat in de kolom Oefenen.
-- **Oefenen**: **vetgedrukt** is een vraag waarvan dit onderdeel het antwoord *is*, met het niveau
+  waaronder de quiz het vraagt staat in de kolom Quiz.
+- **Quiz**: **vetgedrukt** is een vraag waarvan dit onderdeel het antwoord *is*, met het niveau
   waarop het gevraagd wordt: Zeilen I, II of III (CWO Zeilen Kielboot) en/of Roeien (CWO Roeiboot,
   zonder niveaus: alles tegelijk). "Telt mee bij" betekent dat een klik op dit onderdeel bij die vraag
   ook goed is, omdat het erbij hoort. Zeilen-niveau L vraagt alles tot en met L.
@@ -25,7 +25,7 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 
 ### Romp (casco)
 
-| Onderdeel | Id | Andere namen | Oefenen |
+| Onderdeel | Id | Andere namen | Quiz |
 |---|---|---|---|
 | Achterdek | `achterdek` |  | **69 Achterdek** (Zeilen I, Roeien) |
 | Schot achterste luchtkast | `achterschot` |  | — |
@@ -53,7 +53,7 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 
 ### Roer
 
-| Onderdeel | Id | Andere namen | Oefenen |
+| Onderdeel | Id | Andere namen | Quiz |
 |---|---|---|---|
 | Haak van het borgkettinkje | `borghaak_spiegel` |  | — |
 | Borgkettinkje | `borgkettinkje` |  | — |
@@ -67,7 +67,7 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 
 ### Zwaard en zwaardkast
 
-| Onderdeel | Id | Andere namen | Oefenen |
+| Onderdeel | Id | Andere namen | Quiz |
 |---|---|---|---|
 | Zwaard | `zwaard` | midzwaard [VDM8, KATR], zwaardblad | **48 Zwaard** (Zeilen I, Roeien) |
 | Zwaardkast | `zwaardkast` |  | **51 Zwaardkast** (Zeilen I, Roeien) |
@@ -77,7 +77,7 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 
 ### Interieur
 
-| Onderdeel | Id | Andere namen | Oefenen |
+| Onderdeel | Id | Andere namen | Quiz |
 |---|---|---|---|
 | Bakskist | `bakskist` |  | — |
 | Beslag van de bakskist | `bakskist_beslag` |  | — |
@@ -93,7 +93,7 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 
 ### Beslag
 
-| Onderdeel | Id | Andere namen | Oefenen |
+| Onderdeel | Id | Andere namen | Quiz |
 |---|---|---|---|
 | Anker | `anker` |  | — |
 | Ankerketting | `ankerketting` |  | — |
@@ -131,7 +131,7 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 
 ### Rondhouten
 
-| Onderdeel | Id | Andere namen | Oefenen |
+| Onderdeel | Id | Andere namen | Quiz |
 |---|---|---|---|
 | Gaffel | `gaffel` |  | **6 Gaffel** (Zeilen I) |
 | Giek | `giek` |  | **17 Giek** (Zeilen I) |
@@ -146,7 +146,7 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 
 ### Zeilen
 
-| Onderdeel | Id | Andere namen | Oefenen |
+| Onderdeel | Id | Andere namen | Quiz |
 |---|---|---|---|
 | Fok | `fok` |  | **31 Fok** (Zeilen I) |
 | Achterlijk fok | `fok_achterlijk` |  | **13 Achterlijk** (Zeilen II) |
@@ -170,7 +170,7 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 
 ### Staand want
 
-| Onderdeel | Id | Andere namen | Oefenen |
+| Onderdeel | Id | Andere namen | Quiz |
 |---|---|---|---|
 | Ring van de pelikaanhaak | `pelikaanhaak_ring` | ring van de klephaak | **40 Voorstagspanner** (Zeilen III) |
 | Voorstag met spanner | `voorstag` |  | **30 Voorstag** (Zeilen I) |
@@ -182,7 +182,7 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 
 ### Lopend want
 
-| Onderdeel | Id | Andere namen | Oefenen |
+| Onderdeel | Id | Andere namen | Quiz |
 |---|---|---|---|
 | Achterlandvast | `achterlandvast` |  | — |
 | Ankerlijn | `ankerlijn` |  | — |
@@ -209,13 +209,13 @@ het niet met de hand aan: verander de bron en draai het script opnieuw.
 
 ### Roeien en wrikken
 
-| Onderdeel | Id | Andere namen | Oefenen |
+| Onderdeel | Id | Andere namen | Quiz |
 |---|---|---|---|
 | Roeiriem (bakboord) | `riem_bb` | roeiriem | **85 Riem** (Roeien) |
 | Roeiriem (stuurboord) | `riem_sb` | roeiriem | **85 Riem** (Roeien) |
 | Wrikriem | `wrikriem` |  | telt mee bij 85 Riem |
 
-## De vragen van Oefenen
+## De vragen van de quiz
 
 85 vragen bij Zeilen (niveau I: 30,
 tot en met II: 50, tot en met III: 85),

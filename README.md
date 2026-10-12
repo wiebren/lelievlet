@@ -11,7 +11,7 @@ paginanummers verwijzen naar die druk.
 
 | Map | Wat |
 |---|---|
-| `docs/` | Naslag voor gebruikers en instructeurs: `onderdelen.md` (alle onderdelen, andere namen, wat Oefenen vraagt) en `manoeuvres.md` (handelingen, voorwaarden, stappen); `handelingen.md` is de werklijst |
+| `docs/` | Naslag voor gebruikers en instructeurs: `onderdelen.md` (alle onderdelen, andere namen, wat de quiz vraagt) en `manoeuvres.md` (handelingen, voorwaarden, stappen); `handelingen.md` is de werklijst |
 | `reference/` | Bronmateriaal en de index daarop — begin bij `reference/README.md` |
 | `pipeline/` | DWG-bodies → meshes → `web/public/models/lelievlet.glb` |
 | `web/` | Vite + three.js viewer |
@@ -56,7 +56,7 @@ Wat van anderen is, valt niet onder deze licentie:
 
 `docs/onderdelen.md` en `docs/manoeuvres.md` zijn bedoeld om de viewer mee te gebruiken en te
 controleren: welke onderdelen er zijn, onder welke namen de lesstof ze ook kent, op welk niveau
-Oefenen ernaar vraagt, en welke handelingen de boot kan doen met hun voorwaarden en stappen. Ze
+de quiz ernaar vraagt, en welke handelingen de boot kan doen met hun voorwaarden en stappen. Ze
 worden gemaakt uit de bronnen van de viewer zelf; na een wijziging aan het model, de quizvragen of de
 handelingen draai je in `web/`:
 
@@ -236,7 +236,7 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 | `aanpassen.bakskleur` | hexkleur | `'#c8102e'` | Accentkleur: beslag, roerkop, hanekam, mastbanden en de geschilderde banden. |
 | `aanpassen.zeilkleur` | 0–100 | `10` | Kleur van de zeilen: `0` helder wit, `10` het gebroken wit van het model, dan via zand en roodbruin naar `100` heel donker bruin. Vanaf `50` zijn zeilteken en zeilnummer wit. |
 | `aanpassen.kleuren.<zone>` | hexkleur | zie hieronder | Kleur per verfzone: `romp` `#0a0a0b`, `berghout` `#0a0a0b`, `boeisel` `#f5c20d`, `dolboord` `#0a0a0b`, `voordek` `#8f9499`, `achterdek` `#8f9499`, `kuip` `#8f9499`, `zwaardkast` `#8f9499`. |
-| `aanpassen.opslaan` | boolean | `true` | `false`: de viewer leest en schrijft geen `localStorage` (Aanpassen, de score en keuzes van Oefenen, de vinkjes bij Manoeuvres); elke bezoeker begint bij jouw waarden. |
+| `aanpassen.opslaan` | boolean | `true` | `false`: de viewer leest en schrijft geen `localStorage` (Aanpassen, de score en keuzes van Leren, de vinkjes bij Manoeuvres); elke bezoeker begint bij jouw waarden. |
 | `toestand.modus` | `'zeilen'` \| `'roeien'` \| `'wrikken'` | `'zeilen'` | De modus waarin de viewer opent. |
 | `toestand.tuig` | `'op'` \| `'gestreken'` \| `'mast'` | `'op'` | Zeilen op, zeilen gestreken of mast gestreken. |
 | `toestand.koers` | getal | `90` | Graden van de wind af: `0` is kop in de wind, `45` aan de wind, `90` halve wind, `135` ruime wind, `180` voor de wind (met de fok te loevert); daartussen mag ook. Positief: wind over stuurboord, negatief: over bakboord. Tussen 0 en 45 wordt 45. |
@@ -251,7 +251,7 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 | `quiz.erbij` | array | `[]` | Eigen vragen: `[{ naam, delen: ['id', …], ook: ['id', …], niveau: 1, roeien: true, nr: 200 }]`. `naam` en een niet-lege `delen` zijn verplicht; zonder `nr` krijgt de vraag er zelf een vanaf 1000, zonder `niveau` geldt Zeilen III, `roeien: true` vraagt hem ook bij Roeien en `zeilen: false` laat hem bij Zeilen weg. |
 | `quiz.niveau` | `'roeien'` \| 1 \| 2 \| 3 | `3` | Het niveau waarop het startpaneel opent: `'roeien'` voor CWO Roeien, 1–3 voor Zeilen I–III. De gebruiker kan het daarna zelf wisselen, en het paneel onthoudt zijn laatste keuze. |
 | `debug.modelnummer` | boolean | `false` | Toont de regel "Modelnummer" in de infotegel: de CAD-handle van de body waarop geklikt is. Een hulpmiddel bij het modelleren, niets voor een verkenner. |
-| `debug.quiztabellen` | boolean | `false` | Zet een link **Tabellen** in het startpaneel van Oefenen, die de opgeloste quizconfiguratie als tabel toont: nr, naam, niveau, `delen` en `ook` (elke id die in het geladen model niet bestaat staat rood), of het een eigen vraag is, en de score per vraag. Daaronder een tweede tabel met alle onderdelen waar geen enkele vraag over gaat. |
+| `debug.quiztabellen` | boolean | `false` | Zet een link **Tabellen** in het startpaneel van de quiz, die de opgeloste quizconfiguratie als tabel toont: nr, naam, niveau, `delen` en `ook` (elke id die in het geladen model niet bestaat staat rood), of het een eigen vraag is, en de score per vraag. Daaronder een tweede tabel met alle onderdelen waar geen enkele vraag over gaat. |
 | `debug.toestand` | boolean | `false` | Zet een icoon `{ }` rechtsonder, boven de onderdelenkaart. Het paneel toont de toestand waarin de viewer nu staat als de configuratie om daar te beginnen (`{ "toestand": { … } }`, zie `get()`, met het camerastandpunt), bijgewerkt zolang het open staat, met een knop **Kopieer als JSON**. |
 | `debug` | `true` \| `false` | — | `debug: true` zet alle hulpmiddelen tegelijk aan, `debug: false` alle uit. |
 
@@ -435,7 +435,7 @@ komt na controle met de hand in `groepen.js`. Met `feedback: false` is die knop 
 
 `web/src/modes.js` schakelt tussen Zeilen, Roeien en Wrikken en trimt in Zeilen de zeilen voor een
 koers ten opzichte van de wind. De bediening is een kolom iconen linksboven - **Boot**, dan
-**Oefenen**, en in Roeien **Roeicommando** - en elk icoon opent zijn bediening in een popover ernaast: één tegelijk, weer te sluiten met hetzelfde icoon, een ander icoon,
+**Leren**, en in Roeien **Roeicommando** - en elk icoon opent zijn bediening in een popover ernaast: één tegelijk, weer te sluiten met hetzelfde icoon, een ander icoon,
 Escape of een klik ernaast. **Boot** bundelt de modus (Zeilen, Roeien, Wrikken), de koers ten
 opzichte van de wind en het aantal riemen; het icoon tekent de modus. Wind staat er alleen in Zeilen met
 de zeilen op en Riemen alleen in Roeien; een keuze in het paneel laat het open, zodat je daarna nog
@@ -480,14 +480,24 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
 - Assen en ankerpunten komen uit de CAD via `pipeline/rig_data.py` (rootnode `extras.tuig`). Dat
   bestand sorteert ook het niet-benoemde beslag naar wat met giek, gaffel of fok meebeweegt.
 - De knoppen zitten op drie plaatsen. Linksboven staat de kolom met **Boot**, de studentenmuts
-  **Oefenen** en in Roeien **Roeicommando**. Oefenen kiest eerst wat je oefent - **Manoeuvres** (de
-  handelingen, alleen in Zeilen), **Onderdelen** (de quiz) of **Verkeerstekens** (de quiz op borden,
-  tonnen en seinen, `web/src/bpr/tekenquiz.js`, alleen wat CWO vraagt, de score in
+  **Leren** en in Roeien **Roeicommando**. Leren kiest eerst wat je doet - **Lessen** (een kaart naast
+  de boot, een tegelijk, in de volgorde van de lesboeken: **Zeiltermen** (`web/src/zeiltermen/`), **Het weer**,
+  **Grote schepen**, **Bruggen**, **Sluizen**, **Regels**, **Voorrang**, **Verkeerstekens**, **Geluidsseinen**,
+  **Lichten en dagtekens** (`web/src/lessen/`, op de gedeelde kaart `lessen/kaart.js`) en **Krachten en koppels**
+  (`web/src/krachten/`); alleen wat de CWO vraagt, de meeste met als laatste onderwerp Zelf verkennen met alles uit
+  Zoeken of een knop naar een quiz;
+  wat gevolgd is staat in `lelievlet.lessen.v1` (`lessen/voortgang.js`, per les en onderwerp-id); `?voorrang` enz.
+  in het adres opent er meteen een), **Manoeuvres** (de
+  handelingen, alleen in Zeilen) of **Quiz**, met daarin **Onderdelen** (de quiz), **Voorrang** (steeds een nieuwe
+  situatie, makkelijk, normaal of moeilijk, gemaakt uit de regels: `lessen/voorrang-quiz.js`, `voorrang-oefen.js`,
+  op de kaart van de lessen; `?voorrangquiz`), **Zeiltermen** (vragen over de boot op het water:
+  `zeiltermen/quiz.js`; `?zeiltermenquiz`) of **Verkeerstekens** (de quiz op borden, tonnen, seinen, lichten,
+  dagmerken en geluidsseinen, `web/src/bpr/tekenquiz.js`, alleen wat CWO vraagt, de score in
   `lelievlet.verkeerstekens.v1`; de foute antwoorden komen eerst uit de tekens die erop lijken maar
   iets anders betekenen, `LOOKALIKES`, dan uit de eigen groep, en bij het begin van een ronde zet
   `closePanels` in `main.js` de boot met `modes.sailFree()` vrij op open water: geen steiger, lijnen of
   anker, in Zeilen op een koers) - en toont daaronder het startpaneel daarvan; het opent op wat het
-  laatst gekozen is. Op een telefoon gaan de menu's van de kolom er over de hele breedte onder open.
+  laatst gekozen is, en anders op Lessen. Op een telefoon gaan de menu's van de kolom er over de hele breedte onder open.
   Rechtsboven zit het **tandwiel** voor Aanpassen, met onderaan dat paneel de snelheid van de
   animaties (met de sneltoetsen voor de camera). Daaronder het rondje met de **i**: een menu met
   **Melden**, de **Handleiding** en de **Homepagina** (op wiebren.github.io/lelievlet, in een nieuw
@@ -498,7 +508,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   Aanpassen heeft opgeslagen. Wie dat niet heeft, begint bij de huidige stand. Wat nieuw is, staat
   er met *Nieuw* bij; een tweede update op dezelfde dag (`nr: 2`) telt als nieuw voor wie de eerste al
   zag. Met `aanpassen.opslaan: false` gebeurt dit niet. Met `feedback: false` blijft het menu, zonder
-  Melden (en zonder *Kleuren van je groep melden* in Aanpassen). Boot en Oefenen hebben, net als de andere panelen, rechtsboven *Sluiten*.
+  Melden (en zonder *Kleuren van je groep melden* in Aanpassen). Boot en Leren hebben, net als de andere panelen, rechtsboven *Sluiten*.
   Rechtsonder staat de **onderdelenkaart**: met niets geselecteerd is
   dat alleen een ronde zoekknop, met een onderdeel geselecteerd de kaart met groep en naam en
   rechtsboven daarin dezelfde zoekknop. Die opent **Zoeken** boven de kaart (`web/src/bpr/zoeken.js`).
@@ -506,7 +516,8 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   naar de rest) en een tegel per soort; een tegel opent de eigen pagina van die soort, met *‹* terug:
   **Onderdelen** (de doorzoekbare lijst; elke groepskop daarin heeft een oog dat de hele groep in het
   model verbergt of weer toont, en *Alles tonen* / *Alles verbergen* doen dat voor alle groepen
-  tegelijk), **Borden**, **Markeringen**, **Seinen**, **Lichten** en **Dagmerken** (de schepen van BPR
+  tegelijk), **Begrippen** (de zeil- en roeitermen met een korte uitleg en knoppen naar de les, de manoeuvre of
+  het onderdeel waar je ze ziet, `web/src/begrippen.js`), **Borden**, **Markeringen**, **Seinen**, **Lichten** en **Dagmerken** (de schepen van BPR
   hoofdstuk 3, `bpr/schepen.js` met de uitleg in `bpr/lichtuitleg.js`), **Vlaggen** en
   **Geluidsseinen** (BPR bijlage 6, `bpr/geluiden.js`, te beluisteren via `bpr/hoorn.js`). Naast het
   zoekveld van elke pagina behalve Onderdelen staat de chip **CWO**: aan laat hij alleen zien wat
@@ -618,8 +629,8 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   Getoond en bediend wordt hij als twee flows, **Zeilen** en **Mast**: elk een `Stretch` (in
   `web/src/procedure.js`) van die timeline, met alleen zijn eigen stappen op de voortgangsbalk; vorige,
   volgende en de schuif blijven binnen de flow.
-- Oefenen → **Manoeuvres** (`web/src/handelingen.js`) is een startpaneel met de
-  handelingen als rijen, zoals de oefeningen van Oefenen, in vijf groepen: **Tuigage** (mast zetten, zeilen
+- Leren → **Manoeuvres** (`web/src/handelingen.js`) is een startpaneel met de
+  handelingen als rijen, zoals de oefeningen van de quiz, in vijf groepen: **Tuigage** (mast zetten, zeilen
   aanslaan, hijsen, reven met het aantal slagen, strijken en afslaan, mast strijken), **Wenden** (overstag, gijp, stormrondje, opkruisen, man over boord,
   dwarspeiling, bijliggen en weer varen), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een langswal de
   sliplanding en voor top en takel; aanleggen aan lagerwal; verhalen), **Afvaren** (van hogerwal, langswal en
@@ -648,7 +659,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   al gedaan is; ze komen vooral uit de handeling zelf en soms uit de andere flow. Een antwoord laat
   die stap zien (de camera eerst, zoals altijd), een fout antwoord de goede; na de laatste stap volgt
   de uitslag. Zolang een handeling loopt staat de viewer in focusmodus (`.lv.ops-on`), net als bij
-  Oefenen: alleen de boot, de kaart en volledig scherm, en een klik op het model doet niets.
+  de quiz: alleen de boot, de kaart en volledig scherm, en een klik op het model doet niets.
   Aan het eind van de handeling wordt het kruisje een groene **Klaar**. Dat gebeurt zodra er in de
   richting van de handeling geen stap meer te doen is. Het kruisje daarvoor breekt de handeling af
   (`run.abandon()` in `modes.js`): de tijdlijn gaat terug naar waar de handeling begon, en een
@@ -792,9 +803,9 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   een achtvormige beweging. De CAD heeft geen dollen; elke riem ligt 50 mm boven de rand van zijn
   dolpot.
 
-## Quiz (Oefenen)
+## Quiz (Leren)
 
-Oefenen → **Onderdelen** is de quiz (`web/src/quiz.js`, de styling ervan in
+Leren → Quiz → **Onderdelen** is de quiz (`web/src/quiz.js`, de styling ervan in
 één gemarkeerd blok onderaan `web/src/style.css`). Er wordt alleen gevraagd naar de genummerde namen
 op de onderdelentekening van de klasse — `web/src/quizdata.js`, één entry per naam met de id's van de
 onderdelen die het *zijn* (`delen`) en de onderdelen die bij een klik goed gerekend worden omdat ze

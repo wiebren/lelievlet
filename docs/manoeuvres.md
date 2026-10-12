@@ -10,7 +10,7 @@ met de hand aan: verander de bron en draai het script opnieuw.
 
 ## Het menu Handelingen
 
-Oefenen (de studentenmuts in de kolom linksboven) → Manoeuvres, in de modus Zeilen en Roeien, toont de
+Leren (de studentenmuts in de kolom linksboven) → Manoeuvres, in de modus Zeilen en Roeien, toont de
 handelingen per groep: **Tuigage** (mast zetten, zeilen aanslaan, hijsen, reven, strijken en afslaan, mast strijken), **Wenden** (overstag, gijp, stormrondje,
 opkruisen, man over boord, dwarspeiling, bijliggen en weer varen), **Afmeren** (aan hogerwal de sliplanding en de opschieter; aan een
 langswal de sliplanding en voor top en takel; aanleggen aan lagerwal; verhalen),
@@ -225,7 +225,7 @@ Zeilklaar:
 
 ## Roeimanoeuvres
 
-In de modus roeien heeft Oefenen › Manoeuvres een eigen groep, **Roeien**; de groepen van het zeilen
+In de modus roeien heeft Leren › Manoeuvres een eigen groep, **Roeien**; de groepen van het zeilen
 staan er dan niet. De manoeuvres volgen *CWO Roeien* van Scouting Nederland (2021, § 2.4, de leidraad
 voor het diploma); het Katwijkse roei-instructieboek (§ 2.3) heeft dezelfde met oudere woorden
 ("Bakboord, stuurboord" waar de leidraad "beide boorden" zegt). Naar de drenkeling roept de viewer "Zwem!",

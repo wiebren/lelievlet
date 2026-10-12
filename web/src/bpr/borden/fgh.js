@@ -172,8 +172,8 @@ function sluisOphaal() {
 
 // ---- G.5: height marks -----------------------------------------------------------------------
 
-/** The hoogteschaal: metre blocks 7..11 alternating black and yellow, decimetre ticks down the left. */
-function hoogteschaal(W = 320, framed = true) {
+/** The hoogteschaal: metre blocks 7..11 (or from `start`) alternating black and yellow, decimetre ticks down the left. */
+function hoogteschaal(W = 320, framed = true, start = 7) {
   const x = framed ? 50 : 0; const y = framed ? 50 : 0; const M = 160; const narrow = 39; const wide = 78;
   let s = '';
   for (let i = 0; i < 5; i++) {
@@ -187,7 +187,7 @@ function hoogteschaal(W = 320, framed = true) {
       const tick = d < 5 ? GEEL : ZWART; const dm = M / 10;
       s += `<rect x="${x}" y="${(top + d * dm + dm * 0.1).toFixed(1)}" width="${narrow}" height="${(dm * 0.8).toFixed(1)}" fill="${tick}"/>`;
     }
-    s += tekst(x + wide + (W - wide) / 2, top + M / 2, String(7 + i), Math.min(175, (W - wide) / 1.25), ink);
+    s += tekst(x + wide + (W - wide) / 2, top + M / 2, String(start + i), Math.min(175, (W - wide) / 1.25), ink);
   }
   if (!framed) return { w: W, h: 5 * M, svg: svg(W, 5 * M, s) };
   return { w: 420, h: 900, svg: svg(420, 900, `<rect width="420" height="900" fill="${PANEEL}"/>${s}`) };
@@ -266,6 +266,32 @@ export default {
 
 // the little scenes on their own, for Seinen (zoeken.js): one picture per state of a bridge or lock
 /** The hoogteschaal itself, as it stands in the water: no panel round it, a metre 160 units, 1.5 m wide. */
-export const hoogteschaalBord = () => hoogteschaal(240, false);
+export const hoogteschaalBord = (start = 7) => hoogteschaal(240, false, start);
+
+/**
+ * A piece of a hoogteschaal, from the figure `van` at its top down to `tot` (metres, not whole ones), as it is fixed
+ * to a kade wall: the same blocks and ticks, cut off where the wall ends. water: the figure the water stands at, for
+ * a picture of it (the water over the scale from there down); the model has its own water.
+ */
+export function hoogteschaalStuk(van, tot, W = 240, water = null) {
+  const M = 160; const narrow = 39; const wide = 78; const H = Math.round((tot - van) * M);
+  let s = '';
+  for (let k = Math.floor(van); k < Math.ceil(tot); k++) {
+    const top = (k - van) * M; const fill = k % 2 ? GEEL : ZWART; const ink = k % 2 ? ZWART : GEEL;
+    s += `<rect x="0" y="${top.toFixed(1)}" width="${W}" height="${M}" fill="${fill}"/>`;
+    s += `<rect x="0" y="${top.toFixed(1)}" width="${wide}" height="${M / 2}" fill="${ZWART}"/><rect x="0" y="${(top + M / 2).toFixed(1)}" width="${wide}" height="${M / 2}" fill="${GEEL}"/>`;
+    for (let d = 1; d < 10; d += 2) {
+      const dm = M / 10;
+      s += `<rect x="0" y="${(top + d * dm + dm * 0.1).toFixed(1)}" width="${narrow}" height="${(dm * 0.8).toFixed(1)}" fill="${d < 5 ? GEEL : ZWART}"/>`;
+    }
+    s += tekst(wide + (W - wide) / 2, top + M / 2, String(k), Math.min(175, (W - wide) / 1.25), ink);
+  }
+  if (water !== null) {
+    const y = ((water - van) * M).toFixed(1);
+    s += `<rect x="0" y="${y}" width="${W}" height="${(H - Number(y)).toFixed(1)}" fill="#5f93b5" fill-opacity="0.55"/>`
+      + `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#1b64c4" stroke-width="6"/>`;
+  }
+  return { w: W, h: H, svg: svg(W, H, s) };
+}
 
 export const SCENE = { tafereel, brug, ophaalbrug, sluis, sluisBrug, sluisOphaal, vasteBrug, stuw, stuwBrug, licht, a10, d2, d1, a1 };

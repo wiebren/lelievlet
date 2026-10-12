@@ -1,15 +1,17 @@
 import * as THREE from 'three';
 import { BORDEN } from './borden/index.js';
-import { TEKENS, makeSign } from './tekens.js';
+import { TEKENS } from './tekens.js';
 import { MARKS, makeMark } from './betonning.js';
 import { BORD_UITLEG, MARK_UITLEG } from './uitleg.js';
-import { SEINEN, seinPlaatje, makeSein, makeVeerpont } from './seinen.js';
-import { NIET_CWO, EXTRA } from './borden/index.js';
+import { SEINEN, seinPlaatje, makeSein, makeTeken, plaatsVan } from './seinen.js';
+import { EXTRA } from './borden/index.js';
+import { cwoTeken, cwoLicht, cwoBron } from './cwo.js';
 import { VLAGGEN, VLAG_GROEPEN, VLAG_KLEUREN, PATRONEN, vlagSvg, makeVlag, makeHijs, aanBoord } from './vlaggen.js';
 import { CONFIGS, makeShip } from './schepen.js';
 import { makeHoorn, patroonSvg } from './hoorn.js';
 import { GELUIDEN, GELUID_GROEPEN } from './geluiden.js';
 import { LICHT_GROEPEN, LICHT_UITLEG } from './lichtuitleg.js';
+import { BEGRIPPEN, BEGRIP_GROEPEN } from '../begrippen.js';
 
 // Zoeken, beside Onderdelen: the pages Borden (BPR bijlage 7), Markeringen (bijlage 8), Seinen (the
 // lights at bridges, locks and spuisluizen, bijlage 7 G and H), Vlaggen (the BPR's, the racing signals and
@@ -43,9 +45,6 @@ const BORD_KLEUREN = [
   { key: 'wit', label: 'Wit', dot: '#ffffff', groepen: [['Onderborden', ['F.1', 'F.2a', 'F.3', 'F.4']]] },
 ];
 
-// signs that hang on a bridge (BPR bijlage 7: A.10 and D.2 at the edges of the opening, D.1 over it, C.2 and
-// the hoogtebord on it): put out on a fixed bridge, not on a post
-const OP_BRUG = new Set(['A.10', 'D.2', 'D.1a', 'D.1b', 'C.2', 'G.5.1b', 'G.5.1c', 'G.5.2', 'G.5.3']);
 // where an extra sign goes, when its looks say less than what it is for
 const EXTRA_GROEP = { 'G.5.1c': 'Hoogte en diepte', 'G.5.3': 'Hoogte en diepte', 'H.2.3': 'Wegwijzers' };
 
@@ -78,6 +77,10 @@ const OUT = 7;                     // m: how far from the middle of the boat a s
 const AHEAD = 18;                  // m: how far ahead a bridge, lock or spuisluis stands, the boat coming up to it
 const THUMB = 160;                 // px: the picture of a mark in the list, rendered from its model
 
+// ships of Zoeken › Lichten and Dagmerken that are there for a sign they carry, not for what kind of ship they
+// are: in the quiz they are with the Seinen (tekenquiz.js)
+const TEKEN_AAN_BOORD = new Set(['duiker', 'stuurboord_op_stuurboord', 'bescherming_golfslag', 'anker_gevaar', 'verbod_roken', 'verbod_toegang', 'verbod_ligplaats_langszij']);
+
 /**
  * ui: the viewer's shadow root; renderer, scene, camera: to draw the pictures of the marks and to put
  * the one picked out on the water; boat(): the middle of the boat; lookFromHelm(point | null): the
@@ -88,7 +91,8 @@ const THUMB = 160;                 // px: the picture of a mark in the list, ren
  * all of her, to fit in the view.
  * Returns { update(dt), release(), info(), entries(), reset(), goto(page), destroy(), parts(list, search) }.
  */
-export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, waterline, windArrow, view, fly, setDark, eigen }) {
+
+export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, waterline, windArrow, view, fly, setDark, eigen, begrip }) {
   // how dark it is held here, 0 day .. 1 night: the lights of a ship shown come up with it, as a light does at dusk
   let darkK = 0;
   const holdDark = (k) => { darkK = Math.min(k ?? 0, 1); setDark(k); };
@@ -479,7 +483,7 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
       const query = fold(search.value.trim());
       let found = 0;
       for (const item of items) {
-        const hit = (!cwoOnly || item.cwo) && chips.match(item) && (!query || item.key.includes(query));
+        const hit = (!cwoOnly || item.cwo !== false) && chips.match(item) && (!query || item.key.includes(query));
         item.button.hidden = !hit; if (hit) found++;
       }
       for (const { section, grid } of sections.values()) section.hidden = ![...grid.children].some((b) => !b.hidden);
@@ -547,16 +551,15 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
       const { svg } = BORDEN[code];
       const naam = NAMEN.get(code) ?? EXTRA_BY.get(code)?.naam ?? code;
       const uitleg = BORD_UITLEG?.[code] ?? EXTRA_BY.get(code) ?? {};
-      const cwo = !NIET_CWO.has(code);
+      const cwo = cwoTeken(code);                                  // what the CWO asks (cwo.js), for the chip, the card and the quiz
       const button = el('button', { type: 'button', className: `zoek-item${cwo ? '' : ' niet-cwo'}`, title: `${code} ${naam}${cwo ? '' : ' (niet voor CWO)'}` },
         el('img', { src: asImage(svg), alt: '', loading: 'lazy', decoding: 'async' }), el('span', { textContent: code }));
-      // what hangs on a bridge is shown on one, straight ahead; everything else on its post beside the boat
-      const place = (opts) => (OP_BRUG.has(code)
-        ? show(`bord:${code}`, () => makeSein({ id: code, bouw: 'vast', borden: code }), { ...opts, ahead: true })
-        : code === 'E.4a' || code === 'E.4b' ? show(`bord:${code}`, () => makeVeerpont(code), { ...opts, ahead: true, wide: true })   // on both kades, the pont between
-        : show(`bord:${code}`, () => makeSign(code), opts));
+      // where it really stands (seinen.js plaatsVan): what hangs on a bridge on one straight ahead, the veerpont on
+      // both kades with the pont between, everything else on its post beside the boat
+      const waar = plaatsVan(code);
+      const place = (opts) => show(`bord:${code}`, () => makeTeken(code), waar === 'paal' ? opts : { ...opts, ahead: true, wide: waar === 'pont' });
       entries.push({ soort: 'bord', id: code, naam, tekst: uitleg.betekenis ?? naam, doen: uitleg.betekenis, groep: `${k.key}:${groep}`,
-        cwo: !NIET_CWO.has(code), ahead: OP_BRUG.has(code) || code === 'E.4a' || code === 'E.4b', src: () => asImage(svg), place });
+        cwo, ahead: waar !== 'paal', src: () => asImage(svg), place });
       return { code, naam, uitleg, svg, cwo, kleur: k.key, groep, button, heading: groep ? `${k.label}: ${groep.toLowerCase()}` : k.label,
         key: fold([code, naam, uitleg.betekenis ?? '', uitleg.lelievlet ?? ''].join(' ')), place };
     })));
@@ -568,7 +571,7 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
         el('div', { className: 'zoek-kaart-kop' }, el('img', { src: asImage(item.svg), alt: '' }),
           el('div', {}, el('span', { className: 'code', textContent: item.code }), el('h3', { textContent: item.naam }))),
         ...[item.uitleg.betekenis, item.uitleg.lelievlet].filter(Boolean).map((text) => el('p', { textContent: text })),
-        ...(item.cwo ? [] : [el('p', { className: 'niet-cwo', textContent: 'Niet voor CWO: dit bord komt niet in Oefenen.' })]),
+        ...(item.cwo ? [] : [el('p', { className: 'niet-cwo', textContent: 'Niet voor CWO: dit bord komt niet in de quiz.' })]),
       ],
     });
   }
@@ -706,12 +709,44 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
       return view;
     };
 
+    // which of a samenstel the picture is of, where it is not the whole of it: of a sleep the ship that is towed, not
+    // the sleepboot ahead of it (the deel of bpr/schepen.js fleet)
+    const ALLEEN = { gesleept_groot_schip: new Set(['b']), laatste_lengte_sleep: new Set(['a1', 'a2']) };
+    const deelVan = (o) => { for (let x = o; x; x = x.parent) if (x.userData?.deel) return x.userData.deel; return null; };
+    const telt = (alleen, o) => !alleen || alleen.has(deelVan(o));                       // a part of a hull
+    // a light by where it is ('b.voor'); a dagmerk, which hangs on the whole of it, by the part it is over
+    const lichtTelt = (alleen, plaats) => !alleen || alleen.has(String(plaats).split('.')[0]);
+    const merkTelt = (alleen, ship, shape) => {
+      if (!alleen) return true;
+      const p = shape.getWorldPosition(new THREE.Vector3()); const box = new THREE.Box3();
+      let deel = null;
+      ship.traverse((o) => {
+        if (deel || !o.userData?.deel) return;
+        box.setFromObject(o).expandByScalar(0.5);                         // over it, whatever the height
+        if (p.x >= box.min.x && p.x <= box.max.x && p.z >= box.min.z && p.z <= box.max.z) deel = o.userData.deel;
+      });
+      return alleen.has(deel);
+    };
     /** What shows of her at night from dead ahead: [{ kleur, x, y }], x across as you see it, y up. */
-    const seenAhead = (ship) => {
+    const seenAhead = (ship, alleen = null) => {
       ship.updateMatrixWorld(true);
       const p = new THREE.Vector3();
-      return (ship.userData.lights ?? []).filter(({ arc }) => !arc || (arc[0] <= 0 && arc[1] >= 0))
+      return (ship.userData.lights ?? []).filter(({ arc, plaats }) => (!arc || (arc[0] <= 0 && arc[1] >= 0)) && lichtTelt(alleen, plaats))
         .map(({ kleur, lamp }) => { lamp.getWorldPosition(p); return { kleur, x: -p.z, y: p.y }; });
+    };
+    /** What a night picture shows, to tell two apart: the colours where they are, in her own frame of them - each
+     *  once: two lamps on one spot look like one. */
+    const lichtenKey = (dots) => {
+      const xs = dots.map((d) => d.x); const ys = dots.map((d) => d.y);
+      const [x0, y0] = [Math.min(...xs), Math.min(...ys)]; const w = Math.max(...xs) - x0 || 1; const h = Math.max(...ys) - y0 || 1;
+      return [...new Set(dots.map((d) => `${d.kleur}@${Math.round(((d.x - x0) / w) * 4)},${Math.round(((d.y - y0) / h) * 4)}`))].sort().join(' ');
+    };
+    /** What a day picture shows: her dagmerken from the top down. */
+    const dagmerkKey = (ship, alleen = null) => {
+      ship.updateMatrixWorld(true); const p = new THREE.Vector3();
+      return (ship.userData.dagmerken ?? []).filter((d) => (!d.nacht || d.vorm !== 'boei') && merkTelt(alleen, ship, d.shape))
+        .map(({ shape, vorm, kleur }) => { shape.getWorldPosition(p); return [p.y, `${vorm}:${kleur}`]; })
+        .sort((a, b) => b[0] - a[0]).map(([, k]) => k).join(' ');
     };
     /** The night picture: her lights on the dark, where they are as you see them, each with a little glow. */
     const lightsSvg = (dots) => {
@@ -756,17 +791,17 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
         default: return `<rect x="${x - r}" y="${y - h}" width="${h}" height="${h * 0.75}" fill="${c}" ${line}/>`;   // a board or a flag
       }
     };
-    const daySvg = (ship) => {
+    const daySvg = (ship, alleen = null) => {
       ship.updateMatrixWorld(true);
       const W = 160; const H = 120; const p = new THREE.Vector3();
-      const marks = (ship.userData.dagmerken ?? []).filter((d) => !d.nacht || d.vorm !== 'boei')
+      const marks = (ship.userData.dagmerken ?? []).filter((d) => (!d.nacht || d.vorm !== 'boei') && merkTelt(alleen, ship, d.shape))
         .map(({ shape, vorm, kleur, h }) => { shape.getWorldPosition(p); return { vorm, kleur, x: -p.z, y: p.y, h }; });
       // her hull as seen from ahead: as wide as she is, up to her deck
       // (not the dagmerken, and not a post or a line: on a small boat they would make her hull as high as they go)
       const box = new THREE.Box3(); const part = new THREE.Box3(); const size = new THREE.Vector3(); const signs = new Set();
       for (const { shape } of ship.userData.dagmerken ?? []) shape.traverse((o) => signs.add(o));
       ship.traverse((o) => {
-        if (!o.isMesh || !o.geometry || signs.has(o)) return;
+        if (!o.isMesh || !o.geometry || signs.has(o) || !telt(alleen, o)) return;
         if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); part.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld);
         part.getSize(size); if (size.x < 0.3 && size.z < 0.3) return;
         if (part.max.y < 3.5) box.union(part);
@@ -832,7 +867,7 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
           show(key, () => built.get(key), { ...opts, ahead: true, far: true, deg: zijde });
         };
         const g = GROEP[config.id] ?? uitleg.groep ?? GROEPEN[0];
-        return { config, uitleg, naam, button, img, cwo: !!config.cwo, heading: g, groep: g, kenmerken,
+        return { config, uitleg, naam, button, img, cwo: cwoLicht(uitleg.artikel ?? config.artikel), heading: g, groep: g, kenmerken,
           key: fold([naam, config.naam, uitleg.lichten ?? '', uitleg.dagmerk ?? '', uitleg.betekenis ?? '', uitleg.artikel ?? config.artikel ?? ''].join(' ')), place };
       });
       // the groups by a short name on their chips (the headings of the list keep the whole of it), and only
@@ -845,10 +880,30 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
         if (drawn) return; drawn = true;
         for (const item of items) {
           const beeld = BEELD[item.config.id] ?? item.config;
-          try { item.img.src = asImage(tijd === 'nacht' ? lightsSvg(seenAhead(makeShip(beeld))) : daySvg(makeShip(beeld))); }
-          catch { item.img.src = asImage(lightsSvg([])); }
+          try {
+            const ship = makeShip(beeld); const alleen = ALLEEN[item.config.id];
+            if (tijd === 'nacht') { const dots = seenAhead(ship, alleen); item.img.src = asImage(lightsSvg(dots)); item.beeld = lichtenKey(dots); }
+            else { item.img.src = asImage(daySvg(ship, alleen)); item.beeld = dagmerkKey(ship, alleen); }
+          } catch { item.img.src = asImage(lightsSvg([])); }
         }
       };
+      // the quiz (tekenquiz.js): what CWO asks of them - by night her lights, by day her dagmerken. Ships that look
+      // the same in the picture are one familie, so they never stand in one question together. On the water she
+      // lies ahead as her card puts her, by night or by day, turned to a side at random when it asks for one.
+      // (not those where a sign is the point rather than the ship - the duikvlag A, the lichtblauw bord: they are in
+      // the quiz with the Seinen, as Vlaggen en borden aan boord, where it asks what they mean)
+      for (const item of items.filter((i) => i.cwo && !TEKEN_AAN_BOORD.has(i.config.id))) {
+        entries.push({ soort: tijd === 'nacht' ? 'licht' : 'dagmerk', id: item.config.id, naam: item.naam,
+          tekst: item.uitleg.betekenis ?? item.naam, doen: item.uitleg.betekenis, groep: item.groep, cwo: true, ahead: true,
+          get familie() { draw(); return `${tijd}:${item.beeld}`; },
+          src: () => { draw(); return item.img.src; },
+          place: ({ willekeurig = false, ...opts } = {}) => {
+            const kanten = ZIJDEN.filter(([key]) => !(item.config.kade && key === 'bakboord')).map(([, , deg]) => deg);
+            zijde = willekeurig ? kanten[Math.floor(Math.random() * kanten.length)] : 0;
+            item.place(opts);
+            dark = tijd === 'nacht'; holdDark(dark ? 2 : 0);
+          } });
+      }
       pane(root, {
         placeholder: tijd === 'nacht' ? 'Zoek schip of licht…' : 'Zoek schip of dagmerk…', items,
         chips: { rows: [groep.row, kies.row], onChange: (fn) => { changed = fn; }, reset: () => { groep.clear(); kies.clear(); },
@@ -909,6 +964,12 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
       const button = el('button', { type: 'button', className: 'zoek-item geluid', title: g.naam },
         el('img', { src: asImage(svg), alt: '' }), el('span', { textContent: g.naam }));
       const tokens = new Set([...g.patroon].map((t) => ({ Z: 'z', B: 'b' })[t] ?? t));
+      // the quiz (tekenquiz.js): heard, and drawn as the BPR draws it; one pattern is one familie
+      if (g.cwo) {
+        entries.push({ soort: 'geluid', id: g.id, naam: g.naam, tekst: g.betekenis, doen: g.betekenis, groep: g.groep, cwo: true, breed: true,
+          familie: `geluid:${g.patroon}`, src: () => asImage(svg),
+          speel: (klaar) => hoorn.play(g.patroon, { herhaald: g.herhaald, klaar }), stil: () => hoorn.stop(), speelt: () => hoorn.playing });
+      }
       return { g, svg, button, cwo: !!g.cwo, heading: g.groep, groep: g.groep, tokens,
         key: fold([g.naam, g.groep, g.betekenis ?? '', g.lelievlet ?? '', g.artikel ?? ''].join(' ')), place: () => {} };
     });
@@ -940,7 +1001,7 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
 
   // ---------------------------------------------------------------- Vlaggen
   // A flag by its colours first (more than one at once: all of them on it), then by its pattern - only
-  // the patterns there are among the flags of those colours, so the row stays short. Asked in Oefenen
+  // the patterns there are among the flags of those colours, so the row stays short. Asked in the quiz
   // (under Seinen) only what CWO asks, and not the flags that say what a sign or signal already says
   // there (the red flag of A.1, the spui flag and pennant of H.3): two answers would be right.
   {
@@ -954,15 +1015,17 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
     const order = new Map(VLAG_GROEPEN.map((g, i) => [g, i]));
     const items = [...VLAGGEN].sort((a, b) => (order.get(a.groep) ?? 99) - (order.get(b.groep) ?? 99)).map((v) => {
       const svg = vlagSvg(v);
-      const button = el('button', { type: 'button', className: `zoek-item vlag${v.cwo ? '' : ' niet-cwo'}`, title: `${v.naam}${v.cwo ? '' : ' (niet voor CWO)'}` },
+      // a flag of the BPR for what CWO asks of it (cwo.js: the lichtblauw bord of 6.04a not), the others as they say
+      const cwo = Boolean(v.cwo) && (!/^BPR\b/.test(v.bron ?? '') || cwoBron(v.bron));
+      const button = el('button', { type: 'button', className: `zoek-item vlag${cwo ? '' : ' niet-cwo'}`, title: `${v.naam}${cwo ? '' : ' (niet voor CWO)'}` },
         el('img', { src: asImage(svg), alt: '', loading: 'lazy', decoding: 'async' }), el('span', { textContent: v.naam }));
       const place = (opts) => show(`vlag:${v.id}`, () => makeVlag(v), opts);
-      if (v.cwo && !ALREADY.has(v.id)) {
+      if (cwo && !ALREADY.has(v.id)) {
         entries.push({ soort: 'sein', id: v.id, naam: v.naam, tekst: v.betekenis, doen: v.betekenis, groep: 'Vlaggen en borden aan boord', cwo: true, src: () => asImage(svg), place });
       }
       // what a lelievlet may fly herself is shown on her; the quiz keeps it on a staff beside her, to be seen from the helm
       const zelf = aanBoord(v);
-      return { v, svg, button, cwo: !!v.cwo, heading: v.groep, soort: SOORT[v.soort] ?? 'seinen', kleuren: new Set(v.kleuren), patroon: v.patroon,
+      return { v, svg, button, cwo, heading: v.groep, soort: SOORT[v.soort] ?? 'seinen', kleuren: new Set(v.kleuren), patroon: v.patroon,
         key: fold([v.naam, v.groep, v.betekenis, v.spelwoord ?? '', v.id].join(' ')), place: zelf ? () => showFlags(`vlag:${v.id}`, v) : place };
     });
     const showPatterns = () => {
@@ -990,16 +1053,71 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
         el('div', { className: 'zoek-kaart-kop' }, el('img', { src: asImage(item.svg), alt: '' }),
           el('div', {}, el('span', { className: 'code', textContent: item.v.groep }), el('h3', { textContent: item.v.naam }))),
         ...[item.v.betekenis, item.v.lelievlet].filter(Boolean).map((text) => el('p', { textContent: text })),
-        ...(item.v.cwo ? [] : [el('p', { className: 'niet-cwo', textContent: 'Niet voor CWO: deze vlag komt niet in Oefenen.' })]),
+        ...(item.cwo ? [] : [el('p', { className: 'niet-cwo', textContent: 'Niet voor CWO: deze vlag komt niet in de quiz.' })]),
       ],
     });
+  }
+
+  // ---------------------------------------------------------------- Begrippen
+  // The zeil- and roeitermen (begrippen.js): each with a short uitleg, and buttons on to where the viewer shows it -
+  // a lesson on that onderwerp, a handeling at that step, an item of another page here, a part of the boat. Found by
+  // their group; nothing is put out on the water. main.js says what a lesson or a handeling is called and opens it
+  // (begrip.label, begrip.open); an item of Zoeken is opened here.
+  {
+    const groep = chipRow(BEGRIP_GROEPEN, { label: 'Groep' });
+    let changed = () => {};
+    groep.onChange(() => changed());
+    const KOP = new Map(BEGRIP_GROEPEN);
+    const items = BEGRIPPEN.map((b) => {
+      const button = el('button', { type: 'button', className: 'zoek-begrip', title: b.naam },
+        el('b', { textContent: b.naam }), el('span', { textContent: b.uitleg }));
+      // one with no niveau says nothing about CWO (null): it is no 'niet voor CWO', only not placed in a niveau
+      return { b, button, cwo: b.cwo ? true : null, heading: KOP.get(b.groep), groep: b.groep, place: () => {},
+        key: fold([b.naam, ...(b.ook ?? []), b.uitleg].join(' ')) };
+    });
+    const zoekLabel = (n) => `${CATS[n.zoeken]} › ${n.naam}`;
+    pane($('zoek-begrippen'), {
+      placeholder: 'Zoek begrip…', items,
+      chips: { rows: [groep.row], onChange: (fn) => { changed = fn; }, reset: () => groep.clear(),
+        match: (item) => !groep.on.size || groep.on.has(item.groep) },
+      card: (item) => {
+        const { b } = item;
+        const melding = el('p', { className: 'niet-cwo', hidden: true });
+        const knoppen = (b.naar ?? []).map((n, i) => {
+          const tekst = n.zoeken ? zoekLabel(n) : begrip?.label(n);
+          if (!tekst) return null;
+          const knop = el('button', { type: 'button', className: `zoek-naar${i === 0 ? ' primary' : ''}`, textContent: tekst });
+          knop.addEventListener('click', () => {
+            const waarom = n.zoeken ? openZoek(n) : begrip?.open(n);
+            melding.hidden = !waarom; melding.textContent = waarom ? `Dat kan nu niet: ${waarom.charAt(0).toLowerCase()}${waarom.slice(1)}.` : '';
+          });
+          return knop;
+        }).filter(Boolean);
+        return [
+          el('div', { className: 'zoek-kaart-kop' }, el('div', {}, el('span', { className: 'code', textContent: [KOP.get(b.groep), b.cwo && `CWO ${b.cwo}`].filter(Boolean).join(' · ') }),
+            el('h3', { textContent: b.naam }))),
+          ...(b.ook?.length ? [el('p', { className: 'zoek-ook', textContent: `Ook: ${b.ook.join(', ')}` })] : []),
+          el('p', { textContent: b.uitleg }),
+          el('div', { className: 'zoek-naar-rij' }, ...knoppen),
+          melding,
+        ];
+      },
+    });
+  }
+  /** An item of another page here, by its name: that page, with its card open. Null, or why not. */
+  function openZoek({ zoeken: cat, naam }) {
+    const source = sources.find((x) => x.cat === cat);
+    const hit = source?.items().find((h) => h.naam === naam || h.naam.endsWith(` ${naam}`));
+    if (!hit) return 'Niet gevonden';
+    hit.open();
+    return null;
   }
 
   // ---------------------------------------------------------------- the start page, and going between pages
   // Zoeken opens on a field over everything and a tile per kind; a tile opens that kind's own page (with
   // its own search and chips, ‹ back to the start). Typing in the field, the tiles give way to the results
   // of every kind, a few each, and a link to see them all on their own page.
-  const CATS = { onderdelen: 'Onderdelen', borden: 'Borden', markeringen: 'Markeringen', seinen: 'Seinen', vlaggen: 'Vlaggen', lichten: 'Lichten', dagmerken: 'Dagmerken', geluiden: 'Geluidsseinen' };
+  const CATS = { onderdelen: 'Onderdelen', begrippen: 'Begrippen', borden: 'Borden', markeringen: 'Markeringen', seinen: 'Seinen', vlaggen: 'Vlaggen', lichten: 'Lichten', dagmerken: 'Dagmerken', geluiden: 'Geluidsseinen' };
   const HITS = 6;                                                // results per kind on the start page
   let page = 'home';
   function goto(cat) {
@@ -1075,7 +1193,7 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
      * Every sign, mark and signal: { soort, id, naam, tekst, doen, groep, cwo, src(), place({ helm }) }, the pictures of
      * the marks drawn first. `doen`: what it means you must do; `cwo`: whether CWO asks about it (the quiz keeps to those).
      */
-    entries() { drawPictures(); return entries; },
+    entries() { drawPictures(); drawLights(); drawDagmerken(); return entries; },
     /** The panel closed: nothing picked, no search, no chips on, and back to the start page to open on. */
     reset() { release(); for (const r of resets) r(); field.value = ''; findAll(); goto('home'); },
     /** To a page: 'home' or a kind ('onderdelen', 'borden', ...). */

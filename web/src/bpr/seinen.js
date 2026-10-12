@@ -54,7 +54,7 @@ const SEINEN_LIJST = [
   ['Sluis buiten bedrijf', 'G.4.1b', [
     { id: 'sluis-2rood', naam: 'Twee rode lichten boven elkaar', bouw: 'sluis', lampen: [['rood'], ['rood']],
       betekenis: 'Invaren is verboden. De sluis wordt niet bediend.' },
-    { id: 'sluis-2groen', naam: 'Twee groene lichten boven elkaar', bouw: 'sluis', lampen: [['groen'], ['groen']], open: true,
+    { id: 'sluis-2groen', naam: 'Twee groene lichten boven elkaar', bouw: 'sluis', lampen: [['groen'], ['groen']], open: true, beide: true,
       betekenis: 'Invaren is toegestaan. De sluis staat aan beide kanten open en wordt niet bediend. De sluis is dan een engte: let op schepen van de andere kant.' },
   ]],
   ['Sluis met beweegbare brug', 'G.4.2', [
@@ -169,10 +169,11 @@ function head(g, x, y, z, lampen, lamps) {
   });
 }
 
-/** Yellow lamps under the middle of a span whose underside is at `y`, at its front `z`. */
+/** Yellow lamps under the middle of a span whose underside is at `y`, at its front `z` - a little bigger than the
+ *  red and green at the side: they hang in the shadow of the span, and are what tells you that you may go under it. */
 function yellows(g, n, y, z, lamps) {
-  const xs = n === 2 ? [-0.35, 0.35] : n === 1 ? [0] : [];
-  for (const x of xs) { const lamp = makeLamp('geel', 2.2, LENS, { day: true }); lamp.position.set(x, y - 0.16, z + 0.05); g.add(lamp); lamps.push({ lamp, lit: () => true }); }
+  const xs = n === 2 ? [-0.45, 0.45] : n === 1 ? [0] : [];
+  for (const x of xs) { const lamp = makeLamp('geel', 3, LENS, { day: true }); lamp.position.set(x, y - 0.2, z + 0.06); g.add(lamp); lamps.push({ lamp, lit: () => true }); }
 }
 
 /** A bascule bridge over the opening at `z`: fixed ends on the banks, the leaf down or standing open. */
@@ -221,6 +222,18 @@ function flag(g, word, x, z) {
 }
 
 /** One state as a model: what is built, and which lamps burn. userData.update(t, night) flashes them. */
+/**
+ * The water beyond the viewer's own (rig.js makeWater: 14 m round her middle), out to where a bridge, lock or
+ * spuisluis stands ahead of her, so that it stands in the water: a ring of the same stuff on the same edge, so the
+ * two are one. water: the viewer's (modes.water).
+ */
+export function makeVerWater(water) {
+  const ring = new THREE.Mesh(new THREE.RingGeometry(14, 70, 64, 1), water.material);
+  ring.rotation.x = -Math.PI / 2; ring.position.set(2.8, water.position.y, 0); ring.renderOrder = water.renderOrder;
+  ring.name = 'ver-water';
+  return ring;
+}
+
 export function makeSein(sein) {
   const g = new THREE.Group(); g.name = sein.id;
   const lamps = [];
@@ -237,6 +250,7 @@ export function makeSein(sein) {
     }
     case 'sluis': {
       gates(g, -1.5, sein.open);
+      gates(g, BANK.back + 2, Boolean(sein.beide));                   // the far end of the kolk: shut, unless it stands open at both
       // the lights on posts on the walls, either side of the way in
       for (const s of [-1, 1]) g.add(box(0.12, 1.9, 0.12, M.kast, s * (HALF + 0.35), BANK.top + 0.95, 1.2));
       sides(BANK.top + 1.9, 1.33);
@@ -245,6 +259,7 @@ export function makeSein(sein) {
     }
     case 'sluisbrug': case 'sluisophaal': {
       gates(g, -3, sein.open);
+      gates(g, BANK.back + 2, false);
       const b = bascule(g, 0, sein.bouw === 'sluisophaal');
       sides(b.under - 0.4, b.front - 0.2 + 0.11);
       yellows(g, sein.geel ?? 0, b.under, b.front, lamps);
@@ -328,4 +343,29 @@ export function makeVeerpont(code) {
   g.add(pont);
   g.userData = { height: 6, update(t, night, camera) { pont.userData.update?.(t, night, camera); } };
   return g;
+}
+
+// ---------------------------------------------------------------- where a teken of bijlage 7 really stands
+// Most are a board on a post at the waterside. Not these: what hangs on a bridge (A.10 and D.2 at the edges of the
+// opening, D.1 over it, C.2 and the hoogteborden on it), shown on a fixed bridge; and what is lights, or a whole
+// installation (A.11 rood boven groen, the G and H tekens), shown as that state of a bridge, lock or spuisluis.
+// Zoeken › Borden and Leren › Verkeerstekens both put them out so.
+export const OP_BRUG = new Set(['A.10', 'D.2', 'D.1a', 'D.1b', 'C.2', 'G.5.1b', 'G.5.1c', 'G.5.2', 'G.5.3']);
+const ALS_SEIN = {
+  'A.11': 'brug-rood-groen', 'A.11.1': 'brug-rood-groenflikker', 'G.1a': 'vast-a10', 'G.1b': 'vast-d1a', 'G.2a': 'brug-rood', 'G.2b': 'brug-2rood',
+  'G.4.1a': 'sluis-rood', 'G.4.1b': 'sluis-2rood', 'G.4.2': 'sluisbrug-rood-groen', 'H.3a': 'spui-spuien', 'H.3b': 'spui-inlaten', 'H.3c': 'spui-straks',
+};
+/** The state of a bridge, lock or spuisluis a teken is shown as, if it is lights or an installation. */
+export const seinVoor = (code) => SEINEN.find((s) => s.id === ALS_SEIN[code]) ?? null;
+/** What a teken out on a bridge or as an installation means there: its state of Zoeken › Seinen (as Bruggen and
+ *  Sluizen show it), or for a board on a fixed bridge the state with that board. */
+export const staatVoor = (code) => seinVoor(code) ?? (OP_BRUG.has(code) ? SEINEN.find((s) => s.bouw === 'vast' && s.borden === code && !s.licht) ?? null : null);
+/** Where a teken stands: 'brug' (straight ahead, on a bridge or as the installation), 'pont' (on the kades ahead) or 'paal'. */
+export const plaatsVan = (code) => (OP_BRUG.has(code) || ALS_SEIN[code] ? 'brug' : code === 'E.4a' || code === 'E.4b' ? 'pont' : 'paal');
+/** The model of a teken where it really stands (plaatsVan), in makeSein's frame for 'brug' and 'pont'. */
+export function makeTeken(code) {
+  if (ALS_SEIN[code]) return makeSein(seinVoor(code));
+  if (OP_BRUG.has(code)) return makeSein({ id: code, bouw: 'vast', borden: code });
+  if (code === 'E.4a' || code === 'E.4b') return makeVeerpont(code);
+  return makeSign(code);
 }

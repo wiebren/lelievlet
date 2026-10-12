@@ -76,7 +76,7 @@ function rope(group, a, b, r = 0.035, color = 0x2a2a2a) {
 function fleet(parts, ropes = []) {
   const group = new THREE.Group(); const at = {}; const palen = {}; const sizes = {}; let length = 0;
   for (const [name, s, x = 0, z = 0] of parts) {
-    s.group.position.set(x, 0, z); group.add(s.group);
+    s.group.position.set(x, 0, z); s.group.userData.deel = name; group.add(s.group);   // which of them: Leren › Regels finds the sleper
     for (const [k, p] of Object.entries(s.at)) { at[`${name}.${k}`] = [p[0] + x, p[1], p[2] + z]; sizes[`${name}.${k}`] = lampSize(s.length); }
     for (const [k, y] of Object.entries(s.palen ?? {})) palen[`${name}.${k}`] = y;
     length = Math.max(length, x + s.length);
@@ -122,7 +122,7 @@ const SHIPS = {
   // on the wheelhouse, the heklicht on the stern. `ra`: a yard across the mast aft, for signs on either side.
   // `dek`: on the hatch in the lengte-as, forward of the light on 'sbPaal' (not behind it from the other side).
   motor: (opts = {}) => {
-    const L = 55; const B = 6.6; const F = 1.3;
+    const L = opts.lengte ?? 55; const B = opts.breedte ?? 6.6; const F = 1.3;   // a shorter one for a lesson that needs room
     const g = hull({ length: L, beam: B, freeboard: F, draft: 2 });
     const hold = box(L * 0.62, 1.1, B - 1.2, 0x7b6d57); hold.position.set(L * 0.5, F + 0.55, 0); g.add(hold);
     const house = box(3.2, 2.6, B - 1.6, 0xe8e4da); house.position.set(4.2, F + 1.3, 0); g.add(house);
@@ -392,14 +392,16 @@ const SHIPS = {
     post(g, 0.3, 1.1, F, 0.025);
     return { group: g, at: { rondom: [0.3, F + 1.15, 0], sb: [L * 0.93, F + 0.2, 0.08], bb: [L * 0.93, F + 0.2, -0.08], mast: [0.3, F + 1.2, 0] }, palen: { mast: F }, length: L };
   },
-  roei: () => {
+  // a rowing boat, under way with its riemen out - made fast alongside (riemen false) it has them in
+  roei: ({ riemen = true } = {}) => {
     const L = 4.5; const B = 1.4; const F = 0.45;
     const g = hull({ length: L, beam: B, freeboard: F, draft: 0.25, color: 0x8b6a43, deck: 0x6b4f33, bow: 0.35 });
     post(g, 0.25, 1, F, 0.02, 0x8b6a43);
+    if (riemen) for (const s of [1, -1]) rope(g, [L * 0.5, F + 0.1, s * (B / 2 - 0.05)], [L * 0.5 - 0.45, -0.05, s * (B / 2 + 1.6)], 0.025, 0xc8a46a);
     return { group: g, at: { rondom: [0.25, F + 1.02, 0] }, length: L };
   },
   // a klein motorschip (a volgboot) with a rowing boat made fast alongside to port
-  motorKleinLangszij: () => fleet([['m', SHIPS.motorKlein(), 0, 0], ['roei', SHIPS.roei(), 2.5, -2.25]]),
+  motorKleinLangszij: () => fleet([['m', SHIPS.motorKlein(), 0, 0], ['roei', SHIPS.roei({ riemen: false }), 2.5, -2.25]]),
   // a volgboot towing lelievletten in a line, on 8 and 12 m of line
   volgbootEenVlet: () => fleet([['v1', vlet({ mast: false, stok: true }), 0, 0], ['m', SHIPS.motorKlein(), 17.6, 0]], [['m.trosAchter', 'v1.trosVoor']]),
   volgbootTweeVletten: () => fleet([['v2', vlet({ mast: false, stok: true }), 0, 0], ['v1', vlet({ mast: false, stok: true }), 13.6, 0], ['m', SHIPS.motorKlein(), 31.2, 0]],
@@ -659,14 +661,14 @@ export const CONFIGS = [
   // -- stilliggend
   { id: 'groot_schip_gemeerd', naam: 'Groot schip gemeerd', artikel: '3.20 lid 1', cwo: true, schip: 'motor', kade: true, lichten: GEMEERD },
   { id: 'groot_schip_geankerd', naam: 'Groot schip voor anker', artikel: '3.20 lid 2', cwo: true, schip: 'motor', anker: true,
-    lichten: [['wit', 'rondom', 'voor'], ['wit', 'rondom', 'achter']], dagmerken: [['bol', 'zwart', 'voor', -0.9]] },
+    lichten: [['wit', 'rondom', 'voor'], ['wit', 'rondom', 'hek', 1]], dagmerken: [['bol', 'zwart', 'voor', -0.9]] },   // the aft one at 3.5 m, 2.8 m under the forward one (3.20 lid 2: at least 2 m lower)
   { id: 'duwstel_geankerd', naam: 'Duwstel voor anker', artikel: '3.20 lid 3', cwo: true, schip: 'duwstel4',
     lichten: [['wit', 'rondom', 'duwboot.mast'], ...['b1', 'b2', 'b3', 'b4'].map((b) => ['wit', 'rondom', `${b}.mid`, 3])],
     dagmerken: [['bol', 'zwart', 'duwboot.mast', -2.2], ['bol', 'zwart', 'b3.voor', 3], ['bol', 'zwart', 'b4.voor', 3]] },
   { id: 'klein_schip_stilliggend', naam: 'Klein schip voor anker', artikel: '3.20 lid 4', cwo: true, schip: 'sloep', anker: true,
     lichten: [['wit', 'rondom', 'rondom']], dagmerken: [['bol', 'zwart', 'mast', 0.35, true]] },
   { id: 'anker_gevaar', naam: 'Anker dat een gevaar kan zijn', artikel: '3.26 lid 1, 3', cwo: true, schip: 'motor', anker: true,
-    lichten: [['wit', 'rondom', 'voor'], ['wit', 'rondom', 'voor', -1], ['wit', 'rondom', 'achter']],
+    lichten: [['wit', 'rondom', 'voor'], ['wit', 'rondom', 'voor', -1], ['wit', 'rondom', 'hek', 1]],
     dagmerken: [['bol', 'zwart', 'voor', -1.9], ['boei', 'geel', 'boei']] },
   { id: 'drijvend_voorwerp_stil', naam: 'Drijvende steiger', artikel: '3.23', schip: 'steiger', kade: true,
     lichten: [['wit', 'rondom', 'hoekVSb', 1.2], ['wit', 'rondom', 'hoekASb', 1.2]] },
@@ -807,7 +809,7 @@ export function makeShip(config) {
   const lights = [];
   for (const [kleur, soort, where, dy = 0, extra = {}] of config.lichten ?? []) {
     const base = place(where);
-    const lamp = makeLamp(kleur, size(where), 3, { day: !!BLINK[soort] });   // a flikkerlicht is there by day too
+    const lamp = makeLamp(kleur, size(where), 3, { day: !!BLINK[soort], weg: true });   // a flikkerlicht is there by day too; one that is out, not at all
     // the glow round a light is in the eye that sees it, not out on the water: it lies over a mast or a post
     // in front of it, and is gone only where the light itself is hidden (update)
     const glow = lamp.children[1]; glow.material.depthTest = false; glow.renderOrder = 5;

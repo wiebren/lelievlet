@@ -5,9 +5,12 @@
 // (6.10 voorbijlopen, 6.13 keren, 6.16 havens), the RPR's articles of the same number give it. The
 // yellow light a groot motorschip shows with every blast (4.01 lid 2) is told once, under attentie.
 // 'klein' follows art. 4.02: a klein schip must or may give section A and the mistsein of G, never
-// the manoeuvreerseinen of B, C, D and E. 'cwo' marks the signals of CWO's instructieboek, § 4.3.
+// the manoeuvreerseinen of B, C, D and E. 'cwo': what the CWO handboek Kielboot asks, the eight of bijlage 6 A in
+// bpr/cwo.js (set below from there, whatever an entry says: an older instructieboek, § 4.3, asked more).
 // The bijlage cites '3.46, lid 3' for medische hulp and '6.26, lid 7' for the brug; the text is in
 // 3.30 lid 3 and 6.26 lid 6, which is what 'artikel' gives.
+
+import { CWO_GELUID } from './cwo.js';
 
 export const GELUID_GROEPEN = ['Algemeen', 'Tegengestelde koersen', 'Voorbijlopen', 'Keren', 'Havens en nevenvaarwateren', 'Slecht zicht'];
 
@@ -21,7 +24,7 @@ export const GELUID_GROEPEN = ['Algemeen', 'Tegengestelde koersen', 'Voorbijlope
 export const GELUIDEN = [
   // A. Algemene seinen
   { id: 'attentie', groep: 'Algemeen', naam: 'Attentie', patroon: 'l', artikel: 'BPR 4.01 lid 2, 4.02, bijlage 6 A',
-    betekenis: 'Let op! Een schip wil dat je het opmerkt. Vóór een engte waar je niet ver vooruit kunt kijken, geeft een schip ook één lange stoot (art. 6.07). '
+    betekenis: 'Let op! Een schip wil dat je het opmerkt. Vóór een engte waar je niet ver vooruit kunt kijken, geeft een schip ook één lange stoot. '
       + 'Bij elk geluidssein, behalve klokslagen, laat een groot motorschip tegelijk een geel licht branden: zo zie je welk schip het geeft.',
     lelievlet: 'Dit moet je zelf geven als het nodig is om een aanvaring te voorkomen. Een hoorn aan boord is daarvoor genoeg.',
     klein: true, cwo: true },
@@ -174,3 +177,4 @@ export const GELUIDEN = [
     betekenis: 'Alleen een zeeschip dat zo stilligt, mag naast de klokslagen ook dit sein geven. Het mag het herhalen.',
     klein: false, cwo: false },
 ];
+for (const g of GELUIDEN) g.cwo = CWO_GELUID.has(g.id);

@@ -12,7 +12,9 @@ import * as THREE from 'three';
 //                                                         radians, positive is a positive turn about it;
 //                                                         vol: solid and heavier, for the sum of the others
 //   { type: 'maat', a, b, kleur, label }                  a dimension: the arm
-//   { type: 'tekst', at, kleur, label }                   a word on its own, `offset` pixels from `at`
+//   { type: 'tekst', at, kleur, label, groot }            a word on its own, `offset` pixels from `at`; groot: big and
+//                                                         ringed, for what a question points at (a ?)
+//   { type: 'stroom', pts, kleur, pijl }                  a thin line along `pts`, the air flowing: with a head when pijl
 //   { type: 'ruimte', at }                                nothing drawn: room the schema keeps free (schema.js)
 //
 // and on any of them: labelAt (where along an arrow its word goes, 0..1), offset ([x, y] pixels the word is
@@ -91,11 +93,13 @@ export function createPijlen({ scene, camera, controls, layer }) {
 
   // -- the words, in the page over the canvas
   const labels = []; let labelsUsed = 0;
-  const label = (text, kleur, at, offset = [0, 0], first = false) => {
+  const label = (text, kleur, at, offset = [0, 0], first = false, groot = false) => {
     let el = labels[labelsUsed];
     if (!el) { el = document.createElement('div'); el.className = 'kr-label'; layer.append(el); labels.push(el); }
     labelsUsed++;
-    if (el.textContent !== text) { el.textContent = text; el._w = 0; el._k = undefined; }
+    if (el.textContent !== text || el.classList.contains('kr-label-groot') !== groot) {
+      el.textContent = text; el.classList.toggle('kr-label-groot', groot); el._w = 0; el._k = undefined;
+    }
     el.style.setProperty('--kr', kleur);
     el.hidden = false;
     el._at = at.clone(); el._offset = offset; el._first = first;
@@ -137,9 +141,18 @@ export function createPijlen({ scene, camera, controls, layer }) {
             else dashes(body, 0.7 * r, it.kleur);
             const end = pts[pts.length - 1]; const before = pts[pts.length - 3];
             head(end, end.clone().sub(before).normalize(), (it.vol ? 1.2 : 0.9) * r, it.kleur);
-            if (it.label) label(it.label, it.kleur, pts[Math.floor(pts.length / 2)], it.offset ?? [0, 0]);
+            // its word a little outside the arc (unless it says where), so the arc is not hidden under it
+            if (it.label) {
+              const mid = pts[Math.floor(pts.length / 2)];
+              const at = it.offset ? mid : mid.clone().sub(new THREE.Vector3(...it.center)).setLength(it.r + 0.3).add(new THREE.Vector3(...it.center));
+              label(it.label, it.kleur, at, it.offset ?? [0, 0]);
+            }
           } else if (it.type === 'tekst') {
-            label(it.label, it.kleur, new THREE.Vector3(...it.at), it.offset ?? [0, 0]);
+            label(it.label, it.kleur, new THREE.Vector3(...it.at), it.offset ?? [0, 0], false, Boolean(it.groot));
+          } else if (it.type === 'stroom') {
+            const pts = it.pts.map((p) => new THREE.Vector3(...p));
+            for (let i = 1; i < pts.length; i++) bar(pts[i - 1], pts[i], 0.3 * r, it.kleur);
+            if (it.pijl && pts.length > 2) { const end = pts[pts.length - 1]; head(end, end.clone().sub(pts[pts.length - 3]).normalize(), 0.55 * r, it.kleur); }
           } else if (it.type === 'maat') {
             const p = new THREE.Vector3(...it.a); const q = new THREE.Vector3(...it.b);
             if (p.distanceTo(q) < 0.03) continue;
