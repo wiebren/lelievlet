@@ -1,6 +1,7 @@
 import { createLesKaart } from './kaart.js';
 import { createVoorrangBeeld } from './voorrang-beeld.js';
 import { oefenSituaties, SOORT } from './voorrang-oefen.js';
+import { voortgang } from './voortgang.js';
 
 // Leren › Quiz › Voorrang: ever new situaties to practise the voorrang on, made from the rules (lessen/voorrang-oefen.js),
 // makkelijk, normaal or moeilijk - chosen in Leren › Quiz; Volgende gives another of that kind at random. The boats
@@ -63,7 +64,7 @@ export function initVoorrangQuiz({ wrap, scene, camera, controls, parts, modes, 
         for (const b of lijst.children) b.addEventListener('click', () => {
           if (gekozen) return;
           score.van += 1; if (b.dataset.k === sit.antwoord) score.goed += 1;
-          gekozen = b.dataset.k; beeld.antwoord(); lk.renderControls(); lk.verder(); status();
+          gekozen = b.dataset.k; voortgang.quiz('voorrang', gekozen === sit.antwoord); beeld.antwoord(); lk.renderControls(); lk.verder(); status();
           // what was said about it, in sight: under the question it may sit below the fold
           requestAnimationFrame(() => lk.q('.kr-status')?.scrollIntoView({ block: 'center', behavior: 'smooth' }));
         });
@@ -102,9 +103,12 @@ export function initVoorrangQuiz({ wrap, scene, camera, controls, parts, modes, 
     update, close: lk.close,
     /** Open it, on a situatie of that niveau. */
     open(n = niveau) {
+      if (!Object.hasOwn(NIVEAU, n)) n = niveau;                                   // one it does not know (from the address): as it is
       if (n !== niveau) { score.goed = 0; score.van = 0; }
       niveau = n; lk.open();
     },
+    /** The niveau it is on (for the address of the page). */
+    get keuze() { return niveau; },
     dispose: () => { lk.dispose(); beeld.dispose(); },
   };
 }

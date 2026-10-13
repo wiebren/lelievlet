@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { makeZee } from './boot.js';
 import { CONFIGS, makeShip } from '../bpr/schepen.js';
 import { LICHT_UITLEG, LICHT_GROEPEN } from '../bpr/lichtuitleg.js';
 import { createLesKaart, segmented, keuze, kies, ernst } from './kaart.js';
@@ -158,8 +159,7 @@ export function initLichten({ sleutel, wrap, scene, camera, modes, fly, setCover
   // Seen from low on the water, the water has to hide what of her is under it: the viewer's own water round the boat
   // is clear and reaches 14 m (rig.js makeWater), she lies further out. So there an opaque sea, and the clear water
   // away (the boat is behind the eye then); on the sectors, seen from above, the viewer's water as it was.
-  const zee = new THREE.Mesh(new THREE.CircleGeometry(900, 64), new THREE.MeshStandardMaterial({ color: 0x5f8eae, roughness: 0.35, metalness: 0 }));
-  zee.rotation.x = -Math.PI / 2; zee.position.set(C, waterline - 0.01, 0); holder.add(zee);
+  const zee = makeZee(modes, 900); holder.add(zee);
   const laag = () => holder.visible && !lk.les?.sectoren;
   const water = (op) => { zee.visible = op; if (modes?.water) modes.water.visible = !op; };
   // in the card: the map from above (the sectors) or her as seen from the water, and under it the words

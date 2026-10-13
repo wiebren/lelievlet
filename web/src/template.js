@@ -512,7 +512,7 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
   </aside>
 
   <!-- the logboek: out of sight until there is an entry in it -->
-  <button id="log-toggle" class="icon-button" type="button" aria-label="Gevonden" aria-expanded="false" aria-controls="logboek" title="Gevonden" hidden>
+  <button id="log-toggle" class="icon-button" type="button" aria-label="Logboek" aria-expanded="false" aria-controls="logboek" title="Logboek" hidden>
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M12 3.6 14.6 9l5.9.9-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.9 9.4 9z"/>
     </svg>
@@ -521,11 +521,10 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
 
   <aside id="logboek" hidden>
     <header>
-      <h2>Gevonden</h2>
+      <h2>Logboek</h2>
       <button id="log-close" type="button" class="link-button" aria-label="Sluiten">Sluiten</button>
     </header>
-    <ul id="log-list"></ul>
-    <p class="hint" id="log-more" hidden>Nog meer te vinden…</p>
+    <div id="log-list"></div>
   </aside>
 
   <!-- the part card, in the bottom right corner: with nothing selected only its search button, which

@@ -45,15 +45,24 @@ export function patroonSvg(patroon, { h = 28, k = 14, kleur = '#16222e' } = {}) 
  * One player for the viewer: play(patroon, { herhaald, klaar }) sounds it (twice, a pause between, when
  * it is a signal that is repeated) and calls `klaar` at the end; stop() silences it at once; close() lets the
  * audio go for good (the viewer taken down). The audio context is made on the first play, from a click, as
- * browsers want.
+ * browsers want - or by unlock(), from a click, for a player that plays later without one (Safari keeps a context
+ * that was not started from a click silent). `gain`: how loud, 0..1 (a ship far off in the mist is softer).
  */
-export function makeHoorn() {
+export function makeHoorn({ gain = 0.8 } = {}) {
   let ctx = null; let bus = null; let running = []; let timer = 0; let done = null;
+  let wakker = false;                                               // unlocked from a click: kept running from then on
+  const maak = () => {
+    if (ctx) return true;
+    const Ctx = window.AudioContext ?? window.webkitAudioContext;
+    if (!Ctx) return false;
+    ctx = new Ctx(); bus = ctx.createGain(); bus.gain.value = gain; bus.connect(ctx.destination);
+    return true;
+  };
   const stop = () => {
     clearTimeout(timer);
     for (const node of running) { try { node.stop(); } catch { /* already over */ } }
     running = [];
-    ctx?.suspend?.();                                               // silent at once, a bell ringing out too; play() resumes
+    if (!wakker) ctx?.suspend?.();                                  // silent at once, a bell ringing out too; play() resumes
     const d = done; done = null; d?.();
   };
   /** A horn: a low note with its overtones, through a filter, swelling in and dying away quickly. */
@@ -79,11 +88,7 @@ export function makeHoorn() {
   };
   const play = (patroon, { herhaald = false, klaar } = {}) => {
     stop();
-    if (!ctx) {
-      const Ctx = window.AudioContext ?? window.webkitAudioContext;
-      if (!Ctx) return false;
-      ctx = new Ctx(); bus = ctx.createGain(); bus.gain.value = 0.8; bus.connect(ctx.destination);
-    }
+    if (!maak()) return false;
     ctx.resume?.();
     const { stappen, duur } = tijdlijn(patroon);
     const start = ctx.currentTime + 0.08;
@@ -97,6 +102,8 @@ export function makeHoorn() {
     timer = setTimeout(stop, (0.08 + rounds * duur + (rounds - 1) * 3 + tail) * 1000);
     return true;
   };
-  const close = () => { stop(); ctx?.close?.(); ctx = null; bus = null; };
-  return { play, stop, close, get playing() { return running.length > 0; } };
+  const close = () => { stop(); ctx?.close?.(); ctx = null; bus = null; wakker = false; };
+  /** From a click: the audio ready for a play that comes later, with no click of its own. */
+  const unlock = () => { if (maak()) { ctx.resume?.(); wakker = true; } };
+  return { play, stop, close, unlock, get playing() { return running.length > 0; } };
 }

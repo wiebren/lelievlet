@@ -45,6 +45,7 @@ export const DEFAULTS = {
   assets: null,
   volledigScherm: true,
   installeren: true,
+  adres: false,                    // true: the address of the page follows what is open, and opens it again (adres.js)
   feedback: { url: 'https://europe-west4-lelievlet.cloudfunctions.net/lelievlet-melden' },   // files it as an issue on GitHub
   aanpassen: { opslaan: true },
   toestand: {},

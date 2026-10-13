@@ -2158,7 +2158,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   // bow up, rol: radians about +x }. Grote schepen (lessen/schepen.js): how far she is drawn aside (metres along +z), her
   // water going with her. Voorrang (lessen/voorrang.js): where she is and which way she heads, { x, z: metres from where
   // she lies, kop: radians, + to stuurboord }, turned about her middle, her water with her - the view stands still
-  const kracht = { boom: null, jib: null, heel: 0, helm: null, vane: null, vlag: null, slap: 0, deining: null, opzij: 0, plek: null };
+  const kracht = { boom: null, jib: null, heel: 0, helm: null, vane: null, vlag: null, slap: 0, deining: null, opzij: 0, plek: null,
+                   boomRate: null };   // how fast the giek goes where it is sent (null: as the sheets take it)
   let tackSteers = false;                                           // the course is being set by the tack itself
   /** The course, the fok and the helmstok as the tack has them now; the fok's in tackTrim. */
   const layTack = () => {
@@ -5082,7 +5083,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const loose = Math.max((1 - smoothstep(strike.main)) * (1 - smoothstep(strike.schoot)), topping.hoist * topping.hoist);
     // with the mik set the giek lies in it, amidships, whatever the wind: heading up (skipped alongside) is not what puts it there
     const inMik = 1 - smoothstep(strike.mik);
-    chase('boom', sailing ? (tackTrim.boom ?? kracht.boom ?? side * interp(BOOM, course) * upwind * inMik * (1 - smoothstep(strike.schoot))) + (1.6 + 2.4 * topping.hoist) * loose * now.flutter * Math.sin(1.9 * now.t) : 0, dt);
+    chase('boom', sailing ? (tackTrim.boom ?? kracht.boom ?? side * interp(BOOM, course) * upwind * inMik * (1 - smoothstep(strike.schoot))) + (1.6 + 2.4 * topping.hoist) * loose * now.flutter * Math.sin(1.9 * now.t) : 0, dt,
+      (kracht.boom !== null && kracht.boomRate) || 4.5);
     // struck, the fok lies bundled on its stay, amidships: the wind has nothing to take hold of
     const jibUp = 1 - smoothstep(jibDown);
     chase('jib', (sailing ? tackTrim.jib ?? kracht.jib ?? THREE.MathUtils.lerp(jibFor(side, course), side * FOK_TE_LOEVERT, loevert) * upwind : FOK_CAD) * jibUp, dt);
@@ -5576,16 +5578,17 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     if (kracht.deining) boat.quaternion.premultiply(tmpQ.setFromAxisAngle(PITCH_AXIS, kracht.deining.stamp));
     boat.position.copy(rollAt).sub(tmp.copy(rollAt).applyQuaternion(boat.quaternion));
     if (kracht.deining) boat.position.y += kracht.deining.op;
-    boat.position.z += kracht.opzij; water.position.z = kracht.opzij;
+    water.position.z = kracht.opzij;
     if (kracht.plek) {
       const { x = 0, z = 0, kop = 0 } = kracht.plek;
       tmpQ.setFromAxisAngle(UP, -kop);
       boat.quaternion.premultiply(tmpQ);
       boat.position.sub(PIVOT).applyQuaternion(tmpQ).add(PIVOT); boat.position.x += x; boat.position.z += z;
-      water.rotation.z = -kop; water.position.x = PIVOT.x - PIVOT.x * Math.cos(-kop) + x; water.position.z = PIVOT.x * Math.sin(-kop) + z;
+      water.rotation.z = -kop; water.position.x = PIVOT.x - PIVOT.x * Math.cos(-kop) + x; water.position.z = PIVOT.x * Math.sin(-kop) + z + kracht.opzij;
       // pijlMee: the wind arrow turns with her, so it shows the wind on the water where the lesson keeps it (Het weer)
       if (kracht.plek.pijlMee) { wind.position.sub(PIVOT).applyQuaternion(tmpQ).add(PIVOT); wind.rotation.y -= kop; }
     } else if (water.rotation.z !== 0 || water.position.x !== 0) { water.rotation.z = 0; water.position.x = 0; }
+    boat.position.z += kracht.opzij;                                 // shifted after she is turned, as her water is
 
     // roeiriemen: all in time, one stroke per 3.2 s
     if (state.mode === 'roeien' || rowedOff()) state.rowPhase = (state.rowPhase + dt / 3.2) % 1;

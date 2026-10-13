@@ -32,6 +32,9 @@ const G_BOAT = [2.9, 0.45, 0];    // zwaartepunt of boat and gear (the steel hul
 // where they sit: "aan loef" moves their weight `reach` from the middle on average - not all four sit out
 // on the gangboord (0.72 m), and not all the time
 const CREW = { x: 2.3, y: 0.85, reach: 0.36 };
+// water in the kuip: where its weight sits, off the middle to the low side (m, and m per degree of helling)
+const WATER_IN = { x: 2.7, y: 0.25, reach: 0.3, spread: 0.008 };
+export const WATER_VOL = 350;     // kg: water well over the buikdenning - more runs out over the dolboord at lij
 const ROLL_Y = 0.30;              // she heels about the waterline (modes.js)
 // Righting arm of the hull on its own about G_BOAT, per degree of helling: vormstabiel, steep at
 // first and falling off once the berghout goes under at about 20 degrees.
@@ -122,7 +125,7 @@ export function boatSpeed(course, tws) {
  *   drawAt   the heel (radians, as modes.js) to give the points at - the one the boat is shown with,
  *            which eases towards the one found here - or null for that one
  */
-export function solve({ course, tws, vaart = 1, sails, board, crew = 0, helm = null, heel = true, push = null, drawAt = null }) {
+export function solve({ course, tws, vaart = 1, sails, board, crew = 0, helm = null, heel = true, push = null, drawAt = null, water = 0 }) {
   const side = Math.sign(course) || 1;          // +1: wind over stuurboord, lij is bakboord (-z)
   const beta = rad(Math.abs(course));
   const V = vaart * boatSpeed(course, tws);
@@ -161,12 +164,15 @@ export function solve({ course, tws, vaart = 1, sails, board, crew = 0, helm = n
   // -- helling: the kenterend koppel of the side force between zeilpunt and lateraal punt against the
   // oprichtend koppel of weight and buoyancy. Solved for the angle where they are equal.
   const crewZ = side * crew * CREW.reach;
-  const wBoat = MASS_BOAT * G; const wCrew = MASS_CREW * G; const wAll = wBoat + wCrew;
+  const wBoat = MASS_BOAT * G; const wCrew = MASS_CREW * G; const wWater = water * G; const wAll = wBoat + wCrew + wWater;
   const ce0 = centre(zeilen);
   const heelAt = (phi) => {                          // phi degrees to lij, negative to loef
     const theta = -side * rad(phi);
     const gb = heeled(G_BOAT, theta); const gc = heeled([CREW.x, CREW.y, crewZ], theta);
-    const g = [0, 1, 2].map((i) => (wBoat * gb[i] + wCrew * gc[i]) / wAll);   // the zwaartepunt: boat, tuig and crew
+    // water in the boat runs to the low side, further the more she heels - lying upright it lies in the middle
+    const lever = WATER_IN.reach * clamp(phi / 5, -1, 1) + Math.sign(phi) * WATER_IN.spread * Math.min(Math.abs(phi), 40);
+    const gw = heeled([WATER_IN.x, WATER_IN.y, -side * lever], theta);
+    const g = [0, 1, 2].map((i) => (wBoat * gb[i] + wCrew * gc[i] + wWater * gw[i]) / wAll);   // the zwaartepunt: boat, tuig, crew and water
     const b = [gb[0], 0.12, gb[2] - side * Math.sign(phi) * interp(GZ, Math.abs(phi))];        // the drukpunt, gone over to lij
     const right = wAll * (g[2] - b[2]) * side;                      // > 0 rights her
     const ce = heeled(ce0, theta); const l = heeled(lp, theta);

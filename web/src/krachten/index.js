@@ -1,10 +1,11 @@
 import * as THREE from 'three';
-import { solve, BFT, TRIM, boatSpeed, heeled, BERGHOUT_ONDER, HELLING_FLINK, HELM_MOST } from './model.js';
+import { solve, BFT, TRIM, boatSpeed, heeled, BERGHOUT_ONDER, HELLING_FLINK, HELM_MOST, WATER_VOL } from './model.js';
 import { LESSEN } from './lessen.js';
 import { createPijlen } from './pijlen.js';
 import { createSchema } from './schema.js';
 import { createVlag } from './vlag.js';
 import { voortgang } from '../lessen/voortgang.js';
+import { gevolg } from '../logboek.js';
 import { GREEP, MEER, VOET, TERUG, lesVoet, veeg, breedKnop } from '../lessen/kaart.js';
 import { stroomlijnen, profiel } from './stroming.js';
 
@@ -32,10 +33,23 @@ const ROMP_BOOT = ['romp', 'boot']; // there, and on the boat as well
 const KENTER = 2200;                // Nm: half a turn for the koppels of helling, kenterend and oprichtend
 const HELLING_VOL = 3000;          // Nm: a full half-bar in the balans of helling (about 6 Bft aan de wind)
 const OMSLAAN_NA = 0.8;             // s: going over has to hold this long - a sail still being trimmed is no capsize
+// water scheppen: past this helling the dolboord is at the water and it comes in; going over, she first lies there,
+// schepping, for a while - time to do something - before she goes
+const SCHEP = 22;                   // degrees
+const SCHEP_HELLING = 28;           // degrees: how far she lies while she schept, going over
+const SCHEP_TIJD = 3.5;             // s
+const HOZEN = 0.035;                // of the water she can hold, per second: the crew hozing her dry
+const KLAP_TIJD = 0.45;             // s: a klapgijp, the giek over and her thrown to the new lij with it
+const GIJP_LOS = 25;                // degrees: with the giek out further than this a gijp is a klapgijp
+const KLAP = {
+  om: 'Klapgijp! De wind kwam van de verkeerde kant in het zeil, en met de grootschoot los sloeg de giek in één klap over. In deze wind was dat te veel: de boot slaat om. Gijp gecontroleerd, met de grootschoot eerst binnen. Bij harde wind gijp je liever niet: maak een stormrondje.',
+  op: 'Klapgijp! De wind kwam van de verkeerde kant in het zeil, en met de grootschoot los sloeg de giek in één klap over. De boot loefde hard op. Gijp daarom gecontroleerd: eerst de grootschoot binnen, dan de giek over, dan weer vieren.',
+  goed: 'Gegijpt: met de grootschoot binnen ging de giek gecontroleerd over; je vaart nu over de andere boeg. Vier de schoot nu weer.',
+};
 const SHEET = 900;                  // px: up to this wide the card is a sheet at the foot (style.css @container)
 // course names along the slider, as modes.js has them
 const KOERS = [[70, 'Aan de wind'], [112, 'Halve wind'], [158, 'Ruime wind'], [181, 'Voor de wind']];
-const koersNaam = (c) => KOERS.find(([b]) => c < b)[1];
+const koersNaam = (c) => KOERS.find(([b]) => (c > 180 ? 360 - c : c) < b)[1];   // past 180: voor de wind, on the other boeg
 // what Zelf verkennen can switch on: chip -> the items it draws
 const LAGEN = [
   ['Zeilkracht', ['zeilkracht', 'ontbonden', 'zp']], ['Per zeil', ['perzeil']], ['Stroming', ['stroom', 'druk']], ['Water', ['drift', 'weerstand', 'lp', 'koersdoorwater']],
@@ -102,6 +116,78 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
     }
     return n ? out.divideScalar(n) : null;
   };
+  // ------------------------------------------------------------------ water in the boat
+  // The kuip from the achterschot to the voorschot, measured once from the inside of the hull: per station its
+  // half-width at each height. The water is drawn as its level surface - level in the world, however she heels -
+  // from where that meets the hull on one side to where it meets it on the other.
+  const kuipWater = (() => {
+    const model = scene.getObjectByName('lelievlet');
+    const skin = parts.filter((p) => /^(kim|vlak|boeisel)_/.test(p.extras.id)).flatMap((p) => p.meshes).filter((m) => m.material.name === 'kuip');
+    const STATIONS = Array.from({ length: 14 }, (_, i) => 1.36 + (i * (3.97 - 1.36)) / 13);
+    const DY = 0.05; const ROWS = 20; const FLOOR = 0.04; const TOP = 0.9;
+    const wide = STATIONS.map(() => new Array(ROWS).fill(0));
+    model.updateWorldMatrix(true, false);
+    const inv = model.matrixWorld.clone().invert(); const m4 = new THREE.Matrix4(); const v = new THREE.Vector3();
+    for (const mesh of skin) {
+      mesh.updateWorldMatrix(true, false); m4.multiplyMatrices(inv, mesh.matrixWorld);
+      const pos = mesh.geometry.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        v.fromBufferAttribute(pos, i).applyMatrix4(m4);
+        const j = Math.round(v.y / DY); if (j < 0 || j >= ROWS) continue;
+        STATIONS.forEach((x, k) => { if (Math.abs(v.x - x) < 0.07) wide[k][j] = Math.max(wide[k][j], Math.abs(v.z)); });
+      }
+    }
+    for (const w of wide) for (let j = 1; j < ROWS; j++) if (!w[j]) w[j] = w[j - 1];   // a height with no vertex: as below
+    const halfWidth = (w, y) => { const f = THREE.MathUtils.clamp(y / DY, 0, ROWS - 1); const j = Math.floor(f); return w[j] + (w[Math.min(j + 1, ROWS - 1)] - w[j]) * (f - j); };
+    const position = new Float32Array((STATIONS.length - 1) * 6 * 3);
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(position, 3));
+    geometry.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(position.length), 3));
+    const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0x3f8db8, emissive: 0x0d3550, transparent: true, opacity: 0.78,
+      roughness: 0.3, metalness: 0, side: THREE.DoubleSide, depthWrite: false }));
+    mesh.frustumCulled = false; mesh.renderOrder = 3; mesh.visible = false; mesh.raycast = () => {};
+    model.add(mesh);
+    const q = new THREE.Quaternion(); const up = new THREE.Vector3();
+    const ends = STATIONS.map(() => [0, 0, 0, 0, false]);
+    return {
+      hide() { mesh.visible = false; },
+      dispose() { mesh.removeFromParent(); geometry.dispose(); mesh.material.dispose(); },
+      /** fill: 0 dry .. 1 as much as she holds; on: only where she heels. */
+      set(fill, on) {
+        mesh.visible = on && fill > 0.005;
+        if (!mesh.visible) return;
+        // the world's up in the boat's frame: across her (y, z) - she heels about her length
+        up.set(0, 1, 0).applyQuaternion(model.getWorldQuaternion(q).invert());
+        const n = Math.hypot(up.y, up.z); const uy = up.y / n; const uz = up.z / n;
+        let low = Infinity;
+        for (const w of wide) for (let j = 1; j < ROWS; j++) for (const z of [-w[j], w[j]]) low = Math.min(low, j * DY * uy + z * uz);
+        const c = low + 0.24 + 0.45 * fill;                          // over the buikdenning at once, then up to the dolboord
+        wide.forEach((w, k) => {
+          let a = null; let b = null;
+          for (let t = -1.2; t <= 1.2; t += 0.02) {
+            const y = c * uy - t * uz; const z = c * uz + t * uy;
+            if (y >= FLOOR && y <= TOP && Math.abs(z) <= halfWidth(w, y)) { if (a === null) a = t; b = t; }
+          }
+          const e = ends[k]; e[4] = a !== null;
+          if (e[4]) { e[0] = c * uy - a * uz; e[1] = c * uz + a * uy; e[2] = c * uy - b * uz; e[3] = c * uz + b * uy; }
+        });
+        let i = 0;
+        const put = (x, y, z) => { position[i++] = x; position[i++] = y; position[i++] = z; };
+        for (let k = 0; k + 1 < STATIONS.length; k++) {
+          const p = ends[k]; const q2 = ends[k + 1];
+          if (!p[4] || !q2[4]) continue;
+          const x0 = STATIONS[k]; const x1 = STATIONS[k + 1];
+          put(x0, p[0], p[1]); put(x1, q2[0], q2[1]); put(x0, p[2], p[3]);
+          put(x0, p[2], p[3]); put(x1, q2[0], q2[1]); put(x1, q2[2], q2[3]);
+        }
+        const normal = geometry.attributes.normal.array;
+        for (let j = 0; j < i; j += 3) { normal[j] = 0; normal[j + 1] = uy; normal[j + 2] = uz; }
+        geometry.setDrawRange(0, i / 3);
+        geometry.attributes.position.needsUpdate = true; geometry.attributes.normal.needsUpdate = true;
+      },
+    };
+  })();
+
   const SAILS = [
     { naam: 'grootzeil', area: 8.15, hoeken: ['grootzeil_halshoek', 'grootzeil_klauwhoek', 'grootzeil_tophoek', 'grootzeil_schoothoek'] },
     { naam: 'fok', area: 4.0, hoeken: ['fok_halshoek', 'fok_tophoek', 'fok_schoothoek'] },
@@ -227,6 +313,17 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
                                                         // so a step on the slider turns them, not throws them
   let lastStatus = ''; let lastNiveau = '';
   let omslaanTijd = 0;
+  let klapOm = 0;                                       // s: a klapgijp threw her over - she lies there this much longer
+  let wasOm = false;
+  let water = 0;                                        // in the boat: 0 dry .. 1 as much as she holds (model.js WATER_VOL)
+  let schepte = false;
+  let opstaan = 0;                                      // s: she is coming back up after going over
+  let gijp = null;                                      // a gijp under way: { t, klap, gegooid }
+  let melding = null;                                   // what a gijp brought about, said for a while: { tekst, niveau, t, tot }
+  let lastMain = 0;                                     // degrees the giek was out last frame
+  // the side the koers slider counts from: past 180 the wind is over the other side - voor de wind on the other
+  // boeg, the giek gone over (a gijp). Let go of the slider and it counts from the side she is on.
+  let boeg = 1;
   let schemaDue = 0;
   let verkenAanzicht = null;                             // where Zelf verkennen last sent the camera
   let trim = null;                                      // Zo trim je, under way: { t }
@@ -235,9 +332,10 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
   // ------------------------------------------------------------------ the boat follows the card
   const side = () => Math.sign(modes.state.course) || 1;
   const courseNow = () => Math.abs(modes.state.course) || 90;
+  const koersOp = (k) => (k <= 180 ? boeg * k : -boeg * (360 - k));
   const setBoat = (want) => {
     const go = {};
-    if (want.koers !== undefined) go.koers = side() * want.koers;
+    if (want.koers !== undefined) go.koers = koersOp(want.koers);
     if (want.zwaard !== undefined || want.koers !== undefined) go.zwaard = s.zwaard;   // a course trims the zwaard itself: ours goes after it
     if (Object.keys(go).length) modes.apply(go);
   };
@@ -245,6 +343,12 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
   const zetRif = (n) => { if (!modes.zetRif(n)) s.rif = Math.round(modes.rif().slagen); };
   let rifBijOpenen = 0;                                 // the rif she had: given back when the card closes
   const set = (want) => {
+    // past voor de wind, or back: the wind comes in the sail from the other side and the giek goes over
+    if ('koers' in want && (want.koers > 180) !== (s.koers > 180)) {
+      // with the grootschoot te strak the giek is held in, whatever the wind lets it out to: a gijp, not a klap
+      gijp = { t: 0, klap: lastMain > GIJP_LOS && s.groot !== 'strak', gegooid: false };
+      if (gijp.klap) gevolg('klapgijp');
+    }
     Object.assign(s, want);
     if ('koers' in want || 'zwaard' in want) setBoat(want);
     if ('rif' in want) zetRif(s.rif);
@@ -302,7 +406,14 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
     merk: ({ sheet }) => sheet('goed', min, max), zegt: (v, d) => (d < 0 ? 'te strak' : 'te los') });
   const kantZeggen = (h) => (Math.abs(h) < 0.5 ? 'midden' : `${Math.abs(Math.round(h))}° naar ${h > 0 ? 'stuurboord' : 'bakboord'}`);
   const CONTROLS = {
-    koers: () => slider('Koers', 'koers', 45, 180, 5, koersNaam),
+    koers: () => {
+      // past voor de wind only where the card has a grootschoot to take in first: elsewhere a gijp could only be a klap
+      const schoot = les().bediening.some((k) => k === 'groot' || k === 'grootschoot');
+      const row = slider('Koers', 'koers', 45, schoot ? 195 : 180, 5, koersNaam);
+      // let go past 180: she is on the other boeg now, and the slider counts from there
+      row.querySelector('input').addEventListener('change', () => { boeg = side(); s.koers = courseNow(); renderControls(); });
+      return row;
+    },
     groot: () => segmented('Grootschoot', 'groot', [['los', 'Te los'], ['goed', 'Goed'], ['strak', 'Te strak']]),
     fok: () => segmented('Fokkenschoot', 'fok', [['bak', 'Bak'], ['los', 'Te los'], ['goed', 'Goed'], ['strak', 'Te strak']]),
     zwaard: () => segmented('Zwaard', 'zwaard', [['neer', 'Neer'], ['half', 'Half'], ['op', 'Op']]),
@@ -362,6 +473,7 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
     rows = l.bediening.map((key) => CONTROLS[key]()); host.append(...rows);
     voet.toon(l.meer);
     answered = false; renderQuestion(); trim = null; verder();
+    boeg = side(); water = 0; gijp = null; melding = null; klapOm = 0; opstaan = 0; modes.kracht.boomRate = null;
     s = { ...DEFAULT, koers: courseNow(), zwaard: modes.state.midzwaard, ...l.begin };
     // a rif only where the lesson has the control for it: elsewhere the sail is shown whole
     s.rif = l.bediening.includes('rif') ? (l.begin.rif ?? Math.round(modes.rif().slagen)) : 0;
@@ -424,7 +536,8 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
   veeg(card, back, showBoat);
 
   const release = () => {
-    Object.assign(modes.kracht, { boom: null, jib: null, heel: 0, helm: null, vane: null });
+    Object.assign(modes.kracht, { boom: null, jib: null, heel: 0, helm: null, vane: null, boomRate: null });
+    water = 0; gijp = null; melding = null; klapOm = 0; opstaan = 0; kuipWater.hide();
     setCoveredRight(0); centreKey = '';
     shownTheta = 0; shownCourse = null; pijlen.visible = false; vlag.visible = false;
   };
@@ -452,6 +565,10 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
     // turned past the width of a sheet with the boat on its own: the card comes back beside it
     if (card.hidden && !back.hidden && width > SHEET) showBoat(false);
     centre(width);
+    // on her boeg the slider counts from the side she is on, however she got there (a manoeuvre, the windroos)
+    if (s.koers <= 180) boeg = side();
+    // the midzwaard set on the boat itself, by a click on it: the card goes with it
+    if (s.zwaard !== modes.state.midzwaard) { s.zwaard = modes.state.midzwaard; renderControls(); }
     const l = les();
     const sd = side();
     const want = modes.state.course;
@@ -468,9 +585,39 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
     // the sheets: each sail eased to the angle of attack its setting asks for, as far as it goes
     // (or, from a slider, the angle itself)
     const sheet = (v, lo, hi) => THREE.MathUtils.clamp(typeof v === 'number' ? v : awa - TRIM[v], lo, hi);
-    const main = sheet(s.groot, 4, 85);
-    const jib = s.fok === 'bak' ? -24 : sheet(s.fok, 6, 62);
+    // a schoot only holds a sail in: let out further than the wind, it swings back in till the wind runs along it,
+    // and it klappert with a tegenbolling - it cannot stand out there with the wind in its back
+    const vrij = (v, lo, hi) => Math.min(sheet(v, lo, hi), Math.max(awa - TRIM.los, lo));
+    const main = vrij(s.groot, 4, 85);
+    const jib = s.fok === 'bak' ? -24 : vrij(s.fok, 6, 62);
     modes.kracht.boom = sd * main; modes.kracht.jib = sd * jib;
+    lastMain = main;
+    // a gijp under way: the giek over to the new side - with the schoot los in one klap, bouncing back off the
+    // end of the schoot; with it in, under control
+    if (gijp) {
+      gijp.t += dt;
+      if (gijp.klap) {
+        modes.kracht.boomRate = gijp.t < KLAP_TIJD ? 14 : gijp.t < 0.9 ? 7 : null;
+        if (gijp.t >= KLAP_TIJD && gijp.t < 0.9) modes.kracht.boom = sd * Math.max(main - 14, 4);
+        // one movement: as the giek swings over she is thrown to the new lij and up into the wind - the heel comes on
+        // while the giek goes, not after it lands
+        if (l.helt && gijp.t <= KLAP_TIJD) shownTheta += -sd * THREE.MathUtils.degToRad(8 + 4 * s.bft) * Math.min(dt, KLAP_TIJD) / KLAP_TIJD;
+        if (!gijp.gegooid) {
+          // with wind enough she goes
+          gijp.gegooid = true;
+          const om = Boolean(l.helt) && (s.bft >= 5 || (s.bft >= 4 && s.bemanning < 0));
+          if (om) klapOm = 6;
+          const op = Math.max(courseNow() - 55, 90);
+          modes.apply({ koers: sd * op, zwaard: s.zwaard });
+          if (s.koers <= 180) { boeg = side(); s.koers = op; renderControls(); }
+          melding = { tekst: om ? KLAP.om : KLAP.op, niveau: om ? 'rood' : 'oranje', t: 0, tot: om ? 6 : 8 };   // gone over: said while she lies there
+        }
+        if (gijp.t > 0.9) gijp = null;
+      } else {
+        modes.kracht.boomRate = 1.6;
+        if (gijp.t > 1.8) { gijp = null; modes.kracht.boomRate = null; melding = { tekst: KLAP.goed, niveau: '', t: 0, tot: 6 }; }
+      }
+    }
 
     if (l.id === 'verkennen') {                         // with Helling on the camera goes astern
       const kijk = VERKEN.aanzicht(lagen.has('Helling'));
@@ -488,19 +635,38 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
     const rif = modes.rif();
     const input = {
       course, tws, vaart, sails: readSails(rif), board: readBoard(), crew: s.bemanning, heel: helt, helm: roerZet,
-      push: l.id === 'kracht' ? { x: s.duw, force: PUSH } : null,
+      push: l.id === 'kracht' ? { x: s.duw, force: PUSH } : null, water: helt ? water * WATER_VOL : 0,
     };
     const eq = solve(input);
     // going over, nothing holds her: she heels on, slowly, till she lies on her side - once it has held a
     // moment: while a sail is still being trimmed after a change it can draw too much for a frame or two
+    // Before she goes she lies on her ear a while, schepping water: what is done then can still save her
     omslaanTijd = eq.helling.omslaan ? omslaanTijd + dt : 0;
-    const omslaan = omslaanTijd > OMSLAAN_NA;
+    klapOm = Math.max(klapOm - dt, 0);
+    const omslaan = omslaanTijd > OMSLAAN_NA + SCHEP_TIJD || klapOm > 0;
+    const opHetOor = !omslaan && omslaanTijd > OMSLAAN_NA;
     eq.helling.omslaan = omslaan;
-    const doel = omslaan ? -sd * Math.PI / 2 : eq.helling.theta;
+    const doel = omslaan ? -sd * Math.PI / 2 : opHetOor ? -sd * THREE.MathUtils.degToRad(SCHEP_HELLING) : eq.helling.theta;
     shownTheta += (doel - shownTheta) * (1 - Math.exp(-dt * (omslaan ? 0.6 : 3)));
+    // water: in over the dolboord once she heels that far to lij - on her side, she fills - and out again as
+    // the crew hoos once she is back up
+    const lij = -sd * THREE.MathUtils.radToDeg(shownTheta);   // degrees of helling to lij
+    // coming back up after she went over, the water she holds runs out over the dolboord: none comes in on the way
+    if (wasOm && !omslaan) opstaan = 3;
+    opstaan = Math.max(opstaan - dt, 0);
+    const instroom = !helt || opstaan > 0 ? 0 : omslaan && lij > 45 ? 0.4 : lij > SCHEP ? 0.05 + 0.1 * (lij - SCHEP) / 6 : 0;
+    if (!helt) water = 0;
+    else if (instroom) water = Math.min(water + instroom * dt, omslaan ? 0.6 : 1);
+    else if (lij < SCHEP - 4) water = Math.max(water - HOZEN * dt, 0);
+    const schept = instroom > 0 && !omslaan;
+    if (schept && !schepte) gevolg('scheppen');
+    if (omslaan && !wasOm) gevolg('omgeslagen');
+    schepte = schept; wasOm = omslaan;
+    kuipWater.set(water, helt);
     // going over, the roer stays where it was when she went - not straightened as the sails lose the wind
     const r = solve({ ...input, drawAt: shownTheta, helm: omslaan && roerZet === 'recht' ? -sd * eq.helmNeeded : roerZet });
     r.helling.omslaan = omslaan;
+    for (const h of [r.helling, eq.helling]) Object.assign(h, { schept, water });
     // the numbers - balans, status, warning - going over as they were when she went: lying on her side the
     // sails catch nothing, and all would seem to have come to rest
     const rTal = omslaan ? eq : r;
@@ -540,10 +706,13 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
       else if (trim.t < 6) { if (s.groot !== 'goed') set({ groot: 'goed' }); fase = 'Trek het dan net zo ver aan tot de tegenbolling weg is: nu volgt de stroming het zeil.'; }
       else { trim = null; renderControls(); }
     }
-    const status = fase || l.status(rTal, { ...s, rifMax: rif.max });
+    if (melding && (melding.t += dt) > melding.tot) melding = null;
+    // what a gijp brought about is said for a while - unless she schept or goes over now: that is said first
+    if (melding && (rTal.helling.omslaan || rTal.helling.schept) && !klapOm) melding = null;
+    const status = fase || melding?.tekst || l.status(rTal, { ...s, rifMax: rif.max });
     if (status !== lastStatus) { q('.kr-status').textContent = status; back.querySelector('p').textContent = status; lastStatus = status; }
     // a warning in its colour, not in the green of how things are
-    const niveau = waarschuwing(rTal, l, s);
+    const niveau = melding ? melding.niveau : waarschuwing(rTal, l, s);
     if (niveau !== lastNiveau) {
       for (const el of [q('.kr-status'), back]) { el.classList.remove(`kr-${lastNiveau}`); if (niveau) el.classList.add(`kr-${niveau}`); }
       lastNiveau = niveau;
@@ -555,11 +724,11 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
   function waarschuwing(r, l, s) {
     const zegt = l.zegt ?? []; const phi = r.helling.phi; const helling = zegt.includes('helling');
     const kanNaarLij = s.bemanning > -1; const rechtop = Math.round(Math.abs(phi)) < 1;
-    if (helling && r.helling.omslaan) return 'rood';
+    if (helling && (r.helling.omslaan || r.helling.schept)) return 'rood';
     if (helling && phi >= BERGHOUT_ONDER) return 'oranje';
     if (helling && !rechtop && phi < 0 && kanNaarLij) return 'oranje';
     if (zegt.includes('gier') && Math.abs(r.helmNeeded) > HELM_MOST - 0.5) return 'oranje';
-    if (helling && (phi >= HELLING_FLINK || (rechtop && kanNaarLij))) return 'geel';
+    if (helling && (phi >= HELLING_FLINK || r.helling.water > 0.03 || (rechtop && kanNaarLij))) return 'geel';
     return '';
   }
 
@@ -846,5 +1015,7 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
     lesIndex = i; setOpen(true);
   };
   return { update, open: openOp, close: () => setOpen(false), onderwerpen: LESSEN,
-           dispose: () => { setOpen(false); pijlen.dispose(); schema.dispose(); vlag.dispose(); card.remove(); back.remove(); layer.remove(); } };
+           /** Open: { sleutel, onderwerp } for the address of the page (adres.js), as lessen/kaart.js openKaart. */
+           nu: () => (open ? { sleutel: 'krachten', onderwerp: LESSEN[lesIndex].id } : null),
+           dispose: () => { setOpen(false); pijlen.dispose(); schema.dispose(); vlag.dispose(); kuipWater.dispose(); card.remove(); back.remove(); layer.remove(); } };
 }

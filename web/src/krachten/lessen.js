@@ -52,16 +52,19 @@ const minder = (s) => (s.bemanning < 1 ? 'ga allemaal aan loef zitten.'
 // sit aan lij already). A little helling to lij lets the sails fall into their shape.
 const naarLij = (s) => (s.bemanning > 0 ? 'ga in het midden zitten.' : s.bemanning === 0 ? 'ga aan lij zitten.' : '');
 const hoofd = (t) => `${t[0].toUpperCase()}${t.slice(1)}`;
-// Helling and gieren in one line - but going over, only that: what the roer does no longer matters
-const hellingEnGier = (r, s) => (r.helling.omslaan ? helling(r, s) : `${helling(r, s)} ${gier(r, s)}`);
+// Helling and gieren in one line - but going over, or schepping, only that: what the roer does no longer matters
+const hellingEnGier = (r, s) => (r.helling.omslaan || r.helling.schept ? helling(r, s) : `${helling(r, s)} ${gier(r, s)}`);
 const helling = (r, s) => {
   const h = r.helling;
   if (h.omslaan) return `Te veel: het oprichtend koppel kan het niet meer aan. De boot slaat om! ${hoofd(minder(s))}`;
+  // water scheppen: the dolboord at the water, and it comes in - it runs to lij and she heels further still
+  if (h.schept) return `Het dolboord gaat onder water: de boot schept water. Dat loopt naar lij, en zo helt hij nog verder. Snel minder helling: ${minder(s)} Daarna hozen.`;
+  const nat = h.water > 0.03 ? ' Er staat water in de boot: hozen! Zolang het erin staat, helt de boot verder.' : '';
   const phi = Math.round(Math.abs(h.phi));
   const lij = naarLij(s);
-  if (phi < 1) return `De boot vaart rechtop.${lij ? ` Een beetje helling naar lij laat de zeilen in hun vorm vallen: ${lij}` : ''}`;
-  if (h.phi < 0) return `Helling naar loef: ongeveer ${phi}°.${lij ? ` ${hoofd(lij)}` : ''}`;
-  return `Helling naar lij: ongeveer ${phi}°.${h.phi >= BERGHOUT_ONDER ? ` Het berghout gaat onder water: ${minder(s)}` : ''}`;
+  if (phi < 1) return `De boot vaart rechtop.${nat}${!nat && lij ? ` Een beetje helling naar lij laat de zeilen in hun vorm vallen: ${lij}` : ''}`;
+  if (h.phi < 0) return `Helling naar loef: ongeveer ${phi}°.${nat}${!nat && lij ? ` ${hoofd(lij)}` : ''}`;
+  return `Helling naar lij: ongeveer ${phi}°.${h.phi >= BERGHOUT_ONDER ? ` Het berghout gaat onder water: ${minder(s)}` : ''}${nat}`;
 };
 
 export const LESSEN = [

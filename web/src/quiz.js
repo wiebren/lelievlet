@@ -130,7 +130,7 @@ function close(typed, key) {
 
 export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
                            setHighlights, partVisible, closePanel, opslaan = true,
-                           ui, wrap, config, signal, engaged, realTarget, onDestroy, rowing = () => false }) {
+                           ui, wrap, config, signal, engaged, realTarget, onDestroy, rowing = () => false, veranderd = () => {} }) {
   const $ = (id) => ui.getElementById(id);
   const all = (selector) => [...ui.querySelectorAll(selector)];
   const touch = window.matchMedia('(pointer: coarse)');     // a finger: tik, and room for the keyboard
@@ -196,8 +196,8 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
     const now = readStore() ?? store;
     fn(now);
     store = now;
-    if (!opslaan) return;
-    try { localStorage.setItem(STORE, JSON.stringify({ v: 1, ...store })); } catch { /* it works without */ }
+    if (opslaan) try { localStorage.setItem(STORE, JSON.stringify({ v: 1, ...store })); } catch { /* it works without */ }
+    veranderd();                                   // the logboek shows the score
   }
   function clearStore() {                          // the choices of the panel are no score: they stay
     change((s) => { s.totaal = { ...EMPTY }; s.per = {}; });
@@ -924,5 +924,7 @@ export function initQuiz({ parts, scene, select, flyTo, setCovered, openLearn,
     onderdeel: question ? { nr: question.entry.nr, naam: question.entry.naam } : undefined, type: question?.type,
     opties: (question?.type === 'kies' ? question.lit?.map((l) => l.entry) : question?.names)?.map((e) => e.naam),
     beantwoord: question ? question.answered : undefined };
-  return { panelToggled, click, rings, active: () => Boolean(round), info };
+  return { panelToggled, click, rings, active: () => Boolean(round), info,
+           /** { goed, fout, rondes, beste } so far, for the logboek. */
+           score: () => (readStore() ?? store).totaal };
 }

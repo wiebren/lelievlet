@@ -3,6 +3,10 @@
 // update on a day that already has one gets nr: 2 (and so on), so it shows as new to who saw the first.
 
 export const UPDATES = [
+  { datum: '2026-10-13', punten: [
+    'Logboek: de ster linksonder houdt bij hoe ver je bent met elke les, hoe je quizzen gingen en wat je hebt ontdekt.',
+    'In de app heeft een les, een quiz of een pagina van Zoeken een eigen adres. Deel het, en wie het opent komt op dezelfde plek.',
+  ] },
   { datum: '2026-10-12', punten: [
     'Melden: een melding over een quizvraag, je naam en e-mailadres die onthouden worden, en de open kaarten mee op de schermafbeelding.',
     'Oefenen heet nu Leren, met Lessen, Manoeuvres en Quiz. Leren opent op Lessen.',

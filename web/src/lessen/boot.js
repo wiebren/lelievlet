@@ -21,3 +21,19 @@ export function deckOutline(parts, scene) {
   const xs = [...top.keys()].sort((a, b) => a - b);
   return [...xs.map((x) => [x / 10, top.get(x)]), ...xs.slice().reverse().map((x) => [x / 10, -top.get(x)])];
 }
+
+/**
+ * An opaque sea out to `straal` metres, for a lesson whose scene reaches past the viewer's own water (rig.js makeWater:
+ * 14 m, and clear): with the same hole where she lies, so it does not stand inside her, and laid where the viewer's
+ * water is - call userData.volg() each frame where a lesson moves or turns her (modes.kracht.opzij, plek).
+ */
+export function makeZee(modes, straal) {
+  const vorm = new THREE.Shape(); vorm.absarc(2.8, 0, straal, 0, Math.PI * 2, false);
+  const gat = modes.water.geometry.parameters?.shapes?.holes?.[0];
+  if (gat) vorm.holes.push(gat);
+  const zee = new THREE.Mesh(new THREE.ShapeGeometry(vorm, 64), new THREE.MeshStandardMaterial({ color: 0x5f8eae, roughness: 0.35, metalness: 0 }));
+  zee.rotation.x = -Math.PI / 2;
+  zee.userData.volg = () => { zee.position.copy(modes.water.position); zee.position.y -= 0.01; zee.rotation.z = modes.water.rotation.z; };
+  zee.userData.volg();
+  return zee;
+}

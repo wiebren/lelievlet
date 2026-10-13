@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { SEINEN, seinPlaatje, makeSein, makeVerWater } from '../bpr/seinen.js';
 import { makeSign, kadeSchaal } from '../bpr/tekens.js';
-import { createLesKaart, segmented, keuze, kies, ernst } from './kaart.js';
+import { createLesKaart, segmented, keuze, kies, knoppen, ernst } from './kaart.js';
+import { gevolg } from '../logboek.js';
 
 // Bruggen and Sluizen: two lessons after Sint Maarten Kielboot II and III, hoofdstuk 3 (3.2 and 3.3 vaste en
 // beweegbare bruggen, 3.4 sluizen). Each onderwerp shows a few states of one installation - a fixed bridge with
@@ -13,6 +14,15 @@ import { createLesKaart, segmented, keuze, kies, ernst } from './kaart.js';
 const AHEAD = 18;                   // m from her middle to the bridge or lock, as Zoeken puts it (bpr/zoeken.js)
 const C = 2.8;                      // her middle, x
 const KIJK = { hoogte: 10, breedte: 24, doel: [C + AHEAD * 0.55, 2, 0], richting: [-1, 0.5, 0.4] };   // from astern and above, the bridge beyond her
+// Vaar erdoor: she makes for the opening; with her mast up her rig meets the front of the span (the deck 2.4 m deep, its
+// front 1.2 m short of where the model stands) and she stops, shakes and backs off; struck, she goes on under it
+const VOOR = C + AHEAD - 1.2;       // x of the span's front
+const MASTTOP = 3.62;               // x of her mast head, in her own frame (lelievlet.glb tuig.mast.top)
+// what of a bridge she can meet, per kind (bpr/seinen.js makeSein): [m behind the span's front, its underside above the
+// water] - a fixed deck at 3.6 m, a bascule's leaf at 2.3 m, and over a weir its gate drawn up under the deck too
+const SPAN = { vast: [[0, 3.6]], stuwbrug: [[0, 3.6], [1.25, 2.5]], brug: [[0, 2.3]], sluisbrug: [[0, 2.3]] };
+const DOOR = AHEAD + 7;             // how far she goes on, struck: under it and clear of it
+const HEEN = 2.4; const TERUG = 1.6;   // m/s ahead, and backing off
 // a state of its own for a question: the lock red while its doors stand open (boats still coming out)
 const EIGEN = { 'sluis-rood-open': { ...SEINEN.find((x) => x.id === 'sluis-rood'), id: 'sluis-rood-open', open: true } };
 const sein = (id) => SEINEN.find((x) => x.id === id) ?? EIGEN[id];
@@ -216,8 +226,19 @@ export const SLUIZEN = [
 export function initSeinLes({ id, sleutel, titel, lessen, store, wrap, scene, modes, fly, setCoveredRight, opslaan, onOpen, dismissProcedure, naarZoeken }) {
   const lk = createLesKaart({ wrap, id, sleutel, titel, lessen, store, opslaan, fly, setCoveredRight, onOpen, naarZoeken });
   const waterline = scene.getObjectByName('lelievlet').userData.tuig?.waterlijn_m ?? 0.3;
+  // the foremost of her rig at a height (her own frame): the voorstag, from its top down to its hals, forward of the
+  // mast; above the stag, the mast head
+  const stag = scene.getObjectByName('lelievlet').userData.tuig?.voorstag ?? { top: [3.84, 5.09, 0], hals: [5.4, 1.25, 0] };
+  const voorste = (y) => (y >= stag.top[1] ? MASTTOP
+    : stag.top[0] + ((stag.top[1] - y) / (stag.top[1] - stag.hals[1])) * (stag.hals[0] - stag.top[0]));
+  // how far she goes before her rig, mast up, meets the bridge (Infinity: nothing it can meet)
+  const raak = (bouw) => Math.min(Infinity, ...(SPAN[bouw] ?? []).map(([achter, onder]) => VOOR + achter - 0.04 - voorste(waterline + onder)));
   const built = new Map(); let model = null;
   let stand = null; let mastWeg = false; let tuigWas = null; let t = 0;
+  // Vaar erdoor, under way: { fase: 'heen' | 'stoot' | 'onder' | 'terug', x, t }; what came of it stays on the card
+  // (`gebeurd`) till something else is chosen
+  let vaart = null; let gebeurd = null;
+  const stil = () => { vaart = null; modes.kracht.plek = null; modes.kracht.deining = null; verWater?.position.setX(C); };
   const plaatje = document.createElement('div'); plaatje.className = 'les-plaatje'; lk.host.append(plaatje);
   // De hoogteschaal: G.5.1 on the front of the kade just before the bridge, on her stuurboord side, from the top of the
   // wall (1 m out of the water) down into it; the figure at the water is this bridge's height (3.6 m)
@@ -255,7 +276,7 @@ export function initSeinLes({ id, sleutel, titel, lessen, store, wrap, scene, mo
   };
 
   const zet = (key) => {
-    stand = key;
+    stand = key; stil(); gebeurd = null;
     const l = lk.les;
     const s = sein(l.model ?? key);
     if (model) model.removeFromParent();
@@ -274,6 +295,22 @@ export function initSeinLes({ id, sleutel, titel, lessen, store, wrap, scene, mo
   // procedure that took: main.js dismissProcedure)
   const tuig = (rig) => { if (modes.current().tuig !== rig) { modes.apply({ tuig: rig }, { direct: true }); dismissProcedure?.(); } };
 
+  // a bridge where fitting under it decides: a fixed one, or one shut with yellow lights that let through what fits
+  // under it (shut and red without them, or open, it is not her mast that keeps her back or lets her through)
+  const pas = () => {
+    const l = lk.les; const s = sein(l.model ?? stand);
+    const brug = ['brug', 'vast', 'sluisbrug', 'stuwbrug'].includes(s?.bouw)
+      && (s.bouw === 'vast' || Boolean(s.geel) || /onder de gesloten brug|laag genoeg/.test(s.betekenis ?? ''));
+    // her mast struck, the verbod is not for her when it lets through what fits under: what is left of it counts
+    const zonder = (s?.betekenis ?? '').replace(/[^.]*verboden, behalve voor schepen die onder de gesloten brug door passen\./, '')
+      .replace(/als je schip laag genoeg is/g, '');                       // and she is low enough
+    const voorHaar = mastWeg && brug ? zonder : s?.betekenis;
+    // struck, she fits under it - but where nobody may go through, that does not let her (verboden: mast up or not)
+    const verboden = brug && ernst(zonder) === 'rood';
+    return { s, brug, voorHaar, verboden, dicht: mastWeg && verboden };
+  };
+  const vaarErdoor = () => { gebeurd = null; vaart = { fase: 'heen', x: 0, t: 0, raak: raak(pas().s?.bouw) }; lk.renderControls(); };
+
   lk.koppel({
     begin(l) {
       if (tuigWas === null) tuigWas = modes.current().tuig;
@@ -284,11 +321,14 @@ export function initSeinLes({ id, sleutel, titel, lessen, store, wrap, scene, mo
       const rows = [];
       if (l.verken) rows.push(keuze('Wat je ziet', l.verken, () => stand, zet));
       if (l.standen) rows.push(kies(l.standen.length > 3 ? 'Stand' : 'Wat je ziet', l.standen, () => stand, zet));
-      if (l.mast) rows.push(segmented('Mast', [[false, 'Staat'], [true, 'Gestreken']], () => mastWeg, (v) => { mastWeg = v; tuig(v ? 'mast' : 'gestreken'); lk.renderControls(); }));
+      if (l.mast) rows.push(segmented('Mast', [[false, 'Staat'], [true, 'Gestreken']], () => mastWeg, (v) => { mastWeg = v; tuig(v ? 'mast' : 'gestreken'); stil(); gebeurd = null; lk.renderControls(); }));   // a vaart stops
+      // where she may go under it if she fits: try it - with her mast up too
+      if (l.mast) rows.push(knoppen([['vaar', 'Vaar erdoor']], vaarErdoor, () => !vaart && pas().brug && !pas().verboden));
       return rows;
     },
     antwoord(laat) { if (lk.les.standen?.some(([k]) => k === laat)) zet(laat); },
     release() {
+      stil(); gebeurd = null;
       if (model) model.removeFromParent();
       verWater?.removeFromParent();
       if (tuigWas) tuig(tuigWas);
@@ -296,6 +336,39 @@ export function initSeinLes({ id, sleutel, titel, lessen, store, wrap, scene, mo
     },
     aanzicht: () => KIJK,
   });
+
+  // Vaar erdoor, a frame of it: ahead to the bridge; her mast up, it meets the span - a jolt, she shakes and backs
+  // off to where she lay; struck, she goes on under it and comes back astern
+  function varen(dt) {
+    vaart.t += dt;
+    const v = vaart;
+    if (v.fase === 'heen') {
+      v.x += HEEN * Math.min(1, v.t / 1.5) * dt;                         // she gathers way
+      if (!mastWeg && v.x >= v.raak) {
+        v.x = v.raak; v.fase = 'stoot'; v.t = 0;
+        // waiting for it to open is no use where it never does: a fixed one, or one that is not being worked
+        const { s } = pas(); const vaste = ['vast', 'stuwbrug'].includes(s?.bouw) || /niet bediend/.test(s?.betekenis ?? '');
+        gebeurd = { niveau: 'rood', tekst: `Boem! Je mast raakte de brug${lk.les.plaatje ? ': op de hoogteschaal staat 3,6 m, en je mast is zo’n 6 m hoog' : ''}. `
+          + (vaste ? 'Lees de hoogteschaal, en strijk je mast als je er niet onder past.' : 'Lees de hoogteschaal, strijk je mast, of wacht tot de brug opengaat.') };
+        gevolg('brug');
+      } else if (mastWeg && v.x >= DOOR) { v.x = DOOR; v.fase = 'onder'; v.t = 0;
+        gebeurd = { niveau: '', tekst: 'Met je mast gestreken pas je eronder: je vaart er gewoon onderdoor.' }; }
+    } else if (v.fase === 'stoot') {
+      // the jolt runs back through her: the mast head thrown aft (pitch), a roll after it, dying away
+      const k = Math.exp(-v.t / 0.7);
+      modes.kracht.deining = { op: 0, stamp: 0.07 * k * Math.sin(v.t * 9), rol: 0.03 * k * Math.sin(v.t * 6 + 1) };
+      v.x -= 0.25 * k * dt;                                             // knocked back a little
+      if (v.t > 2.2) { modes.kracht.deining = null; v.fase = 'terug'; v.t = 0; }
+    } else if (v.fase === 'onder') {
+      if (v.t > 1.5) { v.fase = 'terug'; v.t = 0; }
+    } else {
+      v.x -= TERUG * Math.min(1, v.t / 1.2) * dt;
+      if (v.x <= 0) { stil(); lk.renderControls(); return; }
+    }
+    modes.kracht.plek = { x: v.x, z: 0, kop: 0 };
+    // the water round her goes along with her (modes.js): the rest with it, where hers is this frame
+    if (verWater) verWater.position.x = modes.water.position.x + C;
+  }
 
   function update(dt, width) {
     if (!lk.tick(width)) return;
@@ -313,19 +386,12 @@ export function initSeinLes({ id, sleutel, titel, lessen, store, wrap, scene, mo
       }
       strepen.instanceMatrix.needsUpdate = true;
     }
+    if (vaart) varen(dt);
     const l = lk.les;
-    const s = sein(l.model ?? stand);
+    const { s, brug, voorHaar, dicht } = pas();
     let status = l.plaatje ? 'Hoogteschaal: lees de hoogte af waar het water het bord raakt. Bij deze brug is dat 3,6 m.' : `${s?.betekenis ?? ''}${l.verken && s?.lelievlet ? ` ${s.lelievlet}` : ''}`;
-    // a bridge where fitting under it decides: a fixed one, or one shut with yellow lights that let through what fits
-    // under it (shut and red without them, or open, it is not her mast that keeps her back or lets her through)
-    const brug = ['brug', 'vast', 'sluisbrug', 'stuwbrug'].includes(s?.bouw)
-      && (s.bouw === 'vast' || Boolean(s.geel) || /onder de gesloten brug|laag genoeg/.test(s.betekenis ?? ''));
     const vast = l.mast && brug && !mastWeg;                               // with her mast up she does not fit under it
-    // her mast struck, the verbod is not for her when it lets through what fits under: what is left of it counts
-    const voorHaar = mastWeg && brug ? (s?.betekenis ?? '').replace(/[^.]*verboden, behalve voor schepen die onder de gesloten brug door passen\./, '')
-      .replace(/als je schip laag genoeg is/g, '') : s?.betekenis;          // and she is low enough
-    // struck, she fits under it - but where nobody may go through, that does not let her
-    const dicht = mastWeg && brug && ernst(voorHaar) === 'rood';
+    if (gebeurd) { lk.status(gebeurd.tekst, gebeurd.niveau); return; }
     if (l.mast && brug) {
       const onder = s.bouw === 'vast' ? 'de brug' : 'de gesloten brug';   // a vaste brug is never shut, it is there
       status += !mastWeg ? ` Met je mast erop pas je niet onder ${onder}.`

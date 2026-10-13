@@ -119,6 +119,8 @@ export function createKaart(host) {
       out += `<text x="${f(box.u + 6 * px)}" y="${f(box.v + box.h - 9 * px)}" class="kr-pane" font-size="${f(10.5 * px)}" stroke-width="${f(3 * px)}">Van bovenaf</text>`;
       svg.innerHTML = out;
     },
+    /** A new picture: the next draw takes its box at once, not eased from the one before. */
+    opnieuw() { box = null; },
     dispose() { svg.remove(); },
   };
 }

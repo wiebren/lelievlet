@@ -6,6 +6,7 @@ import { createWal, AF } from './wal.js';
 import { makeZeilen } from './zeilen.js';
 import { createLesKaart } from '../lessen/kaart.js';
 import { deckOutline } from '../lessen/boot.js';
+import { voortgang } from '../lessen/voortgang.js';
 
 // Leren › Quiz › Zeiltermen: the words of the lesson Zeiltermen (zeiltermen/lessen.js) asked on the boat itself.
 // She sails on a course at random and a question asks what you see: which koers, over which side the wind comes in,
@@ -122,7 +123,8 @@ export function initZeiltermenQuiz({ wrap, scene, camera, controls, parts, modes
         for (const b of lijst.children) b.addEventListener('click', () => {
           if (gekozen) return;
           score.van += 1; if (b.dataset.k === v.goed) score.goed += 1;
-          gekozen = b.dataset.k; lk.renderControls(); lk.verder();
+          gekozen = b.dataset.k; voortgang.quiz('zeiltermen', gekozen === v.goed);
+          lk.renderControls(); lk.verder();
         });
       }
       el.querySelector('h3').textContent = `Vraag · ${SOORTEN[v.soort]}`;
@@ -229,9 +231,12 @@ export function initZeiltermenQuiz({ wrap, scene, camera, controls, parts, modes
     update, close: lk.close,
     /** Open it, on questions of that kind ('gemengd': all kinds); the score starts again for another kind. */
     open(k = soort) {
+      if (!Object.hasOwn(SOORTEN, k)) k = soort;                        // one it does not know (from the address): as it is
       if (k !== soort) { score.goed = 0; score.van = 0; }                 // another kind: a score of its own
       soort = k; lk.open();
     },
+    /** The kind it is on (for the address of the page). */
+    get keuze() { return soort; },
     dispose: () => { lk.dispose(); pijlen.dispose(); kaart.dispose(); wal.dispose(); },
   };
 }

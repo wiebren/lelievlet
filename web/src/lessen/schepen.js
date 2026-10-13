@@ -4,7 +4,8 @@ import { MARKS, makeMark } from '../bpr/betonning.js';
 import { createPijlen } from '../krachten/pijlen.js';
 import { createKaart } from '../zeiltermen/kaart.js';
 import { createLesKaart, segmented } from './kaart.js';
-import { deckOutline } from './boot.js';
+import { deckOutline, makeZee } from './boot.js';
+import { gevolg } from '../logboek.js';
 
 // Grote schepen: a lesson after Sint Maarten Kielboot II and III § 2.6, Vaarproblematiek andersoortige schepen -
 // de dode hoek, zuiging, diepgang en verlijeren. A binnenvaartschip of Zoeken › Lichten (bpr/schepen.js, a
@@ -49,7 +50,7 @@ export const SCHEPEN = [
       'Een kleine boot of een zwemmer die daar in de buurt is, kan <b>meegezogen</b> of zelfs onder het schip gezogen worden. Blijf dus uit de buurt van de zij- en achterkant.',
     ],
     meer: [{ kop: 'Ook achter het schip', tekst: 'Achter een schip draait de schroef: daar stroomt het water hard. Steek nooit vlak achter een schip over.' }],
-    waar: [['dicht', 'Vlak ernaast'], ['ruim', 'Ruim opzij']],
+    waar: [['ruim', 'Ruim opzij'], ['dicht', 'Vlak ernaast']],
     vraag: {
       tekst: 'Een groot schip vaart vlak langs. Waar ben je het veiligst?',
       opties: [['Vlak achter het schip', false], ['Naast de achterkant', false], ['Ruim uit de buurt', true]],
@@ -100,8 +101,7 @@ export function initSchepen({ sleutel, wrap, scene, camera, controls, parts, mod
   const holder = new THREE.Group(); holder.name = 'les-schepen'; holder.visible = false; scene.add(holder);
   // the water further out than the viewer's own disc (14 m round her, rig.js makeWater), for a ship of 55 m: an
   // opaque sea in its place while the lesson is open, as Lichten has it
-  const zee = new THREE.Mesh(new THREE.CircleGeometry(600, 64), new THREE.MeshStandardMaterial({ color: 0x5f8eae, roughness: 0.35, metalness: 0 }));
-  zee.rotation.x = -Math.PI / 2; holder.add(zee);
+  const zee = makeZee(modes, 600); holder.add(zee);
   const ship = makeShip(CONFIGS.find((c) => c.id === 'groot_motorschip'));
   holder.add(ship);
   const zone = (() => {
@@ -130,6 +130,8 @@ export function initSchepen({ sleutel, wrap, scene, camera, controls, parts, mod
   }
 
   let waar = null; let t = 0;
+  let zuigt = false;                                                      // the zuiging has her: the boat's plek and deining are ours
+  let gehad = false;                                                      // she has been against him this time by: the card says what that was
   const les = () => lk.les;
   // where the ship lies for each onderwerp and choice: [x of her stern, z of her middle, heading]
   const plek = () => {
@@ -147,7 +149,9 @@ export function initSchepen({ sleutel, wrap, scene, camera, controls, parts, mod
       if (waar === 'naast') return { hoogte: 30, breedte: 75, doel: [C - 12, 0, 3], richting: [-0.3, 0.8, -1] };
       return { hoogte: 40, breedte: 100, doel: [C - 18, 0, 14], richting: [-0.3, 0.8, -1] };
     }
-    if (l.id === 'zuiging') return { hoogte: 34, breedte: 85, doel: [C, 0, 6], richting: [-0.35, 1, -0.8] };   // from her other side: the ship beyond her
+    // from astern of her, her other side: the way he goes runs into the picture, so all of him stays in sight while he
+    // draws her in and throws her about
+    if (l.id === 'zuiging') return { hoogte: 30, breedte: 70, doel: [C + 14, 0, 5], richting: [-1, 0.75, -0.75] };
     if (l.id === 'diepgang') return { hoogte: 30, breedte: 80, doel: [C, 0, -12], richting: [-0.9, 0.9, 0.5] };
     return { hoogte: 34, breedte: 80, doel: [C, 0, 18], richting: [-0.4, 1, 0.6] };
   };
@@ -157,16 +161,22 @@ export function initSchepen({ sleutel, wrap, scene, camera, controls, parts, mod
       if (modes.state.mode !== 'zeilen') modes.apply({ modus: 'zeilen' });
       if (modes.current().tuig !== 'op') modes.apply({ tuig: 'op' });
       modes.dock.schoon();
-      waar = l.waar?.[0][0] ?? null; t = 0;
+      waar = l.waar?.[0][0] ?? null; t = 0; gehad = false; laatLos(); kaart.opnieuw();
       holder.visible = true; modes.water.visible = false; zone.visible = l.id === 'dodehoek'; geul.visible = l.id === 'diepgang'; strook.visible = l.id === 'verlijeren';
       kaartSvg.style.display = l.doorsnede ? 'none' : ''; doorsnede.hidden = !l.doorsnede;
       if (l.doorsnede) doorsnede.innerHTML = sectie();
-      return l.waar ? [segmented('Waar jij vaart', l.waar, () => waar, (v) => { waar = v; lk.renderControls(); lk.frame(); })] : [];
+      return l.waar ? [segmented('Waar jij vaart', l.waar, () => waar, (v) => { waar = v; gehad = false; kaart.opnieuw(); lk.renderControls(); lk.frame(); })] : [];
     },
     antwoord(laat) { if (laat.waar) { waar = laat.waar; lk.renderControls(); } },
-    release() { holder.visible = false; modes.water.visible = true; geul.visible = false; pijlen.visible = false; modes.kracht.opzij = 0; },
+    release() { holder.visible = false; modes.water.visible = true; geul.visible = false; pijlen.visible = false; modes.kracht.opzij = 0; laatLos(); },
     aanzicht: kijk,
   });
+
+  /** The boat back as she lies: no more rolling or turning from the zuiging. */
+  function laatLos() {
+    if (!zuigt) return;
+    zuigt = false; modes.kracht.plek = null; modes.kracht.deining = null;
+  }
 
   /** The water in section, across the vaargeul: the ship deep in it, the lelievlet beside it in the shallows. */
   function sectie() {
@@ -201,15 +211,29 @@ export function initSchepen({ sleutel, wrap, scene, camera, controls, parts, mod
     ship.position.set(sx, waterline, sz); ship.rotation.y = -kop;
     // close beside him the zuiging takes her: pushed off a little by his bow wave, then drawn in along his side until
     // she lies against him, and let go again once his stern is past (a: where she is along him, 1 his bow, 0 his stern)
-    let opzij = 0; let zuig = '';
-    if (l.id === 'zuiging' && waar === 'dicht') {
+    let opzij = 0; let zuig = ''; let gier = 0;
+    if (l.id === 'zuiging') {
       const a = (C - sx) / L; const TEGEN = sz - B / 2 - 1.05;          // her middle where her side touches his
-      zuig = a > 1.1 || a < -0.35 ? '' : a > 0.85 ? 'weg' : a > 0.4 ? 'trek' : a >= 0 ? 'tegen' : 'los';
-      opzij = a > 1.1 || a < -0.35 ? 0 : a > 0.85 ? -1.2 * Math.sin((Math.PI * (1.1 - a)) / 0.25)
-        : a > 0.35 ? TEGEN * THREE.MathUtils.smoothstep(0.85 - a, 0, 0.5) : a >= 0 ? TEGEN : TEGEN * (1 + a / 0.35);
-    }
+      // past his stern: his schroefwater and his hekgolf. Close by they throw her about - she rolls and pitches, and the
+      // wash turns her bow in towards his track and back; far off only his waves reach her, a little rocking
+      const na = a < 0 ? (-a * L) / 2.5 : -1;                            // s since his stern went by her (he makes 2.5 m/s)
+      if (waar === 'dicht') {
+        zuig = a > 1.1 ? '' : a > 0.85 ? 'weg' : a > 0.4 ? 'trek' : a >= 0 ? 'tegen' : na < 13 ? 'slinger' : 'los';
+        opzij = a > 1.1 || a < -0.35 ? 0 : a > 0.85 ? -1.2 * Math.sin((Math.PI * (1.1 - a)) / 0.25)
+          : a > 0.35 ? TEGEN * THREE.MathUtils.smoothstep(0.85 - a, 0, 0.5) : a >= 0 ? TEGEN : TEGEN * (1 + a / 0.35);
+        if (zuig === 'tegen' && !gehad) { gehad = true; gevolg('zuiging'); }
+      }
+      if (na >= 0) {
+        const hard = waar === 'dicht' ? 1 : 0.2; const uit = Math.exp(-na / 5) * (1 - THREE.MathUtils.smoothstep(na, 14, 17));
+        // her dolboord stays clear of the water: thrown about, not swamped
+        modes.kracht.deining = { rol: hard * 0.13 * Math.sin(na * 2.9) * uit, stamp: hard * 0.05 * Math.sin(na * 3.6 + 1) * uit,
+                                 op: hard * 0.06 * Math.sin(na * 2.2) * uit };
+        gier = waar === 'dicht' ? 0.6 * Math.sin(na * 0.55) * Math.exp(-na / 7) * (1 - THREE.MathUtils.smoothstep(na, 14, 17)) : 0;
+        modes.kracht.plek = { x: 0, z: 0, kop: gier }; zuigt = true;
+      } else laatLos();
+    } else laatLos();
     modes.kracht.opzij = opzij;
-    zee.position.set(C, modes.water.position.y - 0.01, opzij);
+    zee.userData.volg();                                                 // with the hole where she lies, wherever the zuiging has her
     ship.userData.update?.(t, 0, camera);
     // a point of the ship, in the boat's frame [x, z]
     const op = ([x, z]) => [sx + x * Math.cos(kop) - z * Math.sin(kop), sz + x * Math.sin(kop) + z * Math.cos(kop)];
@@ -239,6 +263,8 @@ export function initSchepen({ sleutel, wrap, scene, camera, controls, parts, mod
         items.push({ type: 'pijl', from: at(op([-6, k * (B / 2 + 5)]), 0.6), vec: [4, 0, -k * 4], kleur: KLEUR.water });
       }
       items.push({ type: 'pijl', from: at(voor, 3), vec: [9, 0, 0], kleur: KLEUR.schip, label: 'vaarrichting' });
+      const hek = op([-2, 0]);
+      if (inBeeld(hek)) items.push({ type: 'pijl', from: at(hek, 0.6), vec: [-9, 0, 0], kleur: KLEUR.water, label: 'schroefwater' });
     }
     // the strip it takes: between the outermost points of its hull, across its werkelijke koers
     let strookZ = null;
@@ -255,8 +281,8 @@ export function initSchepen({ sleutel, wrap, scene, camera, controls, parts, mod
     }
     pijlen.visible = true; pijlen.draw(items); pijlen.update(width, height);
 
-    // the map: her, the ship and what goes with it, the bow up - the ship as far from her as she is from it now
-    const opK = (p) => { const [x, z] = op(p); return [x, z - opzij]; };
+    // the map: her, the ship and what goes with it, the bow up - each where it is, she drawn in towards him as she is
+    const opK = op;
     if (lk.bladOpen && !l.doorsnede) {
       if (l.id === 'dodehoek') {
         m.push({ type: 'vlak', pts: [[L / 2, B / 2 + NAAST], [L, B / 2 + NAAST], [L, B / 2], [L + DODE, B / 2 + 4], [L + DODE, -B / 2 - 4], [L, -B / 2], [L, -B / 2 - NAAST], [L / 2, -B / 2 - NAAST]].map(op), fill: 'rgba(192, 38, 45, 0.22)' });
@@ -279,17 +305,25 @@ export function initSchepen({ sleutel, wrap, scene, camera, controls, parts, mod
         m.push({ type: 'pijl', from: [mid[0], mid[1] - 16], vec: [0, 8], kleur: KLEUR.wind, label: 'wind' });
       }
       m.push({ type: 'vlak', pts: romp.map(op), fill: '#9aa5ae', stroke: KLEUR.schip });
-      m.push({ type: 'vlak', pts: deck, fill: '#f7f4ec', stroke: '#36454f' });
-      m.push({ type: 'punt', at: [C, 0], kleur: KLEUR.jij, r: 4.5 });               // she is small beside the ship: a dot marks her
-      m.push({ type: 'tekst', at: [C, -7], label: 'jij', kleur: KLEUR.jij });
-      kaart.draw({ frame: 'boot', wind: 0, centre: [C, 0], min: [30, 30], items: m, titel: l.titel });
+      // she turns about her middle, and is where the zuiging has put her
+      const draai = ([x, z]) => [C + (x - C) * Math.cos(gier) - z * Math.sin(gier), (x - C) * Math.sin(gier) + z * Math.cos(gier) + opzij];
+      m.push({ type: 'vlak', pts: deck.map(draai), fill: '#f7f4ec', stroke: '#36454f' });
+      m.push({ type: 'punt', at: [C, opzij], kleur: KLEUR.jij, r: 4.5 });           // she is small beside the ship: a dot marks her
+      m.push({ type: 'tekst', at: [C, opzij - 7], label: 'jij', kleur: KLEUR.jij });
+      // one scale all the way: where a ship goes by, the map stays as it is and he moves across it
+      const vast = { zuiging: [34, 90], verlijeren: [60, 110] }[l.id];
+      if (vast) for (const it of m) it.fit = false;
+      kaart.draw({ frame: 'boot', wind: 0, centre: [C, 0], min: vast ?? [30, 30], items: m, titel: l.titel });
     }
 
     const status = l.id === 'dodehoek' ? (bij() ? 'Hier ziet de schipper je niet: je zit in zijn dode hoek.' : 'Hier kan de schipper je zien.')
-      : l.id === 'zuiging' ? (waar !== 'dicht' ? 'Ruim opzij merk je weinig van de zuiging.'
+      : l.id === 'zuiging' ? (waar !== 'dicht' ? 'Ruim opzij merk je weinig van de zuiging: alleen zijn golven laten je wat schommelen.'
         : { weg: 'De boeg duwt het water weg: je wordt eerst van het schip af geduwd.', trek: 'Langs de zijkant word je naar het schip toe gezogen.',
-          tegen: 'Je ligt tegen het schip aan: hier kun je eronder raken.', los: 'Het schip is voorbij: je komt weer los.' }[zuig]
-          ?? 'Vlak naast het schip merk je de zuiging: je wordt naar het schip toe getrokken.')
+          tegen: 'Je wordt tegen het schip aan gezogen: hier kun je eronder raken.',
+          slinger: 'Achter het schip kom je in het schroefwater en de hekgolf: je boot slingert en draait alle kanten op.',
+          los: 'Eerst weggeduwd, dan tegen het schip gezogen, en daarachter alle kanten op gegooid. Houd ruim afstand, en ga pas achter een schip langs als het een eind voorbij is.' }[zuig]
+          ?? (gehad ? 'Eerst weggeduwd, dan tegen het schip gezogen, en daarachter alle kanten op gegooid. Houd ruim afstand, en ga pas achter een schip langs als het een eind voorbij is.'
+            : 'Vlak naast het schip merk je de zuiging: je wordt naar het schip toe getrokken.'))
         : l.id === 'diepgang' ? 'Het beladen schip vaart in de vaargeul, tussen de tonnen. Jij blijft erbuiten.'
           : 'Het schip vaart scheef: de kop wijst een beetje naar de wind, maar het gaat rechtdoor.';
     // in his dode hoek, or close beside him in the zuiging: danger; a ship going crabwise: keep clear

@@ -88,13 +88,11 @@
     // the address the app is installed with: this page, and the boat after the # - what an iPhone puts
     // on its home screen, and the start_url of the manifest the page hands out (below)
     const hash = Object.keys(config).length ? `#${await packConfig(config)}` : '';
-    // a lesson's key stays (?krachten, ?zeiltermen, ...), and so does that of a quiz on a lesson's card
-    // (?voorrangquiz, ?zeiltermenquiz): the viewer reads it to open that one at once
-    const asked = new URLSearchParams(location.search);
-    const kept = ['zeiltermen', 'weer', 'schepen', 'bruggen', 'sluizen', 'regels', 'voorrang', 'borden', 'geluiden', 'lichten', 'krachten',
-      'voorrangquiz', 'zeiltermenquiz'].filter((k) => asked.has(k));
-    const keep = kept.length ? `?${kept.join('&')}` : '';
-    history.replaceState(null, '', location.pathname + keep + hash);
+    // what stands after the ? stays (but ?installeer): the viewer opens what it asks for - a lesson, a quiz, a page
+    // of Zoeken (src/adres.js) - and keeps it up to date as one goes on. Not in the installed app: an iPhone keeps
+    // the address it was put on the home screen with, and the app would always start where one was just then
+    const keep = standalone ? '' : location.search.slice(1).split('&').filter((p) => p && p.split('=')[0] !== 'installeer').join('&');
+    history.replaceState(null, '', location.pathname + (keep ? `?${keep}` : '') + hash);
     // The manifest is handed out again with the boat's own icons in it, as data: Android makes its
     // home screen icon from the manifest's icons, fetched apart from this page, and so never saw the
     // ones the service worker keeps (the sail number went missing there). Handed out afresh whenever
@@ -117,7 +115,7 @@
     };
     publishManifest();
 
-    Lelievlet.create(document.getElementById('vlet'), config);
+    Lelievlet.create(document.getElementById('vlet'), { ...config, adres: !standalone });
 
     // the viewer fills the page, which never scrolls: once the keyboard is put away after typing in a
     // field, the page is put back where it was - a phone may have moved it to keep the field in view

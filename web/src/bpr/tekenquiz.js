@@ -85,7 +85,7 @@ function familyOf(e, about) {
  * shut for the round; openLearn(kind): back to the Leren panel; opslaan: whether the score is kept;
  * engaged, realTarget, signal: as main.js.
  */
-export function initTekenQuiz({ ui, wrap, zoeken, closePanels, openLearn, opslaan = true, engaged, realTarget, signal }) {
+export function initTekenQuiz({ ui, wrap, zoeken, closePanels, openLearn, opslaan = true, engaged, realTarget, signal, veranderd = () => {} }) {
   const $ = (id) => ui.getElementById(id);
 
   // ---------------------------------------------------------------- the score, kept in localStorage
@@ -104,8 +104,8 @@ export function initTekenQuiz({ ui, wrap, zoeken, closePanels, openLearn, opslaa
   function change(fn) {
     const now = readStore() ?? store;
     fn(now); store = now;
-    if (!opslaan) return;
-    try { localStorage.setItem(STORE, JSON.stringify({ v: 1, ...store })); } catch { /* it works without */ }
+    if (opslaan) try { localStorage.setItem(STORE, JSON.stringify({ v: 1, ...store })); } catch { /* it works without */ }
+    veranderd();                                   // the logboek shows the score
   }
   const keyOf = (e) => `${e.soort}:${e.id}`;
   const statsOf = (e) => store.per[keyOf(e)] ?? { goed: 0, fout: 0, laatst: 0 };
@@ -403,5 +403,7 @@ export function initTekenQuiz({ ui, wrap, zoeken, closePanels, openLearn, opslaa
     opties: question?.options.map((e) => `${e.id}: ${question.type === 'herkennen' ? e.naam : textOf(e, question.about)}`),
     gekozen: question?.chosen, beantwoord: question ? question.answered : undefined,
   };
-  return { active: () => Boolean(round), stop: () => round && closeRound(), refresh: refreshPanel, info };
+  return { active: () => Boolean(round), stop: () => round && closeRound(), refresh: refreshPanel, info,
+           /** { goed, fout, rondes, beste } so far, for the logboek. */
+           score: () => (readStore() ?? store).totaal };
 }

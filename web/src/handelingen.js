@@ -552,7 +552,7 @@ export function initHandelingen({ ui, wrap, modes, stepProcedure, lookAtProcedur
    */
   function bekijk(op, stap, voor) {
     if (current) close();
-    const g = GROUPS.find(([, ops]) => op in ops)?.[0];
+    const g = GROUPS.find(([, ops]) => Object.hasOwn(ops, op))?.[0];
     if (!g) return 'Onbekende handeling';
     const mode = GROUP_MODE[g] ?? 'zeilen';
     if (modes.state.mode !== mode) modes.apply({ modus: mode });

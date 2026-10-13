@@ -39,6 +39,8 @@ import { zoeknamen } from './anderenamen.js';
 import { addEdges } from './edges.js';
 import { packConfig } from './pack.js';
 import { UPDATES } from './updates.js';
+import { lees as leesAdres, zet as zetAdres, SLEUTELS } from './adres.js';
+import { openKaart } from './lessen/kaart.js';
 
 // One viewer, from end to end. Nothing here runs at import time: `mount` is called once per
 // embedded viewer with the shadow root it owns, so two of them on one page share no state at all.
@@ -106,7 +108,7 @@ export function mount(ui, host, config) {
   const openPanel = new Map();                   // panel id -> open it
   for (const [button, panel, onToggle] of [['parts-toggle', 'parts', partsPanelToggled],
                                            [null, 'about'], [null, 'updates', (open) => open && showUpdates()], ['toestand-toggle', 'toestand', (open) => toestandToggled(open)],
-                                           ['log-toggle', 'logboek']]) {
+                                           ['log-toggle', 'logboek', (open) => open && logboek.refresh()]]) {
     const toggle = button && $(button);
     const aside = $(panel);
     const setOpen = (open) => {
@@ -288,7 +290,7 @@ export function mount(ui, host, config) {
   let zoekDark = null;
   // Leren, Verkeerstekens: the signs, marks and signals of Zoeken as a quiz; for a round every panel is
   // shut, and the boat is out on open water under sail, not left at a steiger laid by a manoeuvre
-  const tekenQuiz = initTekenQuiz({ ui, wrap, zoeken, openLearn: (kind) => openLearn(kind), opslaan, engaged, realTarget, signal,
+  const tekenQuiz = initTekenQuiz({ ui, wrap, zoeken, openLearn: (kind) => openLearn(kind), opslaan, engaged, realTarget, signal, veranderd: () => logboek.refresh(),
     closePanels: () => {
       for (const [panel, close] of closePanel) if (panel !== 'toestand') close();
       if (!$('customize').hidden) $('customize-close').click();
@@ -412,7 +414,7 @@ export function mount(ui, host, config) {
       for (const p of parts) groups.get(p.extras.groep)?.parts.push(p);   // after initModes: it adds the windvaan
       buildPartList();
       addEdges(parts, { signal });                             // every part there is by now, the viewer's own too; drawn in after the first picture
-      quiz = initQuiz({ parts, scene, select, flyTo, setCovered, openLearn: (kind) => openLearn(kind),
+      quiz = initQuiz({ parts, scene, select, flyTo, setCovered, openLearn: (kind) => openLearn(kind), veranderd: () => logboek.refresh(),
                         setHighlights, partVisible, closePanel, opslaan,
                         ui, wrap, config, signal, engaged, realTarget, onDestroy,
                         rowing: () => ['roeien', 'wrikken'].includes(modes?.state.mode) });   // Leren
@@ -458,8 +460,18 @@ export function mount(ui, host, config) {
       lessons.voorrangquiz = initVoorrangQuiz(lesson('voorrangquiz'));
       lessons.zeiltermenquiz = initZeiltermenQuiz(lesson('zeiltermenquiz'));
       onDestroy(() => { for (const l of Object.values(lessons)) l.dispose(); });
-      const asked = new URLSearchParams(location.search);
-      Object.entries(lessons).find(([k]) => asked.has(k))?.[1].open();
+      // the logboek: how far each lesson of Leren › Lessen is gevolgd, and how each quiz went
+      const stand = (s) => (s && s.goed + s.fout ? `${Math.round((100 * s.goed) / (s.goed + s.fout))}% goed` : '');
+      logboek.voortgang = () => ({
+        lessen: [...ui.querySelectorAll('#lessen-list button')].filter((b) => lessons[b.dataset.les]?.onderwerpen)
+          .map((b) => ({ naam: b.querySelector('b').textContent, ...voortgang.telling(b.dataset.les, lessons[b.dataset.les].onderwerpen) })),
+        quizzen: [['Onderdelen', quiz?.score()], ['Verkeerstekens', tekenQuiz.score()], ['Voorrang', voortgang.quizScore('voorrang')],
+          ['Zeiltermen', voortgang.quizScore('zeiltermen')]].map(([naam, s]) => ({ naam, stand: stand(s) })),
+      });
+      onDestroy(voortgang.bijWijziging(() => logboek.refresh()));
+      onDestroy(() => logboek.dispose());
+      try { openAdres(); } catch (e) { console.warn('[lelievlet] adres:', e); }   // what the address asks for is no reason not to start
+      if (config.adres) { const poll = setInterval(volgAdres, 400); onDestroy(() => clearInterval(poll)); }
       newsOnArrival();
     } catch (error) { failed(error); }
   }, undefined, failed);
@@ -1344,6 +1356,51 @@ export function mount(ui, host, config) {
   let learnKind = 'lessen';
   let quizKind = 'onderdelen';
   let openLearn = () => {};
+
+  // ---------------------------------------------------------------- the address of the page (adres.js)
+  // What it asks for is opened once the lessons are there; with config.adres it then follows what is open.
+  // Without it (a viewer on someone's page) only a lesson's key is read, as ever: ?quiz or ?over may be the page's own.
+  const LEREN = ['lessen', 'manoeuvres', 'quiz']; const QUIZ = ['onderdelen', 'verkeerstekens', 'voorrang', 'zeiltermen'];
+  function openAdres() {
+    const asked = leesAdres([...Object.keys(lessons), ...(config.adres ? SLEUTELS : [])]);
+    if (!asked) return;
+    const [key, value] = asked;
+    if (lessons[key]) lessons[key].open(value || undefined);
+    else if (key === 'leren') openLearn(LEREN.includes(value) ? value : 'lessen');
+    else if (key === 'quiz') openLearn(QUIZ.includes(value) ? value : 'onderdelen');
+    else if (key === 'manoeuvre') { if (handelingen?.bekijk(value)) openLearn('manoeuvres'); }
+    else if (key === 'zoeken') {
+      if ($('parts').hidden) $('parts-toggle').click();
+      const [cat, id] = (value ?? '').split(/\/(.*)/s);
+      if (!cat || !zoeken.kan(cat)) return;
+      zoeken.goto(cat);
+      if (id && cat === 'onderdelen') partRow(id)?.button.click(); else if (id) zoeken.openItem(cat, id);
+    } else if (key === 'onderdeel') partRow(value)?.button.click();
+    else if (key === 'over' || key === 'updates') openPanel.get(key === 'over' ? 'about' : 'updates')();
+  }
+  /** What is open now, as [key, value] for the address, or null. */
+  function adresNu() {
+    const kaart = openKaart(wrap) ?? lessons.krachten?.nu?.();
+    // a lesson by its key in the list (the quizzes on a card go by 'voorrang-quiz'), on its onderwerp - or a quiz
+    // on its niveau or kind
+    const les = kaart && Object.keys(lessons).find((k) => k === kaart.sleutel.replace(/-/g, ''));
+    if (les && lessons[les].keuze !== undefined) return [les, lessons[les].keuze];
+    if (les) return [les, kaart.onderwerp === lessons[les].onderwerpen?.[0]?.id ? '' : kaart.onderwerp];
+    if (handelingen?.active()) return ['manoeuvre', handelingen.info().handeling];
+    if (quiz?.active()) return ['quiz', 'onderdelen'];
+    if (tekenQuiz.active()) return ['quiz', 'verkeerstekens'];
+    if (!$('parts').hidden) {
+      const page = zoeken.pagina; const card = zoeken.kaart;
+      const id = page === 'onderdelen' ? selected[0]?.extras.id : card?.cat === page ? card.id : null;
+      return ['zoeken', page === 'home' ? '' : id ? `${page}/${id}` : page];
+    }
+    if (!$('learn-panel').hidden) return learnKind === 'quiz' ? ['quiz', quizKind] : ['leren', learnKind];
+    if (!$('about').hidden) return ['over', ''];
+    if (!$('updates').hidden) return ['updates', ''];
+    if (selected.length) return ['onderdeel', selected[0].extras.id];
+    return null;
+  }
+  const volgAdres = () => zetAdres(adresNu(), [...Object.keys(lessons), ...SLEUTELS]);
   function initLearn() {
     const buttons = [...ui.querySelectorAll('#learn-kind button')];
     const quizButtons = [...ui.querySelectorAll('#quiz-soort button')];
@@ -1393,7 +1450,7 @@ export function mount(ui, host, config) {
         b.classList.toggle('klaar', gevolgd === van);
       }
     };
-    voortgang.bijWijziging(tellingen);
+    onDestroy(voortgang.bijWijziging(tellingen));
     $('learn-toggle').addEventListener('click', () => show()); // after modes.js has opened or shut it
     // (quiz.js and the tekenquiz come back to their own: 'onderdelen' or 'verkeerstekens')
     openLearn = (kind) => {

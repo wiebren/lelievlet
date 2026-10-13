@@ -4,7 +4,8 @@
 // answer to its vraag. An onderwerp counts as gevolgd once it was seen and, if it has a question, that was
 // answered.
 //
-//   { v: 1, lessen: { [les]: { [onderwerp]: { gezien: ms, antwoord?: 'goed' | 'fout' }, [deel]: { gehaald: ms } } } }
+//   { v: 1, lessen: { [les]: { [onderwerp]: { gezien: ms, antwoord?: 'goed' | 'fout' }, [deel]: { gehaald: ms } } },
+//     quizzen?: { [quiz]: { goed, fout } } }
 //
 // A deel is a part of an onderwerp with a question of its own (Voorrang: a situatie, 'zeilen:Jij: wind over
 // stuurboord'); it is gehaald once answered right, and an onderwerp with delen counts only when all of them are.
@@ -27,6 +28,8 @@ const lees = () => {
   } catch { /* nothing kept, or something else under the key */ }
   return staat;
 };
+/** What is stored now, read afresh: another tab (or the installed app) may have written since. */
+const vers = () => { if (opslaan) staat = null; return lees(); };
 const schrijf = () => {
   if (opslaan) try { localStorage.setItem(KEY, JSON.stringify(staat)); } catch { /* it works without */ }
   for (const fn of luisteraars) fn();
@@ -37,19 +40,19 @@ export const voortgang = {
   set opslaan(on) { opslaan = on; staat = null; },
   /** The onderwerp was opened. */
   gezien(les, id) {
-    const s = lees(); const l = (s.lessen[les] ??= {});
+    const s = vers(); const l = (s.lessen[les] ??= {});
     if (l[id]?.gezien) return;
     l[id] = { ...l[id], gezien: Date.now() }; schrijf();
   },
   /** Its vraag was answered; only the first answer is kept. */
   antwoord(les, id, goed) {
-    const s = lees(); const l = (s.lessen[les] ??= {});
+    const s = vers(); const l = (s.lessen[les] ??= {});
     if (l[id]?.antwoord) return;
     l[id] = { gezien: Date.now(), ...l[id], antwoord: goed ? 'goed' : 'fout' }; schrijf();
   },
   /** A deel answered right; it stays gehaald. */
   gehaald(les, id) {
-    const s = lees(); const l = (s.lessen[les] ??= {});
+    const s = vers(); const l = (s.lessen[les] ??= {});
     if (l[id]?.gehaald) return;
     l[id] = { ...l[id], gehaald: Date.now() }; schrijf();
   },
@@ -64,6 +67,13 @@ export const voortgang = {
   telling(les, onderwerpen) {
     return { gevolgd: onderwerpen.filter((o) => this.gevolgd(les, o.id, Boolean(o.vraag), o.delen)).length, van: onderwerpen.length };
   },
+  /** An answer in a quiz that keeps no score of its own (Voorrang, Zeiltermen): counted for the logboek. */
+  quiz(naam, goed) {
+    const s = vers(); const q = ((s.quizzen ??= {})[naam] ??= { goed: 0, fout: 0 });
+    q[goed ? 'goed' : 'fout'] += 1; schrijf();
+  },
+  /** Its { goed, fout } so far, or null. */
+  quizScore(naam) { return lees().quizzen?.[naam] ?? null; },
   /** fn() after every change. */
   bijWijziging(fn) { luisteraars.add(fn); return () => luisteraars.delete(fn); },
 };

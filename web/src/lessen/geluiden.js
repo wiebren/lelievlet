@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { makeZee } from './boot.js';
 import { GELUIDEN, GELUID_GROEPEN } from '../bpr/geluiden.js';
 import { makeHoorn, patroonSvg } from '../bpr/hoorn.js';
 import { CONFIGS, makeShip } from '../bpr/schepen.js';
@@ -82,8 +83,7 @@ export function initGeluiden({ sleutel, wrap, scene, camera, modes, fly, setCove
   const START = [C + 34, 0]; const KOP = Math.PI;
   let id = null; let doet = null; let vanaf = 0; let t = 0; let klinkt = false;
   // her water is clear and reaches 14 m (rig.js makeWater): the boat out ahead lies on an opaque sea instead
-  const zee = new THREE.Mesh(new THREE.CircleGeometry(400, 64), new THREE.MeshStandardMaterial({ color: 0x5f8eae, roughness: 0.35, metalness: 0 }));
-  zee.rotation.x = -Math.PI / 2; zee.position.set(C, waterline - 0.01, 0); holder.add(zee);
+  const zee = makeZee(modes, 400); holder.add(zee);
 
   const zet = (key) => { id = key; doet = null; vanaf = 0; t = 0; hoorn.stop(); toon(); lk.renderControls(); };
   const toon = () => {

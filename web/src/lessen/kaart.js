@@ -26,6 +26,14 @@ const SHEET = 900;                  // px: up to this wide the card is a sheet a
 const QUIZ_ICOON = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>';
 const ZOEK_ICOON = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>';
 
+// the cards there are, for the address of the page (adres.js): which one is open, on which onderwerp
+const lesKaarten = new Set();
+/** The card open now in the viewer of `wrap`: { sleutel, onderwerp } (the id of the onderwerp it is on), or null. */
+export const openKaart = (wrap) => {
+  for (const k of lesKaarten) if (k.wrap === wrap && k.open()) return { sleutel: k.sleutel, onderwerp: k.onderwerp() };
+  return null;
+};
+
 export function createLesKaart({ wrap, id, sleutel, titel, lessen, opslaan, fly, setCoveredRight, onOpen, naarZoeken, naarQuiz, nogEen }) {
   const card = document.createElement('aside');
   card.id = id; card.className = `les-kaart${lessen.length === 1 ? ' les-enkel' : ''}`; card.hidden = true;
@@ -155,6 +163,8 @@ export function createLesKaart({ wrap, id, sleutel, titel, lessen, opslaan, fly,
   q('.kr-sluit').addEventListener('click', () => setOpen(false));
 
   vinkjes();
+  const hier = { wrap, sleutel, open: () => open, onderwerp: () => les()?.id ?? null };
+  lesKaarten.add(hier);
   return {
     card, back, layer, q, host: q('.kr-schema-host'), onderwerpen: lessen,
     koppel(d) { deel = { ...deel, ...d }; },
@@ -188,7 +198,7 @@ export function createLesKaart({ wrap, id, sleutel, titel, lessen, opslaan, fly,
       for (const el of [q('.kr-status'), back]) { el.classList.remove(`kr-${lastNiveau}`); if (niveau) el.classList.add(`kr-${niveau}`); }
       lastNiveau = niveau;
     },
-    dispose() { setOpen(false); los(); card.remove(); back.remove(); layer.remove(); },
+    dispose() { setOpen(false); los(); card.remove(); back.remove(); layer.remove(); lesKaarten.delete(hier); },
   };
 }
 

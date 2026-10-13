@@ -430,7 +430,13 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
   }
 
   // ---------------------------------------------------------------- one tab: search, chips, card, grid
+  // what one item of a page is called in the address of the page (adres.js): its code or id, or a begrip by its name
+  const idVan = (item) => item.code ?? item.spec?.id ?? item.sein?.id ?? item.config?.id ?? item.g?.id ?? item.v?.id
+    ?? (item.b ? fold(item.b.naam).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : null);
+  let kaartNu = null;                                            // the card open now: { cat, id }
+  const openers = new Map();                                     // a page -> open the item with that id there
   function pane(root, { placeholder, items, chips, card }) {
+    const cat = root.id.replace('zoek-', '');
     const search = el('input', { type: 'search', className: 'zoek-veld', autocomplete: 'off', placeholder });
     search.setAttribute('aria-label', placeholder.replace('…', ''));
     // CWO: only what the CWO asks about (item.cwo), on every page at once
@@ -447,6 +453,7 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
     const closeCard = (andRelease = true) => {
       const back = kaart.contains(ui.activeElement) ? current?.button : null;   // the × had the focus: back to the item
       kaart.hidden = true; current?.button.removeAttribute('aria-current'); current = null;
+      if (kaartNu?.cat === cat) kaartNu = null;
       $('parts').classList.remove('gekozen');
       back?.focus({ preventScroll: true });
       if (andRelease) release();
@@ -456,6 +463,7 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
       dark = false; holdDark(null);                               // each card starts as the viewer is; one with a light offers the night
       current?.button.removeAttribute('aria-current');
       current = item; item.button.setAttribute('aria-current', 'true');
+      kaartNu = { cat, id: idVan(item) };
       const close = el('button', { type: 'button', className: 'zoek-kaart-sluit', title: 'Sluiten', textContent: '×', onclick: () => closeCard() });
       close.setAttribute('aria-label', 'Sluiten');
       const parts = card(item).filter(Boolean);
@@ -493,8 +501,8 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
     chips.onChange(filter);
     cwoPanes.push(() => { cwo.setAttribute('aria-pressed', String(cwoOnly)); filter(); });
     filter();
+    openers.set(cat, (id) => { const item = items.find((i) => idVan(i) === id); if (item) { goto(cat); open(item); } return Boolean(item); });
     // for the field over everything on the start page: what this tab has, and how to open one of them here
-    const cat = root.id.replace('zoek-', '');
     sources.push({ cat, search, items: () => items.map((item) => ({ key: item.key, cwo: item.cwo, naam: item.button.title.replace(/ \(niet voor CWO\)$/, ''),
       src: () => item.button.querySelector('img')?.src, open: () => { goto(cat); open(item); } })) });
     resets.push(() => { search.value = ''; chips.reset(); closeCard(false); filter(); scroller.scrollTop = 0; });
@@ -1198,6 +1206,13 @@ export function initZoeken({ ui, renderer, scene, camera, boat, lookFromHelm, wa
     reset() { release(); for (const r of resets) r(); field.value = ''; findAll(); goto('home'); },
     /** To a page: 'home' or a kind ('onderdelen', 'borden', ...). */
     goto,
+    /** The page it is on, and the card open there ({ cat, id }, or null): for the address of the page. */
+    get pagina() { return page; },
+    get kaart() { return kaartNu; },
+    /** Whether it has that page ('home' or a kind). */
+    kan: (cat) => cat === 'home' || Object.hasOwn(CATS, cat),
+    /** Open the item with that id on that page (as kaart gives it); false when there is none. */
+    openItem: (cat, id) => openers.get(cat)?.(id) ?? false,
     /** The viewer taken down: no sound signal goes on after it. */
     destroy() { hoorn.close(); },
     /**
