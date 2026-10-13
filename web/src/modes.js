@@ -4282,7 +4282,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       at.push(best);
     }
     sailRig.push(fly.mesh);
+    const mastTop = mastHead.clone(); mastTop.y -= 0.035;             // on the mast: right up at the masttopring
     return { fly, part, tape, at, points: at.map(() => new THREE.Vector3()), on: false, k: 0,      // k: how far it has faded in
+             mastTop, mastFall: mastTop.distanceTo(mastBolt),
              set(on) { if (this.on === on) return; this.on = on; if (on) { parts.push(part); note('sv'); } else parts.splice(parts.indexOf(part), 1); },
              setEmblem: fly.setEmblem };
   })();
@@ -4836,7 +4838,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
   const ROLL_AXIS = new THREE.Vector3(1, 0, 0); const PITCH_AXIS = new THREE.Vector3(0, 0, 1); const tmpQ = new THREE.Quaternion();
   const rollAt = new THREE.Vector3(PIVOT.x, tuig.waterlijn_m, 0);    // on her waterline, in her middle: she rolls and pitches about it
   const swell = { k: 0, sway: 0, roll: 0, SWAY: deg(30), ROLL: deg(7) };
-  const now = { boom: 0, jib: FOK_CAD, jibBend: 0.08, mainBend: 1, board: 0, sails: 1, wind: 1, rowing: 0, sculling: 0, flutter: 0, windAngle: deg(90), t: 0 };
+  const now = { boom: 0, jib: FOK_CAD, jibBend: 0.08, mainBend: 1, board: 0, sails: 1, wind: 1, rowing: 0, sculling: 0, flutter: 0, windAngle: deg(90), t: 0,
+                headway: 0 };   // rowed or sculled ahead: the wind of her own way, from ahead, in the flags and the windvaan
   const chase = (key, target, dt, rate = 4.5) => { now[key] += (target - now[key]) * (1 - Math.exp(-dt * rate)); };
 
   const q = new THREE.Quaternion(); const roll = new THREE.Quaternion(); const dir = new THREE.Vector3();
@@ -5519,7 +5522,8 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     const tail = 4.4 + 1.9;                                         // the arrow is 1.9 m long, tip 4.4 m out
     wind.position.set(2.8 + tail * Math.cos(now.windAngle), tuig.waterlijn_m + 0.02, tail * Math.sin(now.windAngle));
     wind.rotation.y = Math.PI - now.windAngle;
-    vane.quaternion.setFromAxisAngle(UP, -(kracht.vane ?? now.windAngle)).premultiply(qMast);   // its frame points into the wind
+    const ownWind = now.windAngle - now.headway * wrapPi(now.windAngle);   // under oars the wind from ahead, as she makes way
+    vane.quaternion.setFromAxisAngle(UP, -(kracht.vane ?? (now.wind < 0.5 ? ownWind : now.windAngle))).premultiply(qMast);   // its frame points into the wind
     withMast(tmp.copy(mastHead).setY(mastHead.y + 0.06), vane.position);
     withMast(tmp.copy(mastHead).setY(mastHead.y + 0.02), toplicht.position);
     // paint() in main.js blacks out emissive on every part when the highlighting is refreshed, so
@@ -5538,16 +5542,28 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     borg?.chain.update(delta.copy(rotatedPoint(borg.eye, rudderFoot, rudderAxis, helm.angle, tmp)).sub(borg.eye));
     // no flag while wrikken: the riem needs the room. With the krachten layer it flies, like the windvaan, in
     // the wind she feels as she sails: the schijnbare wind
-    flyFlag(now.t, kracht.vane ?? now.windAngle, kracht.vlag ?? now.wind, 1 - now.sculling, helm.qTurn);
+    flyFlag(now.t, kracht.vane ?? (now.wind < 0.5 ? ownWind : now.windAngle), kracht.vlag ?? Math.max(now.wind, now.headway), 1 - now.sculling, helm.qTurn);
     layChill(step);
     leechFlag.k = clamp(leechFlag.k + (leechFlag.on ? dt : -dt) / 1.5, 0, 1);   // it fades in and out, a second and a half
-    leechFlag.fly.mesh.visible = leechFlag.k > 0;
-    if (leechFlag.k > 0) {
-      leechFlag.fly.setOpacity(smoothstep(leechFlag.k));
-      leechFlag.tape.updateMatrix();
-      const pos = leechFlag.tape.geometry.attributes.position;
-      leechFlag.at.forEach((i, j) => leechFlag.points[j].fromBufferAttribute(pos, i).applyMatrix4(leechFlag.tape.matrix));
-      leechFlag.fly(now.t, now.windAngle, now.wind, leechFlag.points);
+    // zeilen: on the achterlijk, and gone as soon as the grootzeil starts down. Roeien, wrikken: on the mast
+    // instead, from just under its top, flying in her own way through the water or hanging, until the mast comes down
+    const onMast = now.wind < 0.5;
+    const flies = smoothstep(leechFlag.k) * (onMast
+      ? (1 - 2 * now.wind) * (1 - clamp(strike.mast * 5, 0, 1))
+      : (2 * now.wind - 1) * (1 - clamp(strike.main * 10, 0, 1)));
+    leechFlag.fly.mesh.visible = flies > 0.02;
+    if (flies > 0.02) {
+      leechFlag.fly.setOpacity(flies);
+      if (onMast) {
+        const top = withMast(leechFlag.mastTop, tmp);
+        leechFlag.points.forEach((p, j) => p.lerpVectors(top, mastBolt, (j * leechFlag.fly.hoist) / leechFlag.fly.rows / leechFlag.mastFall));
+      } else {
+        leechFlag.tape.updateMatrix();
+        const pos = leechFlag.tape.geometry.attributes.position;
+        leechFlag.at.forEach((i, j) => leechFlag.points[j].fromBufferAttribute(pos, i).applyMatrix4(leechFlag.tape.matrix));
+      }
+      if (onMast) leechFlag.fly(now.t, ownWind, Math.max(now.headway, 0.12), leechFlag.points, 0.35 + 0.65 * now.headway);   // still: limp, in folds
+      else leechFlag.fly(now.t, now.windAngle, now.wind, leechFlag.points);
     }
 
     // wrikriem: a figure of eight over the wrikgat, blade twisting
@@ -5633,6 +5649,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
         courseArrow.position.set(astern ? -0.6 : 6.1, tuig.waterlijn_m + 0.02, 0);
         courseArrow.rotation.y = astern ? Math.PI - swing : swing;  // about +y: positive turns the arrow to port
       }
+      // ahead, straight or in a flauwe bocht, she makes a wind of her own; stopped, astern or turning on the spot: none
+      const rowedAhead = moving && now.rowing > 0.5 && ahead > 0.01 && Math.abs(turn * 0.5) < Math.abs(ahead) * Math.tan(deg(30));
+      chase('headway', rowedAhead || (state.mode === 'wrikken' && now.sculling > 0.9) ? 1 : 0, dt, 1.2);
     }
     {
       const end = 3;                                                // a second a stage

@@ -216,9 +216,11 @@ export function initLeechFlag({ addPart }) {
 
   const out = new THREE.Vector3(); const across = new THREE.Vector3(); const at = new THREE.Vector3(); const lean = new THREE.Vector3();
   const DOWN = new THREE.Vector3(0, -1, 0);
-  const fly = (t, windAngle, wind, hoist) => {
+  // reach: how far it stands out, 1 all its length; less, it hangs limp in folds (on a mast with no wind it would
+  // otherwise lie flat against itself)
+  const fly = (t, windAngle, wind, hoist, reach = 1) => {
     out.set(-Math.cos(windAngle), 0, -Math.sin(windAngle)).multiplyScalar(wind).addScaledVector(DOWN, 1 - 0.78 * wind).normalize();
-    const swell = 0.02 + 0.09 * wind; const speed = 1.5 + 5.5 * wind;
+    const swell = 0.02 + 0.09 * wind + 0.12 * (1 - reach); const speed = 1.5 + 5.5 * wind;
     for (let j = 0; j <= NV; j++) {
       const from = hoist[j];
       lean.subVectors(hoist[Math.min(j + 1, NV)], hoist[Math.max(j - 1, 0)]).normalize();
@@ -226,7 +228,7 @@ export function initLeechFlag({ addPart }) {
       for (let i = 0; i <= NU; i++) {
         const u = i / NU;
         const wave = swell * u * (Math.sin(9 * u - speed * t + 1.1 * (j / NV)) + 0.35 * Math.sin(17 * u - 1.7 * speed * t));
-        at.copy(from).addScaledVector(out, LEECH_FLY * u * (1 - 0.04 * wind * Math.abs(wave) / swell)).addScaledVector(across, wave);
+        at.copy(from).addScaledVector(out, reach * LEECH_FLY * u * (1 - 0.04 * wind * Math.abs(wave) / swell)).addScaledVector(across, wave);
         at.y -= 0.18 * u * u * wind;
         at.toArray(position, (j * (NU + 1) + i) * 3);
       }

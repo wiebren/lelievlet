@@ -270,9 +270,10 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
   const own = (g) => (g.boten ?? []).some((b) => b.bakskleur);   // the bakskleur goes with each boat, not the group
   const swatches = (g) => {
     const p = paintOf(g);
-    return el('span', { className: 'groep-kleuren', ariaHidden: 'true' },
-      ...[p.kleuren.romp, p.kleuren.boeisel, p.kleuren.berghout, p.kleuren.voordek, own(g) ? null : p.bakskleur]
-        .filter(Boolean).map((c) => el('i', { style: `background: ${c}` })));
+    const shown = [p.kleuren.romp, p.kleuren.boeisel, p.kleuren.berghout, p.kleuren.voordek, own(g) ? null : p.bakskleur].filter(Boolean);
+    // then any other colour the group itself paints with (a dolboord, a kuip, a plecht), once each
+    for (const c of [...ZONES.map(([zone]) => g.kleuren?.[zone]), p.plechtKleur]) if (c && !shown.some((s) => same(s, c))) shown.push(c);
+    return el('span', { className: 'groep-kleuren', ariaHidden: 'true' }, ...shown.map((c) => el('i', { style: `background: ${c}` })));
   };
   // searched: of a group found by its name or plaats all boats, of one found by a boat only the boats that match
   const groepEl = (g, q) => {
