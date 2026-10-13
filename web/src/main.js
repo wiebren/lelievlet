@@ -29,6 +29,7 @@ import { initLocator } from './locator.js';
 import { initFullscreen } from './fullscreen.js';
 import { initFeedback } from './feedback.js';
 import { tekenPanelen } from './schermbeeld.js';
+import { makeSpiegelTekst } from './spiegeltekst.js';
 import { initZoeken } from './bpr/zoeken.js';
 import { initTekenQuiz } from './bpr/tekenquiz.js';
 import { useTrees, buildTrees } from './bvh.js';
@@ -94,7 +95,7 @@ export function mount(ui, host, config) {
   const feedback = initFeedback({ ui, config, signal, engaged, snapshot: () => snapshot(),
     about: () => openPanel.get('about')(), updates: () => openPanel.get('updates')(),
     // a group's colours: reported as Aanpassen has the boat, and set there under Eigen first if they are not right yet
-    aanpassen: () => (boat ? Object.fromEntries(['zeilnummer', 'naam', 'naamKleur', 'plaats', 'plaatsKleur', 'bakskleur', 'zeilkleur', 'rompnummer', 'kleuren'].map((k) => [k, structuredClone(boat[k])])) : null),
+    aanpassen: () => (boat ? Object.fromEntries(['zeilnummer', 'naam', 'naamKleur', 'plaats', 'plaatsKleur', 'bakskleur', 'zeilkleur', 'rompnummer', 'plechtKleur', 'spiegelTekst', 'kleuren'].map((k) => [k, structuredClone(boat[k])])) : null),
     naarEigen: () => { if ($('customize').hidden) $('customize-toggle').click(); $('cfg-modus').querySelector('[data-modus="eigen"]').click(); },
     closeOthers: () => { if (!$('customize').hidden) $('customize-close').click(); closePanel.get('about')?.(); closePanel.get('updates')?.(); closePanel.get('parts')?.(); } });
 
@@ -367,18 +368,20 @@ export function mount(ui, host, config) {
       const hullText = new HullText({ sb: outerSkin('boeisel_sb'), bb: outerSkin('boeisel_bb') }, renderer, root);
       const LETTERING = { naam: { x: 4.6, height: 0.10 }, plaats: { x: 0.78, height: 0.075 }, nummer: { x: 2.8, height: 0.13 } };   // voordek / achterdek / midscheeps
       const zoneMaterials = collectZoneMaterials(parts); const sailMaterials = collectSailMaterials(parts);
+      const spiegelTekst = makeSpiegelTekst(parts);
       const aanpassen = initCustomize(ui, config, {
         zoneMaterials, sailMaterials,
         setSailNumber: (text) => { sails.setNumber(text); sailNumber = text; followNumber(); paintScheme?.setNumber(text); },
         setHullText: (key, text, color) => hullText.set(key, text, LETTERING[key].x, LETTERING[key].height, color),
         setSailInk: (white) => sails.setInk(white),
+        setSpiegelTekst: (text, color) => spiegelTekst.set(text, color),
         melden: feedback.groep,
       });
       // Installeer als app: to the app page on our own site, taking what the user made of the boat with
       // it, where the page shows how to install it: an icon in the bottom right-hand corner. Not
       // offered inside the installed app itself.
       const installApp = async () => {
-        const own = Object.fromEntries(['zeilnummer', 'naam', 'naamKleur', 'plaats', 'plaatsKleur', 'bakskleur', 'zeilkleur', 'rompnummer', 'kleuren'].map((k) => [k, aanpassen[k]]));
+        const own = Object.fromEntries(['zeilnummer', 'naam', 'naamKleur', 'plaats', 'plaatsKleur', 'bakskleur', 'zeilkleur', 'rompnummer', 'plechtKleur', 'spiegelTekst', 'kleuren'].map((k) => [k, aanpassen[k]]));
         // the app page sits beside the script, wherever the page has its models (`assets`) from
         const page = makeAsset(null)('app.html');
         // in its own tab, not in this page's place, unless this page is the viewer's own and not framed.
@@ -1963,7 +1966,7 @@ export function mount(ui, host, config) {
       toestand: get(),
       // what toestand cannot say: what the handelingen left her with, and the boat as the user made it
       boot: modes?.situation(),
-      aanpassen: boat ? Object.fromEntries(['zeilnummer', 'naam', 'naamKleur', 'plaats', 'plaatsKleur', 'bakskleur', 'zeilkleur', 'rompnummer', 'kleuren'].map((k) => [k, boat[k]])) : undefined,
+      aanpassen: boat ? Object.fromEntries(['zeilnummer', 'naam', 'naamKleur', 'plaats', 'plaatsKleur', 'bakskleur', 'zeilkleur', 'rompnummer', 'plechtKleur', 'spiegelTekst', 'kleuren'].map((k) => [k, boat[k]])) : undefined,
       extra: extra(),
       // the step numbered the way the bar numbers it: without the steps skipped this time
       procedure: p && { naam: p.name, stap: p.label, index: p.index, stappen: p.steps.filter((st) => !st.skipped).length,

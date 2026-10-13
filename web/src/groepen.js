@@ -3,12 +3,15 @@
 //
 //   groep, plaats           the group and where it is, the place written out (Rotterdam)
 //   plaatsOpBoot            the plaats as it is lettered on the hull, when that differs (R-dam); left out: plaats
+//   plaatsIsNummer          true: where others letter the plaats, each boat has her own zeilnummer
 //   kleuren                 the paint per zone of customize.js (romp, berghout, boeisel, dolboord, voordek,
 //                           achterdek, kuip, zwaardkast); a zone left out keeps the viewer's own colour
 //   bakskleur, zeilkleur    as in customize.js (zeilkleur 0-100); left out: the viewer's own
 //   naamKleur, plaatsKleur  the lettering on the hull; left out: black
 //   rompnummer              true: the zeilnummer midships on the boeisel as well, in the naamKleur. Not in
 //                           Eigen: groups that letter it there have it from here
+//   plechtKleur             the voorplecht in this colour, not the bakskleur
+//   spiegelTekst            a word on the spiegel, to bakboord of the roer, in the naamKleur (the group's name)
 //   boten                   [{ zeilnummer, naam, bakskleur }]; a boat's bakskleur, when she has one, is hers
 //                           instead of the group's
 //
@@ -39,6 +42,23 @@ export const GROEPEN = [
     naamKleur: '#ffff00', plaatsKleur: '#ffff00', rompnummer: true,
     boten: [
       { zeilnummer: '124', naam: 'Heemskerck', bakskleur: '#c8102e' },
+    ],
+  },
+  {
+    groep: 'Tjarda', plaats: 'Hillegom', plaatsIsNummer: true,
+    kleuren: {
+      romp: '#0000ff', berghout: '#0000ff', boeisel: '#0000ff', dolboord: '#ffff00',
+      voordek: '#0000ff', achterdek: '#0000ff', kuip: '#0000ff', zwaardkast: '#0000ff',
+    },
+    zeilkleur: 100,
+    naamKleur: '#ffff00', plaatsKleur: '#ffff00', plechtKleur: '#0000ff', spiegelTekst: 'Tjarda',
+    boten: [
+      { zeilnummer: '1436', naam: 'Bandung', bakskleur: '#ff9500' },
+      { zeilnummer: '545', naam: 'Jakarta', bakskleur: '#ffffff' },
+      { zeilnummer: '668', naam: 'Semaranh', bakskleur: '#ffff00' },
+      { zeilnummer: '670', naam: 'Sukabumi', bakskleur: '#096b00' },
+      { zeilnummer: '671', naam: 'Semarang', bakskleur: '#ff0000' },
+      { zeilnummer: '1759', naam: 'Banyuwangi', bakskleur: '#ff00ff' },
     ],
   },
 ];
