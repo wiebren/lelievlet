@@ -2,7 +2,8 @@
 // Bekend › Melden) and they were checked. Each entry:
 //
 //   groep, plaats           the group and where it is, the place written out (Rotterdam)
-//   plaatsOpBoot            the plaats as it is lettered on the hull, when that differs (R-dam); left out: plaats
+//   plaatsOpBoot            the plaats as it is lettered on the hull, when that differs (R-dam); '': none on the
+//                           hull; left out: plaats
 //   plaatsIsNummer          true: where others letter the plaats, each boat has her own zeilnummer
 //   kleuren                 the paint per zone of customize.js (romp, berghout, boeisel, dolboord, voordek,
 //                           achterdek, kuip, zwaardkast); a zone left out keeps the viewer's own colour
@@ -10,13 +11,19 @@
 //   naamKleur, plaatsKleur  the lettering on the hull; left out: black
 //   rompnummer              true: the zeilnummer midships on the boeisel as well, in the naamKleur. Not in
 //                           Eigen: groups that letter it there have it from here
+//   naamBordje              true: the naam on a wooden board on the boeisel, smaller, in the naamKleur
 //   plechtKleur             the voorplecht in this colour, not the bakskleur
 //   spiegelTekst            a word on the spiegel, to bakboord of the roer, in the naamKleur (the group's name)
-//   boten                   [{ zeilnummer, naam, bakskleur }]; a boat's bakskleur, when she has one, is hers
-//                           instead of the group's
+//   boten                   [{ zeilnummer, naam, bakskleur, boeiselBanen }]; a boat's bakskleur, when she has one, is
+//                           hers instead of the group's; naam '' when the group did not give it
+//   boeiselBanen            the boeisel in lengthwise bands of these colours, top first (a flag on the sides), for
+//                           the group or one boat: boeiselBanen: VLAG
 //
 // Picked in Bekend, a group gives its colours and its plaats on the hull; one of its boats also its zeilnummer,
 // naam and bakskleur. Found by either plaats.
+// the Dutch flag, as some boats have it on the boeisel
+const VLAG = ['#ae1c28', '#ffffff', '#21468b'];
+
 export const GROEPEN = [
   {
     groep: 'Zwolsche Zeeverkenners', plaats: 'Zwolle',
@@ -59,6 +66,23 @@ export const GROEPEN = [
       { zeilnummer: '670', naam: 'Sukabumi', bakskleur: '#096b00' },
       { zeilnummer: '671', naam: 'Semarang', bakskleur: '#ff0000' },
       { zeilnummer: '1759', naam: 'Banyuwangi', bakskleur: '#ff00ff' },
+    ],
+  },
+  {
+    groep: 'Klaas Toxopeus', plaats: 'Kortenhoef', plaatsOpBoot: '',
+    kleuren: {
+      romp: '#0a0a0b', berghout: '#ffffff', boeisel: '#0011ff', dolboord: '#ffffff',
+      voordek: '#000000', achterdek: '#000000', kuip: '#ededed', zwaardkast: '#ededed',
+    },
+    bakskleur: '#ffffff', zeilkleur: 10,
+    naamKleur: '#ffffff', plaatsKleur: '#ffffff', naamBordje: true,
+    boten: [
+      { zeilnummer: '674', naam: 'Quartair', bakskleur: '#fff700' },
+      { zeilnummer: '305', naam: '', bakskleur: '#ff0000' },
+      { zeilnummer: '564', naam: '', bakskleur: '#0008ff' },
+      { zeilnummer: '421', naam: '', bakskleur: '#00ff33' },
+      { zeilnummer: '902', naam: '', bakskleur: '#00ffaa' },
+      { zeilnummer: '903', naam: '', bakskleur: '#00fffb', boeiselBanen: VLAG },
     ],
   },
 ];

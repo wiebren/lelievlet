@@ -20,3 +20,6 @@ reference/**
 
 # Eigen notities en onderzoek (niet in de repo, wel naast de code zichtbaar)
 notities/
+
+# De bouwplaats voor de knopen-animaties (simulatie en editor); alleen de opnames gaan mee, in web/
+knopen-sim/

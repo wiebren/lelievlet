@@ -54,13 +54,19 @@ export const DEFAULTS = {
   bakskleur: '#c8102e',
   zeilkleur: 10,
   rompnummer: false,      // the zeilnummer midships on the boeisel too, in the colour of the naam: only from a group
+  naamBordje: false,      // the naam on a wooden board on the boeisel, smaller, in the colour of the naam: only from a group
   plechtKleur: null,      // the voorplecht in a colour of its own; null: the bakskleur, as the rest of it. Only from a group
+  boeiselBanen: null,     // the boeisel in lengthwise bands of these colours, top first (a flag); null: none. Only from a group
   spiegelTekst: '',       // a word on the spiegel, to bakboord of the roer, in the colour of the naam: only from a group
   kleuren: {
     romp: '#0a0a0b', berghout: '#0a0a0b', boeisel: '#f5c20d', dolboord: '#0a0a0b',
     voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
   },
 };
+
+/** Bands of colour as given: two to four colours, or nothing. */
+const banen = (v) => (Array.isArray(v) && v.length >= 2 && v.length <= 4 && v.every((c) => typeof c === 'string' && /^#[0-9a-f]{6}$/i.test(c)) ? [...v] : null);
+const sameBanen = (a, b) => String(a ?? '').toLowerCase() === String(b ?? '').toLowerCase();
 
 /** The viewer's defaults with the page's `config.aanpassen` on top: where this instance starts. */
 function baseOf(config) {
@@ -71,7 +77,9 @@ function baseOf(config) {
   for (const [zone] of ZONES) if (given.kleuren?.[zone] !== undefined) base.kleuren[zone] = given.kleuren[zone];
   if (zeilkleur(given.zeilkleur) !== null) base.zeilkleur = zeilkleur(given.zeilkleur);
   if (typeof given.rompnummer === 'boolean') base.rompnummer = given.rompnummer;
+  if (typeof given.naamBordje === 'boolean') base.naamBordje = given.naamBordje;
   if (typeof given.plechtKleur === 'string') base.plechtKleur = given.plechtKleur;
+  if (banen(given.boeiselBanen)) base.boeiselBanen = banen(given.boeiselBanen);
   if (typeof given.spiegelTekst === 'string') base.spiegelTekst = given.spiegelTekst.slice(0, 24);
   return base;
 }
@@ -86,7 +94,9 @@ function load(base, opslaan) {
     for (const [zone] of ZONES) if (typeof saved.kleuren?.[zone] === 'string') config.kleuren[zone] = saved.kleuren[zone];
     if (typeof saved.zeilkleur === 'number' && zeilkleur(saved.zeilkleur) !== null) config.zeilkleur = zeilkleur(saved.zeilkleur);
     if (typeof saved.rompnummer === 'boolean') config.rompnummer = saved.rompnummer;
+    if (typeof saved.naamBordje === 'boolean') config.naamBordje = saved.naamBordje;
     if (typeof saved.plechtKleur === 'string' || saved.plechtKleur === null) config.plechtKleur = saved.plechtKleur;
+    if (banen(saved.boeiselBanen) || saved.boeiselBanen === null) config.boeiselBanen = banen(saved.boeiselBanen);
     if (typeof saved.spiegelTekst === 'string') config.spiegelTekst = saved.spiegelTekst;
   } catch { /* nothing saved, no storage, or something else under the key: the base */ }
   return config;
@@ -106,7 +116,9 @@ function save(config, base, opslaan) {
   }
   if (config.zeilkleur !== base.zeilkleur) own.zeilkleur = config.zeilkleur;
   if (config.rompnummer !== base.rompnummer) own.rompnummer = config.rompnummer;
+  if (config.naamBordje !== base.naamBordje) own.naamBordje = config.naamBordje;
   if (config.plechtKleur !== base.plechtKleur) own.plechtKleur = config.plechtKleur;
+  if (!sameBanen(config.boeiselBanen, base.boeiselBanen)) own.boeiselBanen = config.boeiselBanen;
   if (config.spiegelTekst !== base.spiegelTekst) own.spiegelTekst = config.spiegelTekst;
   try {
     if (Object.keys(own).length) localStorage.setItem(STORAGE_KEY, JSON.stringify(own));
@@ -132,7 +144,8 @@ export function initCustomizePanel(ui, { signal, engaged } = {}) {
 /**
  * targets: {
  *   zoneMaterials: Map<zone, Material[]>, sailMaterials: Material[] (collectSailMaterials),
- *   setSailNumber(text), setHullText(key, text, color), setSailInk(white), setSpiegelTekst(text, color),
+ *   setSailNumber(text), setHullText(key, text, color, { bordje }), setSailInk(white), setSpiegelTekst(text, color),
+ *   setBoeiselBanen(colours | null),
  *   melden(): the report of a group's colours (feedback.js); absent: no button for it
  * }
  */
@@ -146,13 +159,14 @@ export function initCustomize(ui, appConfig, targets) {
     for (const m of targets.zoneMaterials.get(zone) ?? []) m.color.set(hex);
   };
   const applyRompnummer = () => targets.setHullText('nummer', config.rompnummer ? config.zeilnummer : '', config.naamKleur);
+  const applyNaam = () => targets.setHullText('naam', config.naam, config.naamKleur, { bordje: config.naamBordje });
   const applySpiegel = () => targets.setSpiegelTekst?.(config.spiegelTekst, config.naamKleur);
   // the bakskleur, and the voorplecht with it unless a group gives it a colour of its own
   const applyBaks = () => { applyZone('bakskleur', config.bakskleur); applyZone('plecht', config.plechtKleur ?? config.bakskleur); };
   const apply = {
     zeilnummer: (v) => { targets.setSailNumber(v.trim()); applyRompnummer(); },
-    naam: () => targets.setHullText('naam', config.naam, config.naamKleur),
-    naamKleur: () => { targets.setHullText('naam', config.naam, config.naamKleur); applyRompnummer(); applySpiegel(); },
+    naam: () => applyNaam(),
+    naamKleur: () => { applyNaam(); applyRompnummer(); applySpiegel(); },
     plaats: () => targets.setHullText('plaats', config.plaats, config.plaatsKleur),
     plaatsKleur: () => targets.setHullText('plaats', config.plaats, config.plaatsKleur),
     bakskleur: () => applyBaks(),                // accents: beslag and the painted bands
@@ -194,7 +208,7 @@ export function initCustomize(ui, appConfig, targets) {
     }
     sailSlider.value = config.zeilkleur;
     applySails();
-    applyBaks(); applySpiegel();
+    applyBaks(); applySpiegel(); targets.setBoeiselBanen?.(config.boeiselBanen);
   };
 
   // back to where this viewer started, which is the page's own defaults if it gave any
@@ -240,8 +254,9 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
   const paintOf = (g, boat) => ({
     kleuren: Object.fromEntries(ZONES.map(([zone]) => [zone, g.kleuren?.[zone] ?? base.kleuren[zone]])),
     bakskleur: boat?.bakskleur ?? g.bakskleur ?? base.bakskleur, zeilkleur: g.zeilkleur ?? base.zeilkleur,
-    naamKleur: g.naamKleur ?? BLACK, plaatsKleur: g.plaatsKleur ?? BLACK, rompnummer: g.rompnummer === true,
+    naamKleur: g.naamKleur ?? BLACK, plaatsKleur: g.plaatsKleur ?? BLACK, rompnummer: g.rompnummer === true, naamBordje: g.naamBordje === true,
     plechtKleur: g.plechtKleur ?? null, spiegelTekst: g.spiegelTekst ?? '',
+    boeiselBanen: boat?.boeiselBanen ?? g.boeiselBanen ?? null,
   });
   const same = (a, b) => String(a).toLowerCase() === String(b).toLowerCase();
   // what is lettered where the plaats goes: the plaats, as the group writes it - or, for a group that has each boat's
@@ -252,15 +267,16 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
     const bakskleuren = [p.bakskleur, ...(g.boten ?? []).map((b) => paintOf(g, b).bakskleur)];
     const plaatsen = g.plaatsIsNummer ? (g.boten ?? []).map((b) => opBoot(g, b)) : [opBoot(g)];
     return plaatsen.some((pl) => same(config.plaats, pl)) && ZONES.every(([zone]) => same(config.kleuren[zone], p.kleuren[zone]))
-      && bakskleuren.some((c) => same(config.bakskleur, c)) && config.zeilkleur === p.zeilkleur && config.rompnummer === p.rompnummer
-      && same(config.plechtKleur ?? '', p.plechtKleur ?? '') && config.spiegelTekst === p.spiegelTekst;
+      && bakskleuren.some((c) => same(config.bakskleur, c)) && config.zeilkleur === p.zeilkleur && config.rompnummer === p.rompnummer && config.naamBordje === p.naamBordje
+      && same(config.plechtKleur ?? '', p.plechtKleur ?? '') && config.spiegelTekst === p.spiegelTekst
+      && [p, ...(g.boten ?? []).map((b) => paintOf(g, b))].some((q) => sameBanen(config.boeiselBanen, q.boeiselBanen));
   };
-  const isBoat = (g, b) => isGroup(g) && same(config.bakskleur, paintOf(g, b).bakskleur)
+  const isBoat = (g, b) => isGroup(g) && same(config.bakskleur, paintOf(g, b).bakskleur) && sameBanen(config.boeiselBanen, paintOf(g, b).boeiselBanen)
     && config.zeilnummer.trim() === String(b.zeilnummer) && config.naam === b.naam && same(config.plaats, opBoot(g, b));
   const pick = (g, boat) => {
     const p = paintOf(g, boat);
     Object.assign(config, { bakskleur: p.bakskleur, zeilkleur: p.zeilkleur, naamKleur: p.naamKleur, plaatsKleur: p.plaatsKleur, plaats: opBoot(g, boat),
-      rompnummer: p.rompnummer, plechtKleur: p.plechtKleur, spiegelTekst: p.spiegelTekst });
+      rompnummer: p.rompnummer, naamBordje: p.naamBordje, plechtKleur: p.plechtKleur, boeiselBanen: p.boeiselBanen, spiegelTekst: p.spiegelTekst });
     Object.assign(config.kleuren, p.kleuren);
     if (boat) Object.assign(config, { zeilnummer: String(boat.zeilnummer), naam: boat.naam });
     save(config, base, opslaan);
@@ -284,8 +300,8 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
     const match = (g.boten ?? []).filter((b) => all || fold(`${b.zeilnummer} ${b.naam}`).includes(q));
     const shown = match.length ? match : g.boten ?? [];               // found on more than one of them ("Zwolle 440"): all
     const boten = el('div', { className: 'groep-boten' }, ...shown.map((b) => {
-      const button = el('button', { type: 'button', title: `${b.naam}, zeilnummer ${b.zeilnummer}` },
-        ...(b.bakskleur ? [el('i', { ariaHidden: 'true', style: `background: ${b.bakskleur}` })] : []), `${b.zeilnummer} ${b.naam}`);
+      const button = el('button', { type: 'button', title: b.naam ? `${b.naam}, zeilnummer ${b.zeilnummer}` : `Zeilnummer ${b.zeilnummer}` },
+        ...(b.bakskleur ? [el('i', { ariaHidden: 'true', style: `background: ${b.bakskleur}` })] : []), `${b.zeilnummer} ${b.naam}`.trim());
       if (isBoat(g, b)) button.setAttribute('aria-current', 'true');
       button.addEventListener('click', () => pick(g, b));
       return button;
