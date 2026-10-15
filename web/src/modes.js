@@ -5073,9 +5073,10 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       aside.t = Math.abs(gap) <= by ? want : aside.t + Math.sign(gap) * by;
       aside.move = smoothstep(clamp(aside.t / 0.6, 0, 1)); aside.mikOff = smoothstep(clamp((aside.t - 0.55) / 0.45, 0, 1));
     }
-    // on sleeptouw the boat lies head to wind as well: it follows the line, not the sails
+    // on sleeptouw the boat lies head to wind as well: it follows the line, not the sails - and once the line is in,
+    // casting off, she is free: the sails fill while what is ashore is cleared away
     const headUp = Math.max(smoothstep(strike.head), smoothstep(reef.head), state.course === 0 ? 1 : 0,
-                            tow ? smoothstep(tow.k) : 0, moor ? smoothstep(moor.up) : 0);
+                            tow ? smoothstep(tow.k) : 0, moor?.want ? smoothstep(moor.up) : 0);
     const upwind = 1 - headUp;                                      // head to wind: everything amidships and shaking
     chase('flutter', sailing ? Math.max(headUp, tackTrim.luff) : 0, dt, 2.2);
     // the giek wanders a little while the sail shakes, and more when it hangs in the kraanlijn - but not while it lies in the mik

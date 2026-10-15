@@ -342,6 +342,7 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
   // a rif set at once - unless the boat is being reefed just now: then the card shows what she has
   const zetRif = (n) => { if (!modes.zetRif(n)) s.rif = Math.round(modes.rif().slagen); };
   let rifBijOpenen = 0;                                 // the rif she had: given back when the card closes
+  let lijnBijOpenen = null;                             // a line she lay on: let go, and made fast again when it closes
   const set = (want) => {
     // past voor de wind, or back: the wind comes in the sail from the other side and the giek goes over
     if ('koers' in want && (want.koers > 180) !== (s.koers > 180)) {
@@ -536,7 +537,7 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
   veeg(card, back, showBoat);
 
   const release = () => {
-    Object.assign(modes.kracht, { boom: null, jib: null, heel: 0, helm: null, vane: null, boomRate: null });
+    Object.assign(modes.kracht, { boom: null, jib: null, heel: 0, helm: null, vane: null, boomRate: null, slap: 0, vlag: null });
     water = 0; gijp = null; melding = null; klapOm = 0; opstaan = 0; kuipWater.hide();
     setCoveredRight(0); centreKey = '';
     shownTheta = 0; shownCourse = null; pijlen.visible = false; vlag.visible = false;
@@ -550,8 +551,15 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
       if (modes.current().tuig !== 'op') modes.apply({ tuig: 'op' });
       onOpen?.();                                       // the other lessons close
       rifBijOpenen = Math.round(modes.rif().slagen);
+      // lying on a line she lies head to wind, the sails shaking: the forces are those of a boat sailing free
+      lijnBijOpenen = { island: modes.island?.on, tow: modes.tow?.on };
+      modes.island?.set(false); modes.tow?.set(false);
       showLesson(lesIndex);
-    } else { release(); modes.zetRif(rifBijOpenen); }
+    } else {
+      release(); modes.zetRif(rifBijOpenen);
+      if (lijnBijOpenen?.island) modes.island.set(true); else if (lijnBijOpenen?.tow) modes.tow.set(true);
+      lijnBijOpenen = null;
+    }
   };
   q('.kr-sluit').addEventListener('click', () => setOpen(false));
 
@@ -671,6 +679,8 @@ export function initKrachten({ wrap, scene, camera, controls, parts, modes, fly,
     // sails catch nothing, and all would seem to have come to rest
     const rTal = omslaan ? eq : r;
     modes.kracht.heel = shownTheta;                       // upright too eases there, with the arrows
+    // over on her side the sails lie on the water and the flag in it: no wind fills them
+    modes.kracht.slap = omslaan ? 1 : 0; modes.kracht.vlag = omslaan ? 0 : null;
     modes.kracht.vane = sd * (r.awa * Math.PI) / 180;
     // the helmstok: as the card has it, or where it has to be to sail straight on
     const recht = sd * eq.helmNeeded;                    // the helmstok that holds her straight (+ : naar stuurboord)
