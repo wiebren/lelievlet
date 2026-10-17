@@ -26,6 +26,15 @@ export const ZONES = [
   ['zwaardkast', 'Zwaardkast'],
 ];
 
+// zones that go with another unless a group gives them a colour of their own: the voorplecht and the hanenkam with
+// the bakskleur, the roer with the romp, the roerkop with the bakskleur (collectZoneMaterials)
+const MEE = ['plecht', 'roer', 'roerkop'];
+/** The colour a zone has now. */
+const zoneColor = (zone, config) => ({
+  bakskleur: config.bakskleur, plecht: config.plechtKleur ?? config.bakskleur,
+  roer: config.roerKleur ?? config.kleuren.romp, roerkop: config.roerKleur ?? config.bakskleur,
+}[zone] ?? config.kleuren[zone]);
+
 const FIELDS = ['zeilnummer', 'naam', 'naamKleur', 'plaats', 'plaatsKleur', 'bakskleur'];
 
 // The colour of the sails, from 0 to 100: bright white, the off-white the cloth is painted in (10, the
@@ -55,7 +64,8 @@ export const DEFAULTS = {
   zeilkleur: 10,
   rompnummer: false,      // the zeilnummer midships on the boeisel too, in the colour of the naam: only from a group
   naamBordje: false,      // the naam on a wooden board on the boeisel, smaller, in the colour of the naam: only from a group
-  plechtKleur: null,      // the voorplecht in a colour of its own; null: the bakskleur, as the rest of it. Only from a group
+  plechtKleur: null,      // the voorplecht and the hanenkam in a colour of their own; null: the bakskleur, as the rest of it. Only from a group
+  roerKleur: null,        // the whole roer in one colour, the roerkop too; null: as the romp, the roerkop in the bakskleur. Only from a group
   boeiselBanen: null,     // the boeisel in lengthwise bands of these colours, top first (a flag); null: none. Only from a group
   spiegelTekst: '',       // a word on the spiegel, to bakboord of the roer, in the colour of the naam: only from a group
   kleuren: {
@@ -79,6 +89,7 @@ function baseOf(config) {
   if (typeof given.rompnummer === 'boolean') base.rompnummer = given.rompnummer;
   if (typeof given.naamBordje === 'boolean') base.naamBordje = given.naamBordje;
   if (typeof given.plechtKleur === 'string') base.plechtKleur = given.plechtKleur;
+  if (typeof given.roerKleur === 'string') base.roerKleur = given.roerKleur;
   if (banen(given.boeiselBanen)) base.boeiselBanen = banen(given.boeiselBanen);
   if (typeof given.spiegelTekst === 'string') base.spiegelTekst = given.spiegelTekst.slice(0, 24);
   return base;
@@ -96,6 +107,7 @@ function load(base, opslaan) {
     if (typeof saved.rompnummer === 'boolean') config.rompnummer = saved.rompnummer;
     if (typeof saved.naamBordje === 'boolean') config.naamBordje = saved.naamBordje;
     if (typeof saved.plechtKleur === 'string' || saved.plechtKleur === null) config.plechtKleur = saved.plechtKleur;
+    if (typeof saved.roerKleur === 'string' || saved.roerKleur === null) config.roerKleur = saved.roerKleur;
     if (banen(saved.boeiselBanen) || saved.boeiselBanen === null) config.boeiselBanen = banen(saved.boeiselBanen);
     if (typeof saved.spiegelTekst === 'string') config.spiegelTekst = saved.spiegelTekst;
   } catch { /* nothing saved, no storage, or something else under the key: the base */ }
@@ -118,6 +130,7 @@ function save(config, base, opslaan) {
   if (config.rompnummer !== base.rompnummer) own.rompnummer = config.rompnummer;
   if (config.naamBordje !== base.naamBordje) own.naamBordje = config.naamBordje;
   if (config.plechtKleur !== base.plechtKleur) own.plechtKleur = config.plechtKleur;
+  if (config.roerKleur !== base.roerKleur) own.roerKleur = config.roerKleur;
   if (!sameBanen(config.boeiselBanen, base.boeiselBanen)) own.boeiselBanen = config.boeiselBanen;
   if (config.spiegelTekst !== base.spiegelTekst) own.spiegelTekst = config.spiegelTekst;
   try {
@@ -161,15 +174,15 @@ export function initCustomize(ui, appConfig, targets) {
   const applyRompnummer = () => targets.setHullText('nummer', config.rompnummer ? config.zeilnummer : '', config.naamKleur);
   const applyNaam = () => targets.setHullText('naam', config.naam, config.naamKleur, { bordje: config.naamBordje });
   const applySpiegel = () => targets.setSpiegelTekst?.(config.spiegelTekst, config.naamKleur);
-  // the bakskleur, and the voorplecht with it unless a group gives it a colour of its own
-  const applyBaks = () => { applyZone('bakskleur', config.bakskleur); applyZone('plecht', config.plechtKleur ?? config.bakskleur); };
+  // the zones that go with another (the bakskleur, the romp) unless a group gives them a colour of their own
+  const applyMee = () => { for (const zone of MEE) applyZone(zone, zoneColor(zone, config)); };
   const apply = {
     zeilnummer: (v) => { targets.setSailNumber(v.trim()); applyRompnummer(); },
     naam: () => applyNaam(),
     naamKleur: () => { applyNaam(); applyRompnummer(); applySpiegel(); },
     plaats: () => targets.setHullText('plaats', config.plaats, config.plaatsKleur),
     plaatsKleur: () => targets.setHullText('plaats', config.plaats, config.plaatsKleur),
-    bakskleur: () => applyBaks(),                // accents: beslag and the painted bands
+    bakskleur: () => { applyZone('bakskleur', config.bakskleur); applyMee(); },   // accents: beslag and the painted bands
   };
   const applySails = () => {
     for (const m of targets.sailMaterials) m.color.copy(sailColor(m, config.zeilkleur));
@@ -192,7 +205,7 @@ export function initCustomize(ui, appConfig, targets) {
     const row = document.createElement('label');
     row.className = 'color-row';
     const input = Object.assign(document.createElement('input'), { type: 'color', id: `cfg-kleur-${zone}`, value: config.kleuren[zone] });
-    input.addEventListener('input', () => { config.kleuren[zone] = input.value; applyZone(zone, input.value); save(config, base, opslaan); });
+    input.addEventListener('input', () => { config.kleuren[zone] = input.value; applyZone(zone, input.value); applyMee(); save(config, base, opslaan); });
     row.append(input, Object.assign(document.createElement('span'), { textContent: label }));
     colorList.append(row);
   }
@@ -208,7 +221,7 @@ export function initCustomize(ui, appConfig, targets) {
     }
     sailSlider.value = config.zeilkleur;
     applySails();
-    applyBaks(); applySpiegel(); targets.setBoeiselBanen?.(config.boeiselBanen);
+    applyMee(); applySpiegel(); targets.setBoeiselBanen?.(config.boeiselBanen);   // after the bakskleur and the romp
   };
 
   // back to where this viewer started, which is the page's own defaults if it gave any
@@ -255,7 +268,7 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
     kleuren: Object.fromEntries(ZONES.map(([zone]) => [zone, g.kleuren?.[zone] ?? base.kleuren[zone]])),
     bakskleur: boat?.bakskleur ?? g.bakskleur ?? base.bakskleur, zeilkleur: g.zeilkleur ?? base.zeilkleur,
     naamKleur: g.naamKleur ?? BLACK, plaatsKleur: g.plaatsKleur ?? BLACK, rompnummer: g.rompnummer === true, naamBordje: g.naamBordje === true,
-    plechtKleur: g.plechtKleur ?? null, spiegelTekst: g.spiegelTekst ?? '',
+    plechtKleur: g.plechtKleur ?? null, roerKleur: g.roerKleur ?? null, spiegelTekst: g.spiegelTekst ?? '',
     boeiselBanen: boat?.boeiselBanen ?? g.boeiselBanen ?? null,
   });
   const same = (a, b) => String(a).toLowerCase() === String(b).toLowerCase();
@@ -268,7 +281,7 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
     const plaatsen = g.plaatsIsNummer ? (g.boten ?? []).map((b) => opBoot(g, b)) : [opBoot(g)];
     return plaatsen.some((pl) => same(config.plaats, pl)) && ZONES.every(([zone]) => same(config.kleuren[zone], p.kleuren[zone]))
       && bakskleuren.some((c) => same(config.bakskleur, c)) && config.zeilkleur === p.zeilkleur && config.rompnummer === p.rompnummer && config.naamBordje === p.naamBordje
-      && same(config.plechtKleur ?? '', p.plechtKleur ?? '') && config.spiegelTekst === p.spiegelTekst
+      && same(config.plechtKleur ?? '', p.plechtKleur ?? '') && same(config.roerKleur ?? '', p.roerKleur ?? '') && config.spiegelTekst === p.spiegelTekst
       && [p, ...(g.boten ?? []).map((b) => paintOf(g, b))].some((q) => sameBanen(config.boeiselBanen, q.boeiselBanen));
   };
   const isBoat = (g, b) => isGroup(g) && same(config.bakskleur, paintOf(g, b).bakskleur) && sameBanen(config.boeiselBanen, paintOf(g, b).boeiselBanen)
@@ -276,7 +289,7 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
   const pick = (g, boat) => {
     const p = paintOf(g, boat);
     Object.assign(config, { bakskleur: p.bakskleur, zeilkleur: p.zeilkleur, naamKleur: p.naamKleur, plaatsKleur: p.plaatsKleur, plaats: opBoot(g, boat),
-      rompnummer: p.rompnummer, naamBordje: p.naamBordje, plechtKleur: p.plechtKleur, boeiselBanen: p.boeiselBanen, spiegelTekst: p.spiegelTekst });
+      rompnummer: p.rompnummer, naamBordje: p.naamBordje, plechtKleur: p.plechtKleur, roerKleur: p.roerKleur, boeiselBanen: p.boeiselBanen, spiegelTekst: p.spiegelTekst });
     Object.assign(config.kleuren, p.kleuren);
     if (boat) Object.assign(config, { zeilnummer: String(boat.zeilnummer), naam: boat.naam });
     save(config, base, opslaan);
@@ -287,8 +300,8 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
   const swatches = (g) => {
     const p = paintOf(g);
     const shown = [p.kleuren.romp, p.kleuren.boeisel, p.kleuren.berghout, p.kleuren.voordek, own(g) ? null : p.bakskleur].filter(Boolean);
-    // then any other colour the group itself paints with (a dolboord, a kuip, a plecht), once each
-    for (const c of [...ZONES.map(([zone]) => g.kleuren?.[zone]), p.plechtKleur]) if (c && !shown.some((s) => same(s, c))) shown.push(c);
+    // then any other colour the group itself paints with (a dolboord, a kuip, a plecht, a roer), once each
+    for (const c of [...ZONES.map(([zone]) => g.kleuren?.[zone]), p.plechtKleur, p.roerKleur]) if (c && !shown.some((s) => same(s, c))) shown.push(c);
     return el('span', { className: 'groep-kleuren', ariaHidden: 'true' }, ...shown.map((c) => el('i', { style: `background: ${c}` })));
   };
   // searched: of a group found by its name or plaats all boats, of one found by a boat only the boats that match
@@ -330,13 +343,18 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
   return { render, setMode };
 }
 
-/** Group the (already per-part cloned) materials of the model by paint zone - the voorplecht's bakskleur a zone of
- *  its own ('plecht'): a group may have it in another colour. */
+/** Group the (already per-part cloned) materials of the model by paint zone - with zones of their own for what a group
+ *  may have in another colour: the bakskleur of the voorplecht and the hanenkam ('plecht'), the roer ('roer', in the
+ *  romp's paint) and its roerkop ('roerkop', in the bakskleur). */
+const PLECHT = ['voorplecht', 'hanekam'];
+const ROER = ['roerblad', 'roerkoning', 'roerhaken'];
 export function collectZoneMaterials(parts) {
-  const zones = new Map([...ZONES.map(([zone]) => [zone, []]), ['bakskleur', []], ['plecht', []]]);
+  const zones = new Map([...ZONES.map(([zone]) => [zone, []]), ['bakskleur', []], ...MEE.map((zone) => [zone, []])]);
   for (const part of parts) {
     for (const mesh of part.meshes) {
-      const name = mesh.material.name === 'bakskleur' && part.extras.id === 'voorplecht' ? 'plecht' : mesh.material.name;
+      const id = part.extras.id; const own = mesh.material.name;
+      const name = own === 'bakskleur' && PLECHT.includes(id) ? 'plecht' : own === 'bakskleur' && id === 'roerkop' ? 'roerkop'
+        : own === 'romp' && ROER.includes(id) ? 'roer' : own;
       if (zones.has(name)) zones.get(name).push(mesh.material);
     }
   }
@@ -358,7 +376,7 @@ const FADE = 1.5;                   // seconds
 const SCHEME = {
   romp: '#3b2a1f', berghout: '#2a1c14', boeisel: '#c8a46b', dolboord: '#3b2a1f',
   voordek: '#8b7355', achterdek: '#8b7355', kuip: '#8b7355', zwaardkast: '#8b7355',
-  bakskleur: '#6b3a1e', plecht: '#6b3a1e',
+  bakskleur: '#6b3a1e', plecht: '#6b3a1e', roer: '#3b2a1f', roerkop: '#6b3a1e',
 };
 const CLOTH = '#b7895a';
 
@@ -399,7 +417,7 @@ export function initPaint({ zoneMaterials, sailMaterials, config, note, setSailI
     ...sailMaterials.map((material) => ({ material, zone: null })),
   ];
 
-  const userColor = (zone) => (zone === 'bakskleur' ? config.bakskleur : zone === 'plecht' ? config.plechtKleur ?? config.bakskleur : config.kleuren[zone]);
+  const userColor = (zone) => zoneColor(zone, config);
   const from = new Map();           // material -> colour when the running fade began
   const to = new Map();
   let on = false;

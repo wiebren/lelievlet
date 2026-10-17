@@ -12,7 +12,8 @@
 //   rompnummer              true: the zeilnummer midships on the boeisel as well, in the naamKleur. Not in
 //                           Eigen: groups that letter it there have it from here
 //   naamBordje              true: the naam on a wooden board on the boeisel, smaller, in the naamKleur
-//   plechtKleur             the voorplecht in this colour, not the bakskleur
+//   plechtKleur             the voorplecht and the hanenkam in this colour, not the bakskleur (as a rule the dolboord's)
+//   roerKleur               the whole roer in this colour, the roerkop too (left out: the romp's, the roerkop the bakskleur)
 //   spiegelTekst            a word on the spiegel, to bakboord of the roer, in the naamKleur (the group's name)
 //   boten                   [{ zeilnummer, naam, bakskleur, boeiselBanen }]; a boat's bakskleur, when she has one, is
 //                           hers instead of the group's; naam '' when the group did not give it
@@ -37,6 +38,7 @@ export const GROEPEN = [
       { zeilnummer: '441', naam: 'Morra', bakskleur: '#00843d' },
       { zeilnummer: '442', naam: 'Potten', bakskleur: '#f5c20d' },
       { zeilnummer: '884', naam: 'Brekken', bakskleur: '#0b4ea2' },
+      { zeilnummer: '83', naam: 'Leien', bakskleur: '#308264' },
     ],
   },
   {
@@ -58,7 +60,7 @@ export const GROEPEN = [
       voordek: '#0000ff', achterdek: '#0000ff', kuip: '#0000ff', zwaardkast: '#0000ff',
     },
     zeilkleur: 100,
-    naamKleur: '#ffff00', plaatsKleur: '#ffff00', plechtKleur: '#0000ff', spiegelTekst: 'Tjarda',
+    naamKleur: '#ffff00', plaatsKleur: '#ffff00', plechtKleur: '#ffff00', spiegelTekst: 'Tjarda',
     boten: [
       { zeilnummer: '1436', naam: 'Bandung', bakskleur: '#ff9500' },
       { zeilnummer: '545', naam: 'Jakarta', bakskleur: '#ffffff' },
@@ -83,6 +85,22 @@ export const GROEPEN = [
       { zeilnummer: '421', naam: '', bakskleur: '#00ff33' },
       { zeilnummer: '902', naam: '', bakskleur: '#00ffaa' },
       { zeilnummer: '903', naam: '', bakskleur: '#00fffb', boeiselBanen: VLAG },
+    ],
+  },
+  {
+    groep: 'Hubertus-Brandaan', plaats: 'Leidschendam-Voorburg', plaatsOpBoot: '',
+    kleuren: {
+      romp: '#ffffff', berghout: '#ae1c28', boeisel: '#ffffff', dolboord: '#ae1c28',
+      voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
+    },
+    zeilkleur: 10,
+    plechtKleur: '#ae1c28', roerKleur: '#21468b', boeiselBanen: VLAG,
+    boten: [
+      { zeilnummer: '1037', naam: '', bakskleur: '#ffd500' },
+      { zeilnummer: '1055', naam: '', bakskleur: '#1a2f6e' },
+      { zeilnummer: '1101', naam: '', bakskleur: '#c8102e' },
+      { zeilnummer: '1379', naam: '', bakskleur: '#b9a3e3' },
+      { zeilnummer: '1689', naam: '', bakskleur: '#76bb40' },
     ],
   },
 ];

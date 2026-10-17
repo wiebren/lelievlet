@@ -425,8 +425,9 @@ en, zoals die op de romp staat als dat anders is (`plaatsOpBoot`: R-dam voor Rot
 bakskleur, zeilkleur, de letterkleuren, `rompnummer` als het zeilnummer ook midscheeps op het boeisel staat
 (alleen zo, niet onder Eigen) en de boten met zeilnummer, naam en eventueel een eigen bakskleur, `boeiselBanen`
 als het boeisel in banen geschilderd is, zoals een vlag: rood, wit, blauw, de bovenste eerst; voor de groep of één
-boot, ook alleen zo; `naamBordje` als de naam op een houten bordje op het boeisel staat; en `plaatsOpBoot: ''` als
-er geen plaats op de romp staat) op groep,
+boot, ook alleen zo; `naamBordje` als de naam op een houten bordje op het boeisel staat; `plechtKleur` als de
+voorplecht en de hanenkam niet in de bakskleur zijn (dan in die van het dolboord); `roerKleur` als het hele roer, ook
+de roerkop, één kleur heeft; en `plaatsOpBoot: ''` als er geen plaats op de romp staat) op groep,
 plaats, zeilnummer of bootnaam, en toont er 30 tegelijk. Een groep kiezen geeft haar kleuren en de plaats
 zoals die op de romp staat, een boot ook haar zeilnummer, naam en bakskleur; wat er nu op staat, is
 gemarkeerd. Daaronder opent **Kleuren van je groep melden** een melding in het paneel van Melden
