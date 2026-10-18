@@ -103,4 +103,15 @@ export const GROEPEN = [
       { zeilnummer: '1689', naam: '', bakskleur: '#76bb40' },
     ],
   },
+  {
+    groep: 'Fivelgroep', plaats: 'Delfzijl', plaatsOpBoot: '',
+    kleuren: {
+      romp: '#263e0f', berghout: '#ffffff', boeisel: '#ff6a00', dolboord: '#ffffff',
+      voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
+    },
+    bakskleur: '#c8102e', zeilkleur: 10,
+    boten: [
+      { zeilnummer: '950', naam: 'Fivel' },
+    ],
+  },
 ];
