@@ -77,7 +77,7 @@ De viewer is een bibliotheek. Je zet een element op je pagina, geeft het een hoo
 ```html
 <div id="vlet" style="height:600px"></div>
 <script type="module">
-  import Lelievlet from 'https://wiebren.github.io/lelievlet/lelievlet.js';
+  import Lelievlet from 'https://scoutvaardig.nl/lelievlet/lelievlet.js';
   Lelievlet.create(document.getElementById('vlet'), {
     aanpassen: { zeilnummer: '442', naam: 'Fluessen', plaats: 'Zwolle' },
     quiz: { niveau: 2 },
@@ -96,7 +96,7 @@ de viewer hangt of de focus erin staat, zodat de pagina eromheen gewoon blijft s
 Werk je zonder modules, dan is er ook een IIFE-bundel die een global `Lelievlet` zet:
 
 ```html
-<script src="https://wiebren.github.io/lelievlet/lelievlet.iife.js"></script>
+<script src="https://scoutvaardig.nl/lelievlet/lelievlet.iife.js"></script>
 <script>Lelievlet.create(document.getElementById('vlet'), { /* … */ });</script>
 ```
 
@@ -110,11 +110,11 @@ inhoud van `dist-lib/` zelf ergens en wijst er met `assets` naar.
 
 Een `<script>` van een andere site draait met alle rechten van jouw pagina: de pagina zelf, de
 cookies, de formulieren. Heeft je site ingelogde gebruikers (een ledenomgeving, een webshop), zet de
-viewer dan in een iframe. Hij draait dan op wiebren.github.io en kan niets van jouw pagina zien of
+viewer dan in een iframe. Hij draait dan op scoutvaardig.nl en kan niets van jouw pagina zien of
 aanraken, wat er ook met zijn code zou gebeuren.
 
 ```html
-<iframe src='https://wiebren.github.io/lelievlet/embed.html#{"aanpassen":{"zeilnummer":"442"},"quiz":{"niveau":2}}'
+<iframe src='https://scoutvaardig.nl/lelievlet/embed.html#{"aanpassen":{"zeilnummer":"442"},"quiz":{"niveau":2}}'
         style="width:100%; height:600px; border:0"
         sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
         allow="fullscreen" title="3D-model van de lelievlet"></iframe>
@@ -128,19 +128,19 @@ aanraken, wat er ook met zijn code zou gebeuren.
   configuratie.
 - **De maat** geef je het iframe; de viewer vult het. Een smal iframe krijgt vanzelf de smalle indeling.
 - **`sandbox`** houdt het iframe binnen zijn eigen herkomst. `allow-same-origin` is hier veilig: het
-  iframe is van een andere site, dus het krijgt de herkomst van wiebren.github.io en niet die van
+  iframe is van een andere site, dus het krijgt de herkomst van scoutvaardig.nl en niet die van
   jouw pagina; het is nodig voor de opgeslagen instellingen en scores. `allow-popups` en
   `allow-popups-to-escape-sandbox` laten de bronnen onder *Over dit model* in een gewoon tabblad
   openen. `allow-downloads` is nodig voor *Opslaan als bestand* bij Melden, als versturen niet lukt.
 - **`allow="fullscreen"`** laat de knop voor volledig scherm werken; zonder werkt de rest gewoon.
 - **Wat niet kan:** wat `create()` teruggeeft (`ready`, `get()`, `set()`, `destroy()`, hieronder)
   bestaat alleen voor het `<script>`-insluiten. Een iframe bedien je alleen via het adres.
-- **Opslag:** instellingen, scores en vinkjes worden onder de herkomst van wiebren.github.io bewaard,
+- **Opslag:** instellingen, scores en vinkjes worden onder de herkomst van scoutvaardig.nl bewaard,
   apart van jouw site.
 
 ### Als app installeren
 
-De viewer is ook een app die je kunt installeren (een PWA): `https://wiebren.github.io/lelievlet/app.html`.
+De viewer is ook een app die je kunt installeren (een PWA): `https://scoutvaardig.nl/lelievlet/app.html`.
 Hij opent dan in een eigen venster met een eigen icoon, en werkt ook zonder internet, op het water of
 op de steiger.
 
@@ -227,7 +227,7 @@ niet kent, wordt één keer met een `console.warn` gemeld. De volledige vorm sta
 |---|---|---|---|
 | `assets` | string | naast het script | Map waarin `models/` en `textures/` staan, bijvoorbeeld `'https://cdn.example/vlet/'`. Zonder sluitende `/` wordt die toegevoegd; een relatief pad wordt tegen de pagina opgelost. |
 | `volledigScherm` | boolean | `true` | Knop voor volledig scherm, rechtsboven onder het tandwiel, en de sneltoets `f`. `false` haalt de knop weg, laat de `f` met rust en maakt `handle.fullscreen()` een lege huls. |
-| `installeren` | boolean | `true` | *Installeer als app*, het icoon rechtsonder: opent de app-pagina op wiebren.github.io met de eigen Aanpassen-waarden, en legt daar uit hoe je installeert. `false` haalt het weg. In de geïnstalleerde app zelf staat het er nooit. |
+| `installeren` | boolean | `true` | *Installeer als app*, het icoon rechtsonder: opent de app-pagina op scoutvaardig.nl met de eigen Aanpassen-waarden, en legt daar uit hoe je installeert. `false` haalt het weg. In de geïnstalleerde app zelf staat het er nooit. |
 | `adres` | boolean | `false` | `true`: het adres van de pagina volgt wat er open is, en opent dat weer: `?weer=omslag` (een les op een onderwerp), `?voorrangquiz=moeilijk`, `?leren=manoeuvres`, `?quiz=verkeerstekens`, `?manoeuvre=overstag`, `?zoeken=borden/A.1` (Zoeken, een pagina, een kaart), `?onderdeel=giek`, `?over`, `?updates`. Alleen voor een pagina die van de viewer is (de app-pagina zet het aan); wat er verder na de `?` of `#` staat blijft. Zonder `adres` leest de viewer alleen de sleutel van een les (`?weer`, `?weer=omslag`). |
 | `aanpassen.zeilnummer` | string | `'000'` | Zeilnummer op het grootzeil (max. 4 tekens). |
 | `aanpassen.naam` | string | `'Lelievlet'` | Naam op het boeisel, ter hoogte van het voordek. |
@@ -505,7 +505,7 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   laatst gekozen is, en anders op Lessen. Op een telefoon gaan de menu's van de kolom er over de hele breedte onder open.
   Rechtsboven zit het **tandwiel** voor Aanpassen, met onderaan dat paneel de snelheid van de
   animaties (met de sneltoetsen voor de camera). Daaronder het rondje met de **i**: een menu met
-  **Melden**, de **Handleiding** en de **Homepagina** (op wiebren.github.io/lelievlet, in een nieuw
+  **Melden**, de **Handleiding** en de **Homepagina** (op scoutvaardig.nl/lelievlet, in een nieuw
   tabblad), **Updates** (per datum wat er veranderd is, uit `web/src/updates.js`) en **Over dit
   model**; die laatste twee gaan midden in beeld open. Updates gaat ook vanzelf open als er een datum
   bij is gekomen sinds de laatste keer dat deze gebruiker keek (`lelievlet.updates.v1` in localStorage,

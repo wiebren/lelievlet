@@ -53,7 +53,7 @@ const quizVraag = (g) => {
   return null;
 };
 const MIN_TEXT = 10;                      // characters: "werkt niet" alone is no report
-const SITE = 'https://wiebren.github.io/lelievlet/';   // the project's own pages: home and handleiding
+const SITE = 'https://scoutvaardig.nl/lelievlet/';   // the project's own pages: home and handleiding
 
 /**
  * ui, wrap, config, signal, engaged: as mount() has them.
