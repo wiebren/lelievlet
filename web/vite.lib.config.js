@@ -20,14 +20,14 @@ const demoPage = {
   closeBundle() {
     const out = resolve(here, 'dist-lib');
     mkdirSync(out, { recursive: true });
-    for (const file of ['index.html', 'insluiten.html', 'site.css', 'embed.html', 'app.html', 'app.webmanifest', 'logo.js']) copyFileSync(resolve(here, 'demo', file), resolve(out, file));
+    for (const file of ['index.html', 'insluiten.html', 'site.css', 'embed.html', 'app.html', 'app.webmanifest', 'logo.js', 'verhuizen.js']) copyFileSync(resolve(here, 'demo', file), resolve(out, file));
     // the handleiding and its screenshots; the icons
     for (const dir of ['icons', 'img', 'handleiding']) cpSync(resolve(here, 'demo', dir), resolve(out, dir), { recursive: true });
     // the licence goes with every copy of the files (CC BY-NC-SA 4.0)
     copyFileSync(resolve(here, '..', 'LICENSE'), resolve(out, 'LICENSE'));
     // the service worker keeps what the app needs; its version is a hash of all of that, so any
     // change - the model, the script, the page - makes another sw.js, and the app takes it in
-    const files = ['app.html', 'app.webmanifest', 'lelievlet.js', 'logo.js',
+    const files = ['app.html', 'app.webmanifest', 'lelievlet.js', 'logo.js', 'verhuizen.js',
       ...['icons', 'models', 'textures'].flatMap((dir) => readdirSync(resolve(out, dir)).map((f) => `${dir}/${f}`))].sort();
     const hash = createHash('sha256');
     // the build stamp (commit and time) is left out: a deploy that changes nothing else is no new app

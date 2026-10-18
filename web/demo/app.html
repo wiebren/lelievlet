@@ -27,10 +27,11 @@
     dialog .knoppen { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
     button { font: inherit; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
     button.hoofd { background: var(--accent); border-color: var(--accent); color: #fff; }
-    #nieuw { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 10; display: flex; gap: 10px; align-items: center;
+    #nieuw, #meegekomen { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 10; display: flex; gap: 10px; align-items: center;
              padding: 8px 10px 8px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18); }
-    #nieuw[hidden] { display: none; }
+    #nieuw[hidden], #meegekomen[hidden] { display: none; }
   </style>
+  <script src="verhuizen.js"></script>
 </head>
 <body>
   <!-- The viewer as an app of its own (README: "Als app installeren"). It fills the window. The
@@ -54,6 +55,22 @@
   <div id="nieuw" role="status" hidden>
     <span>Er is een nieuwe versie.</span>
     <button type="button" class="hoofd" id="nieuw-laden">Bijwerken</button>
+  </div>
+
+  <dialog id="verhuisd" aria-labelledby="verhuisd-titel">
+    <h2 id="verhuisd-titel">De app is verhuisd</h2>
+    <p>Lelievlet 3D staat nu op scoutvaardig.nl. Hier krijgt de app straks geen nieuwe versies meer.</p>
+    <p>Open hem op het nieuwe adres en installeer hem daar opnieuw. Je boot, je lessen en wat je hebt ingesteld gaan
+      mee. Daarna kun je deze app weghalen.</p>
+    <div class="knoppen">
+      <button type="button" id="verhuisd-later">Later</button>
+      <button type="button" class="hoofd" id="verhuisd-naar">Naar scoutvaardig.nl</button>
+    </div>
+  </dialog>
+
+  <div id="meegekomen" role="status" hidden>
+    <span>Wat je had ingesteld en geleerd, is meegekomen van het oude adres.</span>
+    <button type="button" id="meegekomen-ok">Oké</button>
   </div>
 
   <script type="module">
