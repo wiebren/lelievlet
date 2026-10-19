@@ -114,4 +114,19 @@ export const GROEPEN = [
       { zeilnummer: '950', naam: 'Fivel' },
     ],
   },
+  {
+    groep: 'Henk Brunt', plaats: 'Kampen', plaatsOpBoot: '',
+    kleuren: {
+      romp: '#0000ff', berghout: '#0000ff', boeisel: '#ffffff', dolboord: '#0000ff',
+      voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
+    },
+    bakskleur: '#0000ff', zeilkleur: 10,
+    boten: [
+      { zeilnummer: '90', naam: '' },
+      { zeilnummer: '91', naam: '' },
+      { zeilnummer: '1362', naam: '' },
+      { zeilnummer: '1314', naam: 'Wabhoop' },
+      { zeilnummer: '1385', naam: '' },
+    ],
+  },
 ];
