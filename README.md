@@ -439,7 +439,9 @@ plaats, zeilnummer of bootnaam, en toont er 30 tegelijk. Een groep kiezen geeft 
 zoals die op de romp staat, een boot ook haar zeilnummer, naam en bakskleur; wat er nu op staat, is
 gemarkeerd. Daaronder opent **Kleuren van je groep melden** een melding in het paneel van Melden
 (`web/src/feedback.js`): kloppen de kleuren (zo niet, dan eerst naar Eigen), naam en plaats (voluit) van de
-groep, per boot zeilnummer, naam en bakskleur, wat er verder anders is, en versturen, met de waarden van
+groep, wat er waar op de boot staat (naam, plaats, zeilnummer, naam van de groep: boeisel, bordje, spiegel of
+niet) en of elke boot een eigen bakskleur heeft, per boot zeilnummer, naam en bakskleur (zonder de naam of de
+bakskleur als ze die niet hebben), wat er verder anders is, en versturen, met de waarden van
 Aanpassen erbij; staat de plaats daar anders, dan geeft de melding die als `plaatsOpBoot`. Een gemelde groep
 komt na controle met de hand in `groepen.js`. Met `feedback: false` is die knop er niet.
 

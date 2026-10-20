@@ -307,6 +307,14 @@
 #feedback .fb-boot input[type="color"] { width: 40px; height: 32px; padding: 2px; border-radius: 8px; border: 1px solid var(--line); background: #fff; }
 #feedback .fb-boot input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 #feedback .fb-boot .link-button { font-size: calc(18px * var(--tekst)); line-height: 1; color: var(--muted); }
+#feedback .fb-boten.zonder-naam .fb-boot { grid-template-columns: 5.5em 40px 28px; }
+#feedback .fb-boten.zonder-baks .fb-boot { grid-template-columns: 5.5em minmax(0, 1fr) 28px; }
+#feedback .fb-boten.zonder-naam.zonder-baks .fb-boot { grid-template-columns: 5.5em 28px; }
+/* Op de boot: a label over a choice that takes the width of the panel */
+#feedback .fb-keus { display: grid; gap: 4px; margin-bottom: 10px; }
+#feedback .fb-keus > span { font-size: calc(13px * var(--tekst)); color: var(--muted); }
+#feedback .fb-keus .segmented { display: flex; }
+#feedback .fb-keus .segmented button { flex: 1; padding: 4px 6px; }
 #feedback .fb-check { display: flex; gap: 8px; align-items: center; font-size: calc(13px * var(--tekst)); cursor: pointer; }
 #feedback .fb-kinds { display: grid; gap: 6px; }
 #feedback .fb-where {

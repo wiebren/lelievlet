@@ -5,6 +5,7 @@
 export const UPDATES = [
   { datum: '2026-10-20', punten: [
     'Aanpassen › Tekst: maak de tekst groter, met Groter of Grootst. Twee keer tikken zoomt op een telefoon niet meer in, zodat de knoppen in beeld blijven.',
+    'Kleuren van je groep melden: geef ook door waar de naam, de plaats en het zeilnummer op jullie boten staan, en meld boten zonder naam of met allemaal dezelfde bakskleur.',
   ] },
   { datum: '2026-10-13', punten: [
     'Logboek: de ster linksonder houdt bij hoe ver je bent met elke les, hoe je quizzen gingen en wat je hebt ontdekt.',

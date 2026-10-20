@@ -54,6 +54,15 @@ const quizVraag = (g) => {
 };
 const MIN_TEXT = 10;                      // characters: "werkt niet" alone is no report
 const SITE = 'https://scoutvaardig.nl/lelievlet/';   // the project's own pages: home and handleiding
+// a group's report: what is lettered where on its boats ([value, button]), and whether each has a bakskleur of her own.
+// The values go to the receiver as they are (lelievlet-melden checks them against the same lists)
+const OP_BOOT = {
+  naam: [['boeisel', 'Boeisel'], ['bordje', 'Bordje'], ['spiegel', 'Spiegel'], ['geen', 'Geen']],
+  plaats: [['boeisel', 'Boeisel'], ['spiegel', 'Spiegel'], ['geen', 'Geen']],
+  nummer: [['zeil', 'Alleen zeil'], ['midscheeps', 'Midscheeps'], ['spiegel', 'Spiegel']],
+  groep: [['geen', 'Geen'], ['spiegel', 'Spiegel']],
+  bakskleur: [['ja', 'Ja'], ['nee', 'Nee']],
+};
 
 /**
  * ui, wrap, config, signal, engaged: as mount() has them.
@@ -337,7 +346,7 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
     ],
 
     groepGegevens: () => {
-      const next = choice('Verder', () => go('groepBoten'), true);
+      const next = choice('Verder', () => go('groepOpBoot'), true);
       // the place written out: how it is on the hull (R-dam) comes along with the boat from Aanpassen
       const plaats = field('groepPlaats', 'Plaats', 'Voluit, bijvoorbeeld: Rotterdam', null, { single: true, min: 2 });
       const naam = field('groepNaam', 'Naam van de groep', 'Bijvoorbeeld: Shawano’s', null, { single: true, min: 2 });   // made last: it has the focus
@@ -348,13 +357,39 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
         text('Staat de plaats anders op de boot, zoals R-dam? Dat komt vanzelf mee uit Aanpassen.'), row(next)];
     },
 
-    // one row a boat: zeilnummer, naam and bakskleur; Verder once every row that was begun is whole
+    // what is lettered where, and whether the boats have a bakskleur each: one choice a line, as Aanpassen has her now
+    groepOpBoot: () => {
+      const o = report.groepOpBoot;
+      const keus = (key, label, options) => {
+        const buttons = options.map(([value, text]) => {
+          const b = el('button', { type: 'button', textContent: text, role: 'radio' });
+          b.setAttribute('aria-checked', String(o[key] === value));
+          b.addEventListener('click', () => { o[key] = value; for (const x of buttons) x.setAttribute('aria-checked', String(x === b)); });
+          return b;
+        });
+        const group = el('div', { className: 'segmented', role: 'radiogroup', ariaLabel: label }, ...buttons);
+        return el('div', { className: 'fb-keus' }, el('span', { textContent: label }), group);
+      };
+      return [
+        el('h3', { textContent: 'Wat staat er op de boot?' }),
+        keus('naam', 'Naam van de boot', OP_BOOT.naam),
+        keus('plaats', 'Plaats', OP_BOOT.plaats),
+        keus('nummer', 'Zeilnummer', OP_BOOT.nummer),
+        keus('groep', 'Naam van de groep', OP_BOOT.groep),
+        keus('bakskleur', 'Heeft elke boot een eigen bakskleur?', OP_BOOT.bakskleur),
+        row(choice('Verder', () => go('groepBoten'), true)),
+      ];
+    },
+
+    // one row a boat: zeilnummer, naam and bakskleur, the naam or the bakskleur left out when the boats have none of
+    // their own; Verder once every row that was begun is whole
     groepBoten: () => {
       const next = choice('Verder', () => go('groepAnders'), true);
       const boten = report.groepBoten;
-      const list = el('div', { className: 'fb-boten' });
-      const whole = (b) => /^\d{1,4}$/.test(b.zeilnummer.trim()) && b.naam.trim().length > 0;
-      const begun = (b) => b.zeilnummer.trim() || b.naam.trim();
+      const metNaam = report.groepOpBoot.naam !== 'geen'; const metBaks = report.groepOpBoot.bakskleur === 'ja';
+      const list = el('div', { className: `fb-boten${metNaam ? '' : ' zonder-naam'}${metBaks ? '' : ' zonder-baks'}` });
+      const whole = (b) => /^\d{1,4}$/.test(b.zeilnummer.trim()) && (!metNaam || b.naam.trim().length > 0);
+      const begun = (b) => b.zeilnummer.trim() || (metNaam && b.naam.trim());
       const check = () => { next.disabled = !boten.some(whole) || boten.some((b) => begun(b) && !whole(b)); };
       const input = (b, key, props) => {
         const i = el('input', { value: b[key], ...props });
@@ -363,14 +398,14 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
       };
       const draw = () => {
         list.replaceChildren(el('div', { className: 'fb-boot fb-kop', ariaHidden: 'true' },
-          el('span', { textContent: 'Zeilnr.' }), el('span', { textContent: 'Naam' }), el('span', { textContent: 'Baks' }), el('span')),
+          el('span', { textContent: 'Zeilnr.' }), metNaam && el('span', { textContent: 'Naam' }), metBaks && el('span', { textContent: 'Baks' }), el('span')),
         ...boten.map((b, i) => {
           const weg = el('button', { type: 'button', className: 'link-button', textContent: '×', title: 'Deze boot weghalen', ariaLabel: `Boot ${i + 1} weghalen` });
           weg.addEventListener('click', () => { boten.splice(i, 1); if (!boten.length) boten.push(nieuw()); draw(); check(); });
           return el('div', { className: 'fb-boot' },
             input(b, 'zeilnummer', { type: 'text', inputMode: 'numeric', maxLength: 4, placeholder: '1850', ariaLabel: `Zeilnummer van boot ${i + 1}` }),
-            input(b, 'naam', { type: 'text', maxLength: 24, placeholder: 'Naam', ariaLabel: `Naam van boot ${i + 1}` }),
-            input(b, 'bakskleur', { type: 'color', ariaLabel: `Bakskleur van boot ${i + 1}`, title: 'Bakskleur' }),
+            metNaam && input(b, 'naam', { type: 'text', maxLength: 24, placeholder: 'Naam', ariaLabel: `Naam van boot ${i + 1}` }),
+            metBaks && input(b, 'bakskleur', { type: 'color', ariaLabel: `Bakskleur van boot ${i + 1}`, title: 'Bakskleur' }),
             weg);
         }));
       };
@@ -381,7 +416,7 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
       queueMicrotask(() => list.querySelector('.fb-boot:not(.fb-kop) input')?.focus());
       return [
         el('h3', { textContent: 'Welke boten hebben jullie?' }),
-        text('Met de bakskleur van elke boot: daaraan zie je welke het is.'),
+        metBaks ? text('Met de bakskleur van elke boot: daaraan zie je welke het is.') : null,
         list, el('p', { className: 'fb-retake' }, meer),
         row(next),
       ];
@@ -444,15 +479,22 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
   function groepOmschrijving() {
     const g = report.groep;
     g.naam = (report.groepNaam ?? '').trim(); g.plaats = (report.groepPlaats ?? '').trim();
-    g.boten = report.groepBoten.filter((b) => b.zeilnummer.trim() && b.naam.trim())
-      .map((b) => ({ zeilnummer: b.zeilnummer.trim(), naam: b.naam.trim(), bakskleur: b.bakskleur }));
+    const o = g.opBoot = { ...report.groepOpBoot };
+    const metNaam = o.naam !== 'geen'; const metBaks = o.bakskleur === 'ja';
+    g.boten = report.groepBoten.filter((b) => b.zeilnummer.trim() && (!metNaam || b.naam.trim()))
+      .map((b) => ({ zeilnummer: b.zeilnummer.trim(), naam: metNaam ? b.naam.trim() : '', ...(metBaks ? { bakskleur: b.bakskleur } : {}) }));
     g.anders = report.groepAnders?.trim() || undefined;
     g.kleuren = aanpassen?.() ?? null;
-    const opBoot = g.kleuren?.plaats?.trim();
+    const opBoot = o.plaats === 'boeisel' ? g.kleuren?.plaats?.trim() : '';
+    const WAAR = { boeisel: 'op het boeisel', bordje: 'op een bordje', spiegel: 'op de spiegel', geen: 'niet', zeil: 'alleen op het zeil',
+      midscheeps: 'ook midscheeps op het boeisel' };
+    const waar = (key) => WAAR[o[key]];
     report.omschrijving = [
       `Groep: ${g.naam}, ${g.plaats}${opBoot && opBoot !== g.plaats ? ` (op de boot: ${opBoot})` : ''}`,
       'De kleuren van de boot in de app kloppen zo goed als het gaat (zie Kleuren).',
-      `De boten:\n${g.boten.map((b) => `${b.zeilnummer} ${b.naam}, bakskleur ${b.bakskleur}`).join('\n')}`,
+      `Op de boot: naam ${waar('naam')}, plaats ${waar('plaats')}, zeilnummer ${waar('nummer')}, naam van de groep ${waar('groep')}.`,
+      metBaks ? '' : 'Alle boten hebben dezelfde bakskleur (zie Kleuren).',
+      `De boten:\n${g.boten.map((b) => [b.zeilnummer, b.naam].filter(Boolean).join(' ') + (b.bakskleur ? `, bakskleur ${b.bakskleur}` : '')).join('\n')}`,
       g.anders ? `Verder anders aan de kleuren:\n${g.anders}` : '',
     ].filter(Boolean).join('\n\n');
   }
@@ -460,7 +502,7 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
   // ---------------------------------------------------------------- sending
   /** The report as it goes out: the answers, the state, and the picture if it may go along. */
   function payload() {
-    const { screenshot, gegevens, metAfbeelding, issue, groepNaam, groepPlaats, groepBoten, groepAnders, ...answers } = report;
+    const { screenshot, gegevens, metAfbeelding, issue, groepNaam, groepPlaats, groepOpBoot, groepBoten, groepAnders, ...answers } = report;
     return {
       versie: 1, ...answers,
       omschrijving: answers.omschrijving?.trim() ?? '', stappen: answers.stappen?.trim() || undefined,
@@ -514,6 +556,14 @@ export function initFeedback({ ui, config, signal, engaged, snapshot, closeOther
       const eigen = boot.zeilnummer && boot.zeilnummer !== '000';
       report.categorie = 'groep'; report.groep = {}; report.zichtbaar = true;
       report.groepBoten = [{ zeilnummer: eigen ? boot.zeilnummer : '', naam: eigen ? boot.naam ?? '' : '', bakskleur: boot.bakskleur ?? '#c8102e' }];
+      // what is lettered where as Aanpassen letters her now; whether the bakskleur is each boat's own, asked
+      report.groepOpBoot = {
+        naam: boot.naamBordje ? 'bordje' : eigen && !boot.naam?.trim() ? 'geen' : 'boeisel',
+        plaats: boot.plaats?.trim() === '' ? 'geen' : 'boeisel',
+        nummer: boot.rompnummer ? 'midscheeps' : 'zeil',
+        groep: boot.spiegelTekst ? 'spiegel' : 'geen',
+        bakskleur: 'ja',
+      };
     }
     show(start);
   }
