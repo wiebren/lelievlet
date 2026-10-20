@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <title>Lelievlet 3D</title>
   <meta name="description" content="Het 3D-model van de lelievlet: onderdelen, zeilen, roeien en manoeuvres.">
   <meta name="theme-color" content="#1d4e79">
@@ -16,7 +16,9 @@
     @media (prefers-color-scheme: dark) {
       :root { --bg: #151b20; --panel: #1f272e; --ink: #e6edf2; --muted: #9aaab6; --line: #33404a; --accent: #7fb3e6; }
     }
-    html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: none; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
+    /* the app is never zoomed: a double tap would push the viewer's buttons off the screen. Its text is made larger in
+       Aanpassen › Tekst instead */
+    html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: none; touch-action: pan-x pan-y; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
     #vlet { position: fixed; inset: 0; }
     dialog { max-width: min(420px, calc(100vw - 32px)); padding: 20px 22px 18px; border: 1px solid var(--line); border-radius: 14px;
              background: var(--panel); color: var(--ink); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25); }

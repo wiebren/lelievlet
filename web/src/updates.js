@@ -3,6 +3,9 @@
 // update on a day that already has one gets nr: 2 (and so on), so it shows as new to who saw the first.
 
 export const UPDATES = [
+  { datum: '2026-10-20', punten: [
+    'Aanpassen › Tekst: maak de tekst groter, met Groter of Grootst. Twee keer tikken zoomt op een telefoon niet meer in, zodat de knoppen in beeld blijven.',
+  ] },
   { datum: '2026-10-13', punten: [
     'Logboek: de ster linksonder houdt bij hoe ver je bent met elke les, hoe je quizzen gingen en wat je hebt ontdekt.',
     'In de app heeft een les, een quiz of een pagina van Zoeken een eigen adres. Deel het, en wie het opent komt op dezelfde plek.',

@@ -42,6 +42,7 @@ import { packConfig } from './pack.js';
 import { UPDATES } from './updates.js';
 import { lees as leesAdres, zet as zetAdres, SLEUTELS } from './adres.js';
 import { openKaart } from './lessen/kaart.js';
+import { initTekstgrootte } from './tekstgrootte.js';
 
 // One viewer, from end to end. Nothing here runs at import time: `mount` is called once per
 // embedded viewer with the shadow root it owns, so two of them on one page share no state at all.
@@ -91,6 +92,7 @@ export function mount(ui, host, config) {
   const realTarget = (e) => e.composedPath()[0] ?? e.target;
 
   initCustomizePanel(ui, { signal, engaged });
+  initTekstgrootte(ui, wrap, { opslaan });
   const logboek = initLogboek(ui, { opslaan });
   // Volledig scherm works from the first frame: it needs nothing of the model
   const fullscreen = initFullscreen({ ui, host, config, signal, engaged, realTarget, onDestroy, asApp: runsAsApp() });

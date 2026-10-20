@@ -105,6 +105,12 @@ export const TEMPLATE = `\n<div class="lv" part="viewer">\n
     </div>
     <button id="customize-reset" type="button">Standaardwaarden</button>
     </div>
+    <h3>Tekst</h3>
+    <div id="tekstgrootte" class="segmented" role="radiogroup" aria-label="Tekstgrootte">
+      <button type="button" role="radio" data-tekst="normaal" aria-checked="true">Normaal</button>
+      <button type="button" role="radio" data-tekst="groter" aria-checked="false">Groter</button>
+      <button type="button" role="radio" data-tekst="grootst" aria-checked="false">Grootst</button>
+    </div>
     <h3>Animatie</h3>
     <label class="speed"><span>Snelheid</span>
       <input id="speed" type="range" min="0.25" max="2" step="0.05" value="1" aria-label="Snelheid van de animaties"></label>

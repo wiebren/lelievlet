@@ -418,6 +418,11 @@ haar `config.aanpassen`, dan krijgt ook een bezoeker die ooit iets anders aanpas
 "Standaardwaarden" zet alles terug naar waar deze viewer begon, dus naar de waarden
 van de pagina als die er zijn. Alle tekst naar de gebruiker toe is Nederlands.
 
+Onder **Tekst** kiest de gebruiker Normaal, Groter of Grootst (`web/src/tekstgrootte.js`, onthouden in
+`lelievlet.tekst.v1`): elke lettergrootte in `style.css` staat als `calc(… * var(--tekst))`, de windroos en de
+tekeningen houden hun eigen maat. In de plaats van inzoomen: binnen de viewer laat `touch-action` de browser niet
+zoomen, ook niet met dubbel tikken, en `app.html` zoomt helemaal niet (`maximum-scale=1`).
+
 Bovenin het paneel kiest de gebruiker **Bekend** of **Eigen** (welke van de twee het laatst open stond, staat
 onder `lelievlet.aanpassen.modus`). **Eigen** zijn de velden en kleurkiezers hierboven, met
 *Standaardwaarden*. **Bekend** zoekt in de bekende groepen (`web/src/groepen.js`: per groep de plaats voluit
