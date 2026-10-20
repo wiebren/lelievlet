@@ -14,7 +14,10 @@
 //   naamBordje              true: the naam on a wooden board on the boeisel, smaller, in the naamKleur
 //   plechtKleur             the voorplecht and the hanenkam in this colour, not the bakskleur (as a rule the dolboord's)
 //   roerKleur               the whole roer in this colour, the roerkop too (left out: the romp's, the roerkop the bakskleur)
-//   spiegelTekst            a word on the spiegel, to bakboord of the roer, in the naamKleur (the group's name)
+//   spiegelKleur            the outside of the spiegel in this colour (left out: the romp's)
+//   spiegelTekst            lettering on the spiegel, to bakboord of the roer, a line or two ('\n' between them): the
+//                           group's name, or the group and its plaats
+//   spiegelTekstKleur       the colour of that lettering (left out: the naamKleur)
 //   boten                   [{ zeilnummer, naam, bakskleur, boeiselBanen }]; a boat's bakskleur, when she has one, is
 //                           hers instead of the group's; naam '' when the group did not give it
 //   boeiselBanen            the boeisel in lengthwise bands of these colours, top first (a flag on the sides), for
@@ -127,6 +130,24 @@ export const GROEPEN = [
       { zeilnummer: '1362', naam: '' },
       { zeilnummer: '1314', naam: 'Wabhoop' },
       { zeilnummer: '1385', naam: '' },
+    ],
+  },
+  {
+    groep: 'Tjerk Hiddes', plaats: 'Harderwijk', plaatsOpBoot: '',
+    kleuren: {
+      romp: '#280f73', berghout: '#ffffff', boeisel: '#ff0000', dolboord: '#ffffff',
+      voordek: '#b5b5b5', achterdek: '#bdbdbd', kuip: '#b8b8b8', zwaardkast: '#b8b8b8',
+    },
+    zeilkleur: 10,
+    naamKleur: '#ffffff', plaatsKleur: '#ffffff',
+    spiegelKleur: '#ffffff', spiegelTekst: 'Tjerk Hiddes\nHarderwijk', spiegelTekstKleur: '#280f73',
+    boten: [
+      { zeilnummer: '114', naam: '', bakskleur: '#ffffff' },
+      { zeilnummer: '276', naam: '', bakskleur: '#000000' },
+      { zeilnummer: '583', naam: '', bakskleur: '#0000ff' },
+      { zeilnummer: '602', naam: '', bakskleur: '#ffff00' },
+      { zeilnummer: '1736', naam: '', bakskleur: '#00ff00' },
+      { zeilnummer: '1808', naam: '', bakskleur: '#ff0000' },
     ],
   },
 ];
