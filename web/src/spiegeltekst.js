@@ -9,6 +9,7 @@ import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
 // rand (from 0.91), across between the roer and the bakboord sleepoog
 const AT = { y: 0.835, z: -0.22 };
 const HIGH = [0.085, 0.05];            // m: the height of the letters, on one line and on two
+const WIDE = 0.32;                     // m: at most this wide, the room between the roer and the side: longer is smaller
 
 export function makeSpiegelTekst(parts) {
   const skin = parts.find((p) => p.extras.id === 'spiegel')?.meshes.find((m) => m.material.name === 'romp');
@@ -37,7 +38,8 @@ export function makeSpiegelTekst(parts) {
       const across = new THREE.Vector3(0, 0, 1);                      // read from astern: stuurboord to the right
       const up = new THREE.Vector3().crossVectors(n, across);
       const orientation = new THREE.Euler().setFromRotationMatrix(new THREE.Matrix4().makeBasis(across, up, n));
-      const h = HIGH[lines.length - 1] * canvas.height / SIZE; const w = h * canvas.width / canvas.height;
+      const h = Math.min(HIGH[lines.length - 1] * canvas.height / SIZE, WIDE * canvas.height / canvas.width);
+      const w = h * canvas.width / canvas.height;
       mesh = new THREE.Mesh(new DecalGeometry(skin, hit.point, orientation, new THREE.Vector3(w, h, 0.06)),
         new THREE.MeshStandardMaterial({ map: texture, transparent: true, roughness: 0.5, depthWrite: false,
           polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 }));

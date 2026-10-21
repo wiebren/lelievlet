@@ -18,10 +18,16 @@
 //   spiegelTekst            lettering on the spiegel, to bakboord of the roer, a line or two ('\n' between them): the
 //                           group's name, or the group and its plaats
 //   spiegelTekstKleur       the colour of that lettering (left out: the naamKleur)
-//   boten                   [{ zeilnummer, naam, bakskleur, boeiselBanen }]; a boat's bakskleur, when she has one, is
-//                           hers instead of the group's; naam '' when the group did not give it
+//   spiegelBand             the spiegel above the berghout in this colour, a band like the boeisel, for the group or
+//                           one boat
+//   spiegelPunt             true: that band runs on down the middle of the spiegel to a point, three quarters of the
+//                           way down; for the group or one boat
+//   boten                   [{ zeilnummer, naam, bakskleur, boeiselBanen, spiegelBand, spiegelPunt }]; a boat's
+//                           bakskleur, when she has one, is hers instead of the group's; naam '' when the group did
+//                           not give it
 //   boeiselBanen            the boeisel in lengthwise bands of these colours, top first (a flag on the sides), for
 //                           the group or one boat: boeiselBanen: VLAG
+//   boeiselVoor             true: the fore half of the boeisel in the bakskleur, the aft half in the boeisel's own
 //
 // Picked in Bekend, a group gives its colours and its plaats on the hull; one of its boats also its zeilnummer,
 // naam and bakskleur. Found by either plaats.
@@ -41,7 +47,7 @@ export const GROEPEN = [
       { zeilnummer: '441', naam: 'Morra', bakskleur: '#00843d' },
       { zeilnummer: '442', naam: 'Potten', bakskleur: '#f5c20d' },
       { zeilnummer: '884', naam: 'Brekken', bakskleur: '#0b4ea2' },
-      { zeilnummer: '83', naam: 'Leien', bakskleur: '#308264' },
+      { zeilnummer: '83', naam: 'Leijen', bakskleur: '#308264', spiegelBand: '#f5c20d', spiegelPunt: true },
     ],
   },
   {
@@ -128,7 +134,7 @@ export const GROEPEN = [
       { zeilnummer: '90', naam: '' },
       { zeilnummer: '91', naam: '' },
       { zeilnummer: '1362', naam: '' },
-      { zeilnummer: '1314', naam: 'Wabhoop' },
+      { zeilnummer: '1314', naam: 'Wanhoop' },
       { zeilnummer: '1385', naam: '' },
     ],
   },
@@ -148,6 +154,62 @@ export const GROEPEN = [
       { zeilnummer: '602', naam: '', bakskleur: '#ffff00' },
       { zeilnummer: '1736', naam: '', bakskleur: '#00ff00' },
       { zeilnummer: '1808', naam: '', bakskleur: '#ff0000' },
+    ],
+  },
+  {
+    groep: 'Pieter Marits', plaats: 'Zwartsluis',
+    kleuren: {
+      romp: '#540000', berghout: '#ffd5b8', boeisel: '#5e0000', dolboord: '#ffe5cc',
+      voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
+    },
+    zeilkleur: 10,
+    naamKleur: '#ffffff', plaatsKleur: '#ffffff',
+    spiegelBand: '#ffd5b8', spiegelTekst: 'Zwartsluis', spiegelTekstKleur: '#5e0000',
+    boten: [
+      { zeilnummer: '611', naam: 'Orca', bakskleur: '#008234' },
+      { zeilnummer: '916', naam: 'Black-lock', bakskleur: '#ffbfbf' },
+      { zeilnummer: '1108', naam: 'Zeemeeuw', bakskleur: '#000782' },
+    ],
+  },
+  {
+    groep: 'Christofoor', plaats: 'Zwolle', plaatsOpBoot: '',
+    kleuren: {
+      romp: '#9c9c9c', berghout: '#110073', boeisel: '#090085', dolboord: '#070091',
+      voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
+    },
+    bakskleur: '#43009c', zeilkleur: 10,
+    boten: [
+      { zeilnummer: '1825', naam: '' },
+      { zeilnummer: '1724', naam: '' },
+      { zeilnummer: '88', naam: '' },
+      { zeilnummer: '1433', naam: '' },
+    ],
+  },
+  {
+    groep: 'Scouting Meppel', plaats: 'Meppel',
+    kleuren: {
+      romp: '#0a0a0b', berghout: '#e32400', boeisel: '#4f7a28', dolboord: '#e32400',
+      voordek: '#c0c0c0', achterdek: '#c0c0c0', kuip: '#c0c0c0', zwaardkast: '#c0c0c0',
+    },
+    zeilkleur: 0,
+    spiegelKleur: '#ffffff', spiegelTekst: 'Scouting Meppel',
+    boten: [
+      { zeilnummer: '2010', naam: 'JubJam', bakskleur: '#e32400' },
+      { zeilnummer: '923', naam: 'Roggemoer', bakskleur: '#ffffff' },
+      { zeilnummer: '1493', naam: 'De 3 Schakels', bakskleur: '#919191' },
+      { zeilnummer: '215', naam: 'Wiebie', bakskleur: '#669c35' },
+    ],
+  },
+  {
+    groep: 'Olivier van Noort II', plaats: 'Schoonhoven',
+    kleuren: {
+      romp: '#1f5aa8', berghout: '#0a0a0b', boeisel: '#ffffff', dolboord: '#0a0a0b',
+      voordek: '#000000', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
+    },
+    zeilkleur: 0,
+    naamKleur: '#ffffff', boeiselVoor: true, spiegelTekst: 'Olivier van Noort II',
+    boten: [
+      { zeilnummer: '911', naam: 'Mauritius', bakskleur: '#000000' },
     ],
   },
 ];

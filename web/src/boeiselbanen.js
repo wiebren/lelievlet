@@ -3,6 +3,7 @@ import * as THREE from 'three';
 // The boeisel painted in lengthwise bands, as some groups have a flag on the sides of a boat (Aanpassen › Bekend:
 // groepen.js boeiselBanen, e.g. rood, wit, blauw). Only the outside of the strake, top band first, each an equal
 // part of its height wherever along the boat: the bands follow the sheer. The lettering stays on top (decals).
+// Or its fore half in the bakskleur, as some groups tell their boats apart (groepen.js boeiselVoor).
 //
 // Where a point is in the strake's height is worked out per pixel: between the strake's lower and upper edge at that
 // place along the boat. The edges are the skin's own border round it, split at its aftmost and foremost points into
@@ -85,11 +86,14 @@ function edgesOf(mesh) {
   return { x0, x1, rand };
 }
 
-/** meshes: the outer skins of the boeisel, both sides. set(colours | null): the bands, top first; null: none. */
+/** meshes: the outer skins of the boeisel, both sides. set(colours | null, voor): the bands, top first; null: none.
+ *  voor: the colour of the fore half (a THREE.Color, followed as it changes: the bakskleur's); null: as the rest. */
 export function makeBoeiselBanen(meshes) {
   const uniforms = {
     uBanen: { value: 0 },
     uBaan: { value: Array.from({ length: MAX }, () => new THREE.Color()) },
+    uVoor: { value: 0 },
+    uVoorKleur: { value: new THREE.Color() },
   };
   let ready = false;
   const prepare = () => {
@@ -111,6 +115,8 @@ export function makeBoeiselBanen(meshes) {
             varying vec2 vRomp;
             uniform int uBanen;
             uniform vec3 uBaan[${MAX}];
+            uniform float uVoor;
+            uniform vec3 uVoorKleur;
             uniform sampler2D uRand;
             uniform vec2 uX;`)
           .replace('#include <color_fragment>', `#include <color_fragment>
@@ -122,18 +128,21 @@ export function makeBoeiselBanen(meshes) {
               float hoog = clamp((vRomp.y - rand.x) / max(rand.y - rand.x, 1e-4), 0.0, 1.0);
               int i = clamp(int((1.0 - hoog) * float(uBanen)), 0, uBanen - 1);
               for (int j = 0; j < ${MAX}; j++) if (j == i) diffuseColor.rgb = uBaan[j];
-            }`);
+            }
+            if (uVoor > 0.5 && vRomp.x > 0.5 * (uX.x + uX.y)) diffuseColor.rgb = uVoorKleur;   // forward of midway along it`);
       };
       material.customProgramCacheKey = () => 'boeiselbanen';
       material.needsUpdate = true;
     }
   };
   return {
-    set(colours) {
+    set(colours, voor = null) {
       const banen = Array.isArray(colours) ? colours.slice(0, MAX) : [];
-      if (banen.length) prepare();
+      if (banen.length || voor) prepare();
       uniforms.uBanen.value = banen.length;
       banen.forEach((c, i) => uniforms.uBaan.value[i].set(c));
+      uniforms.uVoor.value = voor ? 1 : 0;
+      if (voor) uniforms.uVoorKleur.value = voor;
     },
   };
 }
