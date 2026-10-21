@@ -5613,7 +5613,9 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
       const out = oar.byHand ?? ((state.mode === 'roeien' || rowedOff()) && seats[key] ? 1 : 0);   // shipped by the mode, by afvaren van lagerwal, or by a click
       const seat = out ? seats[key] ?? ROWING.kruis[key] ?? ROWING.vier[key] : null;
       const boord = oar.side > 0 ? 'sb' : 'bb';
-      const order = single[boord] ? COMMANDS[single[boord].dir > 0 ? 'slag' : 'strijk'] : COMMANDS[state.commando[boord]];
+      // put out by hand while nobody rows (the sails up), a riem lies at rest in its dol, not stopped halfway a stroke
+      const order = oar.byHand === 1 && state.mode !== 'roeien' && !rowedOff() ? COMMANDS.toe
+        : single[boord] ? COMMANDS[single[boord].dir > 0 ? 'slag' : 'strijk'] : COMMANDS[state.commando[boord]];
       const pose = oar.pose;
       for (const k of ['power', 'yaw', 'roll', 'inboard', 'stand', 'given']) pose[k] += ((k === 'yaw' ? deg(order.yaw) : order[k]) - pose[k]) * easePose;
       if (oar.byHand === 1) pose.given += (1 - order.given) * easePose;   // put out by hand, also after "geroeid"

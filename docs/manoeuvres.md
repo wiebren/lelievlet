@@ -1401,7 +1401,7 @@ verschijnt op dezelfde manier. Terugspoelen of een stap terug roept niets.
 | Onderdeel | Wat een klik doet |
 |---|---|
 | Dol of dolkettinkje | de dol in de dolpot, of eruit (niet terwijl er met die riem geroeid wordt) |
-| Riem | in de dol, of terug op de doften; beide riemen in hun dol is roeien |
+| Riem | in de dol, of terug op de doften; met de zeilen gestreken is beide riemen in hun dol roeien, met de zeilen op liggen ze stil in de dol |
 | Wrikriem | in het wrikgat, of terug; in het wrikgat is wrikken |
 | Zwaard, zwaardloper, borgpen of kettinkje | het midzwaard een stand verder: neer, half, op en weer neer |
 | Mik of mikhouders | de mik omhoog in de houders of terug op de vlonder; met het zeil opgedoekt erin: het tuig in de kraanlijn optoppen, of terug |

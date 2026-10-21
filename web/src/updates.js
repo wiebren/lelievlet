@@ -3,6 +3,9 @@
 // update on a day that already has one gets nr: 2 (and so on), so it shows as new to who saw the first.
 
 export const UPDATES = [
+  { datum: '2026-10-21', punten: [
+    'Klik je met de zeilen op een riem in de dol, dan ligt hij stil in de dol in plaats van halverwege een haal. Roeien doe je met de zeilen gestreken, of met Boot › Roeien.',
+  ] },
   { datum: '2026-10-20', punten: [
     'Aanpassen › Tekst: maak de tekst groter, met Groter of Grootst. Twee keer tikken zoomt op een telefoon niet meer in, zodat de knoppen in beeld blijven.',
     'Kleuren van je groep melden: geef ook door waar de naam, de plaats en het zeilnummer op jullie boten staan, en meld boten zonder naam of met allemaal dezelfde bakskleur.',
