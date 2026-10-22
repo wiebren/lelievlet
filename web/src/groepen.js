@@ -201,7 +201,7 @@ export const GROEPEN = [
     ],
   },
   {
-    groep: 'Olivier van Noort II', plaats: 'Schoonhoven',
+    groep: 'Olivier van Noort groep II', plaats: 'Schoonhoven',
     kleuren: {
       romp: '#1f5aa8', berghout: '#0a0a0b', boeisel: '#ffffff', dolboord: '#0a0a0b',
       voordek: '#000000', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
@@ -209,7 +209,13 @@ export const GROEPEN = [
     zeilkleur: 0,
     naamKleur: '#ffffff', boeiselVoor: true, spiegelTekst: 'Olivier van Noort II',
     boten: [
-      { zeilnummer: '911', naam: 'Mauritius', bakskleur: '#000000' },
+      { zeilnummer: '9', naam: 'Odysseus', bakskleur: '#f570ff' },
+      { zeilnummer: '779', naam: 'Seapaerd', bakskleur: '#c8102e' },
+      { zeilnummer: '154', naam: 'Nautilus', bakskleur: '#050505' },
+      { zeilnummer: '153', naam: 'Hendrik Frederik', bakskleur: '#fff700' },
+      { zeilnummer: '200', naam: 'Hector', bakskleur: '#a1a1a1' },
+      { zeilnummer: '911', naam: 'Mauritius', bakskleur: '#ff7605' },
+      { zeilnummer: '892', naam: 'Eendracht', bakskleur: '#3ba800' },
     ],
   },
 ];
