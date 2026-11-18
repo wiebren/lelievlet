@@ -22,6 +22,8 @@
 //                           one boat
 //   spiegelPunt             true: that band runs on down the middle of the spiegel to a point, three quarters of the
 //                           way down; for the group or one boat
+//   onderwaterKleur         the onderwaterschip in this colour, up to a little above the waterline (left out: the
+//                           romp's)
 //   boten                   [{ zeilnummer, naam, bakskleur, boeiselBanen, spiegelBand, spiegelPunt }]; a boat's
 //                           bakskleur, when she has one, is hers instead of the group's; naam '' when the group did
 //                           not give it
@@ -216,6 +218,21 @@ export const GROEPEN = [
       { zeilnummer: '200', naam: 'Hector', bakskleur: '#a1a1a1' },
       { zeilnummer: '911', naam: 'Mauritius', bakskleur: '#ff7605' },
       { zeilnummer: '892', naam: 'Eendracht', bakskleur: '#3ba800' },
+    ],
+  },
+  {
+    groep: 'Geuzen', plaats: 'Vlaardingen', plaatsOpBoot: '',
+    kleuren: {
+      romp: '#000000', berghout: '#000000', boeisel: '#ff0000', dolboord: '#000000',
+      voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#000000',
+    },
+    zeilkleur: 0,
+    naamKleur: '#ffffff', plaatsKleur: '#ffffff', onderwaterKleur: '#7a3021',
+    boten: [
+      { zeilnummer: '1042', naam: '', bakskleur: '#8c8c8c' },
+      { zeilnummer: '1628', naam: '', bakskleur: '#2b9416' },
+      { zeilnummer: '1263', naam: '', bakskleur: '#1a00e3' },
+      { zeilnummer: '227', naam: '', bakskleur: '#db4bc1' },
     ],
   },
 ];

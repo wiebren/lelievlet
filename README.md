@@ -436,7 +436,8 @@ de roerkop, één kleur heeft; `spiegelKleur` als de spiegel buiten niet in de r
 letters op de spiegel, bakboord van het roer, één of twee regels, met `spiegelTekstKleur` als die niet in de kleur van de
 naam zijn; `spiegelBand` als de spiegel boven het berghout een kleur heeft, als een band zoals het boeisel, met
 `spiegelPunt` als die band in het midden in een punt naar beneden loopt, tot driekwart van de spiegel; beide voor de
-groep of één boot; en `plaatsOpBoot: ''` als er geen plaats op de romp staat) op groep,
+groep of één boot; `onderwaterKleur` als het onderwaterschip, tot net boven de waterlijn, een eigen kleur
+heeft; en `plaatsOpBoot: ''` als er geen plaats op de romp staat) op groep,
 plaats, zeilnummer of bootnaam, en toont er 30 tegelijk. Een groep kiezen geeft haar kleuren en de plaats
 zoals die op de romp staat, een boot ook haar zeilnummer, naam en bakskleur; wat er nu op staat, is
 gemarkeerd. Daaronder opent **Kleuren van je groep melden** een melding in het paneel van Melden

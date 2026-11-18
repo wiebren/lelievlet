@@ -75,6 +75,7 @@ export const DEFAULTS = {
   spiegelTekstKleur: null, // its colour; null: the colour of the naam
   spiegelBand: null,      // the spiegel above the berghout in this colour, a band like the boeisel; null: none. Only from a group
   spiegelPunt: false,     // that band running on down the middle of the spiegel to a point: only from a group
+  onderwaterKleur: null,  // the onderwaterschip in a colour of its own; null: as the romp. Only from a group
   kleuren: {
     romp: '#0a0a0b', berghout: '#0a0a0b', boeisel: '#f5c20d', dolboord: '#0a0a0b',
     voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
@@ -104,6 +105,7 @@ function baseOf(config) {
   if (typeof given.spiegelTekstKleur === 'string') base.spiegelTekstKleur = given.spiegelTekstKleur;
   if (typeof given.spiegelBand === 'string') base.spiegelBand = given.spiegelBand;
   if (typeof given.spiegelPunt === 'boolean') base.spiegelPunt = given.spiegelPunt;
+  if (typeof given.onderwaterKleur === 'string') base.onderwaterKleur = given.onderwaterKleur;
   return base;
 }
 
@@ -127,6 +129,7 @@ function load(base, opslaan) {
     if (typeof saved.spiegelTekstKleur === 'string' || saved.spiegelTekstKleur === null) config.spiegelTekstKleur = saved.spiegelTekstKleur;
     if (typeof saved.spiegelBand === 'string' || saved.spiegelBand === null) config.spiegelBand = saved.spiegelBand;
     if (typeof saved.spiegelPunt === 'boolean') config.spiegelPunt = saved.spiegelPunt;
+    if (typeof saved.onderwaterKleur === 'string' || saved.onderwaterKleur === null) config.onderwaterKleur = saved.onderwaterKleur;
   } catch { /* nothing saved, no storage, or something else under the key: the base */ }
   return config;
 }
@@ -155,6 +158,7 @@ function save(config, base, opslaan) {
   if (config.spiegelTekstKleur !== base.spiegelTekstKleur) own.spiegelTekstKleur = config.spiegelTekstKleur;
   if (config.spiegelBand !== base.spiegelBand) own.spiegelBand = config.spiegelBand;
   if (config.spiegelPunt !== base.spiegelPunt) own.spiegelPunt = config.spiegelPunt;
+  if (config.onderwaterKleur !== base.onderwaterKleur) own.onderwaterKleur = config.onderwaterKleur;
   try {
     if (Object.keys(own).length) localStorage.setItem(STORAGE_KEY, JSON.stringify(own));
     else localStorage.removeItem(STORAGE_KEY);
@@ -180,7 +184,7 @@ export function initCustomizePanel(ui, { signal, engaged } = {}) {
  * targets: {
  *   zoneMaterials: Map<zone, Material[]>, sailMaterials: Material[] (collectSailMaterials),
  *   setSailNumber(text), setHullText(key, text, color, { bordje }), setSailInk(white), setSpiegelTekst(text, color),
- *   setBoeiselBanen(colours | null, voor), setSpiegelBand(colour | null, punt),
+ *   setBoeiselBanen(colours | null, voor), setSpiegelBand(colour | null, punt), setOnderwater(colour | null),
  *   melden(): the report of a group's colours (feedback.js); absent: no button for it
  * }
  */
@@ -245,6 +249,7 @@ export function initCustomize(ui, appConfig, targets) {
     applySails();
     applyMee(); applySpiegel(); targets.setBoeiselBanen?.(config.boeiselBanen, config.boeiselVoor);   // after the bakskleur and the romp
     targets.setSpiegelBand?.(config.spiegelBand, config.spiegelPunt);
+    targets.setOnderwater?.(config.onderwaterKleur);
   };
 
   // back to where this viewer started, which is the page's own defaults if it gave any
@@ -295,6 +300,7 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
     spiegelTekst: g.spiegelTekst ?? '', spiegelTekstKleur: g.spiegelTekstKleur ?? null,
     boeiselBanen: boat?.boeiselBanen ?? g.boeiselBanen ?? null, boeiselVoor: g.boeiselVoor === true,
     spiegelBand: boat?.spiegelBand ?? g.spiegelBand ?? null, spiegelPunt: (boat?.spiegelPunt ?? g.spiegelPunt) === true,
+    onderwaterKleur: g.onderwaterKleur ?? null,
   });
   // what a boat may have of her own besides her bakskleur
   const sameOwn = (p) => sameBanen(config.boeiselBanen, p.boeiselBanen) && same(config.spiegelBand ?? '', p.spiegelBand ?? '')
@@ -312,6 +318,7 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
       && same(config.plechtKleur ?? '', p.plechtKleur ?? '') && same(config.roerKleur ?? '', p.roerKleur ?? '')
       && same(config.spiegelKleur ?? '', p.spiegelKleur ?? '') && config.spiegelTekst === p.spiegelTekst
       && same(config.spiegelTekstKleur ?? '', p.spiegelTekstKleur ?? '') && config.boeiselVoor === p.boeiselVoor
+      && same(config.onderwaterKleur ?? '', p.onderwaterKleur ?? '')
       && [p, ...(g.boten ?? []).map((b) => paintOf(g, b))].some(sameOwn);
   };
   const isBoat = (g, b) => isGroup(g) && same(config.bakskleur, paintOf(g, b).bakskleur) && sameOwn(paintOf(g, b))
@@ -321,7 +328,7 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
     Object.assign(config, { bakskleur: p.bakskleur, zeilkleur: p.zeilkleur, naamKleur: p.naamKleur, plaatsKleur: p.plaatsKleur, plaats: opBoot(g, boat),
       rompnummer: p.rompnummer, naamBordje: p.naamBordje, plechtKleur: p.plechtKleur, roerKleur: p.roerKleur, boeiselBanen: p.boeiselBanen,
       spiegelKleur: p.spiegelKleur, spiegelTekst: p.spiegelTekst, spiegelTekstKleur: p.spiegelTekstKleur,
-      boeiselVoor: p.boeiselVoor, spiegelBand: p.spiegelBand, spiegelPunt: p.spiegelPunt });
+      boeiselVoor: p.boeiselVoor, spiegelBand: p.spiegelBand, spiegelPunt: p.spiegelPunt, onderwaterKleur: p.onderwaterKleur });
     Object.assign(config.kleuren, p.kleuren);
     if (boat) Object.assign(config, { zeilnummer: String(boat.zeilnummer), naam: boat.naam });
     save(config, base, opslaan);
@@ -333,7 +340,7 @@ function initBekend(ui, { config, base, opslaan, applyAll, melden }) {
     const p = paintOf(g);
     const shown = [p.kleuren.romp, p.kleuren.boeisel, p.kleuren.berghout, p.kleuren.voordek, own(g) ? null : p.bakskleur].filter(Boolean);
     // then any other colour the group itself paints with (a dolboord, a kuip, a plecht, a roer), once each
-    for (const c of [...ZONES.map(([zone]) => g.kleuren?.[zone]), p.plechtKleur, p.roerKleur, p.spiegelKleur, p.spiegelBand]) if (c && !shown.some((s) => same(s, c))) shown.push(c);
+    for (const c of [...ZONES.map(([zone]) => g.kleuren?.[zone]), p.plechtKleur, p.roerKleur, p.spiegelKleur, p.spiegelBand, p.onderwaterKleur]) if (c && !shown.some((s) => same(s, c))) shown.push(c);
     return el('span', { className: 'groep-kleuren', ariaHidden: 'true' }, ...shown.map((c) => el('i', { style: `background: ${c}` })));
   };
   // searched: of a group found by its name or plaats all boats, of one found by a boat only the boats that match
