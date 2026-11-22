@@ -235,4 +235,16 @@ export const GROEPEN = [
       { zeilnummer: '227', naam: '', bakskleur: '#db4bc1' },
     ],
   },
+  {
+    groep: 'Tasmaniagroep', plaats: 'Spijkenisse', plaatsOpBoot: '',
+    kleuren: {
+      romp: '#828282', berghout: '#ff0000', boeisel: '#1e13bd', dolboord: '#ff0000',
+      voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
+    },
+    zeilkleur: 2,
+    naamKleur: '#ffff00', plaatsKleur: '#ffff00', rompnummer: true, plechtKleur: '#ff0000',
+    boten: [
+      { zeilnummer: '1166', naam: 'Broeckoordt', bakskleur: '#ffff00' },
+    ],
+  },
 ];
