@@ -53,7 +53,7 @@ export const GROEPEN = [
     ],
   },
   {
-    groep: 'Tasmaniagroep', plaats: 'Spijkenisse', plaatsOpBoot: '',
+    groep: 'Tasmaniagroep', plaats: 'Spijkenisse', plaatsOpBoot: 'R-dam',
     kleuren: {
       romp: '#828282', berghout: '#ff0000', boeisel: '#1e13bd', dolboord: '#ff0000',
       voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
