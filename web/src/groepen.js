@@ -53,15 +53,20 @@ export const GROEPEN = [
     ],
   },
   {
-    groep: 'Tasmania', plaats: 'Rotterdam', plaatsOpBoot: 'R-dam',
+    groep: 'Tasmaniagroep', plaats: 'Spijkenisse', plaatsOpBoot: '',
     kleuren: {
-      romp: '#bdbdbd', berghout: '#ff0000', boeisel: '#0c0182', dolboord: '#ff0000',
+      romp: '#828282', berghout: '#ff0000', boeisel: '#1e13bd', dolboord: '#ff0000',
       voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
     },
-    zeilkleur: 0,
-    naamKleur: '#ffff00', plaatsKleur: '#ffff00', rompnummer: true,
+    zeilkleur: 2,
+    naamKleur: '#ffff00', plaatsKleur: '#ffff00', rompnummer: true, plechtKleur: '#ff0000',
     boten: [
+      { zeilnummer: '106', naam: 'Tasman' },
       { zeilnummer: '124', naam: 'Heemskerck', bakskleur: '#c8102e' },
+      { zeilnummer: '188', naam: 'Zeehaen' },
+      { zeilnummer: '199', naam: 'Zeemeeuw' },
+      { zeilnummer: '1166', naam: 'Broeckoordt', bakskleur: '#ffff00' },
+      { zeilnummer: '1624', naam: 'Enghel' },
     ],
   },
   {
@@ -233,18 +238,6 @@ export const GROEPEN = [
       { zeilnummer: '1628', naam: '', bakskleur: '#2b9416' },
       { zeilnummer: '1263', naam: '', bakskleur: '#1a00e3' },
       { zeilnummer: '227', naam: '', bakskleur: '#db4bc1' },
-    ],
-  },
-  {
-    groep: 'Tasmaniagroep', plaats: 'Spijkenisse', plaatsOpBoot: '',
-    kleuren: {
-      romp: '#828282', berghout: '#ff0000', boeisel: '#1e13bd', dolboord: '#ff0000',
-      voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
-    },
-    zeilkleur: 2,
-    naamKleur: '#ffff00', plaatsKleur: '#ffff00', rompnummer: true, plechtKleur: '#ff0000',
-    boten: [
-      { zeilnummer: '1166', naam: 'Broeckoordt', bakskleur: '#ffff00' },
     ],
   },
 ];
