@@ -6527,7 +6527,7 @@ export function initModes({ parts, tuig, scene, ui, wrap, config, signal, onResi
     name: shown.name, t: shown.t, total: shown.total, playing: shown.playing, resting: shown.resting, stepping: shown.stepping,
     label: shown.label, index: shown.index, oneWay: Boolean(shown.oneWay),
     heading: Math.sign(shown.direction),                              // which way it is going: +1 on, -1 back
-    steps: shown.steps.map((s) => ({ label: s.label, back: s.back, begin: s.begin, end: s.end, skipped: Boolean(shown.isSkipped?.(s)) })),
+    steps: shown.steps.map((s) => ({ label: s.label, begin: s.begin, end: s.end, skipped: Boolean(shown.isSkipped?.(s)) })),
     // the step on now, what is said about it, and what it is for
     current: shown.current && { label: shown.current.label, tip: shown.current.tip ?? null, waarom: waaromVan((shown.procedure ?? shown).name, shown.label) },
   });

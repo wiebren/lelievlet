@@ -12,8 +12,9 @@ export class Procedure {
   /**
    * name: what the control is called; values: where every value starts;
    * steps: [{ key, to, seconds, label, back, focus }] in the order they are done; `back` names the
-   * step done the other way round (Fok strijken, Fok hijsen), and is the label while it runs
-   * backwards; `focus` lists the ids of the parts to look at while it is stepped through, and
+   * step done the other way round (Fok strijken, Fok hijsen), for Oefenen, where undoing a step is a
+   * move that can be chosen. Run backwards a procedure only goes back in time, through its own steps
+   * (hijsen is a flow of its own), so its label stays `label`; `focus` lists the ids of the parts to look at while it is stepped through, and
    * `camera` ({ positie, doel, kant }, model space), when given, is where to look from instead;
    * `like` names the key of another step whose movement it is framed on; `say` is what is called
    * out as the step begins (a command), and `by` who calls it ('roer', the helmsman, by default);
@@ -140,8 +141,8 @@ export class Procedure {
     return lastBegun(this.steps, at, (s) => this.isSkipped(s));
   }
   get current() { return this.steps[this.index] ?? null; }
-  /** What that step is called, the way it is going. */
-  get label() { const s = this.current; return s ? (this.direction < 0 ? s.back : s.label) : ''; }
+  /** What that step is called - also going back, which is back in time to it, not doing it the other way. */
+  get label() { return this.current?.label ?? ''; }
   get resting() { return !this.playing && (this.t < 1e-6 || this.t > this.total - 1e-6 || Math.abs(this.t - this.commanded) < 1e-6); }
 }
 
@@ -219,5 +220,5 @@ export class Stretch {
     return lastBegun(this.steps, at, (s) => this.isSkipped(s));
   }
   get current() { return this.steps[this.index] ?? null; }
-  get label() { const s = this.current; return s ? (this.direction < 0 ? s.back : s.label) : ''; }
+  get label() { return this.current?.label ?? ''; }
 }

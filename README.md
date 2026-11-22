@@ -723,9 +723,9 @@ Alle waarden lopen soepel naar hun doelwaarde toe, dus elke verandering is een a
   gezet; grootzeil in plooien omlaag terwijl de gaffel langs de mast zakt en vlak wordt gelegd (het bovenlijk blijft aan de gaffel: elk punt van het doek gaat mee met de gaffel, naar gelang hoe hoog het tussen onderlijk en bovenlijk zit), de nok
   van de giek 1.1 graden opgetild in de vork van de mik, kraanlijn strak (`mainBend.warp`); het doek
   opgedoekt tot een rol op de giek (onderdeel "Opgedoekt grootzeil"); drie zeilbinders (dubbel
-  elastiek, twee ballen) om zeil, giek en gaffel. Hijsen laat het achterstevoren lopen; de balk noemt
-  dan elke stap bij zijn omgekeerde naam (Zeilbinders af, Grootzeil hijsen, … Afvallen), en staat hij
-  stil, dan de stap die als laatste gedaan is.
+  elastiek, twee ballen) om zeil, giek en gaffel. Hijsen is een flow van zichzelf (§ 5.2.1). Terug
+  over de balk, slepend of een stap terug, gaat terug in de tijd: de balk noemt de stap van het strijken
+  waar je dan bent, met zijn eigen naam, net als bij elke andere handeling.
 - Met de hand: slepen aan het helmhout stuurt (de roeronderdelen, vlaggenstok en vlag draaien om de
   schuine roerkoning; een tabel zet de peiling van de aanwijzer om in de hoek om die as; het slepen
   wordt in de capture-fase afgevangen zodat OrbitControls het nooit ziet). Een klik op een dol zet hem

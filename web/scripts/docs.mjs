@@ -240,8 +240,8 @@ function manoeuvres() {
     .map(([name, op]) => [name, stepsOf(name), needsAfter(name), op]);
   const ankerRoei = stepsOf('Ankeren roeiend'); const ankerOpRoei = stepsOf('Anker op roeiend');
   const heave = stepsOf('Bijliggen'); const HEAVE_NEEDS = objectOf('HEAVE_NEEDS');
-  const heaveRows = (list, back) => table(['#', 'Stap', 'Eerst gedaan (voor Oefenen)', 'Duur'], list.map((s, i) => [i + 1, back ? s.back : s.label,
-    (back ? [] : (HEAVE_NEEDS[s.key] ?? []).map((k) => list.find((x) => x.key === k).label)).join(', ') || '—', secs(s)]));
+  const heaveRows = (list) => table(['#', 'Stap', 'Eerst gedaan (voor Oefenen)', 'Duur'], list.map((s, i) => [i + 1, s.label,
+    (HEAVE_NEEDS[s.key] ?? []).map((k) => list.find((x) => x.key === k).label).join(', ') || '—', secs(s)]));
   const ankerIn = stepsOf('Ankeren onder zeil'); const ankerInKaal = stepsOf('Ankeren zonder zeilen');
   const ankerUit = stepsOf('Anker op onder zeil'); const ankerUitKaal = stepsOf('Anker op zonder zeilen');
   const turnRound = stepsOf('Kop in de wind');
@@ -552,7 +552,7 @@ Voor Oefenen is fout: de helmstok naar lij voordat de fok bak staat (dan draait 
 Voorwaarden:
 ${pre('bijliggen')}
 
-${heaveRows(heave, false)}
+${heaveRows(heave)}
 
 Weer varen:
 
