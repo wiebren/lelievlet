@@ -240,4 +240,23 @@ export const GROEPEN = [
       { zeilnummer: '227', naam: '', bakskleur: '#db4bc1' },
     ],
   },
+  {
+    groep: 'Scouting NS Rambonnet', plaats: 'Elburg', plaatsOpBoot: '',
+    kleuren: {
+      romp: '#4a0000', berghout: '#ffffff', boeisel: '#0c006b', dolboord: '#ffffff',
+      voordek: '#7a7a7a', achterdek: '#878787', kuip: '#6e6e6e', zwaardkast: '#8f8f8f',
+    },
+    zeilkleur: 0,
+    naamKleur: '#ffffff', plaatsKleur: '#ffffff',
+    spiegelKleur: '#c8c8c8', spiegelTekst: 'Elburg', spiegelTekstKleur: '#4a0000',
+    boten: [
+      { zeilnummer: '2', naam: 'Aegir', bakskleur: '#000000' },
+      { zeilnummer: '125', naam: 'Hanze', bakskleur: '#00ff00' },
+      { zeilnummer: '355', naam: 'Hexa', bakskleur: '#00ffff' },
+      { zeilnummer: '627', naam: 'Marlon', bakskleur: '#ff0000' },
+      { zeilnummer: '628', naam: 'Argo', bakskleur: '#0000ff' },
+      { zeilnummer: '795', naam: 'Ariadne', bakskleur: '#ffff00' },
+      { zeilnummer: '796', naam: 'Flevo', bakskleur: '#ffffff' },
+    ],
+  },
 ];
