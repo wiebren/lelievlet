@@ -3,16 +3,47 @@
 // update on a day that already has one gets nr: 2 (and so on), so it shows as new to who saw the first.
 
 export const UPDATES = [
+  { datum: '2026-11-27', punten: [
+    'Nieuw onder Aanpassen › Bekend: Martin Gasman, Kampen.',
+  ] },
+  { datum: '2026-11-23', punten: [
+    'Nieuw onder Aanpassen › Bekend: Scouting NS Rambonnet, Elburg.',
+  ] },
+  { datum: '2026-11-22', punten: [
+    'Aanpassen › Bekend: de Tasmaniagroep staat nu onder Spijkenisse, met zes boten.',
+    'Sleep of stap je in een manoeuvre terug over de balk, dan noemt de balk elke stap bij zijn eigen naam.',
+  ] },
+  { datum: '2026-11-18', punten: [
+    'Nieuw onder Aanpassen › Bekend: Geuzen, Vlaardingen, met een roodbruin onderwaterschip.',
+  ] },
+  { datum: '2026-10-22', punten: [
+    'Aanpassen › Bekend: Olivier van Noort groep II met alle zeven boten.',
+  ] },
   { datum: '2026-10-21', punten: [
     'Klik je met de zeilen op een riem in de dol, dan ligt hij stil in de dol in plaats van halverwege een haal. Roeien doe je met de zeilen gestreken, of met Boot › Roeien.',
+    'Nieuw onder Aanpassen › Bekend: Pieter Marits, Zwartsluis; Christofoor, Zwolle; Scouting Meppel; en Olivier van Noort groep II, Schoonhoven.',
   ] },
   { datum: '2026-10-20', punten: [
     'Aanpassen › Tekst: maak de tekst groter, met Groter of Grootst. Twee keer tikken zoomt op een telefoon niet meer in, zodat de knoppen in beeld blijven.',
     'Kleuren van je groep melden: geef ook door waar de naam, de plaats en het zeilnummer op jullie boten staan, en meld boten zonder naam of met allemaal dezelfde bakskleur.',
+    'Nieuw onder Aanpassen › Bekend: Tjerk Hiddes, Harderwijk.',
+  ] },
+  { datum: '2026-10-19', punten: [
+    'Nieuw onder Aanpassen › Bekend: Henk Brunt, Kampen.',
+  ] },
+  { datum: '2026-10-18', punten: [
+    'Nieuw onder Aanpassen › Bekend: Fivelgroep, Delfzijl.',
+  ] },
+  { datum: '2026-10-17', punten: [
+    'Nieuw onder Aanpassen › Bekend: Hubertus-Brandaan, Leidschendam-Voorburg.',
+  ] },
+  { datum: '2026-10-14', punten: [
+    'Nieuw onder Aanpassen › Bekend: Klaas Toxopeus, Kortenhoef.',
   ] },
   { datum: '2026-10-13', punten: [
     'Logboek: de ster linksonder houdt bij hoe ver je bent met elke les, hoe je quizzen gingen en wat je hebt ontdekt.',
     'In de app heeft een les, een quiz of een pagina van Zoeken een eigen adres. Deel het, en wie het opent komt op dezelfde plek.',
+    'Nieuw onder Aanpassen › Bekend: Tjarda, Hillegom.',
   ] },
   { datum: '2026-10-12', punten: [
     'Melden: een melding over een quizvraag, je naam en e-mailadres die onthouden worden, en de open kaarten mee op de schermafbeelding.',
@@ -39,6 +70,7 @@ export const UPDATES = [
     'De quiz vraagt ook naar het bovenlijk, het zeilteken, het zeilnummer en de dofthouder. Helmhout heet nu helmstok, hanekam hanenkam en windvaan windvaantje.',
     'Zoeken › Onderdelen vindt ook andere namen, zoals dirk voor de kraanlijn en mastring voor de hommerring.',
     'Bovenaf blijft rustig hangen zolang een manoeuvre wacht, en Updates en Over dit model openen ook tijdens een manoeuvre of quizronde.',
+    'Nieuw onder Aanpassen › Bekend: Tasmania, Rotterdam.',
   ] },
   { datum: '2026-10-10', nr: 2, punten: [
     'Zoeken › Lichten: de lichten van schepen, van voren, opzij en van achteren. Met een schuif van dag naar nacht.',

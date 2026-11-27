@@ -259,4 +259,20 @@ export const GROEPEN = [
       { zeilnummer: '796', naam: 'Flevo', bakskleur: '#ffffff' },
     ],
   },
+  {
+    groep: 'Martin Gasman', plaats: 'Kampen', plaatsOpBoot: '',
+    kleuren: {
+      romp: '#0000ff', berghout: '#ff0000', boeisel: '#ffffff', dolboord: '#0000ff',
+      voordek: '#8f9499', achterdek: '#8f9499', kuip: '#8f9499', zwaardkast: '#8f9499',
+    },
+    bakskleur: '#0000ff', zeilkleur: 10,
+    boten: [
+      { zeilnummer: '465', naam: 'Stormvogel' },
+      { zeilnummer: '585', naam: 'Blue lion' },
+      { zeilnummer: '586', naam: 'Steur' },
+      { zeilnummer: '809', naam: 'Boekanier' },
+      { zeilnummer: '1823', naam: 'Waterman' },
+      { zeilnummer: '1844', naam: 'Stormvogel' },
+    ],
+  },
 ];
